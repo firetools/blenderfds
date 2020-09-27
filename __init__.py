@@ -18,7 +18,7 @@ bl_info = {
     "name": "BlenderFDS",
     "author": "Emanuele Gissi",
     "description": "BlenderFDS, an open graphical editor for the NIST Fire Dynamics Simulator",
-    "blender": (2, 80, 0),
+    "blender": (2, 90, 0),
     "version": (5, 0, 0),
     "location": "File > Export > FDS Case (.fds)",
     "warning": "",
