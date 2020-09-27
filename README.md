@@ -1,4 +1,4 @@
-![BlenderFDS logo](https://github.com/firetools/blenderfds/raw/gh-pages/images/logo.png)
+![BlenderFDS logo](https://github.com/firetools/blenderfds/blob/master/logo.png?raw=true)
 
 # BlenderFDS code repository
 
@@ -7,7 +7,7 @@ The open user interface for Fire Dynamics Simulator (FDS), as an addon for Blend
 The development of BlenderFDS is funded by a grant from the [Italian Ministry of Foreign Affairs and International Cooperation](https://www.esteri.it/mae/en/).
 By the research project *WUIFI-21* (High fidelity computational fluid dynamics modeling of forest fires for Wildland-Urban Interface communities resilience and protection) the participating organizations intend to extend the capabilities of FDS on the prediction of wildland-urban interface fires propagation.
 
-![MAECI logo](https://github.com/firetools/blenderfds/raw/gh-pages/images/logo_MAECI.png)
+![MAECI logo](https://github.com/firetools/blenderfds/blob/master/logo_maeci.jpeg?raw=true)
 
 ## How to install this development version
 
