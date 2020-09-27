@@ -1,0 +1,61 @@
+# Blender
+*.blend1
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Visual Studio Code
+.vscode
+
+# html Doxygen
+doxyfile/html
+
+# verification settings
+verification/verification.sh
+*.log
+
+# FDS calculations
+*.s3d
+*.s3d.sz
+*_cpu.csv
+*_git.txt
+*_hrr.csv
+*_steps.csv
+*_devc.csv
+*.binfo
+*.end
+*.out
+*.sinfo
+*.smv
+*.ge
+*.ge2
+*.bf
+*.bf.bnd
+*.sf
+*.sf.bnd
+*.prt5
+*.prt5.bnd
