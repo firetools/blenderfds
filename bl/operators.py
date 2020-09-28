@@ -354,15 +354,13 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
             return {"CANCELLED"}
         # Manage GEOM
         if ob.bf_namelist_cls == "ON_GEOM" and not ob.hide_render:  # was bf_export
-            check = ob.bf_geom_check_sanity
-            world = True  # not: world = not ob.bf_move_id
             try:
-                fds_verts, fds_faces, fds_surfs, _, msg = geometry.to_fds.ob_to_geom(
+                vs, fs, ss, _, msg = geometry.to_fds.ob_to_geom(
                     context=context,
                     ob=ob,
-                    check=check,
+                    check=ob.bf_geom_check_sanity,
                     check_open=not ob.bf_geom_is_terrain,
-                    world=world,
+                    world=True,
                 )
             except BFException as err:
                 self.report({"ERROR"}, str(err))
@@ -371,12 +369,8 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                 ob_tmp = geometry.utils.get_tmp_object(
                     context, ob, f"{ob.name}_GEOM_tmp"
                 )
-                geometry.from_fds.geom_to_mesh(
-                    fds_verts=fds_verts,
-                    fds_faces=fds_faces,
-                    fds_surfs=fds_surfs,
-                    context=context,
-                    me=ob_tmp.data,
+                geometry.from_fds.geom_to_ob(
+                    context=context, ob=ob_tmp, vs=vs, fs=fs, ss=ss, world=True,
                 )
                 ob_tmp.show_wire = True
                 self.report({"INFO"}, msg)
@@ -399,12 +393,9 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                     context=context, ob=ob, name=f"{ob.name}_XB_tmp"
                 )
                 geometry.from_fds.xbs_to_ob(
-                    xbs=xbs,
-                    context=context,
-                    ob=ob_tmp,
-                    ma=ob.active_material,
-                    bf_xb=ob.bf_xb,
+                    context=context, ob=ob_tmp, xbs=xbs, bf_xb=ob.bf_xb,
                 )
+                ob_tmp.active_material = ob.active_material
                 ob_tmp.show_wire = True
         # XYZ
         if ob.bf_xyz_export and ob.bf_namelist.bf_param_xyz:
@@ -419,9 +410,8 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                 ob_tmp = geometry.utils.get_tmp_object(
                     context=context, ob=ob, name=f"{ob.name}_XYZ_tmp"
                 )
-                geometry.from_fds.xyzs_to_ob(
-                    xyzs=xyzs, context=context, ob=ob_tmp, ma=ob.active_material,
-                )
+                geometry.from_fds.xyzs_to_ob(context=context, ob=ob_tmp, xyzs=xyzs)
+                ob_tmp.active_material = ob.active_material
                 ob_tmp.show_wire = True
         # PB
         if ob.bf_pb_export and ob.bf_namelist.bf_param_pb:
@@ -436,9 +426,8 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                 ob_tmp = geometry.utils.get_tmp_object(
                     context=context, ob=ob, name=f"{ob.name}_PB*_tmp"
                 )
-                geometry.from_fds.pbs_to_ob(
-                    pbs=pbs, context=context, ob=ob_tmp, ma=ob.active_material,
-                )
+                geometry.from_fds.pbs_to_ob(context=context, ob=ob_tmp, pbs=pbs)
+                ob_tmp.active_material = ob.active_material
                 ob_tmp.show_wire = True
         # Close
         w.cursor_modal_restore()
@@ -1002,13 +991,15 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
             )
             print("output: rijk, rxb, mijk, mxb", rijk, rxb, mijk, mxb)  # FIXME
             source_element.bf_mesh_ijk = rijk
-            # FIXME inverse world matrix
-            geometry.from_fds.xbs_bbox_to_mesh(
-                xbs=(rxb,), context=context, me=source_element.data
+            # FIXME inverse world matrix, do not loose matrix as it is now
+            geometry.from_fds.xbs_to_ob(
+                context=context, ob=source_element, xbs=(rxb,), bf_xb="BBOX"
             )
             de.bf_mesh_ijk = mijk
-            # FIXME inverse world matrix
-            geometry.from_fds.xbs_bbox_to_mesh(xbs=(mxb,), context=context, me=de.data)
+            # FIXME inverse world matrix, do not loose matrix as it is now
+            geometry.from_fds.xbs_to_ob(
+                context=context, ob=de, xbs=(mxb,), bf_xb="BBOX"
+            )
             log.debug("\n".join(msgs))
         # Update 3dview
         context.view_layer.update()

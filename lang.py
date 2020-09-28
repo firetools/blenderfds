@@ -1763,7 +1763,6 @@ class OP_XB(BFParamXB):
         ),
     }
     bpy_export = "bf_xb_export"
-    bf_xb_from_fds = None  # auto
 
     def to_fds_param(self, context):
         ob = self.element
@@ -1808,10 +1807,7 @@ class OP_XB(BFParamXB):
 
     def from_fds(self, context, value):
         bf_xb = geometry.from_fds.xbs_to_ob(
-            xbs=(value,),
-            context=context,
-            ob=self.element,
-            bf_xb=self.bf_xb_from_fds,  # auto or forced
+            context=context, ob=self.element, xbs=(value,),
         )
         self.element.bf_xb = bf_xb
         self.element.bf_xb_export = True
@@ -1932,7 +1928,7 @@ class OP_XYZ(BFParamXYZ):
 
     def from_fds(self, context, value):
         bf_xyz = geometry.from_fds.xyzs_to_ob(
-            xyzs=(value,), context=context, ob=self.element,
+            context=context, ob=self.element, xyzs=(value,),
         )
         self.element.bf_xyz = bf_xyz
         self.element.bf_xyz_export = True
@@ -2040,7 +2036,7 @@ class OP_PB(BFParamPB):
 
     def from_fds(self, context, value):
         bf_pb = geometry.from_fds.pbs_to_ob(
-            pbs=((self.axis, value),), context=context, ob=self.element,
+            context=context, ob=self.element, pbs=((self.axis, value),),
         )
         self.element.bf_pb = bf_pb
         self.element.bf_pb_export = True
@@ -2406,8 +2402,13 @@ class OP_GEOM_XB(BFParam):
             raise BFNotImported(self, f"Unsupported XB value <{value}>")
         ob = self.element
         me = ob.data
+        scale_length = context.scene.unit_settings.scale_length
         geometry.from_fds.xbs_bbox_to_mesh(
-            xbs=xbs, context=context, me=me, surf_id=True,
+            context=context,
+            me=me,
+            xbs=xbs,
+            scale_length=scale_length,
+            set_materials=True,
         )
 
     def to_fds_param(self, context):
@@ -2537,10 +2538,9 @@ class OP_GEOM_BINARY_FILE(BFParam):
         self.set_exported(context, value=True)
         # Load .bingeom file and import it
         filepath = self._get_bingeom_filepath(sc=context.scene, ob=self.element)
-        me = self.element.data
         _, vs, fs, ss, _ = io.read_bingeom_file(filepath)
-        geometry.from_fds.geom_to_mesh(
-            fds_verts=vs, fds_faces=fs, fds_surfs=ss, context=context, me=me,
+        geometry.from_fds.geom_to_ob(
+            context=context, ob=self.element, vs=vs, fs=fs, ss=ss
         )
 
 
@@ -2657,11 +2657,11 @@ class ON_GEOM(BFNamelistOb):
             return
         elif p_verts and p_faces_surfs:
             # Treat VERTS and FACES
-            geometry.from_fds.geom_to_mesh(
-                fds_verts=p_verts.value,
-                fds_faces_surfs=p_faces_surfs.value,
+            geometry.from_fds.geom_to_ob(
                 context=context,
-                me=self.element.data,
+                ob=self.element,
+                vs=p_verts.value,
+                fss=p_faces_surfs.value,
             )
         elif p_sphere_origin:
             # Treat SPHERE # FIXME move to sphere_to_mesh

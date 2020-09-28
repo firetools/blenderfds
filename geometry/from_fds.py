@@ -15,86 +15,87 @@ epsilon = 1e-5  # TODO unify epsilon mgmt
 # From GEOM
 
 
-def geom_to_mesh(
-    context,
-    me,
-    fds_verts,
-    fds_faces=None,
-    fds_surfs=None,
-    fds_faces_surfs=None,
-    scale_length=None,
-):
+def geom_to_mesh(context, me, vs, fs=None, ss=None, fss=None, scale_length=None):
     """!
-    Import GEOM into existing Blender Mesh.
+    Import GEOM into Blender Mesh.
     @param context: the blender context.
     @param me: the Blender Mesh.
-    @param fds_verts: the FDS GEOM VERTS vertices.
-    @param fds_faces: the FDS GEOM faces vector.
-    @param fds_surfs: the FDS GEOM surfs vector.
-    @param fds_faces_surfs: the FDS GEOM FACES faces indexes and boundary condition indexes.
+    @param vs: the FDS GEOM VERTS vertices.
+    @param fs: the FDS GEOM faces vector.
+    @param ss: the FDS GEOM surfs vector.
+    @param fss: the FDS GEOM FACES faces indexes and boundary condition indexes.
     @param scale_length: the scale to use.
     """
     # log.debug(f"Importing geom to Mesh <{me.name}>")
-    if not scale_length:
-        scale_length = context.scene.unit_settings.scale_length
-    # Transform fds_faces_surfs to fds_faces and fds_surfs
-    if fds_faces_surfs:
-        if fds_faces or fds_surfs:
+    # Transform fss to fs and ss
+    if fss:
+        if fs or ss:
             raise AssertionError("Set faces and surfs or faces_surfs, not both")
         else:
-            fds_faces, fds_surfs = list(), list()
-            for i in range(0, len(fds_faces_surfs), 4):
-                fds_faces.extend(fds_faces_surfs[i : i + 3])
-                fds_surfs.append(fds_faces_surfs[i + 3])
+            fs, ss = list(), list()
+            for i in range(0, len(fss), 4):
+                fs.extend(fss[i : i + 3])
+                ss.append(fss[i + 3])
     # Check input length
-    if len(fds_verts) % 3:
-        raise BFException(me, f"Bad GEOM: len(fds_verts) is not multiple of 3")
-    if len(fds_faces) % 3:
-        raise BFException(me, f"Bad GEOM: len(fds_faces) is not multiple of 3")
-    if len(fds_surfs) != len(fds_faces) // 3:
-        raise BFException(me, f"Bad GEOM: len(fds_surfs) is not equal to len(faces)")
-    # Create mesh
+    if len(vs) % 3:
+        raise BFException(me, f"Bad GEOM: len(vs) is not multiple of 3")
+    if len(fs) % 3:
+        raise BFException(me, f"Bad GEOM: len(fs) is not multiple of 3")
+    if len(ss) != len(fs) // 3:
+        raise BFException(me, f"Bad GEOM: len(ss) is not equal to len(faces)")
+    # Create new mesh, no addition to existing
     bm = bmesh.new()
-    # No: bm.from_mesh(me), mesh is replaced, not added
-    for i in range(0, len(fds_verts), 3):
+    for i in range(0, len(vs), 3):
         bm.verts.new(
-            (
-                fds_verts[i] / scale_length,
-                fds_verts[i + 1] / scale_length,
-                fds_verts[i + 2] / scale_length,
-            )
+            (vs[i] / scale_length, vs[i + 1] / scale_length, vs[i + 2] / scale_length,)
         )
     bm.verts.ensure_lookup_table()
-    for i in range(0, len(fds_faces), 3):
+    for i in range(0, len(fs), 3):
         bm.faces.new(
             (
-                bm.verts[fds_faces[i] - 1],  # -1 from F90 to py indexes
-                bm.verts[fds_faces[i + 1] - 1],
-                bm.verts[fds_faces[i + 2] - 1],
+                bm.verts[fs[i] - 1],  # -1 from F90 to py indexes
+                bm.verts[fs[i + 1] - 1],
+                bm.verts[fs[i + 2] - 1],
             )
         )
     bm.to_mesh(me)
     bm.free()
     # Check and assign materials to faces
-    if max(fds_surfs) > len(me.materials):  # from F90 to py indexes
+    if max(ss) > len(me.materials):  # from F90 to py indexes
         raise BFException(me, f"Bad GEOM: Wrong len(SURF_ID)")
     for iface, face in enumerate(me.polygons):
-        face.material_index = fds_surfs[iface] - 1  # -1 from F90 to py indexes
+        face.material_index = ss[iface] - 1  # -1 from F90 to py indexes
+
+
+def geom_to_ob(context, ob, vs, fs=None, ss=None, fss=None, scale_length=None):
+    """!
+    Import GEOM into Blender Object.
+    @param context: the blender context.
+    @param ob: the Blender Object.
+    @param vs: the FDS GEOM VERTS vertices.
+    @param fs: the FDS GEOM faces vector.
+    @param ss: the FDS GEOM surfs vector.
+    @param fss: the FDS GEOM FACES faces indexes and boundary condition indexes.
+    @param scale_length: the scale to use.
+    """
+    if not scale_length:
+        scale_length = context.scene.unit_settings.scale_length
+    geom_to_mesh(
+        context, me=ob.data, vs=vs, fs=fs, ss=ss, fss=fss, scale_length=scale_length
+    )
 
 
 # from XB in Blender units
 
 
-def xbs_edges_to_mesh(xbs, context, me, scale_length=None):
+def xbs_edges_to_mesh(context, me, xbs, scale_length):
     """!
     Import xbs edges ((x0,x1,y0,y1,z0,z1,), ...) into existing Blender Mesh.
-    @param xbs: the xbs edges.
     @param context: the Blender context.
     @param me: the Blender Mesh.
+    @param xbs: the xbs edges.
     @param scale_length: the scale to use.
     """
-    if not scale_length:
-        scale_length = context.scene.unit_settings.scale_length
     bm = bmesh.new()
     bm.from_mesh(me)  # add to current mesh
     for xb in xbs:
@@ -106,16 +107,14 @@ def xbs_edges_to_mesh(xbs, context, me, scale_length=None):
     bm.free()
 
 
-def xbs_faces_to_mesh(xbs, context, me, scale_length=None):
+def xbs_faces_to_mesh(context, me, xbs, scale_length):
     """!
     Import xbs faces ((x0,x1,y0,y1,z0,z1,), ...) into existing Blender Mesh.
-    @param xbs: the xbs edges.
     @param context: the Blender context.
     @param me: the Blender Mesh.
+    @param xbs: the xbs edges.
     @param scale_length: the scale to use.
     """
-    if not scale_length:
-        scale_length = context.scene.unit_settings.scale_length
     bm = bmesh.new()
     bm.from_mesh(me)  # add to current mesh
     for xb in xbs:
@@ -142,20 +141,18 @@ def xbs_faces_to_mesh(xbs, context, me, scale_length=None):
     bm.free()
 
 
-def xbs_bbox_to_mesh(xbs, context, me, scale_length=None, surf_id=None):
+def xbs_bbox_to_mesh(context, me, xbs, scale_length, set_materials=False):
     """!
     Import xbs bboxes ((x0,x1,y0,y1,z0,z1,), ...) into existing Blender Mesh.
-    @param xbs: the xbs edges.
     @param context: the Blender context.
     @param me: the Blender Mesh.
+    @param xbs: the xbs edges.
     @param scale_length: the scale to use.
-    @param surf_ids: if True set material_slots to faces
+    @param set_materials: if True set material_slots to faces
     """
-    if not scale_length:
-        scale_length = context.scene.unit_settings.scale_length
     # Set Mesh
     bm = bmesh.new()
-    # bm.from_mesh(me)  # add to current mesh FIXME parameter "add"?
+    # bm.from_mesh(me)  # add to current mesh FIXME parameter "new_mesh"?
     for xb in xbs:
         x0, x1, y0, y1, z0, z1 = (coo / scale_length for coo in xb)
         v000 = bm.verts.new((x0, y0, z0))
@@ -176,7 +173,7 @@ def xbs_bbox_to_mesh(xbs, context, me, scale_length=None, surf_id=None):
     bm.free()
     # Assign material_slots to faces
     n = len(me.materials)
-    if not surf_id or n == 0:
+    if not set_materials or n == 0:
         return
     elif n == 1:  # SURF_ID = 'A'
         for face in me.polygons:
@@ -204,15 +201,14 @@ xbs_to_mesh = {
     "FACES": xbs_faces_to_mesh,
 }
 
-
-def xbs_to_ob(xbs, context, ob, scale_length=None, ma=None, bf_xb=None):
+# FIXME remove bf_xb
+def xbs_to_ob(context, ob, xbs, scale_length=None, bf_xb=None):
     """!
     Import xbs geometry ((x0,x1,y0,y1,z0,z1,), ...) into existing Blender Object.
-    @param xbs: the xbs edges.
     @param context: the Blender context.
     @param ob: the Blender object.
+    @param xbs: the xbs edges.
     @param scale_length: the scale to use.
-    @param ma: the active material.
     @param bf_xb: the xb parameter between BBOX, VOXELS, FACES, PIXELS, EDGES
     @return the new xb parameter between BBOX, VOXELS, FACES, PIXELS, EDGES
     """
@@ -220,28 +216,32 @@ def xbs_to_ob(xbs, context, ob, scale_length=None, ma=None, bf_xb=None):
     if not scale_length:
         scale_length = context.scene.unit_settings.scale_length
     if bf_xb:  # force bf_xb
-        xbs_to_mesh[bf_xb](xbs, context, ob.data, scale_length)
+        xbs_to_mesh[bf_xb](
+            context=context, me=ob.data, xbs=xbs, scale_length=scale_length
+        )
     else:  # auto choose
         try:
             bf_xb = "FACES"
-            xbs_to_mesh[bf_xb](xbs, context, ob.data, scale_length)
-        except:
+            xbs_to_mesh[bf_xb](
+                context=context, me=ob.data, xbs=xbs, scale_length=scale_length
+            )
+        except BFException:
             bf_xb = "BBOX"
-            xbs_to_mesh[bf_xb](xbs, context, ob.data, scale_length)
-    if ma:
-        ob.active_material = ma
+            xbs_to_mesh[bf_xb](
+                context=context, me=ob.data, xbs=xbs, scale_length=scale_length
+            )
     return bf_xb
 
 
 # From XYZ in Blender units
 
 
-def xyzs_vertices_to_mesh(xyzs, context, me, scale_length=None):
+def xyzs_vertices_to_mesh(context, me, xyzs, scale_length=None):
     """!
     Import xyzs vertices ((x0,y0,z0,), ...) into existing Blender Mesh.
-    @param xyzs: the xyzs vertices.
     @param context: the Blender context.
     @param me: the Blender Mesh.
+    @param xyzs: the xyzs vertices.
     @param scale_length: the scale to use.
     """
     if not scale_length:
@@ -256,20 +256,21 @@ def xyzs_vertices_to_mesh(xyzs, context, me, scale_length=None):
     bm.free()
 
 
-def xyzs_to_ob(xyzs, context, ob, scale_length=None, ma=None):
+def xyzs_to_ob(context, ob, xyzs, scale_length=None):
     """!
     Import xyzs vertices ((x0,y0,z0,), ...) into existing Blender Object.
     @param xyzs: the xyzs vertices.
     @param context: the Blender context.
     @param ob: the Blender object.
     @param scale_length: the scale to use.
-    @param ma: the active material.
     @return: the new bf_xyz in CENTER or VERTICES
     """
     # log.debug(f"Importing xyzs to Object <{ob.name}>")
     if not scale_length:
         scale_length = context.scene.unit_settings.scale_length
-    xyzs_vertices_to_mesh(xyzs, context, ob.data, scale_length)
+    xyzs_vertices_to_mesh(
+        context=context, me=ob.data, xyzs=xyzs, scale_length=scale_length
+    )
     # Set center to the first xyz
     try:  # protect from empty
         xyz = Vector(xyzs[0])
@@ -278,8 +279,6 @@ def xyzs_to_ob(xyzs, context, ob, scale_length=None, ma=None):
     else:
         ob.data.transform(Matrix.Translation(-xyz))
         ob.matrix_world = Matrix.Translation(xyz) @ ob.matrix_world
-    if ma:
-        ob.active_material = ma
     if len(xyzs) == 1:
         return "CENTER"
     else:
@@ -289,12 +288,12 @@ def xyzs_to_ob(xyzs, context, ob, scale_length=None, ma=None):
 # From PB
 
 
-def pbs_planes_to_mesh(pbs, context, me, scale_length=None):
+def pbs_planes_to_mesh(context, me, pbs, scale_length=None):
     """!
     Import pbs planes ((0,x3,), (0,x7,), (1,y9,), ...) into existing Blender Mesh.
-    @param pbs: the pbs planes.
     @param context: the Blender context.
     @param me: the Blender Mesh.
+    @param pbs: the pbs planes.
     @param scale_length: the scale to use.
     """
     if not scale_length:
@@ -310,23 +309,20 @@ def pbs_planes_to_mesh(pbs, context, me, scale_length=None):
             xbs.append((-sl, +sl, -sl, +sl, pb[1], pb[1]))  # PBZ is 2
         else:
             raise AssertionError(f"Unrecognized PB* <{pb}>")
-    xbs_faces_to_mesh(xbs, context, me, scale_length)
+    xbs_faces_to_mesh(context=context, me=me, xbs=xbs, scale_length=scale_length)
 
 
-def pbs_to_ob(pbs, context, ob, scale_length=None, ma=None):
+def pbs_to_ob(context, ob, pbs, scale_length=None):
     """!
     Import pbs planes ((0,x3,), (0,x7,), (1,y9,), ...) into existing Blender Object.
-    @param pbs: the pbs planes.
     @param context: the Blender context.
     @param ob: the Blender object.
+    @param pbs: the pbs planes.
     @param scale_length: the scale to use.
-    @param ma: the active material.
     @return "PLANES"
     """
     # log.debug(f"Importing pbs to Object <{ob.name}>")
     if not scale_length:
         scale_length = context.scene.unit_settings.scale_length
-    pbs_planes_to_mesh(pbs, context, ob.data, scale_length)
-    if ma:
-        ob.active_material = ma
+    pbs_planes_to_mesh(context=context, me=ob.data, pbs=pbs, scale_length=scale_length)
     return "PLANES"
