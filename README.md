@@ -1,4 +1,3 @@
-![BlenderFDS logo](https://github.com/firetools/blenderfds/blob/master/logo.png?raw=true)
 
 # BlenderFDS code repository
 
@@ -7,7 +6,7 @@ The open user interface for Fire Dynamics Simulator (FDS), as an addon for Blend
 The development of BlenderFDS is funded by a grant from the [Italian Ministry of Foreign Affairs and International Cooperation](https://www.esteri.it/mae/en/).
 By the research project *WUIFI-21* (High fidelity computational fluid dynamics modeling of forest fires for Wildland-Urban Interface communities resilience and protection) the participating organizations intend to extend the capabilities of FDS on the prediction of wildland-urban interface fires propagation.
 
-![MAECI logo](https://github.com/firetools/blenderfds/blob/master/logo_maeci.jpeg?raw=true)
+<img src="https://github.com/firetools/blenderfds/blob/master/logo.png" height="128"> <img src="https://github.com/firetools/blenderfds/blob/master/logo_maeci.jpeg" height="128">
 
 ## How to install this development version
 
@@ -21,7 +20,7 @@ By the research project *WUIFI-21* (High fidelity computational fluid dynamics m
 
 ## How to stay on the edge of development
 
-1. `git clone` this repository into the `blender/2.80/scripts/addons/blenderfds` directory of your Blender install. No need to zip it.
+1. `git clone` this repository into the `blender/2.9x/scripts/addons/blenderfds` directory of your Blender install. No need to zip it.
 
 2. Launch Blender and open the `Edit > Preferences` menu. Search for the `BlenderFDS` Addon and enable it.
 
