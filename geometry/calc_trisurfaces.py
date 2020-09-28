@@ -280,17 +280,15 @@ def check_intersections(context, ob, other_obs=None, protect=True):
         bpy.ops.object.mode_set(mode="OBJECT")
     epsilon_len = context.scene.bf_config_min_edge_length
     bad_faces = list()
-    bm = utils.get_object_bmesh(context=context, ob=ob, lookup=True)
+    bm = utils.get_object_bmesh(context=context, ob=ob, world=False, lookup=True)
     tree = mathutils.bvhtree.BVHTree.FromBMesh(bm, epsilon=epsilon_len)
     # Get self-intersections
     bad_faces.extend(_get_bm_intersected_faces(bm, tree, tree))
     # Get intersections
     for other_ob in other_obs or tuple():
-        matrix = (
-            ob.matrix_world.inverted() @ other_ob.matrix_world
-        )  # Blender 2.80 matrix multiplication
+        matrix = ob.matrix_world.inverted() @ other_ob.matrix_world
         other_bm = utils.get_object_bmesh(
-            context=context, ob=ob, matrix=matrix, lookup=True
+            context=context, ob=ob, world=False, matrix=matrix, lookup=True
         )
         other_tree = mathutils.bvhtree.BVHTree.FromBMesh(other_bm, epsilon=epsilon_len)
         other_bm.free()

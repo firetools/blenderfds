@@ -3020,7 +3020,7 @@ class OP_MESH_IJK(BFParam):
         ob = self.element
         if not ob.bf_mesh_ijk_export:
             return
-        xbs = geometry.utils.get_bbox_xbs(context=context, ob=ob, world=True,)
+        xbs = geometry.utils.get_bbox_xbs(context=context, ob=ob, world=True)
         (
             has_good_ijk,
             cs,

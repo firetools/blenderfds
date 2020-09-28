@@ -12,7 +12,7 @@ from ..utils import BFException, BFNotImported, is_iterable
 
 
 def get_object_bmesh(
-    context, ob, matrix=None, world=False, triangulate=False, lookup=False
+    context, ob, matrix=None, world=True, triangulate=False, lookup=False
 ):
     """!
     Return evaluated object bmesh.
@@ -143,39 +143,28 @@ def get_material(context, name):
 # Working on bounding box and size
 
 
-def get_bbox_xbs(context, ob, scale_length=None, world=False):
+def get_bbox_xbs(context, ob, scale_length=None, world=True):
     """!
     Get object’s bounding box in xbs format.
     @param context: the Blender context.
     @param ob: the Blender object.
     @param scale_length: the scale to use.
-    @param world: TODO
+    @param world: if True, set bmesh in world coordinates.
     @return the object’s bounding box.
     """
     if not scale_length:
         scale_length = context.scene.unit_settings.scale_length
-    if world:
-        bm = get_object_bmesh(context, ob, world=True)
-        bm.verts.ensure_lookup_table()
-        if not bm.verts:
-            raise BFException(ob, "Empty object, no available geometry")
-        xs, ys, zs = tuple(zip(*(v.co for v in bm.verts)))
-        bm.free()
-        return (
-            min(xs) * scale_length,
-            max(xs) * scale_length,
-            min(ys) * scale_length,
-            max(ys) * scale_length,
-            min(zs) * scale_length,
-            max(zs) * scale_length,
-        )
-    else:
-        bb = ob.bound_box  # needs updated view_layer
-        return (
-            bb[0][0] * scale_length,
-            bb[6][0] * scale_length,
-            bb[0][1] * scale_length,
-            bb[6][1] * scale_length,
-            bb[0][2] * scale_length,
-            bb[6][2] * scale_length,
-        )
+    bm = get_object_bmesh(context, ob, world=world)
+    bm.verts.ensure_lookup_table()
+    if not bm.verts:
+        raise BFException(ob, "Empty object, no available geometry")
+    xs, ys, zs = tuple(zip(*(v.co for v in bm.verts)))
+    bm.free()
+    return (
+        min(xs) * scale_length,
+        max(xs) * scale_length,
+        min(ys) * scale_length,
+        max(ys) * scale_length,
+        min(zs) * scale_length,
+        max(zs) * scale_length,
+    )

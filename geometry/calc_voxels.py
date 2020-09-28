@@ -46,8 +46,8 @@ def get_voxels(context, ob, scale_length=None, world=True):  # FIXME world
     # Align voxels to world origin and add remesh modifier
     _align_remesh_bbox(context, ob_tmp, voxel_size, centered=ob.bf_xb_center_voxels)
     _add_remesh_mod(context, ob_tmp, voxel_size)
-    # Get evaluated bmesh from ob_tmp; it is already in world coo
-    bm = utils.get_object_bmesh(context, ob_tmp, world=False)
+    # Get evaluated bmesh from ob_tmp
+    bm = utils.get_object_bmesh(context, ob_tmp, world=True)
     # Clean up
     bpy.data.meshes.remove(ob_tmp.data, do_unlink=True)  # no mem leaks
     # Check
@@ -173,14 +173,14 @@ def _get_voxel_size(context, ob):
 # temporary object, we can align the voxelization to FDS world origin
 
 
-def _align_remesh_bbox(context, ob, voxel_size, centered=False):
+def _align_remesh_bbox(context, ob, voxel_size, centered=False):  # FIXME world
     """!
     Modify object mesh for remesh voxel safe alignment to world origin or to ob center by inserting 8 vertices.
     @param context: the Blender context.
     @param ob: the Blender object.
     @param voxel_size: the voxel size of the object.
     """
-    bb = utils.get_bbox_xbs(context, ob, scale_length=1.0)  # in world coo
+    bb = utils.get_bbox_xbs(context, ob, scale_length=1.0, world=True)  # in world coo
     # Calc new bbox (in Blender units)
     #           +----+ bb1, pv1
     #           |    |
@@ -558,7 +558,7 @@ def get_pixels(context, ob, scale_length=None, world=True):  # FIXME world
         bpy.data.meshes.remove(ob_copy.data, do_unlink=True)
         raise BFException(ob, "Object is not flat enough.")
     # Get origin for flat xbs
-    bbox = utils.get_bbox_xbs(context, ob_copy, scale_length)
+    bbox = utils.get_bbox_xbs(context, ob_copy, scale_length, world=world)
     flat_origin = (
         (bbox[1] + bbox[0]) / 2.0,
         (bbox[3] + bbox[2]) / 2.0,

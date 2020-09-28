@@ -909,7 +909,7 @@ class OBJECT_OT_bf_set_mesh_cell_size(Operator):
     )
     bf_poisson_restriction: BoolProperty(
         name="Poisson Restriction",
-        description="Respect FDS Poisson solver restriction on IJK value while setting desired cell sizes.\nCell sizes may be set smaller than requested.",
+        description="Respect FDS Poisson solver restriction on IJK value while setting desired cell sizes.",
         default=True,
     )
 
@@ -932,25 +932,26 @@ class OBJECT_OT_bf_set_mesh_cell_size(Operator):
         layout.prop(self, "bf_cell_sizes", text="")
         layout.prop(self, "bf_poisson_restriction")
 
+    def invoke(self, context, event):
+        ob = context.active_object
+        # Set default
+        xbs = geometry.utils.get_bbox_xbs(context=context, ob=ob, world=True)
+        self.bf_cell_sizes = fds.mesh_tools.calc_cell_sizes(
+            ijk=ob.bf_mesh_ijk, xbs=xbs,
+        )
+        # Call dialog
+        wm = context.window_manager
+        return wm.invoke_props_dialog(self)
+
     def execute(self, context):
         ob = context.active_object
         ob.bf_xb, ob.bf_xb_export = "BBOX", True  # TODO should be impossible to change
-        xbs = geometry.utils.get_bbox_xbs(context=context, ob=ob)
+        xbs = geometry.utils.get_bbox_xbs(context=context, ob=ob, world=True)
         ob.bf_mesh_ijk = fds.mesh_tools.calc_ijk(
             xbs=xbs, desired_cs=self.bf_cell_sizes, poisson=self.bf_poisson_restriction
         )
         self.report({"INFO"}, "MESH cell size set")
         return {"FINISHED"}
-
-    def invoke(self, context, event):
-        ob = context.active_object
-        # Set default
-        self.bf_cell_sizes = fds.mesh_tools.calc_cell_sizes(
-            ijk=ob.bf_mesh_ijk, xbs=geometry.utils.get_bbox_xbs(context=context, ob=ob),
-        )
-        # Call dialog
-        wm = context.window_manager
-        return wm.invoke_props_dialog(self)
 
 
 # FIXME FIXME FIXME  align meshes
