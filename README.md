@@ -20,7 +20,7 @@ By the research project *WUIFI-21* (High fidelity computational fluid dynamics m
 
 ## How to stay on the edge of development
 
-1. `git clone` this repository into the `blender/2.80/scripts/addons/blenderfds` directory of your Blender install. No need to zip it.
+1. `git clone` this repository into the `blender/2.9x/scripts/addons/blenderfds` directory of your Blender install. No need to zip it.
 
 2. Launch Blender and open the `Edit > Preferences` menu. Search for the `BlenderFDS` Addon and enable it.
 
