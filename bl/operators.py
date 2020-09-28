@@ -945,7 +945,7 @@ class OBJECT_OT_bf_set_mesh_cell_size(Operator):
 
     def execute(self, context):
         ob = context.active_object
-        ob.bf_xb, ob.bf_xb_export = "BBOX", True  # TODO should be impossible to change
+        ob.bf_xb, ob.bf_xb_export = "BBOX", True
         xbs = geometry.utils.get_bbox_xbs(context=context, ob=ob, world=True)
         ob.bf_mesh_ijk = fds.mesh_tools.calc_ijk(
             xbs=xbs, desired_cs=self.bf_cell_sizes, poisson=self.bf_poisson_restriction
@@ -967,7 +967,7 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
     @classmethod
     def poll(cls, context):
         ob = context.active_object
-        return ob and ob.bf_namelist == "ON_MESH"
+        return ob and ob.bf_namelist_cls == "ON_MESH"
 
     def invoke(self, context, event):  # Ask for confirmation
         wm = context.window_manager
@@ -982,7 +982,7 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
             for ob in context.selected_objects
             if ob.type == "MESH"
             and ob != source_element
-            and ob.bf_namelist == "ON_MESH"
+            and ob.bf_namelist_cls == "ON_MESH"
         )
         if not destination_elements:
             self.report({"WARNING"}, "No destination Object")
@@ -991,7 +991,27 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
             self.report({"WARNING"}, "No source Object")
             return {"CANCELLED"}
         # Align
-        # _bf_props_copy(context, source_element, destination_elements)
+        rijk = source_element.bf_mesh_ijk
+        rxb = geometry.utils.get_bbox_xbs(context, ob=source_element, world=True)
+        for de in destination_elements:
+            mijk = de.bf_mesh_ijk
+            mxb = geometry.utils.get_bbox_xbs(context, ob=de, world=True)
+            print("input: rijk, rxb, mijk, mxb", tuple(rijk), rxb, tuple(mijk), mxb)
+            rijk, rxb, mijk, mxb, msgs = fds.mesh_tools.align_meshes(
+                rijk, rxb, mijk, mxb, poisson=False, protect_rl=False
+            )
+            print("output: rijk, rxb, mijk, mxb", rijk, rxb, mijk, mxb)  # FIXME
+            source_element.bf_mesh_ijk = rijk
+            # FIXME inverse world matrix
+            geometry.from_fds.xbs_bbox_to_mesh(
+                xbs=(rxb,), context=context, me=source_element.data
+            )
+            de.bf_mesh_ijk = mijk
+            # FIXME inverse world matrix
+            geometry.from_fds.xbs_bbox_to_mesh(xbs=(mxb,), context=context, me=de.data)
+            log.debug("\n".join(msgs))
+        # Update 3dview
+        context.view_layer.update()
         self.report({"INFO"}, "MESH Objects aligned")
         return {"FINISHED"}
 

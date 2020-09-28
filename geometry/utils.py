@@ -143,7 +143,7 @@ def get_material(context, name):
 # Working on bounding box and size
 
 
-def get_bbox_xbs(context, ob, scale_length=None, world=True):
+def get_bbox_xbs(context, ob, scale_length=None, world=True):  # FIXME it is xb! not xbs
     """!
     Get object’s bounding box in xbs format.
     @param context: the Blender context.

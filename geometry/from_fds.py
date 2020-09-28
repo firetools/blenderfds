@@ -155,7 +155,7 @@ def xbs_bbox_to_mesh(xbs, context, me, scale_length=None, surf_id=None):
         scale_length = context.scene.unit_settings.scale_length
     # Set Mesh
     bm = bmesh.new()
-    bm.from_mesh(me)  # add to current mesh
+    # bm.from_mesh(me)  # add to current mesh FIXME parameter "add"?
     for xb in xbs:
         x0, x1, y0, y1, z0, z1 = (coo / scale_length for coo in xb)
         v000 = bm.verts.new((x0, y0, z0))
