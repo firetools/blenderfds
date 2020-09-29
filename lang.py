@@ -1815,7 +1815,7 @@ class OP_XB(BFParamXB):
 
 @subscribe
 class OP_XB_BBOX(OP_XB):
-    label = "XB as BBox"
+    label = "XB BBox"
     description = "Export as object bounding box"
     bpy_idname = None
     bpy_prop = None
@@ -1831,9 +1831,10 @@ class OP_XB_BBOX(OP_XB):
 
     def draw(self, context, layout):
         ob = self.element
-        row = layout.row()
+        col = layout.column(align=False, heading="XB")
+        row = col.row(align=True)
         row.active = ob.bf_xb_export
-        row.prop(ob, "bf_xb_export", text="XB as BBox")
+        row.prop(self.element, "bf_xb_export", text="BBox")
 
 
 def update_bf_xyz(ob, context):

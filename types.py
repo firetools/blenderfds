@@ -256,7 +256,7 @@ class BFParam:
             row = col.row(align=True)
             row.active, row.alert = active, alert
             row.prop(self.element, self.bpy_idname, text=self.label)
-        self.draw_operators(context, row)
+        self.draw_operators(context, row)  # along the properties
         return col
 
     def to_fds_param(self, context):
