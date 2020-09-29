@@ -924,10 +924,8 @@ class OBJECT_OT_bf_set_mesh_cell_size(Operator):
     def invoke(self, context, event):
         ob = context.active_object
         # Set default
-        xbs = geometry.utils.get_bbox_xbs(context=context, ob=ob, world=True)
-        self.bf_cell_sizes = fds.mesh_tools.calc_cell_sizes(
-            ijk=ob.bf_mesh_ijk, xbs=xbs,
-        )
+        xb = geometry.utils.get_bbox_xb(context=context, ob=ob, world=True)
+        self.bf_cell_sizes = fds.mesh_tools.calc_cell_sizes(ijk=ob.bf_mesh_ijk, xb=xb,)
         # Call dialog
         wm = context.window_manager
         return wm.invoke_props_dialog(self)
@@ -935,9 +933,9 @@ class OBJECT_OT_bf_set_mesh_cell_size(Operator):
     def execute(self, context):
         ob = context.active_object
         ob.bf_xb, ob.bf_xb_export = "BBOX", True
-        xbs = geometry.utils.get_bbox_xbs(context=context, ob=ob, world=True)
+        xb = geometry.utils.get_bbox_xb(context=context, ob=ob, world=True)
         ob.bf_mesh_ijk = fds.mesh_tools.calc_ijk(
-            xbs=xbs, desired_cs=self.bf_cell_sizes, poisson=self.bf_poisson_restriction
+            xb=xb, desired_cs=self.bf_cell_sizes, poisson=self.bf_poisson_restriction
         )
         self.report({"INFO"}, "MESH cell size set")
         return {"FINISHED"}
@@ -981,10 +979,10 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
             return {"CANCELLED"}
         # Align
         rijk = source_element.bf_mesh_ijk
-        rxb = geometry.utils.get_bbox_xbs(context, ob=source_element, world=True)
+        rxb = geometry.utils.get_bbox_xb(context, ob=source_element, world=True)
         for de in destination_elements:
             mijk = de.bf_mesh_ijk
-            mxb = geometry.utils.get_bbox_xbs(context, ob=de, world=True)
+            mxb = geometry.utils.get_bbox_xb(context, ob=de, world=True)
             print("input: rijk, rxb, mijk, mxb", tuple(rijk), rxb, tuple(mijk), mxb)
             rijk, rxb, mijk, mxb, msgs = fds.mesh_tools.align_meshes(
                 rijk, rxb, mijk, mxb, poisson=False, protect_rl=False

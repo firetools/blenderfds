@@ -88,13 +88,14 @@ def geom_to_ob(context, ob, vs, fs=None, ss=None, fss=None, scale_length=None):
 # from XB in Blender units
 
 
-def xbs_edges_to_mesh(context, me, xbs, scale_length):
+def xbs_edges_to_mesh(context, me, xbs, scale_length, matrix):
     """!
     Import xbs edges ((x0,x1,y0,y1,z0,z1,), ...) into existing Blender Mesh.
     @param context: the Blender context.
     @param me: the Blender Mesh.
     @param xbs: the xbs edges.
     @param scale_length: the scale to use.
+    @param matrix: transform bmesh by matrix before importing.
     """
     bm = bmesh.new()
     bm.from_mesh(me)  # add to current mesh
@@ -103,17 +104,20 @@ def xbs_edges_to_mesh(context, me, xbs, scale_length):
         v0 = bm.verts.new((x0, y0, z0))
         v1 = bm.verts.new((x1, y1, z1))
         bm.edges.new((v0, v1))
+    if matrix:
+        bm.transform(matrix)
     bm.to_mesh(me)
     bm.free()
 
 
-def xbs_faces_to_mesh(context, me, xbs, scale_length):
+def xbs_faces_to_mesh(context, me, xbs, scale_length, matrix):
     """!
     Import xbs faces ((x0,x1,y0,y1,z0,z1,), ...) into existing Blender Mesh.
     @param context: the Blender context.
     @param me: the Blender Mesh.
     @param xbs: the xbs edges.
     @param scale_length: the scale to use.
+    @param matrix: transform bmesh by matrix before importing.
     """
     bm = bmesh.new()
     bm.from_mesh(me)  # add to current mesh
@@ -137,11 +141,13 @@ def xbs_faces_to_mesh(context, me, xbs, scale_length):
         else:
             raise BFException(me, f"Unrecognized face <{xb}> in XB")
         bm.faces.new((v0, v1, v2, v3))
+    if matrix:
+        bm.transform(matrix)
     bm.to_mesh(me)
     bm.free()
 
 
-def xbs_bbox_to_mesh(context, me, xbs, scale_length, set_materials=False):
+def xbs_bbox_to_mesh(context, me, xbs, scale_length, set_materials=False, matrix=None):
     """!
     Import xbs bboxes ((x0,x1,y0,y1,z0,z1,), ...) into existing Blender Mesh.
     @param context: the Blender context.
@@ -149,6 +155,7 @@ def xbs_bbox_to_mesh(context, me, xbs, scale_length, set_materials=False):
     @param xbs: the xbs edges.
     @param scale_length: the scale to use.
     @param set_materials: if True set material_slots to faces
+    @param matrix: transform bmesh by matrix before importing.
     """
     # Set Mesh
     bm = bmesh.new()
@@ -169,6 +176,8 @@ def xbs_bbox_to_mesh(context, me, xbs, scale_length, set_materials=False):
         bm.faces.new((v111, v110, v010, v011))  # +y 3
         bm.faces.new((v000, v010, v110, v100))  # -z 4
         bm.faces.new((v111, v011, v001, v101))  # +z 5
+    if matrix:
+        bm.transform(matrix)
     bm.to_mesh(me)
     bm.free()
     # Assign material_slots to faces
@@ -202,38 +211,51 @@ xbs_to_mesh = {
 }
 
 # FIXME remove bf_xb
-def xbs_to_ob(context, ob, xbs, scale_length=None, bf_xb=None):
+def xbs_to_ob(context, ob, xbs, scale_length=None, bf_xb=None, matrix=None):
     """!
     Import xbs geometry ((x0,x1,y0,y1,z0,z1,), ...) into existing Blender Object.
     @param context: the Blender context.
     @param ob: the Blender object.
     @param xbs: the xbs edges.
     @param scale_length: the scale to use.
-    @param bf_xb: the xb parameter between BBOX, VOXELS, FACES, PIXELS, EDGES
-    @return the new xb parameter between BBOX, VOXELS, FACES, PIXELS, EDGES
+    @param bf_xb: the xb parameter between BBOX, VOXELS, FACES, PIXELS, EDGES.
+    @param matrix: transform bmesh by matrix before importing.
+    @return the new xb parameter between BBOX, VOXELS, FACES, PIXELS, EDGES.
     """
     # log.debug(f"Importing xbs to Object <{ob.name}>")
     if not scale_length:
         scale_length = context.scene.unit_settings.scale_length
     if bf_xb:  # force bf_xb
         xbs_to_mesh[bf_xb](
-            context=context, me=ob.data, xbs=xbs, scale_length=scale_length
+            context=context,
+            me=ob.data,
+            xbs=xbs,
+            scale_length=scale_length,
+            matrix=matrix,
         )
     else:  # auto choose
         try:
             bf_xb = "FACES"
             xbs_to_mesh[bf_xb](
-                context=context, me=ob.data, xbs=xbs, scale_length=scale_length
+                context=context,
+                me=ob.data,
+                xbs=xbs,
+                scale_length=scale_length,
+                matrix=matrix,
             )
         except BFException:
             bf_xb = "BBOX"
             xbs_to_mesh[bf_xb](
-                context=context, me=ob.data, xbs=xbs, scale_length=scale_length
+                context=context,
+                me=ob.data,
+                xbs=xbs,
+                scale_length=scale_length,
+                matrix=matrix,
             )
     return bf_xb
 
 
-# From XYZ in Blender units
+# From XYZ in Blender units  # FIXME matrix, extend
 
 
 def xyzs_vertices_to_mesh(context, me, xyzs, scale_length=None):

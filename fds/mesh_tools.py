@@ -228,32 +228,32 @@ def calc_poisson_ijk(ijk):
     return ijk[0], _n_for_poisson(ijk[1]), _n_for_poisson(ijk[2])
 
 
-def calc_cell_sizes(ijk, xbs):
+def calc_cell_sizes(ijk, xb):
     """!
     Calc MESH cell sizes.
     @param ijk: ijk of the mesh.
-    @param xbs: xbs of the mesh.
+    @param xb: xb of the mesh.
     @return return the MESH cell sizes.
     """
     return (
-        (xbs[1] - xbs[0]) / ijk[0],
-        (xbs[3] - xbs[2]) / ijk[1],
-        (xbs[5] - xbs[4]) / ijk[2],
+        (xb[1] - xb[0]) / ijk[0],
+        (xb[3] - xb[2]) / ijk[1],
+        (xb[5] - xb[4]) / ijk[2],
     )
 
 
-def calc_ijk(xbs, desired_cs, poisson):
+def calc_ijk(xb, desired_cs, poisson):
     """!
     Calc MESH IJK from cell sizes.
-    @param xbs: xbs of the mesh.
+    @param xb: xb of the mesh.
     @param desired_cs: desired cell sizes.
     @param poisson: True for respecting the Poisson constraint.
     @return return the MESH IJK from cell sizes.
     """
     ijk = (
-        round((xbs[1] - xbs[0]) / desired_cs[0]) or 1,
-        round((xbs[3] - xbs[2]) / desired_cs[1]) or 1,
-        round((xbs[5] - xbs[4]) / desired_cs[2]) or 1,
+        round((xb[1] - xb[0]) / desired_cs[0]) or 1,
+        round((xb[3] - xb[2]) / desired_cs[1]) or 1,
+        round((xb[5] - xb[4]) / desired_cs[2]) or 1,
     )
     if poisson:
         return calc_poisson_ijk(ijk)
@@ -261,14 +261,14 @@ def calc_ijk(xbs, desired_cs, poisson):
         return ijk
 
 
-def calc_cell_infos(ijk, xbs):
+def calc_cell_infos(ijk, xb):
     """!
     Calc many cell infos: cell ijk goodness, sizes, count and aspect ratio.
     @param ijk: ijk of the mesh.
-    @param xbs: xbs of the mesh.
+    @param xb: xb of the mesh.
     @return return if cell infos.
     """
-    cs = calc_cell_sizes(ijk, xbs)
+    cs = calc_cell_sizes(ijk, xb)
     has_good_ijk = tuple(ijk) == calc_poisson_ijk(ijk)
     cell_count = ijk[0] * ijk[1] * ijk[2]
     cell_sizes_sorted = sorted(cs)

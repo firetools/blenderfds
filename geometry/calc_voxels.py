@@ -180,31 +180,31 @@ def _align_remesh_bbox(context, ob, voxel_size, centered=False):  # FIXME world
     @param ob: the Blender object.
     @param voxel_size: the voxel size of the object.
     """
-    bb = utils.get_bbox_xbs(context, ob, scale_length=1.0, world=True)  # in world coo
-    # Calc new bbox (in Blender units)
-    #           +----+ bb1, pv1
+    xb = utils.get_bbox_xb(context, ob, scale_length=1.0, world=True)  # in world coo
+    # Calc new xbox (in Blender units)
+    #           +----+ xb1, pv1
     #           |    |
-    #  bb0, pv0 +----+  + origin
+    #  xb0, pv0 +----+  + origin
     # Calc voxel grid origin
     if centered:
         hvs = voxel_size / 2.0
         origin = (
-            (bb[1] + bb[0]) / 2.0 - hvs,
-            (bb[3] + bb[2]) / 2.0 - hvs,
-            (bb[5] + bb[4]) / 2.0 - hvs,
+            (xb[1] + xb[0]) / 2.0 - hvs,
+            (xb[3] + xb[2]) / 2.0 - hvs,
+            (xb[5] + xb[4]) / 2.0 - hvs,
         )
     else:
         origin = 0.0, 0.0, 0.0
     # Calc adimensional coordinates and align to the voxel grid
     pv0 = (
-        floor((bb[0] - origin[0]) / voxel_size),
-        floor((bb[2] - origin[1]) / voxel_size),
-        floor((bb[4] - origin[2]) / voxel_size),
+        floor((xb[0] - origin[0]) / voxel_size),
+        floor((xb[2] - origin[1]) / voxel_size),
+        floor((xb[4] - origin[2]) / voxel_size),
     )
     pv1 = (
-        ceil((bb[1] - origin[0]) / voxel_size),
-        ceil((bb[3] - origin[1]) / voxel_size),
-        ceil((bb[5] - origin[2]) / voxel_size),
+        ceil((xb[1] - origin[0]) / voxel_size),
+        ceil((xb[3] - origin[1]) / voxel_size),
+        ceil((xb[5] - origin[2]) / voxel_size),
     )
     # Set odd number of voxels for better shapes
     pv1 = (
@@ -213,7 +213,7 @@ def _align_remesh_bbox(context, ob, voxel_size, centered=False):  # FIXME world
         pv0[2] + (pv1[2] - pv0[2]) // 2 * 2 + 1,
     )
     # Calc new bounding box
-    bb = (
+    xb = (
         pv0[0] * voxel_size + origin[0],
         pv1[0] * voxel_size + origin[0],
         pv0[1] * voxel_size + origin[1],
@@ -223,14 +223,14 @@ def _align_remesh_bbox(context, ob, voxel_size, centered=False):  # FIXME world
     )
     # Prepare new vertices and insert them
     verts = (
-        (bb[0], bb[2], bb[4]),
-        (bb[0], bb[2], bb[5]),
-        (bb[0], bb[3], bb[4]),
-        (bb[0], bb[3], bb[5]),
-        (bb[1], bb[2], bb[4]),
-        (bb[1], bb[2], bb[5]),
-        (bb[1], bb[3], bb[4]),
-        (bb[1], bb[3], bb[5]),
+        (xb[0], xb[2], xb[4]),
+        (xb[0], xb[2], xb[5]),
+        (xb[0], xb[3], xb[4]),
+        (xb[0], xb[3], xb[5]),
+        (xb[1], xb[2], xb[4]),
+        (xb[1], xb[2], xb[5]),
+        (xb[1], xb[3], xb[4]),
+        (xb[1], xb[3], xb[5]),
     )
     _insert_verts_into_mesh(ob.data, verts)
 
@@ -558,11 +558,11 @@ def get_pixels(context, ob, scale_length=None, world=True):  # FIXME world
         bpy.data.meshes.remove(ob_copy.data, do_unlink=True)
         raise BFException(ob, "Object is not flat enough.")
     # Get origin for flat xbs
-    bbox = utils.get_bbox_xbs(context, ob_copy, scale_length, world=world)
+    xb = utils.get_bbox_xb(context, ob_copy, scale_length, world=world)
     flat_origin = (
-        (bbox[1] + bbox[0]) / 2.0,
-        (bbox[3] + bbox[2]) / 2.0,
-        (bbox[5] + bbox[4]) / 2.0,
+        (xb[1] + xb[0]) / 2.0,
+        (xb[3] + xb[2]) / 2.0,
+        (xb[5] + xb[4]) / 2.0,
     )
     # Add solidify modifier
     _add_solidify_mod(context, ob_copy, voxel_size)

@@ -1837,8 +1837,7 @@ class OP_XB_BBOX(OP_XB):
 
 
 def update_bf_xyz(ob, context):
-    # Remove cache and tmp objects
-    ob["ob_to_xyzs_cache"] = None
+    # Remove tmp objects
     geometry.utils.rm_tmp_objects()
     # Prevent double multiparam
     if ob.bf_xyz == "VERTICES" and ob.bf_xyz_export:
@@ -1946,8 +1945,7 @@ class OP_XYZ_center(OP_XYZ):
 
 
 def update_bf_pb(ob, context):
-    # Remove cache and tmp objects
-    ob["ob_to_pbs_cache"] = None
+    # Remove tmp objects
     geometry.utils.rm_tmp_objects()
     # Prevent double multiparam
     if ob.bf_pb == "PLANES" and ob.bf_pb_export:
@@ -3003,13 +3001,13 @@ class OP_MESH_IJK(BFParam):
     def draw(self, context, layout):
         ob = context.object
         col = layout.column()
-        xbs = geometry.utils.get_bbox_xbs(context=context, ob=ob, world=True)
+        xb = geometry.utils.get_bbox_xb(context=context, ob=ob, world=True)
         (
             has_good_ijk,
             cs,
             cell_count,
             cell_aspect_ratio,
-        ) = fds.mesh_tools.calc_cell_infos(ijk=ob.bf_mesh_ijk, xbs=xbs)
+        ) = fds.mesh_tools.calc_cell_infos(ijk=ob.bf_mesh_ijk, xb=xb)
         col.label(text=f"Cell Size: {cs[0]:.3f}m x {cs[1]:.3f}m x {cs[2]:.3f}m")
         col.label(
             text=f"Cell Qty: {cell_count} | Aspect: {cell_aspect_ratio:.1f} | Poisson: {has_good_ijk and 'Yes' or 'No'}"
@@ -3020,13 +3018,13 @@ class OP_MESH_IJK(BFParam):
         ob = self.element
         if not ob.bf_mesh_ijk_export:
             return
-        xbs = geometry.utils.get_bbox_xbs(context=context, ob=ob, world=True)
+        xb = geometry.utils.get_bbox_xb(context=context, ob=ob, world=True)
         (
             has_good_ijk,
             cs,
             cell_count,
             cell_aspect_ratio,
-        ) = fds.mesh_tools.calc_cell_infos(ijk=ob.bf_mesh_ijk, xbs=xbs)
+        ) = fds.mesh_tools.calc_cell_infos(ijk=ob.bf_mesh_ijk, xb=xb)
         msg = f"MESH Cell Size: {cs[0]:.3f} m, {cs[1]:.3f} m, {cs[2]:.3f} m | Qty: {cell_count} | Aspect: {cell_aspect_ratio:.1f} | Poisson: {has_good_ijk and 'Yes' or 'No'}"
         return FDSParam(fds_label="IJK", value=ob.bf_mesh_ijk, msg=msg)
 

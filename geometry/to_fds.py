@@ -88,8 +88,8 @@ def _ob_to_xbs_bbox(context, ob, scale_length, world):
     @param world: True to return the object in world coordinates.
     @return xbs notation (bounding box) and any error message: ((x0,x1,y0,y1,z0,z1,), ...), 'Msg'.
     """
-    xbs = list((utils.get_bbox_xbs(context, ob, scale_length, world=world),))
-    msg = str()
+    xb = utils.get_bbox_xb(context, ob, scale_length, world=world)
+    xbs, msg = list((xb,)), str()
     return xbs, msg
 
 
