@@ -978,25 +978,27 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
             self.report({"WARNING"}, "No source Object")
             return {"CANCELLED"}
         # Align
-        rijk = source_element.bf_mesh_ijk
+        rijk = source_element.bf_mesh_ijk  # ref ijk
         rxb = geometry.utils.get_bbox_xb(context, ob=source_element, world=True)
         for de in destination_elements:
             mijk = de.bf_mesh_ijk
             mxb = geometry.utils.get_bbox_xb(context, ob=de, world=True)
-            print("input: rijk, rxb, mijk, mxb", tuple(rijk), rxb, tuple(mijk), mxb)
             rijk, rxb, mijk, mxb, msgs = fds.mesh_tools.align_meshes(
                 rijk, rxb, mijk, mxb, poisson=False, protect_rl=False
             )
-            print("output: rijk, rxb, mijk, mxb", rijk, rxb, mijk, mxb)  # FIXME
             source_element.bf_mesh_ijk = rijk
-            # FIXME inverse world matrix, do not loose matrix as it is now
+            matrix = source_element.matrix_world.invert()
             geometry.from_fds.xbs_to_ob(
-                context=context, ob=source_element, xbs=(rxb,), bf_xb="BBOX"
+                context=context,
+                ob=source_element,
+                xbs=(rxb,),
+                bf_xb="BBOX",
+                matrix=matrix,
             )
             de.bf_mesh_ijk = mijk
-            # FIXME inverse world matrix, do not loose matrix as it is now
+            matrix = de.matrix_world.invert()
             geometry.from_fds.xbs_to_ob(
-                context=context, ob=de, xbs=(mxb,), bf_xb="BBOX"
+                context=context, ob=de, xbs=(mxb,), bf_xb="BBOX", matrix=matrix,
             )
             log.debug("\n".join(msgs))
         # Update 3dview
