@@ -370,7 +370,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                     context, ob, f"{ob.name}_GEOM_tmp"
                 )
                 geometry.from_fds.geom_to_ob(
-                    context=context, ob=ob_tmp, vs=vs, fs=fs, ss=ss, world=True,
+                    context=context, ob=ob_tmp, vs=vs, fs=fs, ss=ss
                 )
                 ob_tmp.show_wire = True
                 self.report({"INFO"}, msg)
@@ -1061,7 +1061,7 @@ class _bf_set_geoloc:
         """
         return 0.0, 0.0, 0.0
 
-    def _set_loc(self, context, x, y, z):
+    def _set_loc(self, context, xyz):
         """!
         Placeholder method to set the XYZ location
         @param context: the Blender context.
@@ -1125,27 +1125,12 @@ class SCENE_OT_bf_set_cursor_geoloc(Operator, _bf_set_geoloc):
 
     @classmethod
     def poll(cls, context):
-        """!
-        Test if the operator can be called or not..
-        @param context: the Blender context.
-        @return True if operator can be called, False otherwise.
-        """
         return context.scene.cursor
 
     def _get_loc(self, context):
-        """!
-        Get the current 3D cursor location.
-        @param context: the Blender context.
-        @return xyz location.
-        """
         return context.scene.cursor.location
 
     def _set_loc(self, context, xyz):
-        """!
-        Set the current 3D cursor location.
-        @param context: the Blender context.
-        @param xyz location.
-        """
         context.scene.cursor.location = xyz
 
 
@@ -1159,28 +1144,12 @@ class SCENE_OT_bf_set_ob_geoloc(Operator, _bf_set_geoloc):
 
     @classmethod
     def poll(cls, context):
-        """!
-        Test if the operator can be called or not..
-        @param context: the Blender context.
-        @return True if operator can be called, False otherwise.
-        """
         return context.active_object
 
     def _get_loc(self, context):
-        """!
-        Get the active Object location.
-        @param context: the Blender context.
-        @return xyz location
-        """
         return context.active_object.location
 
     def _set_loc(self, context, xyz):
-        """!
-        Set the active object location.
-        @param context: the Blender context.
-        @param xyz location.
-        """
-        # redefine
         context.active_object.location = xyz
 
 

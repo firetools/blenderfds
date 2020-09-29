@@ -331,7 +331,9 @@ def pbs_planes_to_mesh(context, me, pbs, scale_length=None):
             xbs.append((-sl, +sl, -sl, +sl, pb[1], pb[1]))  # PBZ is 2
         else:
             raise AssertionError(f"Unrecognized PB* <{pb}>")
-    xbs_faces_to_mesh(context=context, me=me, xbs=xbs, scale_length=scale_length)
+    xbs_faces_to_mesh(
+        context=context, me=me, xbs=xbs, scale_length=scale_length, matrix=None
+    )
 
 
 def pbs_to_ob(context, ob, pbs, scale_length=None):
