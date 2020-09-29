@@ -3030,24 +3030,6 @@ class OP_MESH_IJK(BFParam):
 
 
 @subscribe
-class OP_MESH_MPI_PROCESS(BFParam):
-    """!
-    Blender representation of the MPI_PROCESS parameter, the assigned to given MPI process (Starting from 0.).
-    """
-
-    label = "MPI_PROCESS"
-    description = "Assigned to given MPI process (Starting from 0.)"
-    fds_label = "MPI_PROCESS"
-    fds_default = 0
-    bpy_type = Object
-    bpy_idname = "bf_mesh_mpi_process"
-    bpy_prop = IntProperty
-    bpy_other = {"min": 0}
-    bpy_export = "bf_mesh_mpi_process_export"
-    bpy_export_default = False
-
-
-@subscribe
 class ON_MESH(BFNamelistOb):
     """!
     Blender representation of the MESH namelist.
@@ -3057,7 +3039,7 @@ class ON_MESH(BFNamelistOb):
     description = "Domain of simulation"
     enum_id = 1014
     fds_label = "MESH"
-    bf_params = OP_ID, OP_FYI, OP_MESH_IJK, OP_MESH_MPI_PROCESS, OP_XB_BBOX, OP_other
+    bf_params = OP_ID, OP_FYI, OP_MESH_IJK, OP_XB_BBOX, OP_other
     bf_other = {"appearance": "WIRE"}
 
     def draw_operators(self, context, layout):
