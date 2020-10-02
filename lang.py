@@ -1837,6 +1837,98 @@ class OP_XB_BBOX(OP_XB):
         row.prop(self.element, "bf_xb_export", text="BBox")
 
 
+# FIXME FIXME FIXME MESH split
+
+
+@subscribe
+class OP_MESH_XB_BBOX(OP_XB):
+    label = "Export XB"
+    description = "Export as object bounding box"
+    bpy_idname = None
+    bpy_prop = None
+
+    def to_fds_param(self, context):
+        ob = self.element
+        ob.bf_xb = "BBOX"
+        if not ob.bf_xb_export:
+            return
+        # Compute
+        xbs, _ = geometry.to_fds.ob_to_xbs(context, ob)
+        return FDSParam(fds_label="XB", value=xbs[0], precision=6)
+
+    def to_fds_param(self, context):
+        ob = self.element
+        if not ob.bf_xb_export:
+            return
+        # Compute
+        ob.bf_xb = "BBOX"  # len(xbs) == 1
+        xbs, msg = geometry.to_fds.ob_to_xbs(context, ob)
+        # Split FIXME FIXME FIXME
+        if (
+            ob.bf_mesh_ijk_export and ob.bf_mesh_ijk_split_export
+        ):  # FIXME new properties
+            # Split ijk
+            ijk = ob.bf_mesh_ijk
+            ijk_split = ob.bf_mesh_ijk_split
+            ijk_first = (
+                ijk[0] // ijk_split[0],
+                ijk[1] // ijk_split[1],
+                ijk[2] // ijk_split[2],
+            )
+            ijk_last = (
+                ijk[0] - ijk_first[0] * ijk_split[0],
+                ijk[1] - ijk_first[1] * ijk_split[1],
+                ijk[2] - ijk_first[2] * ijk_split[2],
+            )
+            # Split xbs
+
+        # Single param
+        if len(xbs) == 1:
+            return FDSParam(fds_label="XB", value=xbs[0], precision=6)
+        # Multi param, prepare new ID
+        n = ob.name
+        suffix = self.element.bf_id_suffix
+        if suffix == "IDI":
+            ids = (f"{n}_{i}" for i, _ in enumerate(xbs))
+        elif suffix == "IDX":
+            ids = (f"{n}_x{xb[0]:+.3f}" for xb in xbs)
+        elif suffix == "IDY":
+            ids = (f"{n}_y{xb[2]:+.3f}" for xb in xbs)
+        elif suffix == "IDZ":
+            ids = (f"{n}_z{xb[4]:+.3f}" for xb in xbs)
+        elif suffix == "IDXY":
+            ids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}" for xb in xbs)
+        elif suffix == "IDXZ":
+            ids = (f"{n}_x{xb[0]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
+        elif suffix == "IDYZ":
+            ids = (f"{n}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
+        elif suffix == "IDXYZ":
+            ids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
+        else:
+            raise AssertionError(f"Unknown suffix <{suffix}>")
+        # Set ijks
+        ijks = (ijk_first for xb in xbs)
+        ijks[-1] = ijk_last
+        # Prepare multi fds_param
+        result = tuple(
+            (
+                FDSParam(fds_label="ID", value=hid),
+                FDSParam(fds_label="IJK", value=ijk),
+                FDSParam(fds_label="XB", value=xb, precision=6),
+            )
+            for hid, ijk, xb in zip(ids, ijks, xbs)
+        )
+        # Send message
+        result[0][0].msg = msg
+        return result
+
+    def draw(self, context, layout):
+        ob = self.element
+        row = layout.row()
+        row.active = ob.bf_xb_export
+        row.prop(ob, "bf_xb_export", text="XB as BBox")
+
+
 def update_bf_xyz(ob, context):
     # Remove tmp objects
     geometry.utils.rm_tmp_objects()
