@@ -1,5 +1,5 @@
 """!
-BlenderFDS, preferences panel
+BlenderFDS, preferences panel.
 """
 
 import bpy

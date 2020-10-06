@@ -15,7 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 """!
-Extension of Blender types
+BlenderFDS, extension of Blender types.
 """
 
 import bpy

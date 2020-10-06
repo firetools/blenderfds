@@ -15,7 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 """!
-General utilities and exception types
+BlenderFDS, general utilities and exception types.
 """
 
 

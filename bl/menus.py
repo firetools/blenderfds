@@ -1,5 +1,5 @@
 """!
-BlenderFDS, import/export menu panel
+BlenderFDS, import/export menu panel.
 """
 
 import os

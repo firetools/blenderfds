@@ -15,7 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 """!
-Blender to FDS interface metaclasses
+BlenderFDS, Blender to FDS interface metaclasses.
 """
 
 import re, os.path, logging

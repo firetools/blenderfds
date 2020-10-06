@@ -15,7 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 """!
-Geographic information system: original code from https://github.com/Turbo87/utm
+BlenderFDS, Geographic information system: original code from https://github.com/Turbo87/utm
 - simplified version that only handle utm zones (and not latitude bands from MGRS grid)
 - reverse coord order : latlon --> lonlat
 - add support for UTM EPSG codes

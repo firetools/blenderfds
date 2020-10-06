@@ -1,3 +1,7 @@
+"""!
+BlenderFDS, FDS MOVE tools.
+"""
+
 # FDS MOVE parameter to Blender transformation matrix and back
 
 from ..types import FDSNamelist, FDSParam

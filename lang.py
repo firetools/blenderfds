@@ -15,7 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 """!
-Blender to FDS interface classes
+BlenderFDS, Blender to FDS interface classes.
 """
 
 import re, os.path, logging, math  # FIXME remove math with CYL
