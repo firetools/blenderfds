@@ -14,6 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+"""!
+General utilities and exception types
+"""
+
 
 def is_iterable(var):
     """!
@@ -33,7 +37,8 @@ def is_iterable(var):
         return False
     return True
 
-    # BF specific exception
+
+# BF specific exceptions
 
 
 class BFException(Exception):

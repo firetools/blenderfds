@@ -14,6 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+"""!
+Extension of Blender types
+"""
+
 import bpy
 from bpy.types import Material, Scene, Object, Collection
 
@@ -25,8 +29,6 @@ from .types import FDSCase
 from .utils import BFException, BFNotImported
 
 log = logging.getLogger(__name__)
-
-# Extension of Blender types
 
 # bf_namelist: bf_params -> fds_param
 # material: bf_namelist or None -> fds_namelist or None -> line
