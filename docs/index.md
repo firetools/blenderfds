@@ -9,15 +9,15 @@
 
 <br><br>
 
-## BlenderFDS is a [Blender](http://www.blender.org/) addon
-
-BlenderFDS is developed in Python as a Blender addon.
-
-[Blender](http://www.blender.org/) is the free and open source 3D creation suite.
-It supports the entirety of the 3D pipeline, BlenderFDS uses its 3D modeling tools.
+## Full control over the FDS input file
 
 BlenderFDS let the user import and export the FDS input file, under full control,
 while easying geometric data entry with powerful 3D editing tools.
+
+BlenderFDS is developed in Python as a [Blender](http://www.blender.org/) addon.
+
+[Blender](http://www.blender.org/) is the free and open source 3D creation suite.
+It supports the entirety of the 3D pipeline, BlenderFDS uses its 3D modeling tools.
 
 ## What is NIST FDS? 
 
