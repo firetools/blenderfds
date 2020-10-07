@@ -25,7 +25,7 @@ with an emphasis on smoke and heat transport from fires.
 ## Full control over the FDS input file
 
 BlenderFDS let the user import and export the FDS input file, under full control,
-while easying geometric data entry.
+while easying geometric data entry with powerful 3D editing tools.
 
 ## Other open source tools for FDS
 
@@ -36,7 +36,18 @@ The [qgis2fds](https://github.com/firetools/qgis2fds/wiki) is a [QGIS](http://ww
 The development of BlenderFDS is funded by a grant from
 the [Italian Ministry of Foreign Affairs and International Cooperation](https://www.esteri.it/).
 
+![MAECI](https://github.com/firetools/qgis2fds/wiki/images/MAECI.png)
+
 By the research project WUIFI-21 (High fidelity computational fluid dynamics modeling of forest fires for Wildland-Urban Interface communities resilience and protection) the participating organizations intend to extend the capabilities of FDS on the prediction of wildland-urban interface fires propagation.
 
-## Disclaimer
+## License
 
+BlenderFDS is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but without any warranty.
+
+See the [GNU General Public License](https://www.gnu.org/licenses/gpl-3.0.en.html) for more details.
