@@ -1,7 +1,7 @@
 theme: jekyll-theme-minimal
 
 title: BlenderFDS
-description: The open user interface for the [NIST Fire Dynamics Simulator (FDS)](https://pages.nist.gov/fds-smv/), a computational fluid dynamics model of fire-driven fluid flow.
-logo: ../logo.png
-show_downloads: true
+description: The open user interface for the <a href="https://pages.nist.gov/fds-smv/">NIST Fire Dynamics Simulator (FDS)</a>, a computational fluid dynamics model of fire-driven fluid flow.
+logo: logo.png
+show_downloads: false
 # google_analytics: [Your Google Analytics tracking ID]
