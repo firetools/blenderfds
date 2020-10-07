@@ -1,13 +1,14 @@
 
 <header>
 <ul class="downloads">
-    <li><a href="https://github.com/firetools/blenderfds/wiki">Read the<strong>documentation</strong></a></li>
-    <li><a href="https://groups.google.com/g/blenderfds">Discuss in the<strong>user group</strong></a></li>
+    <li><a href="https://github.com/firetools/blenderfds/wiki">Read the<strong>doc</strong></a></li>
+    <li><a href="https://groups.google.com/g/blenderfds">Ask in the<strong>user group</strong></a></li>
     <li><a href="https://github.com/firetools/blenderfds/issues">Submit an<strong>issue</strong></a></li>
 </ul>
 </header>
+<br>
 
-## BlenderFDS, the open graphical interface for NIST FDS 
+## BlenderFDS, the open user interface for NIST FDS 
 
 Fire Dynamics Simulator (FDS) is a large-eddy simulation (LES) code for low-speed flows,
 with an emphasis on smoke and heat transport from fires.
