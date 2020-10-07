@@ -1,6 +1,17 @@
+
+## Open graphical interface for NIST FDS 
+
+Fire Dynamics Simulator (FDS) is a large-eddy simulation (LES) code for low-speed flows,
+with an emphasis on smoke and heat transport from fires.
+
+## Based on [Blender](http://www.blender.org/)
+
+BlenderFDS is developed in Python as an addon of Blender.
+
+[Blender](http://www.blender.org/) is the free and open source 3D creation suite.
+It supports the entirety of the 3D pipeline, BlenderFDS uses the modeling tools.
+
+## Full control over the FDS input file
+
 BlenderFDS let the user keep the exported FDS input file under full control,
 while easying geometric data entry.
-
-Based on [Blender](http://www.blender.org/), an open source 3D content creation suite.
-
-# Full control over the FDS input file
