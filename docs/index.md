@@ -20,3 +20,10 @@ while easying geometric data entry.
 [Click me](http://www.google.com){: .btn}
 
 <button name="button" onclick="http://www.google.com">Click me</button>
+
+<ul class="downloads">
+    <li><a href="https://github.com/pages-themes/minimal/zipball/master">Download <strong>Install</strong></a></li>
+    <li><a href="https://github.com/pages-themes/minimal/zipball/master">Download <strong>Learn</strong></a></li>
+    <li><a href="https://github.com/pages-themes/minimal/tarball/master">Download <strong>Discuss</strong></a></li>
+    <li><a href="https://github.com/pages-themes/minimal/tarball/master">Download <strong>Issues</strong></a></li>
+</ul>
