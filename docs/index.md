@@ -1,13 +1,13 @@
+# Work in progress
+
 # BlenderFDS is flexible.
 
-This is a test website.
+The open user interface for the [NIST Fire Dynamics Simulator (FDS)](https://pages.nist.gov/fds-smv/), a computational fluid dynamics model of fire-driven fluid flow.
 
-Please, be patient.
-I am preparing the release of the new BlenderFDS for Blender 2.9x, ready for FDS 7.
+# Full control over the FDS input file
 
-The open user interface for the NIST Fire Dynamics Simulator (FDS) [NIST Fire Dynamics Simulator (FDS)](https://pages.nist.gov/fds-smv/).
+BlenderFDS let the user keep the exported FDS input file under full control, while easying geometric data entry.
 
- * **Learn** how to use BlenderFDS on the wiki pages, listed on the right.
- * **Discuss** about its usage on the [BlenderFDS discussion group](https://groups.google.com/g/blenderfds).
- * File **issues** on the [issue tracker](https://github.com/firetools/blenderfds/issues).
+BlenderFDS is based on [Blender](http://www.blender.org/),
+an open source 3D content creation suite.
 
