@@ -1,6 +1,5 @@
 # TODO
 
-New BlenderFDS website with MAECI logo
 
 user doc (WUIFI-21)
 
@@ -21,8 +20,9 @@ progress_end()
 
 # DONE
 
-Split extensions from lang (name?)
+New BlenderFDS website with MAECI logo
 
+Split extensions from lang (name?)
 
 Explore app template
 https://docs.blender.org/manual/en/latest/advanced/app_templates.html#app-templates
