@@ -13,15 +13,16 @@
 
 BlenderFDS lets the user import and export the FDS input file, under full user control,
 while easying geometric data entry with powerful 3D editing tools.
-
 BlenderFDS is developed in Python as a [Blender](http://www.blender.org/) addon,
 and it is fully scriptable.
+
+## What is Blender?
 
 [Blender](http://www.blender.org/) is the free and open source 3D creation suite.
 It supports the entirety of the 3D pipeline from modelling to visualisation,
 and BlenderFDS makes use of its 3D modeling tools.
 
-## What is FDS? 
+## What is FDS?
 
 [NIST Fire Dynamics Simulator (FDS)](https://pages.nist.gov/fds-smv/)
 is a large-eddy simulation (LES) code for low-speed flows,
@@ -32,7 +33,7 @@ with an emphasis on smoke and heat transport from fires.
 The development of BlenderFDS is funded by a grant from
 the [Italian Ministry of Foreign Affairs and International Cooperation](https://www.esteri.it/).
 
-![MAECI](https://github.com/firetools/blenderfds/raw/master/logo_maeci.png)
+![MAECI](https://github.com/firetools/blenderfds/raw/master/logo_maeci.jpeg)
 
 ## A family of open tools for FDS
 
