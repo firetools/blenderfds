@@ -33,12 +33,15 @@ with an emphasis on smoke and heat transport from fires.
 The development of BlenderFDS is funded by a grant from
 the [Italian Ministry of Foreign Affairs and International Cooperation](https://www.esteri.it/).
 
-![MAECI](https://github.com/firetools/blenderfds/raw/master/logo_maeci.jpeg)
+![MAECI](https://github.com/firetools/blenderfds/wiki/images/logo_maeci.jpeg)
 
 ## A family of open tools for FDS
 
-[qgis2fds](https://github.com/firetools/qgis2fds/wiki) is an open [QGIS](http://www.qgis.org) plugin
+Another companion tool is [qgis2fds](https://github.com/firetools/qgis2fds/wiki), an open [QGIS](http://www.qgis.org) plugin
 that exports terrains and landuse for wildfire simulation and atmospheric dispersion of fire pollutants.
+The resulting FDS file can be imported to BlenderFDS for further customization.
+
+![qgis2fds](https://github.com/firetools/blenderfds/wiki/images/web/qgis2fds-blenderfds.gif)
 
 ## License
 
