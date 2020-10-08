@@ -11,7 +11,7 @@
 
 ## BlenderFDS, full control over the FDS input file
 
-BlenderFDS let the user import and export the FDS input file, under full user control,
+BlenderFDS lets the user import and export the FDS input file, under full user control,
 while easying geometric data entry with powerful 3D editing tools.
 
 BlenderFDS is developed in Python as a [Blender](http://www.blender.org/) addon,
