@@ -1,14 +1,7 @@
-# *BlenderFDS* code repository
+![](https://github.com/firetools/blenderfds/wiki/images/logo.png)
 
-This is the open user interface for [NIST Fire Dynamics Simulator (FDS)](https://pages.nist.gov/fds-smv/), as an addon for [Blender](http://www.blender.org).
+This is the repository home page of *BlenderFDS*, the open user interface for
+the [NIST Fire Dynamics Simulator (FDS)](https://pages.nist.gov/fds-smv/).
 
- * **Learn** how to use this tool on the [wiki pages](https://github.com/firetools/blenderfds/wiki).
- * **Discuss** about its usage on its [discussion group](https://groups.google.com/g/blenderfds).
- * File **issues** on the [issue tracker](https://github.com/firetools/blenderfds/issues). 
-
----
-
-The development of *BlenderFDS* is funded by a grant from the [Italian Ministry of Foreign Affairs and International Cooperation](https://www.esteri.it/mae/en/).
-By the research project *WUIFI-21* (High fidelity computational fluid dynamics modeling of forest fires for Wildland-Urban Interface communities resilience and protection) the participating organizations intend to extend the capabilities of FDS on the prediction of wildland-urban interface fires propagation.
-
-![MAECI](https://github.com/firetools/qgis2fds/wiki/images/MAECI.png)
+| [Read the<br>wiki doc](https://github.com/firetools/blenderfds/wiki) | [Ask a question on the<br>discussion grup](https://groups.google.com/g/blenderfds) | [Submit an<br>issue](https://github.com/firetools/blenderfds/issues) |
+| :---: | :---: | :---: |
