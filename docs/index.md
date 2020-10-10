@@ -29,9 +29,9 @@ BlenderFDS is developed in Python
 as a free and open source [Blender](http://www.blender.org/) addon,
 and it is fully scriptable.
 
-BlenderFDS is available for MS Windows, MacOSX, Linux.
+BlenderFDS is available for [MS Windows, MacOSX, Linux](https://github.com/firetools/blenderfds/wiki/Installing).
 
-![](https://github.com/firetools/blenderfds/wiki/images/web/win_mac_linux.png)
+[![](https://github.com/firetools/blenderfds/wiki/images/web/win_mac_linux.png)](https://github.com/firetools/blenderfds/wiki/Installing)
 
 ## What is Blender?
 
