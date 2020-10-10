@@ -38,11 +38,13 @@ def geom_to_mesh(context, me, vs, fs=None, ss=None, fss=None, scale_length=None)
                 ss.append(fss[i + 3])
     # Check input length
     if len(vs) % 3:
-        raise BFException(me, f"Bad GEOM: len(vs) is not multiple of 3")
+        raise BFException(me, f"Bad GEOM: len of VERTS is not multiple of 3")
     if len(fs) % 3:
-        raise BFException(me, f"Bad GEOM: len(fs) is not multiple of 3")
+        raise BFException(me, f"Bad GEOM: len of FACES is not multiple of 3")
     if len(ss) != len(fs) // 3:
-        raise BFException(me, f"Bad GEOM: len(ss) is not equal to len(faces)")
+        raise BFException(
+            me, f"Bad GEOM: len of FACE SURFS is not equal to len of FACES"
+        )
     # Create new mesh, no addition to existing
     bm = bmesh.new()
     for i in range(0, len(vs), 3):
@@ -62,7 +64,10 @@ def geom_to_mesh(context, me, vs, fs=None, ss=None, fss=None, scale_length=None)
     bm.free()
     # Check and assign materials to faces
     if max(ss) > len(me.materials):  # from F90 to py indexes
-        raise BFException(me, f"Bad GEOM: Wrong len(SURF_ID)")
+        raise BFException(
+            me,
+            f"Bad GEOM: FACE SURF index is higher that available SURF_ID number: {max(ss)}",
+        )
     for iface, face in enumerate(me.polygons):
         face.material_index = ss[iface] - 1  # -1 from F90 to py indexes
 

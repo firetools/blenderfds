@@ -77,3 +77,10 @@ class BFNotImported(BFException):
 
     pass
 
+
+class BFWarning(BFException):
+    """!
+    Non blocking Exception raised by BlenderFDS methods.
+    """
+
+    pass
