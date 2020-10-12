@@ -1042,6 +1042,100 @@ class SN_RADI(BFNamelistSc):
     )
 
 
+# PRES
+
+
+@subscribe
+class SP_PRES_FYI(BFParamFYI):
+    """!
+    Blender representation of the FYI parameter.
+    """
+
+    bpy_type = Scene
+    bpy_idname = "bf_pres_fyi"
+
+
+@subscribe
+class SP_PRES_BAROCLINIC(BFParam):
+    """!
+    Blender representation of the BAROCLINIC parameter.
+    """
+
+    label = "BAROCLINIC"
+    description = "Consider baroclinic torque"
+    fds_label = "BAROCLINIC"
+    fds_default = True
+    bpy_type = Scene
+    bpy_prop = BoolProperty
+    bpy_idname = "bf_pres_baroclinic"
+
+
+@subscribe
+class SP_PRES_VELOCITY_TOLERANCE(BFParam):
+    """!
+    Blender representation of the VELOCITY_TOLERANCE parameter
+    """
+
+    label = "VELOCITY_TOLERANCE"
+    description = "Maximum allowable normal velocity component\non the solid boundary or the largest error at a mesh interface"
+    fds_label = "VELOCITY_TOLERANCE"
+    bpy_type = Scene
+    bpy_idname = "bf_pres_velocity_tolerance"
+    bpy_prop = FloatProperty
+    bpy_export = "bf_pres_velocity_tolerance_export"
+    bpy_export_default = False
+    bpy_other = {"precision": 6, "min": 0.0, "max": 1.0}
+
+
+@subscribe
+class SP_PRES_MAX_PRESSURE_ITERATIONS(BFParam):
+    """!
+    Blender representation of the MAX_PRESSURE_ITERATIONS parameter.
+    """
+
+    label = "MAX_PRESSURE_ITERATIONS"
+    description = "Maximum number of pressure iterations for each half of the time step"
+    fds_label = "MAX_PRESSURE_ITERATIONS"
+    fds_default = 10
+    bpy_type = Scene
+    bpy_idname = "bf_pres_max_pressure_iterations"
+    bpy_prop = IntProperty
+    bpy_other = {"min": 1}
+
+
+@subscribe
+class SP_PRES_other(BFParamOther):
+    """!
+    Blender representation of other parameters for the PRES namelist.
+    """
+
+    bpy_type = Scene
+    bpy_idname = "bf_pres_other"
+    bpy_pg = WM_PG_bf_other
+    bpy_ul = WM_UL_bf_other_items
+
+
+@subscribe
+class SN_PRES(BFNamelistSc):
+    """!
+    Blender representation of the PRES namelist.
+    """
+
+    label = "PRES"
+    description = "Pressure Solver"
+    enum_id = 3007
+    fds_label = "PRES"
+    bpy_export = "bf_pres_export"
+    bpy_export_default = False
+    bf_params = (
+        SP_PRES_FYI,
+        SP_PRES_BAROCLINIC,
+        SP_PRES_VELOCITY_TOLERANCE,
+        SP_PRES_MAX_PRESSURE_ITERATIONS,
+        SP_PRES_other,
+    )
+
+
 # DUMP
 
 
@@ -1860,71 +1954,71 @@ class OP_MESH_XB_BBOX(OP_XB):
         xbs, _ = geometry.to_fds.ob_to_xbs(context, ob)
         return FDSParam(fds_label="XB", value=xbs[0], precision=6)
 
-    def to_fds_param(self, context):
-        ob = self.element
-        if not ob.bf_xb_export:
-            return
-        # Compute
-        ob.bf_xb = "BBOX"  # len(xbs) == 1
-        xbs, msg = geometry.to_fds.ob_to_xbs(context, ob)
-        # Split FIXME FIXME FIXME
-        if (
-            ob.bf_mesh_ijk_export and ob.bf_mesh_ijk_split_export
-        ):  # FIXME new properties
-            # Split ijk
-            ijk = ob.bf_mesh_ijk
-            ijk_split = ob.bf_mesh_ijk_split
-            ijk_first = (
-                ijk[0] // ijk_split[0],
-                ijk[1] // ijk_split[1],
-                ijk[2] // ijk_split[2],
-            )
-            ijk_last = (
-                ijk[0] - ijk_first[0] * ijk_split[0],
-                ijk[1] - ijk_first[1] * ijk_split[1],
-                ijk[2] - ijk_first[2] * ijk_split[2],
-            )
-            # Split xbs
+    # def to_fds_param(self, context):
+    #     ob = self.element
+    #     if not ob.bf_xb_export:
+    #         return
+    #     # Compute
+    #     ob.bf_xb = "BBOX"  # len(xbs) == 1
+    #     xbs, msg = geometry.to_fds.ob_to_xbs(context, ob)
+    #     # Split FIXME FIXME FIXME
+    #     if (
+    #         ob.bf_mesh_ijk_export and ob.bf_mesh_ijk_split_export
+    #     ):  # FIXME new properties
+    #         # Split ijk
+    #         ijk = ob.bf_mesh_ijk
+    #         ijk_split = ob.bf_mesh_ijk_split
+    #         ijk_first = (
+    #             ijk[0] // ijk_split[0],
+    #             ijk[1] // ijk_split[1],
+    #             ijk[2] // ijk_split[2],
+    #         )
+    #         ijk_last = (
+    #             ijk[0] - ijk_first[0] * ijk_split[0],
+    #             ijk[1] - ijk_first[1] * ijk_split[1],
+    #             ijk[2] - ijk_first[2] * ijk_split[2],
+    #         )
+    #         # Split xbs
 
-        # Single param
-        if len(xbs) == 1:
-            return FDSParam(fds_label="XB", value=xbs[0], precision=6)
-        # Multi param, prepare new ID
-        n = ob.name
-        suffix = self.element.bf_id_suffix
-        if suffix == "IDI":
-            ids = (f"{n}_{i}" for i, _ in enumerate(xbs))
-        elif suffix == "IDX":
-            ids = (f"{n}_x{xb[0]:+.3f}" for xb in xbs)
-        elif suffix == "IDY":
-            ids = (f"{n}_y{xb[2]:+.3f}" for xb in xbs)
-        elif suffix == "IDZ":
-            ids = (f"{n}_z{xb[4]:+.3f}" for xb in xbs)
-        elif suffix == "IDXY":
-            ids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}" for xb in xbs)
-        elif suffix == "IDXZ":
-            ids = (f"{n}_x{xb[0]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
-        elif suffix == "IDYZ":
-            ids = (f"{n}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
-        elif suffix == "IDXYZ":
-            ids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
-        else:
-            raise AssertionError(f"Unknown suffix <{suffix}>")
-        # Set ijks
-        ijks = (ijk_first for xb in xbs)
-        ijks[-1] = ijk_last
-        # Prepare multi fds_param
-        result = tuple(
-            (
-                FDSParam(fds_label="ID", value=hid),
-                FDSParam(fds_label="IJK", value=ijk),
-                FDSParam(fds_label="XB", value=xb, precision=6),
-            )
-            for hid, ijk, xb in zip(ids, ijks, xbs)
-        )
-        # Send message
-        result[0][0].msg = msg
-        return result
+    #     # Single param
+    #     if len(xbs) == 1:
+    #         return FDSParam(fds_label="XB", value=xbs[0], precision=6)
+    #     # Multi param, prepare new ID
+    #     n = ob.name
+    #     suffix = self.element.bf_id_suffix
+    #     if suffix == "IDI":
+    #         ids = (f"{n}_{i}" for i, _ in enumerate(xbs))
+    #     elif suffix == "IDX":
+    #         ids = (f"{n}_x{xb[0]:+.3f}" for xb in xbs)
+    #     elif suffix == "IDY":
+    #         ids = (f"{n}_y{xb[2]:+.3f}" for xb in xbs)
+    #     elif suffix == "IDZ":
+    #         ids = (f"{n}_z{xb[4]:+.3f}" for xb in xbs)
+    #     elif suffix == "IDXY":
+    #         ids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}" for xb in xbs)
+    #     elif suffix == "IDXZ":
+    #         ids = (f"{n}_x{xb[0]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
+    #     elif suffix == "IDYZ":
+    #         ids = (f"{n}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
+    #     elif suffix == "IDXYZ":
+    #         ids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
+    #     else:
+    #         raise AssertionError(f"Unknown suffix <{suffix}>")
+    #     # Set ijks
+    #     ijks = (ijk_first for xb in xbs)
+    #     ijks[-1] = ijk_last
+    #     # Prepare multi fds_param
+    #     result = tuple(
+    #         (
+    #             FDSParam(fds_label="ID", value=hid),
+    #             FDSParam(fds_label="IJK", value=ijk),
+    #             FDSParam(fds_label="XB", value=xb, precision=6),
+    #         )
+    #         for hid, ijk, xb in zip(ids, ijks, xbs)
+    #     )
+    #     # Send message
+    #     result[0][0].msg = msg
+    #     return result
 
     def draw(self, context, layout):
         ob = self.element

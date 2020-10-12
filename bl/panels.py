@@ -180,6 +180,18 @@ class SCENE_PT_bf_namelist_RADI(Panel, SCENE_PT_bf_namelist):
 
 
 @subscribe
+class SCENE_PT_bf_namelist_PRES(Panel, SCENE_PT_bf_namelist):
+    """!
+    FDS PRES
+    """
+
+    bf_namelist_cls = "SN_PRES"
+    bl_label = "FDS PRES"
+    bl_parent_id = "SCENE_PT_bf_case"
+    bl_options = {"DEFAULT_CLOSED"}
+
+
+@subscribe
 class SCENE_PT_bf_namelist_DUMP(Panel, SCENE_PT_bf_namelist):
     """!
     FDS DUMP
