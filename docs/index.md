@@ -61,5 +61,5 @@ the [GNU General Public License](https://www.gnu.org/licenses/gpl-3.0.en.html).
 It is distributed in the hope that it will be useful,
 but without any warranty.
 
-If you prefer having professional paid support, take a look at
+If you prefer buying professional support, take a look at
 [PyroSim](https://www.thunderheadeng.com/pyrosim)
