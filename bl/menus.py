@@ -225,11 +225,6 @@ class ExportFDSCloudHPC(Operator):
         default = "Directory"
     )
 
-    cloudHPC_filename = bpy.props.StringProperty(
-        name = "CloudHPC Filename",
-        default = "Filename.fds"
-    )
-
     def _getCloudKey(self):
         try:
             with open(self.cloudKeyFilePath, "r") as f:
@@ -246,30 +241,27 @@ class ExportFDSCloudHPC(Operator):
         col.prop(self, "cloudHPC_key")
 
         col = self.layout.column(align = True)
-        col.operator("object.simple_operator")
-
-        col = self.layout.column(align = True)
         col.prop(self, "cloudHPC_dirname")
 
         col = self.layout.column(align = True)
-        col.prop(self, "cloudHPC_filename")
+        col.operator("object.simple_operator")
 
     def execute(self, context):
         with tempfile.NamedTemporaryFile(mode='w+', suffix='.fds', delete=True) as temp:
-            #try:
+            try:
                 with open(self.cloudKeyFilePath, "w") as f:
                     f.write(self.cloudHPC_key)
 
                 temp.writelines(context.scene.to_fds(context=context, full=True))
                 temp.seek(0)
-                self._upload_fds(self.cloudHPC_key, self.cloudHPC_dirname, self.cloudHPC_filename, temp)
+                self._upload_fds(self.cloudHPC_key, self.cloudHPC_dirname, context.scene.name + ".fds", temp)
                 ShowMessageBox(message="File was uploaded succesfully", title="CFD Fea Service")
                 webbrowser.open('https://cloud.cfdfeaservice.it/', new=2)
                 return {"FINISHED"}
         
-            #except Exception as e:
-            #    ShowMessageBox(message="An error occurred during the file upload", title="CFD Fea Service") 
-            #    return {"FINISHED"}
+            except Exception as e:
+                ShowMessageBox(message="An error occurred during the file upload", title="CFD Fea Service") 
+                return {"FINISHED"}
 
     def _upload_fds(self, api_key, dirname, filename, fdsFile):
 
@@ -342,7 +334,7 @@ class SimpleOperator(Operator):
     """Tooltip"""
     
     bl_idname = "object.simple_operator" # <- put this string in layout.operator()
-    bl_label = "If you don't have one, register here" # <- button name
+    bl_label = "If you don't have a CloudHPC Key, register here" # <- button name
 
     @classmethod
     def poll(cls, context):
