@@ -519,6 +519,34 @@ class SP_MISC_THICKEN_OBSTRUCTIONS(BFParam):
     bpy_idname = "bf_misc_thicken_obstructions"
 
 
+def update_lonlat(self, context):
+    """!
+    Update the UTM of the context starting from longitude and latitude of the scene.
+    @param context: the Blender context.
+    """
+    sc = context.scene
+    utm = gis.LonLat(sc.bf_origin_lon, sc.bf_origin_lat).to_UTM()
+    sc["bf_origin_utm_zn"] = utm.zn  # avoid triggering another update
+    sc["bf_origin_utm_ne"] = utm.ne
+    sc["bf_origin_utm_easting"] = utm.easting
+    sc["bf_origin_utm_northing"] = utm.northing
+
+
+@subscribe
+class SP_origin_geoname_export(BFParam):
+    """!
+    Blender representation to set if origin geoposition shall be exported to FDS.
+    """
+
+    label = "Export origin geoposition"
+    description = "Set if origin geoposition shall be exported to FDS"
+    bpy_type = Scene
+    bpy_idname = "bf_origin_export"
+    bpy_prop = BoolProperty
+    bpy_default = False
+    bpy_other = {"update": update_lonlat}
+
+
 @subscribe
 class SP_origin_geoname(BFParam):
     """!
@@ -531,7 +559,6 @@ class SP_origin_geoname(BFParam):
     bpy_idname = "bf_origin_geoname"
     bpy_prop = StringProperty
     bpy_export = "bf_origin_export"
-    bpy_export_default = False
 
     def draw(self, context, layout):
         sc = self.element
@@ -544,7 +571,6 @@ class SP_origin_geoname(BFParam):
         row.prop(sc, "bf_origin_geoname", text="")
         row.operator("wm.url_open", text="", icon="URL").url = url
         if active:
-            col.prop(sc, "bf_origin_elevation", text="Elevation")
             col.prop(sc, "bf_origin_lon")
             col.prop(sc, "bf_origin_lat")
             col.prop(sc, "bf_origin_north_bearing")
@@ -552,38 +578,6 @@ class SP_origin_geoname(BFParam):
     def to_fds_param(self, context):
         if self.element.bf_origin_export and self.element.bf_origin_geoname:
             return FDSParam(msg=f"Origin at: <{self.element.bf_origin_geoname}>")
-
-
-@subscribe
-class SP_origin_elevation(BFParam):
-    """!
-    Blender representation for the Elevation of world origin.
-    """
-
-    label = "Origin Elevation"  # ORIGIN_ELEVATION
-    description = "Elevation of world origin"
-    bpy_type = Scene
-    bpy_idname = "bf_origin_elevation"
-    bpy_prop = FloatProperty
-    bpy_export = "bf_origin_export"
-    bpy_default = 0.0
-    bpy_other = {"unit": "LENGTH", "precision": 4}
-
-    def draw(self, context, layout):
-        pass
-
-
-def update_lonlat(self, context):
-    """!
-    Update the UTM of the context starting from longitude and latitude of the scene.
-    @param context: the Blender context.
-    """
-    sc = context.scene
-    utm = gis.LonLat(sc.bf_origin_lon, sc.bf_origin_lat).to_UTM()
-    sc["bf_origin_utm_zn"] = utm.zn  # avoid triggering another update
-    sc["bf_origin_utm_ne"] = utm.ne
-    sc["bf_origin_utm_easting"] = utm.easting
-    sc["bf_origin_utm_northing"] = utm.northing
 
 
 @subscribe
@@ -599,7 +593,7 @@ class SP_ORIGIN_LON(BFParam):
     bpy_idname = "bf_origin_lon"
     bpy_prop = FloatProperty
     bpy_export = "bf_origin_export"
-    bpy_default = 0.0
+    bpy_default = 9.16889  # Portofino mountain
     bpy_other = {"min": -180.0, "max": 180.0, "precision": 6, "update": update_lonlat}
 
     def draw(self, context, layout):
@@ -619,7 +613,7 @@ class SP_ORIGIN_LAT(BFParam):
     bpy_idname = "bf_origin_lat"
     bpy_prop = FloatProperty
     bpy_export = "bf_origin_export"
-    bpy_default = 0.0
+    bpy_default = 44.32676  # Portofino mountain
     bpy_other = {"min": -80.0, "max": 84.0, "precision": 6, "update": update_lonlat}
 
     def draw(self, context, layout):
@@ -738,7 +732,6 @@ class SN_MISC(BFNamelistSc):
         SP_MISC_OVERWRITE,
         SP_MISC_THICKEN_OBSTRUCTIONS,
         SP_origin_geoname,
-        SP_origin_elevation,
         SP_ORIGIN_LON,
         SP_ORIGIN_LAT,
         SP_ORIGIN_NORTH_BEARING,
@@ -2833,12 +2826,14 @@ class ON_GEOM(BFNamelistOb):
         p_sphere_origin = fds_namelist.get_by_label("SPHERE_ORIGIN", remove=True)
         p_sphere_radius = fds_namelist.get_by_label("SPHERE_RADIUS", remove=True)
         # Get CYLINDER  # FIXME check default and activation in FDS doc
-        p_cyl_length = fds_namelist.get_by_label("CYLINDER_LENGTH", remove=True)
-        p_cyl_radius = fds_namelist.get_by_label("CYLINDER_RADIUS", remove=True)
-        p_cyl_origin = fds_namelist.get_by_label("CYLINDER_ORIGIN", remove=True)
-        p_cyl_axis = fds_namelist.get_by_label("CYLINDER_AXIS", remove=True)
-        p_cyl_nseg_axis = fds_namelist.get_by_label("CYLINDER_NSEG_AXIS", remove=True)
-        p_cyl_nseg_theta = fds_namelist.get_by_label("CYLINDER_NSEG_THETA", remove=True)
+        # p_cyl_length = fds_namelist.get_by_label("CYLINDER_LENGTH", remove=True)
+        # p_cyl_radius = fds_namelist.get_by_label("CYLINDER_RADIUS", remove=True)
+        # p_cyl_origin = fds_namelist.get_by_label("CYLINDER_ORIGIN", remove=True)
+        # p_cyl_axis = fds_namelist.get_by_label("CYLINDER_AXIS", remove=True)
+        # p_cyl_nseg_axis = fds_namelist.get_by_label("CYLINDER_NSEG_AXIS", remove=True)
+        # p_cyl_nseg_theta = fds_namelist.get_by_label("CYLINDER_NSEG_THETA", remove=True)
+        # Get POLYGON  # FIXME
+        #
         # Populate the Object
         super().from_fds(context, fds_namelist)
         if len(self.element.data.vertices):  # FIXME better way?
