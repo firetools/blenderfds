@@ -2519,7 +2519,7 @@ class OP_GEOM_SURF_ID(BFParam):
             if not ma.bf_surf_export:
                 raise BFException(ob, f"Referenced SURF <{ma.name}> is not exported")
             value.append(ma.name)
-        return tuple(value)
+        return tuple(value) or None
 
     def set_value(self, context, value):
         # A single material is a string
@@ -2569,9 +2569,43 @@ class OP_GEOM_SURF_ID6(OP_GEOM_SURF_ID):
 
 
 @subscribe
+class OP_GEOM_VERTS(BFParam):
+    """!
+    Blender representation for VERTS parameter.
+    """
+
+    label = "VERTS"
+    fds_label = "VERTS"
+    bpy_type = Object
+
+    def set_value(self, context, value):
+        geometry.from_fds.geom_verts_to_mesh(context, me=self.element.data, vs=value)
+
+    def to_fds_param(self, context):  # export in ON_GEOM, integrated with VERTS
+        pass
+
+
+@subscribe
+class OP_GEOM_FACES(BFParam):
+    """!
+    Blender representation for FACES parameter.
+    """
+
+    label = "FACES"
+    fds_label = "FACES"
+    bpy_type = Object
+
+    def set_value(self, context, value):
+        geometry.from_fds.geom_faces_to_mesh(context, me=self.element.data, fss=value)
+
+    def to_fds_param(self, context):  # export in ON_GEOM, integrated with VERTS
+        pass
+
+
+@subscribe
 class OP_GEOM_XB(BFParam):
     """!
-    Blender representation for SURF_IDS parameter.
+    Blender representation for XB parameter.
     """
 
     label = "XB"
@@ -2779,6 +2813,8 @@ class ON_GEOM(BFNamelistOb):
         OP_GEOM_SURF_IDS,
         OP_GEOM_SURF_ID6,
         OP_MOVE_ID,
+        OP_GEOM_VERTS,
+        OP_GEOM_FACES,
         OP_GEOM_XB,
         OP_GEOM_binary_directory,
         OP_GEOM_BINARY_FILE,
@@ -2788,7 +2824,7 @@ class ON_GEOM(BFNamelistOb):
     )
     bf_other = {"appearance": "TEXTURED"}
 
-    def to_fds_namelist(self, context):
+    def to_fds_namelist(self, context):  # VERTS and FACES are integrated here
         # First populate the Object
         fds_namelist = super().to_fds_namelist(context)
         # Then treat VERTS and FACES
@@ -2812,80 +2848,59 @@ class ON_GEOM(BFNamelistOb):
         return fds_namelist
 
     def from_fds(self, context, fds_namelist):
-        if (
-            fds_namelist.get_by_label("CYLINDER_ORIGIN")  # FIXME remove after CYL
-            or fds_namelist.get_by_label("ZVALS")
-            or fds_namelist.get_by_label("POLY")
-        ):
+        if fds_namelist.get_by_label("ZVALS") or fds_namelist.get_by_label(
+            "POLY"
+        ):  # FIXME rm poly when ready
             raise BFNotImported(self, "Not implemented")
-        # Get VERTS and FACES and remove them from auto treatment
-        p_verts = fds_namelist.get_by_label("VERTS", remove=True)
-        p_faces_surfs = fds_namelist.get_by_label("FACES", remove=True)
-        # Get SPHERE  # FIXME check default and activation in FDS doc
-        p_n_levels = fds_namelist.get_by_label("N_LEVELS", remove=True)
+        # Get SPHERE
         p_sphere_origin = fds_namelist.get_by_label("SPHERE_ORIGIN", remove=True)
         p_sphere_radius = fds_namelist.get_by_label("SPHERE_RADIUS", remove=True)
-        # Get CYLINDER  # FIXME check default and activation in FDS doc
-        # p_cyl_length = fds_namelist.get_by_label("CYLINDER_LENGTH", remove=True)
-        # p_cyl_radius = fds_namelist.get_by_label("CYLINDER_RADIUS", remove=True)
-        # p_cyl_origin = fds_namelist.get_by_label("CYLINDER_ORIGIN", remove=True)
-        # p_cyl_axis = fds_namelist.get_by_label("CYLINDER_AXIS", remove=True)
-        # p_cyl_nseg_axis = fds_namelist.get_by_label("CYLINDER_NSEG_AXIS", remove=True)
-        # p_cyl_nseg_theta = fds_namelist.get_by_label("CYLINDER_NSEG_THETA", remove=True)
-        # Get POLYGON  # FIXME
-        #
+        p_n_levels = fds_namelist.get_by_label("N_LEVELS", remove=True)
+        # Get CYLINDER
+        p_cyl_length = fds_namelist.get_by_label("CYLINDER_LENGTH", remove=True)
+        p_cyl_radius = fds_namelist.get_by_label("CYLINDER_RADIUS", remove=True)
+        p_cyl_origin = fds_namelist.get_by_label("CYLINDER_ORIGIN", remove=True)
+        p_cyl_axis = fds_namelist.get_by_label("CYLINDER_AXIS", remove=True)
+        p_cyl_nseg_axis = fds_namelist.get_by_label("CYLINDER_NSEG_AXIS", remove=True)
+        p_cyl_nseg_theta = fds_namelist.get_by_label("CYLINDER_NSEG_THETA", remove=True)
+        # Get POLY
+        p_poly = fds_namelist.get_by_label("POLY", remove=True)
+        p_extrude = fds_namelist.get_by_label("EXTRUDE", remove=True)
         # Populate the Object
         super().from_fds(context, fds_namelist)
-        if len(self.element.data.vertices):  # FIXME better way?
-            # Mesh already present, no special treatment for bingeom
+        # Fill the Mesh
+        if len(self.element.data.vertices):
+            # Mesh already filled, no special treatment for bingeom
             return
-        elif p_verts and p_faces_surfs:
-            # Treat VERTS and FACES
-            geometry.from_fds.geom_to_ob(
+        elif p_sphere_origin:
+            # Treat SPHERE
+            geometry.from_fds.geom_sphere_to_ob(
                 context=context,
                 ob=self.element,
-                vs=p_verts.value,
-                fss=p_faces_surfs.value,
-            )
-        elif p_sphere_origin:
-            # Treat SPHERE # FIXME move to sphere_to_mesh
-            bpy.ops.mesh.primitive_ico_sphere_add(
-                subdivisions=p_n_levels and p_n_levels.value or 2,
+                n_levels=3,  # FIXME p_n_levels and p_n_levels.value or 2,
                 radius=p_sphere_radius and p_sphere_radius.value or 0.5,
-                location=p_sphere_origin.value,
+                origin=p_sphere_origin.value,
             )
-            sphere_ob = context.object
-            for ma in self.element.data.materials:
-                sphere_ob.data.materials.append(ma)
-            self.element.data = sphere_ob.data
-            bpy.data.objects.remove(sphere_ob, do_unlink=True)
-        # elif p_cyl_origin:
-        #     # Treat CYLINDER # FIXME move to cyl_to_mesh, and defaults
-        #     ax, ay, az = p_cyl_axis and p_cyl_axis.value or (1, 0, 0)
-        #     rotation = (  # FIXME not working!
-        #         math.degrees(
-        #             (ay or az) and math.acos(ay / (ay ** 2 + az ** 2) ** 0.5) or 0
-        #         ),  # alpha x
-        #         math.degrees(
-        #             (az or ax) and math.acos(az / (az ** 2 + ax ** 2) ** 0.5) or 0
-        #         ),  # alpha x
-        #         0.0,  # alpha z
-        #     )
-        #     print("rotation", rotation)
-        #     bpy.ops.mesh.primitive_cylinder_add(
-        #         vertices=p_cyl_nseg_theta and p_cyl_nseg_theta.value or 32,
-        #         radius=p_cyl_radius and p_cyl_radius.value or 1.0,
-        #         depth=p_cyl_length and p_cyl_length.value or 2.0,
-        #         location=p_cyl_origin.value,
-        #         rotation=rotation,
-        #         # p_cyl_nseg_axis = fds_namelist.get_by_label("CYLINDER_NSEG_AXIS", remove=True)
-        #         # p_cyl_nseg_theta = fds_namelist.get_by_label("CYLINDER_NSEG_THETA", remove=True)
-        #     )
-        #     cyl_ob = context.object
-        #     for ma in self.element.data.materials:
-        #         cyl_ob.data.materials.append(ma)
-        #     self.element.data = cyl_ob.data
-        #     bpy.data.objects.remove(cyl_ob, do_unlink=True)
+        elif p_cyl_origin:
+            # Treat CYLINDER
+            geometry.from_fds.geom_cylinder_to_ob(
+                context=context,
+                ob=self.element,
+                origin=p_cyl_origin.value,
+                axis=p_cyl_axis and p_cyl_axis.value or (0.0, 0.0, 1.0),
+                radius=p_cyl_radius and p_cyl_radius.value or 1.0,
+                length=p_cyl_length and p_cyl_length.value or 2.0,
+                nseg_theta=p_cyl_nseg_theta and p_cyl_nseg_theta.value or 8,
+                nseg_axis=p_cyl_nseg_axis and p_cyl_nseg_axis.value or 1,
+            )
+        elif p_poly and p_extrude:
+            # Treat POLY
+            geometry.from_fds.geom_poly_to_ob(
+                context=context,
+                ob=self.element,
+                ps=p_poly.value,
+                extrude=p_extrude.value,
+            )
         else:
             raise BFException(self, f"Unknown GEOM type <{fds_namelist}>")
 

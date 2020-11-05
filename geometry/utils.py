@@ -143,23 +143,22 @@ def get_material(context, name):
 # Working on bounding box and size
 
 
-def get_bbox_xb(context, ob, scale_length=None, world=True):
+def get_bbox_xb(context, ob, blender_units=False, world=True):
     """!
     Get object’s bounding box in xb format.
     @param context: the Blender context.
     @param ob: the Blender object.
-    @param scale_length: the scale to use.
+    @param blender_units: return in Blender units.
     @param world: if True, set bmesh in world coordinates.
     @return the object’s bounding box.
     """
-    if not scale_length:
-        scale_length = context.scene.unit_settings.scale_length
     bm = get_object_bmesh(context, ob, world=world)
     bm.verts.ensure_lookup_table()
     if not bm.verts:
         raise BFException(ob, "Empty object, no available geometry")
     xs, ys, zs = tuple(zip(*(v.co for v in bm.verts)))
     bm.free()
+    scale_length = blender_units and 1.0 or context.scene.unit_settings.scale_length
     return (
         min(xs) * scale_length,
         max(xs) * scale_length,
