@@ -2618,13 +2618,8 @@ class OP_GEOM_XB(BFParam):
             raise BFNotImported(self, f"Unsupported XB value <{value}>")
         ob = self.element
         me = ob.data
-        scale_length = context.scene.unit_settings.scale_length
         geometry.from_fds.xbs_bbox_to_mesh(
-            context=context,
-            me=me,
-            xbs=xbs,
-            scale_length=scale_length,
-            set_materials=True,
+            context=context, me=me, xbs=xbs, set_materials=True,
         )
 
     def to_fds_param(self, context):
