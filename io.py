@@ -17,7 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 """!
-BlenderFDS, io routines
+BlenderFDS, input/output routines.
 """
 
 import os

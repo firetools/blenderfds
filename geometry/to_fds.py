@@ -16,32 +16,23 @@ log = logging.getLogger(__name__)
 # to GEOM in Blender units (no cache)
 
 
-def ob_to_geom(context, ob, scale_length=None, check=True, check_open=True, world=True):
+def ob_to_geom(context, ob, check=True, check_open=True, world=True):
     """!
     Transform Object geometry to FDS notation.
     @param context: the Blender context.
     @param ob: the Blender object.
-    @param scale_length: the scale to use.
     @param check: True to check the bmesh sanity.
     @param check_open: True to check if bmesh is open.
     @param world: True to return the object in world coordinates.
     @return FDS GEOM notation as lists and message.
     """
-    # log.debug(f"Exporting Object <{ob.name}> to geom")
-    if not scale_length:
-        scale_length = context.scene.unit_settings.scale_length
     (
         fds_verts,
         fds_faces,
         fds_surfs,
         fds_faces_surfs,
     ) = calc_trisurfaces.get_fds_trisurface(
-        context=context,
-        ob=ob,
-        scale_length=scale_length,
-        check=check,
-        check_open=check_open,
-        world=world,
+        context=context, ob=ob, check=check, check_open=check_open, world=world,
     )
     msg = f"GEOM Vertices: {len(fds_verts)} | Faces: {len(fds_faces)}"
     return fds_verts, fds_faces, fds_surfs, fds_faces_surfs, msg
@@ -50,61 +41,59 @@ def ob_to_geom(context, ob, scale_length=None, check=True, check_open=True, worl
 # to XB in Blender units (cached)
 
 
-def _ob_to_xbs_voxels(context, ob, scale_length, world):
+def _ob_to_xbs_voxels(context, ob, world):
     """!
     Transform Object solid geometry to xbs notation (voxelization).
     @param context: the Blender context.
     @param ob: the Blender object.
-    @param scale_length: the scale to use.
     @param world: True to return the object in world coordinates.
     @return xbs notation and any error message: ((x0,x1,y0,y1,z0,z1,), ...), 'Msg'.
     """
-    xbs, voxel_size = calc_voxels.get_voxels(context, ob, scale_length, world)
+    xbs, voxel_size = calc_voxels.get_voxels(context, ob, world)
     msg = f"XB Voxels: {len(xbs)} | Resolution: {voxel_size:.3f} m"
     return xbs, msg
 
 
-def _ob_to_xbs_pixels(context, ob, scale_length, world):
+def _ob_to_xbs_pixels(context, ob, world):
     """!
     Transform Object flat geometry to xbs notation (flat voxelization).
     @param context: the Blender context.
     @param ob: the Blender object.
-    @param scale_length: the scale to use.
     @param world: True to return the object in world coordinates.
     @return xbs notation (flat voxelization) and any error message: ((x0,x1,y0,y1,z0,z1,), ...), 'Msg'.
     """
-    xbs, voxel_size = calc_voxels.get_pixels(context, ob, scale_length, world)
+    xbs, voxel_size = calc_voxels.get_pixels(context, ob, world)
+    scale_length = context.scene.unit_settings.scale_length
     res = voxel_size * scale_length
     msg = f"XB Pixels: {len(xbs)} | Resolution: {res:.3f} m"
     return xbs, msg
 
 
-def _ob_to_xbs_bbox(context, ob, scale_length, world):
+def _ob_to_xbs_bbox(context, ob, world):
     """!
     Transform Object solid geometry to xbs notation (bounding box).
     @param context: the Blender context.
     @param ob: the Blender object.
-    @param scale_length: the scale to use.
     @param world: True to return the object in world coordinates.
     @return xbs notation (bounding box) and any error message: ((x0,x1,y0,y1,z0,z1,), ...), 'Msg'.
     """
-    xb = utils.get_bbox_xb(context, ob, scale_length, world=world)
+    xb = utils.get_bbox_xb(context, ob, world=world)
     xbs, msg = list((xb,)), str()
     return xbs, msg
 
 
-def _ob_to_xbs_faces(context, ob, scale_length, world):
+def _ob_to_xbs_faces(context, ob, world):
     """!
     Transform Object flat faces to xbs notation (faces).
     @param context: the Blender context.
     @param ob: the Blender object.
-    @param scale_length: the scale to use.
     @param world: True to return the object in world coordinates.
     @return xbs notation (faces) and any error message: ((x0,x1,y0,y1,z0,z1,), ...), 'Msg'.
     """
     xbs = list()
     bm = utils.get_object_bmesh(context, ob, world=world)
     bm.faces.ensure_lookup_table()
+    scale_length = context.scene.unit_settings.scale_length
     for face in bm.faces:
         verts = face.verts
         xs, ys, zs = tuple(zip(*(v.co for v in verts)))
@@ -135,18 +124,18 @@ def _ob_to_xbs_faces(context, ob, scale_length, world):
     return xbs, msg
 
 
-def _ob_to_xbs_edges(context, ob, scale_length, world):
+def _ob_to_xbs_edges(context, ob, world):
     """!
     Transform Object edges in xbs notation (edges).
     @param context: the Blender context.
     @param ob: the Blender object.
-    @param scale_length: the scale to use.
     @param world: True to return the object in world coordinates.
     @return xbs notation (edges) and any error message: ((x0,x1,y0,y1,z0,z1,), ...), 'Msg'.
     """
     xbs = list()
     bm = utils.get_object_bmesh(context, ob, world=world)
     bm.edges.ensure_lookup_table()
+    scale_length = context.scene.unit_settings.scale_length
     for edge in bm.edges:
         pt0x, pt0y, pt0z = edge.verts[0].co
         pt1x, pt1y, pt1z = edge.verts[1].co
@@ -177,34 +166,27 @@ _choice_to_xbs = {
 }
 
 
-def ob_to_xbs(context, ob, scale_length=None, world=True):
+def ob_to_xbs(context, ob, world=True):
     """!
     Transform Object geometry according to ob.bf_xb (None, BBOX, VOXELS, FACES, PIXELS, EDGES) to FDS notation.
     @param context: the Blender context.
     @param ob: the Blender object.
-    @param scale_length: the scale to use.
     @param world: True to return the object in world coordinates.
     @return the FDS notation and any error message: ((x0,x1,y0,y1,z0,z1,), ...), 'Msg'.
     """
-    # log.debug(f"Exporting Object <{ob.name}> to xbs")
-    if not scale_length:
-        scale_length = context.scene.unit_settings.scale_length
     if ob.get("ob_to_xbs_cache") is None:  # recalc
-        ob["ob_to_xbs_cache"] = _choice_to_xbs[ob.bf_xb](
-            context, ob, scale_length, world
-        )
+        ob["ob_to_xbs_cache"] = _choice_to_xbs[ob.bf_xb](context, ob, world)
     return ob["ob_to_xbs_cache"]
 
 
 # to XYZ in Blender units (no cache)
 
 
-def _ob_to_xyzs_vertices(context, ob, scale_length, world):
+def _ob_to_xyzs_vertices(context, ob, world):
     """!
     Transform Object vertices to xyzs notation.
     @param context: the Blender context.
     @param ob: the Blender object.
-    @param scale_length: the scale to use.
     @param world: True to return the object in world coordinates.
     @return the xyzs notation and any error message: ((x0,y0,z0,), ...), 'Msg'.
     """
@@ -212,6 +194,7 @@ def _ob_to_xyzs_vertices(context, ob, scale_length, world):
     bm = utils.get_object_bmesh(context, ob, world=world)
     # For each vertex...
     bm.verts.ensure_lookup_table()
+    scale_length = context.scene.unit_settings.scale_length
     for v in bm.verts:
         pt0x, pt0y, pt0z = v.co
         xyzs.append((pt0x * scale_length, pt0y * scale_length, pt0z * scale_length))
@@ -223,15 +206,15 @@ def _ob_to_xyzs_vertices(context, ob, scale_length, world):
     return xyzs, msg
 
 
-def _ob_to_xyzs_center(context, ob, scale_length, world):
+def _ob_to_xyzs_center(context, ob, world):
     """!
     Transform Object center to xyzs notation.
     @param context: the Blender context.
     @param ob: the Blender object.
-    @param scale_length: the scale to use.
     @param world: True to return the object in world coordinates.
     @return the xyzs notation and any error message: ((x0,y0,z0,), ...), 'Msg'.
     """
+    scale_length = context.scene.unit_settings.scale_length
     xyzs = [  # FIXME world
         (
             ob.location[0] * scale_length,
@@ -246,35 +229,30 @@ def _ob_to_xyzs_center(context, ob, scale_length, world):
 _choice_to_xyzs = {"CENTER": _ob_to_xyzs_center, "VERTICES": _ob_to_xyzs_vertices}
 
 
-def ob_to_xyzs(context, ob, scale_length=None, world=True):
+def ob_to_xyzs(context, ob, world=True):
     """!
     Transform Object geometry according to ob.bf_xyz (None, CENTER, VERTICES) to xyzs notation.
     @param context: the Blender context.
     @param ob: the Blender object.
-    @param scale_length: the scale to use.
     @param world: True to return the object in world coordinates.
     @return the xyzs notation and any error message: ((x0,y0,z0,), ...), 'Msg'.
     """
-    # log.debug(f"Exporting Object <{ob.name}> to xyzs")
-    if not scale_length:
-        scale_length = context.scene.unit_settings.scale_length
-    return _choice_to_xyzs[ob.bf_xyz](context, ob, scale_length, world)
+    return _choice_to_xyzs[ob.bf_xyz](context, ob, world)
 
 
 # to PB in Blender units (no cache)
 
 
-def _ob_to_pbs_planes(context, ob, scale_length, world):
+def _ob_to_pbs_planes(context, ob, world):
     """!
     Transform Object faces to pbs notation.
     @param context: the Blender context.
     @param ob: the Blender object.
-    @param scale_length: the scale to use.
     @param world: True to return the object in world coordinates.
     @return the pbs notation and any error message: ((0,x3,), (1,x7,), (1,y9,), ...), 'Msg'.
     """
     pbs = list()
-    xbs, msg = _ob_to_xbs_faces(context, ob, scale_length, world)
+    xbs, msg = _ob_to_xbs_faces(context, ob, world)
     epsilon = 1e-5
     # For each face build a plane...
     for xb in xbs:
@@ -295,16 +273,12 @@ def _ob_to_pbs_planes(context, ob, scale_length, world):
     return pbs, msg
 
 
-def ob_to_pbs(context, ob, scale_length=None, world=True):
+def ob_to_pbs(context, ob, world=True):
     """!
     Transform Object geometry according to ob.bf_pb (None, PLANES) to pbs notation.
     @param context: the Blender context.
     @param ob: the Blender object.
-    @param scale_length: the scale to use.
     @param world: True to return the object in world coordinates.
     @return the pbs notation and any error message.
     """
-    # log.debug(f"Exporting Object <{ob.name}> to pbs")
-    if not scale_length:
-        scale_length = context.scene.unit_settings.scale_length
-    return _ob_to_pbs_planes(context, ob, scale_length, world=world)
+    return _ob_to_pbs_planes(context, ob, world=world)

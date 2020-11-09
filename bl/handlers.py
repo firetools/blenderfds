@@ -1,5 +1,5 @@
 """!
-BlenderFDS, handlers
+BlenderFDS, handlers.
 """
 
 import bpy, logging

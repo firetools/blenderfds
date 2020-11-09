@@ -14,6 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+"""!
+BlenderFDS, Blender to FDS interface classes.
+"""
+
 import re, os.path, logging, math  # FIXME remove math with CYL
 
 import bpy
@@ -515,6 +519,34 @@ class SP_MISC_THICKEN_OBSTRUCTIONS(BFParam):
     bpy_idname = "bf_misc_thicken_obstructions"
 
 
+def update_lonlat(self, context):
+    """!
+    Update the UTM of the context starting from longitude and latitude of the scene.
+    @param context: the Blender context.
+    """
+    sc = context.scene
+    utm = gis.LonLat(sc.bf_origin_lon, sc.bf_origin_lat).to_UTM()
+    sc["bf_origin_utm_zn"] = utm.zn  # avoid triggering another update
+    sc["bf_origin_utm_ne"] = utm.ne
+    sc["bf_origin_utm_easting"] = utm.easting
+    sc["bf_origin_utm_northing"] = utm.northing
+
+
+@subscribe
+class SP_origin_geoname_export(BFParam):
+    """!
+    Blender representation to set if origin geoposition shall be exported to FDS.
+    """
+
+    label = "Export origin geoposition"
+    description = "Set if origin geoposition shall be exported to FDS"
+    bpy_type = Scene
+    bpy_idname = "bf_origin_export"
+    bpy_prop = BoolProperty
+    bpy_default = False
+    bpy_other = {"update": update_lonlat}
+
+
 @subscribe
 class SP_origin_geoname(BFParam):
     """!
@@ -527,7 +559,6 @@ class SP_origin_geoname(BFParam):
     bpy_idname = "bf_origin_geoname"
     bpy_prop = StringProperty
     bpy_export = "bf_origin_export"
-    bpy_export_default = False
 
     def draw(self, context, layout):
         sc = self.element
@@ -540,7 +571,6 @@ class SP_origin_geoname(BFParam):
         row.prop(sc, "bf_origin_geoname", text="")
         row.operator("wm.url_open", text="", icon="URL").url = url
         if active:
-            col.prop(sc, "bf_origin_elevation", text="Elevation")
             col.prop(sc, "bf_origin_lon")
             col.prop(sc, "bf_origin_lat")
             col.prop(sc, "bf_origin_north_bearing")
@@ -548,38 +578,6 @@ class SP_origin_geoname(BFParam):
     def to_fds_param(self, context):
         if self.element.bf_origin_export and self.element.bf_origin_geoname:
             return FDSParam(msg=f"Origin at: <{self.element.bf_origin_geoname}>")
-
-
-@subscribe
-class SP_origin_elevation(BFParam):
-    """!
-    Blender representation for the Elevation of world origin.
-    """
-
-    label = "Origin Elevation"  # ORIGIN_ELEVATION
-    description = "Elevation of world origin"
-    bpy_type = Scene
-    bpy_idname = "bf_origin_elevation"
-    bpy_prop = FloatProperty
-    bpy_export = "bf_origin_export"
-    bpy_default = 0.0
-    bpy_other = {"unit": "LENGTH", "precision": 4}
-
-    def draw(self, context, layout):
-        pass
-
-
-def update_lonlat(self, context):
-    """!
-    Update the UTM of the context starting from longitude and latitude of the scene.
-    @param context: the Blender context.
-    """
-    sc = context.scene
-    utm = gis.LonLat(sc.bf_origin_lon, sc.bf_origin_lat).to_UTM()
-    sc["bf_origin_utm_zn"] = utm.zn  # avoid triggering another update
-    sc["bf_origin_utm_ne"] = utm.ne
-    sc["bf_origin_utm_easting"] = utm.easting
-    sc["bf_origin_utm_northing"] = utm.northing
 
 
 @subscribe
@@ -595,7 +593,7 @@ class SP_ORIGIN_LON(BFParam):
     bpy_idname = "bf_origin_lon"
     bpy_prop = FloatProperty
     bpy_export = "bf_origin_export"
-    bpy_default = 0.0
+    bpy_default = 9.16889  # Portofino mountain
     bpy_other = {"min": -180.0, "max": 180.0, "precision": 6, "update": update_lonlat}
 
     def draw(self, context, layout):
@@ -615,7 +613,7 @@ class SP_ORIGIN_LAT(BFParam):
     bpy_idname = "bf_origin_lat"
     bpy_prop = FloatProperty
     bpy_export = "bf_origin_export"
-    bpy_default = 0.0
+    bpy_default = 44.32676  # Portofino mountain
     bpy_other = {"min": -80.0, "max": 84.0, "precision": 6, "update": update_lonlat}
 
     def draw(self, context, layout):
@@ -734,7 +732,6 @@ class SN_MISC(BFNamelistSc):
         SP_MISC_OVERWRITE,
         SP_MISC_THICKEN_OBSTRUCTIONS,
         SP_origin_geoname,
-        SP_origin_elevation,
         SP_ORIGIN_LON,
         SP_ORIGIN_LAT,
         SP_ORIGIN_NORTH_BEARING,
@@ -1035,6 +1032,100 @@ class SN_RADI(BFNamelistSc):
         SP_RADI_ANGLE_INCREMENT,
         SP_RADI_RADIATION_ITERATIONS,
         SP_RADI_other,
+    )
+
+
+# PRES
+
+
+@subscribe
+class SP_PRES_FYI(BFParamFYI):
+    """!
+    Blender representation of the FYI parameter.
+    """
+
+    bpy_type = Scene
+    bpy_idname = "bf_pres_fyi"
+
+
+@subscribe
+class SP_PRES_BAROCLINIC(BFParam):
+    """!
+    Blender representation of the BAROCLINIC parameter.
+    """
+
+    label = "BAROCLINIC"
+    description = "Consider baroclinic torque"
+    fds_label = "BAROCLINIC"
+    fds_default = True
+    bpy_type = Scene
+    bpy_prop = BoolProperty
+    bpy_idname = "bf_pres_baroclinic"
+
+
+@subscribe
+class SP_PRES_VELOCITY_TOLERANCE(BFParam):
+    """!
+    Blender representation of the VELOCITY_TOLERANCE parameter
+    """
+
+    label = "VELOCITY_TOLERANCE"
+    description = "Maximum allowable normal velocity component\non the solid boundary or the largest error at a mesh interface"
+    fds_label = "VELOCITY_TOLERANCE"
+    bpy_type = Scene
+    bpy_idname = "bf_pres_velocity_tolerance"
+    bpy_prop = FloatProperty
+    bpy_export = "bf_pres_velocity_tolerance_export"
+    bpy_export_default = False
+    bpy_other = {"precision": 6, "min": 0.0, "max": 1.0}
+
+
+@subscribe
+class SP_PRES_MAX_PRESSURE_ITERATIONS(BFParam):
+    """!
+    Blender representation of the MAX_PRESSURE_ITERATIONS parameter.
+    """
+
+    label = "MAX_PRESSURE_ITERATIONS"
+    description = "Maximum number of pressure iterations for each half of the time step"
+    fds_label = "MAX_PRESSURE_ITERATIONS"
+    fds_default = 10
+    bpy_type = Scene
+    bpy_idname = "bf_pres_max_pressure_iterations"
+    bpy_prop = IntProperty
+    bpy_other = {"min": 1}
+
+
+@subscribe
+class SP_PRES_other(BFParamOther):
+    """!
+    Blender representation of other parameters for the PRES namelist.
+    """
+
+    bpy_type = Scene
+    bpy_idname = "bf_pres_other"
+    bpy_pg = WM_PG_bf_other
+    bpy_ul = WM_UL_bf_other_items
+
+
+@subscribe
+class SN_PRES(BFNamelistSc):
+    """!
+    Blender representation of the PRES namelist.
+    """
+
+    label = "PRES"
+    description = "Pressure Solver"
+    enum_id = 3007
+    fds_label = "PRES"
+    bpy_export = "bf_pres_export"
+    bpy_export_default = False
+    bf_params = (
+        SP_PRES_FYI,
+        SP_PRES_BAROCLINIC,
+        SP_PRES_VELOCITY_TOLERANCE,
+        SP_PRES_MAX_PRESSURE_ITERATIONS,
+        SP_PRES_other,
     )
 
 
@@ -1857,115 +1948,115 @@ class OP_MESH_XB_BBOX(OP_XB):
         xbs, _ = geometry.to_fds.ob_to_xbs(context, ob)
         return FDSParam(fds_label="XB", value=xbs[0], precision=6)
 
-    def to_fds_param(self, context):
-        ob = self.element
-        if not ob.bf_xb_export:
-            return
-
-        # Compute
-        ob.bf_xb = "BBOX"  # len(xbs) == 1
-        xbs, msg = geometry.to_fds.ob_to_xbs(context, ob)
-
-        # Split FIXME FIXME FIXME
-        if ( ob.bf_mesh_ijk_export ):
-
-            # Detection of IJK and SPLIT (if not present by default split = 1, 1, 1
-            ijk = ob.bf_mesh_ijk
-
-            if ( ob.bf_mesh_split_export ):
-               ijk_split = ob.bf_mesh_split
-            else:
-               ijk_split = ( 1, 1, 1)
-
-            #IJK calculation - we take the floor in case of rest and the last bit takes the remaining
-            ijk_first = (
-                ijk[0] // ijk_split[0],
-                ijk[1] // ijk_split[1],
-                ijk[2] // ijk_split[2],
-            )
-            ijk_last = (
-                ijk[0] - ijk_first[0] * ( ijk_split[0] - 1 ),
-                ijk[1] - ijk_first[1] * ( ijk_split[1] - 1 ),
-                ijk[2] - ijk_first[2] * ( ijk_split[2] - 1 ),
-            )
-            # Definition of array of XBS (BB) and IJK for all the new meshes
-            xbs_global = list( xbs[0] )
-            xbs.clear()
-            ijks = []
-
-            for i in range( ijk_split[0]):
-              for j in range( ijk_split[1]):
-                for k in range( ijk_split[2]):
-
-                   xbs_local = [None] * 6
-                   ijk_local = [None] * 3
-
-                   ijk_local = list( ijk_first )
-
-                   xbs_local[0] = xbs_global[0] + i * ( xbs_global[1] - xbs_global[0] ) / ijk[0] * ijk_first[0]
-                   xbs_local[1] = xbs_local[0]  +     ( xbs_global[1] - xbs_global[0] ) / ijk[0] * ijk_first[0]
-                   xbs_local[2] = xbs_global[2] + j * ( xbs_global[3] - xbs_global[2] ) / ijk[1] * ijk_first[1]
-                   xbs_local[3] = xbs_local[2]  +     ( xbs_global[3] - xbs_global[2] ) / ijk[1] * ijk_first[1]
-                   xbs_local[4] = xbs_global[4] + k * ( xbs_global[5] - xbs_global[4] ) / ijk[2] * ijk_first[2]
-                   xbs_local[5] = xbs_local[4]  +     ( xbs_global[5] - xbs_global[4] ) / ijk[2] * ijk_first[2]
-
-                   if ( i == ijk_split[0] - 1 ):
-                      xbs_local[1] = xbs_global[1]
-                      ijk_local[0] = ijk_last[0]
-
-                   if ( j == ijk_split[1] - 1 ):
-                      xbs_local[3] = xbs_global[3]
-                      ijk_local[1] = ijk_last[1]
-
-                   if ( k == ijk_split[2] - 1 ):
-                      xbs_local[5] = xbs_global[5]
-                      ijk_local[2] = ijk_last[2]
-
-                   xbs.append( xbs_local )
-                   ijks.append( ijk_local )
- 
-        # Multi param, prepare new ID
-        n = ob.name
-        suffix = self.element.bf_id_suffix
-
-        if suffix == "IDI":
-            ids = (f"{n}_{i}" for i, _ in enumerate(xbs))
-        elif suffix == "IDX":
-            ids = (f"{n}_x{xb[0]:+.3f}" for xb in xbs)
-        elif suffix == "IDY":
-            ids = (f"{n}_y{xb[2]:+.3f}" for xb in xbs)
-        elif suffix == "IDZ":
-            ids = (f"{n}_z{xb[4]:+.3f}" for xb in xbs)
-        elif suffix == "IDXY":
-            ids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}" for xb in xbs)
-        elif suffix == "IDXZ":
-            ids = (f"{n}_x{xb[0]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
-        elif suffix == "IDYZ":
-            ids = (f"{n}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
-        elif suffix == "IDXYZ":
-            ids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
-        else:
-            raise AssertionError(f"Unknown suffix <{suffix}>")
-
-        (
-            has_good_ijk,
-            cs,
-            cell_count,
-            cell_aspect_ratio,
-        ) = fds.mesh_tools.calc_cell_infos(ijk=ob.bf_mesh_ijk, xb=xbs_global)
-        msg = f"MESH Cell Size: {cs[0]:.3f} m, {cs[1]:.3f} m, {cs[2]:.3f} m | Qty: {cell_count} | Aspect: {cell_aspect_ratio:.1f} | Poisson: {has_good_ijk and 'Yes' or 'No'}"
-
-        # Prepare multi fds_param
-        result = tuple(
-            (
-                FDSParam(fds_label="ID", value=hid, msg=msg),
-                FDSParam(fds_label="IJK", value=ijk),
-                FDSParam(fds_label="XB", value=xb, precision=6),
-            )
-            for hid, ijk, xb in zip(ids, ijks, xbs)
-        )
-
-        return result
+#    def to_fds_param(self, context):
+#        ob = self.element
+#        if not ob.bf_xb_export:
+#            return
+#
+#        # Compute
+#        ob.bf_xb = "BBOX"  # len(xbs) == 1
+#        xbs, msg = geometry.to_fds.ob_to_xbs(context, ob)
+#
+#        # Split FIXME FIXME FIXME
+#        if ( ob.bf_mesh_ijk_export ):
+#
+#            # Detection of IJK and SPLIT (if not present by default split = 1, 1, 1
+#            ijk = ob.bf_mesh_ijk
+#
+#            if ( ob.bf_mesh_split_export ):
+#               ijk_split = ob.bf_mesh_split
+#            else:
+#               ijk_split = ( 1, 1, 1)
+#
+#            #IJK calculation - we take the floor in case of rest and the last bit takes the remaining
+#            ijk_first = (
+#                ijk[0] // ijk_split[0],
+#                ijk[1] // ijk_split[1],
+#                ijk[2] // ijk_split[2],
+#            )
+#            ijk_last = (
+#                ijk[0] - ijk_first[0] * ( ijk_split[0] - 1 ),
+#                ijk[1] - ijk_first[1] * ( ijk_split[1] - 1 ),
+#                ijk[2] - ijk_first[2] * ( ijk_split[2] - 1 ),
+#            )
+#            # Definition of array of XBS (BB) and IJK for all the new meshes
+#            xbs_global = list( xbs[0] )
+#            xbs.clear()
+#            ijks = []
+#
+#            for i in range( ijk_split[0]):
+#              for j in range( ijk_split[1]):
+#                for k in range( ijk_split[2]):
+#
+#                   xbs_local = [None] * 6
+#                   ijk_local = [None] * 3
+#
+#                   ijk_local = list( ijk_first )
+#
+#                   xbs_local[0] = xbs_global[0] + i * ( xbs_global[1] - xbs_global[0] ) / ijk[0] * ijk_first[0]
+#                   xbs_local[1] = xbs_local[0]  +     ( xbs_global[1] - xbs_global[0] ) / ijk[0] * ijk_first[0]
+#                   xbs_local[2] = xbs_global[2] + j * ( xbs_global[3] - xbs_global[2] ) / ijk[1] * ijk_first[1]
+#                   xbs_local[3] = xbs_local[2]  +     ( xbs_global[3] - xbs_global[2] ) / ijk[1] * ijk_first[1]
+#                   xbs_local[4] = xbs_global[4] + k * ( xbs_global[5] - xbs_global[4] ) / ijk[2] * ijk_first[2]
+#                   xbs_local[5] = xbs_local[4]  +     ( xbs_global[5] - xbs_global[4] ) / ijk[2] * ijk_first[2]
+#
+#                   if ( i == ijk_split[0] - 1 ):
+#                      xbs_local[1] = xbs_global[1]
+#                      ijk_local[0] = ijk_last[0]
+#
+#                   if ( j == ijk_split[1] - 1 ):
+#                      xbs_local[3] = xbs_global[3]
+#                      ijk_local[1] = ijk_last[1]
+#
+#                   if ( k == ijk_split[2] - 1 ):
+#                      xbs_local[5] = xbs_global[5]
+#                      ijk_local[2] = ijk_last[2]
+#
+#                   xbs.append( xbs_local )
+#                   ijks.append( ijk_local )
+# 
+#        # Multi param, prepare new ID
+#        n = ob.name
+#        suffix = self.element.bf_id_suffix
+#
+#        if suffix == "IDI":
+#            ids = (f"{n}_{i}" for i, _ in enumerate(xbs))
+#        elif suffix == "IDX":
+#            ids = (f"{n}_x{xb[0]:+.3f}" for xb in xbs)
+#        elif suffix == "IDY":
+#            ids = (f"{n}_y{xb[2]:+.3f}" for xb in xbs)
+#        elif suffix == "IDZ":
+#            ids = (f"{n}_z{xb[4]:+.3f}" for xb in xbs)
+#        elif suffix == "IDXY":
+#            ids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}" for xb in xbs)
+#        elif suffix == "IDXZ":
+#            ids = (f"{n}_x{xb[0]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
+#        elif suffix == "IDYZ":
+#            ids = (f"{n}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
+#        elif suffix == "IDXYZ":
+#            ids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
+#        else:
+#            raise AssertionError(f"Unknown suffix <{suffix}>")
+#
+#        (
+#            has_good_ijk,
+#            cs,
+#            cell_count,
+#            cell_aspect_ratio,
+#        ) = fds.mesh_tools.calc_cell_infos(ijk=ob.bf_mesh_ijk, xb=xbs_global)
+#        msg = f"MESH Cell Size: {cs[0]:.3f} m, {cs[1]:.3f} m, {cs[2]:.3f} m | Qty: {cell_count} | Aspect: {cell_aspect_ratio:.1f} | Poisson: {has_good_ijk and 'Yes' or 'No'}"
+#
+#        # Prepare multi fds_param
+#        result = tuple(
+#            (
+#                FDSParam(fds_label="ID", value=hid, msg=msg),
+#                FDSParam(fds_label="IJK", value=ijk),
+#                FDSParam(fds_label="XB", value=xb, precision=6),
+#            )
+#            for hid, ijk, xb in zip(ids, ijks, xbs)
+#        )
+#
+#        return result
 
     def draw(self, context, layout):
         ob = self.element
@@ -2473,7 +2564,7 @@ class OP_GEOM_SURF_ID(BFParam):
             if not ma.bf_surf_export:
                 raise BFException(ob, f"Referenced SURF <{ma.name}> is not exported")
             value.append(ma.name)
-        return tuple(value)
+        return tuple(value) or None
 
     def set_value(self, context, value):
         # A single material is a string
@@ -2523,9 +2614,43 @@ class OP_GEOM_SURF_ID6(OP_GEOM_SURF_ID):
 
 
 @subscribe
+class OP_GEOM_VERTS(BFParam):
+    """!
+    Blender representation for VERTS parameter.
+    """
+
+    label = "VERTS"
+    fds_label = "VERTS"
+    bpy_type = Object
+
+    def set_value(self, context, value):
+        geometry.from_fds.geom_verts_to_mesh(context, me=self.element.data, vs=value)
+
+    def to_fds_param(self, context):  # export in ON_GEOM, integrated with VERTS
+        pass
+
+
+@subscribe
+class OP_GEOM_FACES(BFParam):
+    """!
+    Blender representation for FACES parameter.
+    """
+
+    label = "FACES"
+    fds_label = "FACES"
+    bpy_type = Object
+
+    def set_value(self, context, value):
+        geometry.from_fds.geom_faces_to_mesh(context, me=self.element.data, fss=value)
+
+    def to_fds_param(self, context):  # export in ON_GEOM, integrated with VERTS
+        pass
+
+
+@subscribe
 class OP_GEOM_XB(BFParam):
     """!
-    Blender representation for SURF_IDS parameter.
+    Blender representation for XB parameter.
     """
 
     label = "XB"
@@ -2538,13 +2663,8 @@ class OP_GEOM_XB(BFParam):
             raise BFNotImported(self, f"Unsupported XB value <{value}>")
         ob = self.element
         me = ob.data
-        scale_length = context.scene.unit_settings.scale_length
         geometry.from_fds.xbs_bbox_to_mesh(
-            context=context,
-            me=me,
-            xbs=xbs,
-            scale_length=scale_length,
-            set_materials=True,
+            context=context, me=me, xbs=xbs, set_materials=True,
         )
 
     def to_fds_param(self, context):
@@ -2733,6 +2853,8 @@ class ON_GEOM(BFNamelistOb):
         OP_GEOM_SURF_IDS,
         OP_GEOM_SURF_ID6,
         OP_MOVE_ID,
+        OP_GEOM_VERTS,
+        OP_GEOM_FACES,
         OP_GEOM_XB,
         OP_GEOM_binary_directory,
         OP_GEOM_BINARY_FILE,
@@ -2742,7 +2864,7 @@ class ON_GEOM(BFNamelistOb):
     )
     bf_other = {"appearance": "TEXTURED"}
 
-    def to_fds_namelist(self, context):
+    def to_fds_namelist(self, context):  # VERTS and FACES are integrated here
         # First populate the Object
         fds_namelist = super().to_fds_namelist(context)
         # Then treat VERTS and FACES
@@ -2766,78 +2888,59 @@ class ON_GEOM(BFNamelistOb):
         return fds_namelist
 
     def from_fds(self, context, fds_namelist):
-        if (
-            fds_namelist.get_by_label("CYLINDER_ORIGIN")  # FIXME remove after CYL
-            or fds_namelist.get_by_label("ZVALS")
-            or fds_namelist.get_by_label("POLY")
-        ):
+        if fds_namelist.get_by_label("ZVALS") or fds_namelist.get_by_label(
+            "POLY"
+        ):  # FIXME rm poly when ready
             raise BFNotImported(self, "Not implemented")
-        # Get VERTS and FACES and remove them from auto treatment
-        p_verts = fds_namelist.get_by_label("VERTS", remove=True)
-        p_faces_surfs = fds_namelist.get_by_label("FACES", remove=True)
-        # Get SPHERE  # FIXME check default and activation in FDS doc
-        p_n_levels = fds_namelist.get_by_label("N_LEVELS", remove=True)
+        # Get SPHERE
         p_sphere_origin = fds_namelist.get_by_label("SPHERE_ORIGIN", remove=True)
         p_sphere_radius = fds_namelist.get_by_label("SPHERE_RADIUS", remove=True)
-        # Get CYLINDER  # FIXME check default and activation in FDS doc
+        p_n_levels = fds_namelist.get_by_label("N_LEVELS", remove=True)
+        # Get CYLINDER
         p_cyl_length = fds_namelist.get_by_label("CYLINDER_LENGTH", remove=True)
         p_cyl_radius = fds_namelist.get_by_label("CYLINDER_RADIUS", remove=True)
         p_cyl_origin = fds_namelist.get_by_label("CYLINDER_ORIGIN", remove=True)
         p_cyl_axis = fds_namelist.get_by_label("CYLINDER_AXIS", remove=True)
         p_cyl_nseg_axis = fds_namelist.get_by_label("CYLINDER_NSEG_AXIS", remove=True)
         p_cyl_nseg_theta = fds_namelist.get_by_label("CYLINDER_NSEG_THETA", remove=True)
+        # Get POLY
+        p_poly = fds_namelist.get_by_label("POLY", remove=True)
+        p_extrude = fds_namelist.get_by_label("EXTRUDE", remove=True)
         # Populate the Object
         super().from_fds(context, fds_namelist)
-        if len(self.element.data.vertices):  # FIXME better way?
-            # Mesh already present, no special treatment for bingeom
+        # Fill the Mesh
+        if len(self.element.data.vertices):
+            # Mesh already filled, no special treatment for bingeom
             return
-        elif p_verts and p_faces_surfs:
-            # Treat VERTS and FACES
-            geometry.from_fds.geom_to_ob(
+        elif p_sphere_origin:
+            # Treat SPHERE
+            geometry.from_fds.geom_sphere_to_ob(
                 context=context,
                 ob=self.element,
-                vs=p_verts.value,
-                fss=p_faces_surfs.value,
-            )
-        elif p_sphere_origin:
-            # Treat SPHERE # FIXME move to sphere_to_mesh
-            bpy.ops.mesh.primitive_ico_sphere_add(
-                subdivisions=p_n_levels and p_n_levels.value or 2,
+                n_levels=3,  # FIXME p_n_levels and p_n_levels.value or 2,
                 radius=p_sphere_radius and p_sphere_radius.value or 0.5,
-                location=p_sphere_origin.value,
+                origin=p_sphere_origin.value,
             )
-            sphere_ob = context.object
-            for ma in self.element.data.materials:
-                sphere_ob.data.materials.append(ma)
-            self.element.data = sphere_ob.data
-            bpy.data.objects.remove(sphere_ob, do_unlink=True)
-        # elif p_cyl_origin:
-        #     # Treat CYLINDER # FIXME move to cyl_to_mesh, and defaults
-        #     ax, ay, az = p_cyl_axis and p_cyl_axis.value or (1, 0, 0)
-        #     rotation = (  # FIXME not working!
-        #         math.degrees(
-        #             (ay or az) and math.acos(ay / (ay ** 2 + az ** 2) ** 0.5) or 0
-        #         ),  # alpha x
-        #         math.degrees(
-        #             (az or ax) and math.acos(az / (az ** 2 + ax ** 2) ** 0.5) or 0
-        #         ),  # alpha x
-        #         0.0,  # alpha z
-        #     )
-        #     print("rotation", rotation)
-        #     bpy.ops.mesh.primitive_cylinder_add(
-        #         vertices=p_cyl_nseg_theta and p_cyl_nseg_theta.value or 32,
-        #         radius=p_cyl_radius and p_cyl_radius.value or 1.0,
-        #         depth=p_cyl_length and p_cyl_length.value or 2.0,
-        #         location=p_cyl_origin.value,
-        #         rotation=rotation,
-        #         # p_cyl_nseg_axis = fds_namelist.get_by_label("CYLINDER_NSEG_AXIS", remove=True)
-        #         # p_cyl_nseg_theta = fds_namelist.get_by_label("CYLINDER_NSEG_THETA", remove=True)
-        #     )
-        #     cyl_ob = context.object
-        #     for ma in self.element.data.materials:
-        #         cyl_ob.data.materials.append(ma)
-        #     self.element.data = cyl_ob.data
-        #     bpy.data.objects.remove(cyl_ob, do_unlink=True)
+        elif p_cyl_origin:
+            # Treat CYLINDER
+            geometry.from_fds.geom_cylinder_to_ob(
+                context=context,
+                ob=self.element,
+                origin=p_cyl_origin.value,
+                axis=p_cyl_axis and p_cyl_axis.value or (0.0, 0.0, 1.0),
+                radius=p_cyl_radius and p_cyl_radius.value or 1.0,
+                length=p_cyl_length and p_cyl_length.value or 2.0,
+                nseg_theta=p_cyl_nseg_theta and p_cyl_nseg_theta.value or 8,
+                nseg_axis=p_cyl_nseg_axis and p_cyl_nseg_axis.value or 1,
+            )
+        elif p_poly and p_extrude:
+            # Treat POLY
+            geometry.from_fds.geom_poly_to_ob(
+                context=context,
+                ob=self.element,
+                ps=p_poly.value,
+                extrude=p_extrude.value,
+            )
         else:
             raise BFException(self, f"Unknown GEOM type <{fds_namelist}>")
 

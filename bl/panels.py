@@ -1,22 +1,6 @@
 """!
-BlenderFDS, <a href="https://docs.blender.org/api/current/bpy.types.Panel.html">panel</a> class extensions
+BlenderFDS, panel class extensions.
 """
-
-# BlenderFDS, an open tool for the NIST Fire Dynamics Simulator
-# Copyright (C) 2013  Emanuele Gissi, http://www.blenderfds.org
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTIBILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import bpy
 from bpy.types import Panel, UIList, Operator, bpy_struct
@@ -191,6 +175,18 @@ class SCENE_PT_bf_namelist_RADI(Panel, SCENE_PT_bf_namelist):
 
     bf_namelist_cls = "SN_RADI"
     bl_label = "FDS RADI"
+    bl_parent_id = "SCENE_PT_bf_case"
+    bl_options = {"DEFAULT_CLOSED"}
+
+
+@subscribe
+class SCENE_PT_bf_namelist_PRES(Panel, SCENE_PT_bf_namelist):
+    """!
+    FDS PRES
+    """
+
+    bf_namelist_cls = "SN_PRES"
+    bl_label = "FDS PRES"
     bl_parent_id = "SCENE_PT_bf_case"
     bl_options = {"DEFAULT_CLOSED"}
 

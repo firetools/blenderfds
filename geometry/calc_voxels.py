@@ -17,18 +17,15 @@ log = logging.getLogger(__name__)
 # one and only origin of axes)
 
 
-def get_voxels(context, ob, scale_length=None, world=True):  # FIXME world
+def get_voxels(context, ob, world=True):  # FIXME world
     """!
     Get voxels from object in xbs format.
     @param context: the Blender context.
     @param ob: the Blender object.
-    @param scale_length: the scale to use.
     @param world: True to return in world coordinates.
     @return the voxels in xbs format.
     """
     # log.debug(f"Get voxels in Object <{ob.name}>")
-    if not scale_length:
-        scale_length = context.scene.unit_settings.scale_length
     # Check object and init
     if ob.type not in {"MESH", "CURVE", "SURFACE", "FONT", "META"}:
         raise BFException(ob, "Object can not be converted to mesh.")
@@ -74,11 +71,12 @@ def get_voxels(context, ob, scale_length=None, world=True):  # FIXME world
     boxes = grow_boxes_along_first_axis(boxes, first_sort_by)
     boxes = grow_boxes_along_second_axis(boxes, second_sort_by)
     # Transform boxes to xbs in world coordinates and correct for unit_settings
-    xbs = list(_get_box_xbs(boxes, origin, voxel_size, scale_length))
+    xbs = list(_get_box_xbs(context, boxes, origin, voxel_size))
     # Clean up
     bm.free()
     if not xbs:
         raise BFException(ob, "No voxel created!")
+    scale_length = context.scene.unit_settings.scale_length
     return xbs, voxel_size * scale_length
 
 
@@ -180,7 +178,7 @@ def _align_remesh_bbox(context, ob, voxel_size, centered=False):  # FIXME world
     @param ob: the Blender object.
     @param voxel_size: the voxel size of the object.
     """
-    xb = utils.get_bbox_xb(context, ob, scale_length=1.0, world=True)  # in world coo
+    xb = utils.get_bbox_xb(context, ob, blender_units=True, world=True)  # in world coo
     # Calc new xbox (in Blender units)
     #           +----+ xb1, pv1
     #           |    |
@@ -495,16 +493,16 @@ def _grow_boxes_along_z(boxes, sort_by):
 # Transform boxes in integer coordinates, back to world coordinates
 
 
-def _get_box_xbs(boxes, origin, voxel_size, scale_length):
+def _get_box_xbs(context, boxes, origin, voxel_size):
     """!
     Transform boxes to xbs in world coordinates.
     @param boxes: the boxes to handle.
     @param origin: local origin.
     @param voxel_size: the voxel size of the object.
-    @param scale_length: the scale to use.
     @return the xbs.
     """
     epsilon = 1e-5
+    scale_length = context.scene.unit_settings.scale_length
     return (
         (
             (origin[0] + box[0] * voxel_size - epsilon) * scale_length,
@@ -521,18 +519,15 @@ def _get_box_xbs(boxes, origin, voxel_size, scale_length):
 # Pixelization
 
 
-def get_pixels(context, ob, scale_length=None, world=True):  # FIXME world
+def get_pixels(context, ob, world=True):  # FIXME world
     """!
     Get pixels from flat object in xbs format.
     @param context: the Blender context.
     @param ob: the Blender object.
-    @param scale_length: the scale to use.
     @param world: True to return in world coordinates.
     @return the xbs and the voxel size.
     """
     # log.debug(f"Get pixels in Object <{ob.name}>")
-    if not scale_length:
-        scale_length = context.scene.unit_settings.scale_length
     # Check object and init
     if ob.type not in {"MESH", "CURVE", "SURFACE", "FONT", "META"}:
         raise BFException(ob, "Object can not be converted to mesh.")
@@ -558,7 +553,7 @@ def get_pixels(context, ob, scale_length=None, world=True):  # FIXME world
         bpy.data.meshes.remove(ob_copy.data, do_unlink=True)
         raise BFException(ob, "Object is not flat enough.")
     # Get origin for flat xbs
-    xb = utils.get_bbox_xb(context, ob_copy, scale_length, world=world)
+    xb = utils.get_bbox_xb(context, ob_copy, world=world)
     flat_origin = (
         (xb[1] + xb[0]) / 2.0,
         (xb[3] + xb[2]) / 2.0,
@@ -568,7 +563,7 @@ def get_pixels(context, ob, scale_length=None, world=True):  # FIXME world
     _add_solidify_mod(context, ob_copy, voxel_size)
     # Voxelize (already corrected for unit_settings)
     try:
-        xbs, voxel_size = get_voxels(context, ob_copy, scale_length)
+        xbs, voxel_size = get_voxels(context, ob_copy)
     except BFException as err:
         raise BFException(ob, f"No pixel created!\n{err}")
     finally:

@@ -15,21 +15,16 @@ log = logging.getLogger(__name__)
 # Get triangulated surface in FDS format
 
 
-def get_fds_trisurface(
-    context, ob, scale_length=None, check=True, check_open=True, world=True
-):
+def get_fds_trisurface(context, ob, check=True, check_open=True, world=True):
     """!
     Get triangulated surface from object in FDS format.
     @param context: the Blender context.
     @param ob: the Blender object.
-    @param scale_length: the scale to use.
     @param check: True to check the bmesh sanity.
     @param check_open: True to check if bmesh is open.
     @param world: True to return the object in world coordinates.
     @return FDS GEOM notation as lists.
     """
-    if not scale_length:
-        scale_length = context.scene.unit_settings.scale_length
     # Get bmesh and check it, if requested
     bm = utils.get_object_bmesh(
         context=context, ob=ob, world=world, triangulate=True, lookup=False
@@ -39,6 +34,7 @@ def get_fds_trisurface(
     # Get geometric data from bmesh
     fds_verts, fds_faces, fds_surfs = list(), list(), list()
     fds_faces_surfs = list()
+    scale_length = context.scene.unit_settings.scale_length
     for v in bm.verts:
         co = v.co
         fds_verts.extend(

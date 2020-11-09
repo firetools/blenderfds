@@ -1,22 +1,6 @@
 """!
-BlenderFDS, Operator class extensions
+BlenderFDS, Operator class extensions.
 """
-
-# BlenderFDS, an open tool for the NIST Fire Dynamics Simulator
-# Copyright (C) 2013  Emanuele Gissi, http://www.blenderfds.org
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTIBILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import os, sys, subprocess
 
@@ -1038,10 +1022,6 @@ class _bf_set_geoloc:
         precision=9,
     )
 
-    bf_elevation: FloatProperty(
-        name="Elevation", description="Elevation", unit="LENGTH", precision=4
-    )
-
     def draw(self, context):
         """!
         Draw function for the operator.
@@ -1049,7 +1029,6 @@ class _bf_set_geoloc:
         """
         col = self.layout.column(align=True)
         col.label(text="Error on horizontal geoposition < 1 m")
-        col.prop(self, "bf_elevation", text="Elevation")
         col.prop(self, "bf_lon", text="Longitude")
         col.prop(self, "bf_lat", text="Latitude")
 
@@ -1070,34 +1049,34 @@ class _bf_set_geoloc:
         pass
 
     def execute(self, context):
-        x, y, z = self._get_loc(context)
+        # Get loc, use only unmodified z
+        _, _, z = self._get_loc(context)
         sc = context.scene
-        utm = gis.LonLat(
-            lon=self.bf_lon, lat=self.bf_lat, elevation=self.bf_elevation
-        ).to_UTM(force_zn=sc.bf_origin_utm_zn, force_ne=sc.bf_origin_utm_ne)
+        utm = gis.LonLat(lon=self.bf_lon, lat=self.bf_lat,).to_UTM(
+            force_zn=sc.bf_origin_utm_zn, force_ne=sc.bf_origin_utm_ne
+        )
         # Compute loc relative to scene origin
         scale_length = sc.unit_settings.scale_length
         x = (utm.easting - sc.bf_origin_utm_easting) / scale_length
         y = (utm.northing - sc.bf_origin_utm_northing) / scale_length
-        z = (
-            utm.elevation - sc.bf_origin_elevation
-        )  # scale_length self managed by subtype
         self._set_loc(context, (x, y, z))
         self.report({"INFO"}, "Geolocation set")
         return {"FINISHED"}
 
     def invoke(self, context, event):
-        # Get loc, convert
-        x, y, z = self._get_loc(context)
         sc = context.scene
+        # Check origin geolocation
+        if not sc.bf_misc_export or not sc.bf_origin_export:
+            self.report({"ERROR"}, "Set origin geolocation in MISC namelist.")
+            return {"FINISHED"}
+        # Get loc, convert to set default
+        x, y, _ = self._get_loc(context)
         scale_length = sc.unit_settings.scale_length
         utm = gis.UTM(
             zn=sc.bf_origin_utm_zn,
             ne=sc.bf_origin_utm_ne,
             easting=sc.bf_origin_utm_easting + x * scale_length,
             northing=sc.bf_origin_utm_northing + y * scale_length,
-            elevation=sc.bf_origin_elevation
-            + z,  # scale_length self managed by subtype
         )
         lonlat = utm.to_LonLat()
         # Show
@@ -1109,7 +1088,6 @@ class _bf_set_geoloc:
         # Set defaults
         self.bf_lon = lonlat.lon
         self.bf_lat = lonlat.lat
-        self.bf_elevation = utm.elevation
         # Call dialog
         wm = context.window_manager
         return wm.invoke_props_dialog(self)
