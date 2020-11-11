@@ -37,9 +37,7 @@ def subscribe(cls):
 
 @subscribe
 class ImportFDS(Operator, ImportHelper):
-    """!
-    Import FDS case file to a Scene.
-    """
+    "Import FDS case file to a Blender Scene."
 
     bl_idname = "import_scene.fds"
     bl_label = "Import FDS"
@@ -117,9 +115,7 @@ def menu_func_import_FDS(self, context):
 
 @subscribe
 class ExportFDS(Operator, ExportHelper):
-    """!
-    Export current Scene to FDS case file.
-    """
+    "Export Blender Scene to an FDS case file."
 
     bl_idname = "export_scene.fds"
     bl_label = "Export FDS"
