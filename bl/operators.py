@@ -353,6 +353,14 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                 ob_tmp = geometry.utils.get_tmp_object(
                     context, ob, f"{ob.name}_GEOM_tmp"
                 )
+                # copy materials
+                for ms in ob.material_slots:
+                    ma = ms.material
+                    if not ma:
+                        raise BFException(
+                            self, f"Object <{ob.name}> has empty material slot"
+                        )
+                    ob_tmp.data.materials.append(ma)
                 geometry.from_fds.geom_to_ob(
                     context=context, ob=ob_tmp, vs=vs, fs=fs, ss=ss
                 )
