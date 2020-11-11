@@ -15,6 +15,8 @@
 is a large-eddy simulation (LES) code for low-speed flows,
 with an emphasis on smoke and heat transport from fires.
 
+![qgis2fds](https://github.com/firetools/blenderfds/wiki/images/web/qgis2fds-blenderfds.gif)
+
 ## BlenderFDS, full control over the FDS input file
 
 BlenderFDS helps you build complex FDS models *faster*,
@@ -51,8 +53,6 @@ the [Italian Ministry of Foreign Affairs and International Cooperation](https://
 Another companion tool is [qgis2fds](https://github.com/firetools/qgis2fds/wiki), an open [QGIS](http://www.qgis.org) plugin
 that exports terrains and landuse for wildfire simulation and atmospheric dispersion of fire pollutants.
 The resulting FDS file can be imported to BlenderFDS for further customization.
-
-![qgis2fds](https://github.com/firetools/blenderfds/wiki/images/web/qgis2fds-blenderfds.gif)
 
 ## License
 

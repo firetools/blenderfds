@@ -1,4 +1,4 @@
-#!python3
+#!/usr/bin/python3
 
 import shutil, tempfile
 
@@ -6,14 +6,14 @@ import shutil, tempfile
 ignore_patterns = (
     "__pycache__",
     "*.pyc",
-    "dev",
-    "docs",
-    "*.blend1",
     ".git*",
     ".vscode",
+    "*.blend1",
+    "dev",
+    "docs",
     "verification",
 )
-output_filename = "/home/egissi/blenderfds"
+output_filename = "blenderfds"
 
 # Make
 with tempfile.TemporaryDirectory() as tmpdirname:
