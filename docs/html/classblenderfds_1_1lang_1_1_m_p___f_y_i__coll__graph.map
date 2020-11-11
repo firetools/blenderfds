@@ -1,0 +1,6 @@
+<map id="blenderfds.lang.MP_FYI" name="blenderfds.lang.MP_FYI">
+<area shape="rect" id="node1" title="Blender representation of the FYI parameter for materials." alt="" coords="23,229,186,256"/>
+<area shape="rect" id="node2" href="$classblenderfds_1_1types_1_1_b_f_param_f_y_i.html" title="Blender representation of an FDS parameter, helper for FDS FYI parameter." alt="" coords="5,155,204,181"/>
+<area shape="rect" id="node3" href="$classblenderfds_1_1types_1_1_b_f_param_str.html" title="Blender representation of an FDS parameter, helper for any FDS string parameter." alt="" coords="7,80,202,107"/>
+<area shape="rect" id="node4" href="$classblenderfds_1_1types_1_1_b_f_param.html" title="Blender representation of an FDS parameter." alt="" coords="15,5,194,32"/>
+</map>

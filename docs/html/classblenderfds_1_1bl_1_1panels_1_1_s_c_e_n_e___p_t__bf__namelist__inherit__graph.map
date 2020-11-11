@@ -1,0 +1,13 @@
+<map id="blenderfds.bl.panels.SCENE_PT_bf_namelist" name="blenderfds.bl.panels.SCENE_PT_bf_namelist">
+<area shape="rect" id="node1" title="FDS Panel." alt="" coords="5,300,196,341"/>
+<area shape="rect" id="node2" href="$classblenderfds_1_1bl_1_1panels_1_1_s_c_e_n_e___p_t__bf__case.html" title="FDS Case Config." alt="" coords="244,5,435,47"/>
+<area shape="rect" id="node3" href="$classblenderfds_1_1bl_1_1panels_1_1_s_c_e_n_e___p_t__bf__config__sizes.html" title="Default Sizes and Thresholds." alt="" coords="244,71,435,112"/>
+<area shape="rect" id="node4" href="$classblenderfds_1_1bl_1_1panels_1_1_s_c_e_n_e___p_t__bf__config__units.html" title="Units configuration." alt="" coords="244,136,435,177"/>
+<area shape="rect" id="node5" href="$classblenderfds_1_1bl_1_1panels_1_1_s_c_e_n_e___p_t__bf__namelist___c_a_t_f.html" title="FDS CATF." alt="" coords="244,201,435,243"/>
+<area shape="rect" id="node6" href="$classblenderfds_1_1bl_1_1panels_1_1_s_c_e_n_e___p_t__bf__namelist___d_u_m_p.html" title="FDS DUMP." alt="" coords="244,267,435,308"/>
+<area shape="rect" id="node7" href="$classblenderfds_1_1bl_1_1panels_1_1_s_c_e_n_e___p_t__bf__namelist___h_e_a_d.html" title="FDS HEAD." alt="" coords="244,332,435,373"/>
+<area shape="rect" id="node8" href="$classblenderfds_1_1bl_1_1panels_1_1_s_c_e_n_e___p_t__bf__namelist___m_i_s_c.html" title="FDS MISC." alt="" coords="244,397,435,439"/>
+<area shape="rect" id="node9" href="$classblenderfds_1_1bl_1_1panels_1_1_s_c_e_n_e___p_t__bf__namelist___r_a_d_i.html" title="FDS RADI." alt="" coords="244,463,435,504"/>
+<area shape="rect" id="node10" href="$classblenderfds_1_1bl_1_1panels_1_1_s_c_e_n_e___p_t__bf__namelist___r_e_a_c.html" title="FDS REAC." alt="" coords="244,528,435,569"/>
+<area shape="rect" id="node11" href="$classblenderfds_1_1bl_1_1panels_1_1_s_c_e_n_e___p_t__bf__namelist___t_i_m_e.html" title="FDS TIME." alt="" coords="244,593,435,635"/>
+</map>

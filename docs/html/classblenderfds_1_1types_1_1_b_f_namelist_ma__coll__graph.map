@@ -1,0 +1,5 @@
+<map id="blenderfds.types.BFNamelistMa" name="blenderfds.types.BFNamelistMa">
+<area shape="rect" id="node1" title="Blender representation of an FDS namelist group related to a Blender Material." alt="" coords="5,155,216,181"/>
+<area shape="rect" id="node2" href="$classblenderfds_1_1types_1_1_b_f_namelist.html" title="Blender representation of an FDS namelist group." alt="" coords="15,80,207,107"/>
+<area shape="rect" id="node3" href="$classblenderfds_1_1types_1_1_b_f_param.html" title="Blender representation of an FDS parameter." alt="" coords="21,5,200,32"/>
+</map>

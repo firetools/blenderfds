@@ -1,0 +1,6 @@
+<map id="blenderfds.lang.OP_XYZ" name="blenderfds.lang.OP_XYZ">
+<area shape="rect" id="node1" title="Blender representation of the XYZ parameter to export as points." alt="" coords="24,155,191,181"/>
+<area shape="rect" id="node4" href="$classblenderfds_1_1lang_1_1_o_p___x_y_z__center.html" title="Blender representation of the XYZ parameter to export as points (center)." alt="" coords="40,229,175,271"/>
+<area shape="rect" id="node2" href="$classblenderfds_1_1types_1_1_b_f_param_x_y_z.html" title="Blender representation of an FDS parameter, helper for FDS XYZ parameter." alt="" coords="5,80,209,107"/>
+<area shape="rect" id="node3" href="$classblenderfds_1_1types_1_1_b_f_param.html" title="Blender representation of an FDS parameter." alt="" coords="18,5,197,32"/>
+</map>

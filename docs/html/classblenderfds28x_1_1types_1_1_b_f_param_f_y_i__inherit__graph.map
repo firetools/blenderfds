@@ -1,0 +1,12 @@
+<map id="blenderfds28x.types.BFParamFYI" name="blenderfds28x.types.BFParamFYI">
+<area shape="rect" id="node1" title="Blender representation of an FDS parameter, helper for FDS FYI parameter." alt="" coords="515,180,733,207"/>
+<area shape="rect" id="node4" href="$classblenderfds28x_1_1lang_1_1_m_p___f_y_i.html" title="Blender representation of the FYI parameter for materials." alt="" coords="781,5,964,32"/>
+<area shape="rect" id="node5" href="$classblenderfds28x_1_1lang_1_1_o_p___f_y_i.html" title="Blender representation of the FYI parameter for objects." alt="" coords="781,56,964,83"/>
+<area shape="rect" id="node6" href="$classblenderfds28x_1_1lang_1_1_s_p___d_u_m_p___f_y_i.html" title="Blender representation of the FYI parameter." alt="" coords="796,107,949,149"/>
+<area shape="rect" id="node7" href="$classblenderfds28x_1_1lang_1_1_s_p___h_e_a_d___t_i_t_l_e.html" title="Blender representation of the TITLE parameter, the case description." alt="" coords="796,173,949,214"/>
+<area shape="rect" id="node8" href="$classblenderfds28x_1_1lang_1_1_s_p___m_i_s_c___f_y_i.html" title="Blender representation of the FYI parameter." alt="" coords="796,238,949,279"/>
+<area shape="rect" id="node9" href="$classblenderfds28x_1_1lang_1_1_s_p___r_a_d_i___f_y_i.html" title="Blender representation of the FYI parameter." alt="" coords="796,303,949,345"/>
+<area shape="rect" id="node10" href="$classblenderfds28x_1_1lang_1_1_s_p___r_e_a_c___f_y_i.html" title="Blender representation of the FYI parameter." alt="" coords="796,369,949,410"/>
+<area shape="rect" id="node2" href="$classblenderfds28x_1_1types_1_1_b_f_param_str.html" title="Blender representation of an FDS parameter, helper for any FDS string parameter." alt="" coords="252,180,467,207"/>
+<area shape="rect" id="node3" href="$classblenderfds28x_1_1types_1_1_b_f_param.html" title="Blender representation of an FDS parameter." alt="" coords="5,180,204,207"/>
+</map>

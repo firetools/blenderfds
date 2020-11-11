@@ -1,0 +1,4 @@
+<map id="blenderfds28x.lang.OP_GEOM_IS_TERRAIN" name="blenderfds28x.lang.OP_GEOM_IS_TERRAIN">
+<area shape="rect" id="node1" title="Blender representation of the IS_TERRAIN parameter to set if it represents a terrain." alt="" coords="27,80,182,121"/>
+<area shape="rect" id="node2" href="$classblenderfds28x_1_1types_1_1_b_f_param.html" title="Blender representation of an FDS parameter." alt="" coords="5,5,204,32"/>
+</map>

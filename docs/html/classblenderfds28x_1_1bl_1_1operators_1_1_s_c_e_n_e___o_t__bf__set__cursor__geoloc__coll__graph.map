@@ -1,0 +1,5 @@
+<map id="blenderfds28x.bl.operators.SCENE_OT_bf_set_cursor_geoloc" name="blenderfds28x.bl.operators.SCENE_OT_bf_set_cursor_geoloc">
+<area shape="rect" id="node1" title="Set geographic location (WGS84)." alt="" coords="5,95,232,136"/>
+<area shape="rect" id="node2" title=" " alt="" coords="8,13,80,39"/>
+<area shape="rect" id="node3" href="$classblenderfds28x_1_1bl_1_1operators_1_1__bf__set__geoloc.html" title="Set geographic location (WGS84)." alt="" coords="105,5,285,47"/>
+</map>

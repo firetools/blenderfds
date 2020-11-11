@@ -1,0 +1,4 @@
+<map id="blenderfds.lang.SP_REAC_IDEAL" name="blenderfds.lang.SP_REAC_IDEAL">
+<area shape="rect" id="node1" title="Blender representation of the IDEAL parameter to set ideal heat of combustion." alt="" coords="28,80,161,121"/>
+<area shape="rect" id="node2" href="$classblenderfds_1_1types_1_1_b_f_param.html" title="Blender representation of an FDS parameter." alt="" coords="5,5,184,32"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" title=" " alt="" coords="5,5,84,32"/>
+<area shape="rect" id="node2" href="$classblenderfds_1_1utils_1_1_b_f_exception.html" title="Exception raised by BlenderFDS methods in case of an error." alt="" coords="132,5,321,32"/>
+<area shape="rect" id="node3" href="$classblenderfds_1_1utils_1_1_b_f_not_imported.html" title="Exception raised by BlenderFDS methods when some FDS importing fails." alt="" coords="369,5,575,32"/>
+</map>

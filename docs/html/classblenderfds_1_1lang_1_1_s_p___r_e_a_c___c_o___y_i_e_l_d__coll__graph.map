@@ -1,0 +1,4 @@
+<map id="blenderfds.lang.SP_REAC_CO_YIELD" name="blenderfds.lang.SP_REAC_CO_YIELD">
+<area shape="rect" id="node1" title="Blender representation of the CO_YIELD parameter, the fraction of fuel mass converted into carbon mon..." alt="" coords="25,80,164,121"/>
+<area shape="rect" id="node2" href="$classblenderfds_1_1types_1_1_b_f_param.html" title="Blender representation of an FDS parameter." alt="" coords="5,5,184,32"/>
+</map>

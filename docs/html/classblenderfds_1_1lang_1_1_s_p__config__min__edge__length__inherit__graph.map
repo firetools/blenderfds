@@ -1,0 +1,4 @@
+<map id="blenderfds.lang.SP_config_min_edge_length" name="blenderfds.lang.SP_config_min_edge_length">
+<area shape="rect" id="node1" title="Blender representation for the min allowed edge length." alt="" coords="10,80,179,121"/>
+<area shape="rect" id="node2" href="$classblenderfds_1_1types_1_1_b_f_param.html" title="Blender representation of an FDS parameter." alt="" coords="5,5,184,32"/>
+</map>

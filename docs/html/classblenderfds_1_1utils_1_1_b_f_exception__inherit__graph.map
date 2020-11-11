@@ -1,0 +1,5 @@
+<map id="blenderfds.utils.BFException" name="blenderfds.utils.BFException">
+<area shape="rect" id="node1" title="Exception raised by BlenderFDS methods in case of an error." alt="" coords="13,80,203,107"/>
+<area shape="rect" id="node3" href="$classblenderfds_1_1utils_1_1_b_f_not_imported.html" title="Exception raised by BlenderFDS methods when some FDS importing fails." alt="" coords="5,155,211,181"/>
+<area shape="rect" id="node2" title=" " alt="" coords="69,5,147,32"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="blenderfds28x.bl.menus.ExportFDS" name="blenderfds28x.bl.menus.ExportFDS">
+<area shape="rect" id="node1" title="Export current Scene to FDS case file." alt="" coords="5,80,236,107"/>
+<area shape="rect" id="node2" title=" " alt="" coords="30,5,102,32"/>
+<area shape="rect" id="node3" title=" " alt="" coords="126,5,225,32"/>
+</map>

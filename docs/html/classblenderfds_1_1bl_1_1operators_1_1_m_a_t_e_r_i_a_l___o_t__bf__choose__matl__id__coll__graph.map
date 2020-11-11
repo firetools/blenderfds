@@ -1,0 +1,4 @@
+<map id="blenderfds.bl.operators.MATERIAL_OT_bf_choose_matl_id" name="blenderfds.bl.operators.MATERIAL_OT_bf_choose_matl_id">
+<area shape="rect" id="node1" title="Choose MATL_ID from MATLs available in Free Text and CATF files." alt="" coords="5,80,184,136"/>
+<area shape="rect" id="node2" title=" " alt="" coords="59,5,131,32"/>
+</map>

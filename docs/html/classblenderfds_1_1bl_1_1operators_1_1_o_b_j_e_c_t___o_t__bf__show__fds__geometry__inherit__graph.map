@@ -1,0 +1,4 @@
+<map id="blenderfds.bl.operators.OBJECT_OT_bf_show_fds_geometry" name="blenderfds.bl.operators.OBJECT_OT_bf_show_fds_geometry">
+<area shape="rect" id="node1" title="Show geometry of Object as exported to FDS." alt="" coords="5,80,184,136"/>
+<area shape="rect" id="node2" title=" " alt="" coords="59,5,131,32"/>
+</map>

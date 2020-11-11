@@ -1,0 +1,6 @@
+<map id="blenderfds28x.bl.operators._show_fds_code" name="blenderfds28x.bl.operators._show_fds_code">
+<area shape="rect" id="node1" title="Helper for showing fds code operators." alt="" coords="5,71,185,112"/>
+<area shape="rect" id="node2" href="$classblenderfds28x_1_1bl_1_1operators_1_1_m_a_t_e_r_i_a_l___o_t__bf__show__fds__code.html" title="Show FDS code exported from current Material." alt="" coords="233,5,461,47"/>
+<area shape="rect" id="node3" href="$classblenderfds28x_1_1bl_1_1operators_1_1_o_b_j_e_c_t___o_t__bf__show__fds__code.html" title="Show FDS code exported from current Object." alt="" coords="240,71,455,112"/>
+<area shape="rect" id="node4" href="$classblenderfds28x_1_1bl_1_1operators_1_1_s_c_e_n_e___o_t__bf__show__fds__code.html" title="Show FDS code exported from Scene." alt="" coords="242,136,453,177"/>
+</map>

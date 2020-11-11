@@ -1,0 +1,21 @@
+<map id="blenderfds.types.BFParamStr" name="blenderfds.types.BFParamStr">
+<area shape="rect" id="node1" title="Blender representation of an FDS parameter, helper for any FDS string parameter." alt="" coords="232,283,427,309"/>
+<area shape="rect" id="node3" href="$classblenderfds_1_1lang_1_1_m_p___i_d.html" title="Blender representation of the ID parameter, the material identification name." alt="" coords="496,5,652,32"/>
+<area shape="rect" id="node4" href="$classblenderfds_1_1lang_1_1_m_p___m_a_t_l___i_d.html" title="Blender representation of the MATL_ID parameter, the reference to a MATL (Material) line for self pro..." alt="" coords="507,57,641,98"/>
+<area shape="rect" id="node5" href="$classblenderfds_1_1lang_1_1_o_p___d_e_v_c___p_r_o_p___i_d.html" title="Blender representation of the PROP_ID parameter, the reference to a PROP (Property) line for self pro..." alt="" coords="507,122,641,163"/>
+<area shape="rect" id="node6" href="$classblenderfds_1_1lang_1_1_o_p___d_e_v_c___q_u_a_n_t_i_t_y.html" title="Blender representation of the QUANTITY parameter, the output quantity." alt="" coords="505,187,643,229"/>
+<area shape="rect" id="node7" href="$classblenderfds_1_1lang_1_1_o_p___i_d.html" title="Blender representation of the ID parameter, the object identification name." alt="" coords="497,253,651,280"/>
+<area shape="rect" id="node8" href="$classblenderfds_1_1lang_1_1_o_p___m_o_v_e___i_d.html" title="Blender representation for exporting a namelist with its MOVE namelist." alt="" coords="507,305,641,346"/>
+<area shape="rect" id="node9" href="$classblenderfds_1_1lang_1_1_s_p___r_e_a_c___f_o_r_m_u_l_a.html" title="Blender representation of the FORMULA string parameter, the chemical formula of fuel species,..." alt="" coords="505,370,643,411"/>
+<area shape="rect" id="node10" href="$classblenderfds_1_1lang_1_1_s_p___r_e_a_c___f_u_e_l.html" title="Blender representation of the FUEL string parameter, the identificator of fuel species." alt="" coords="507,435,641,477"/>
+<area shape="rect" id="node11" href="$classblenderfds_1_1lang_1_1_s_p___r_e_a_c___i_d.html" title="Blender representation of the ID string parameter, the identificator of the reaction." alt="" coords="507,501,641,542"/>
+<area shape="rect" id="node12" href="$classblenderfds_1_1types_1_1_b_f_param_f_y_i.html" title="Blender representation of an FDS parameter, helper for FDS FYI parameter." alt="" coords="475,567,673,593"/>
+<area shape="rect" id="node2" href="$classblenderfds_1_1types_1_1_b_f_param.html" title="Blender representation of an FDS parameter." alt="" coords="5,283,184,309"/>
+<area shape="rect" id="node13" href="$classblenderfds_1_1lang_1_1_m_p___f_y_i.html" title="Blender representation of the FYI parameter for materials." alt="" coords="721,392,884,419"/>
+<area shape="rect" id="node14" href="$classblenderfds_1_1lang_1_1_o_p___f_y_i.html" title="Blender representation of the FYI parameter for objects." alt="" coords="721,443,884,469"/>
+<area shape="rect" id="node15" href="$classblenderfds_1_1lang_1_1_s_p___d_u_m_p___f_y_i.html" title="Blender representation of the FYI parameter." alt="" coords="736,494,869,535"/>
+<area shape="rect" id="node16" href="$classblenderfds_1_1lang_1_1_s_p___h_e_a_d___t_i_t_l_e.html" title="Blender representation of the TITLE parameter, the case description." alt="" coords="736,559,869,601"/>
+<area shape="rect" id="node17" href="$classblenderfds_1_1lang_1_1_s_p___m_i_s_c___f_y_i.html" title="Blender representation of the FYI parameter." alt="" coords="736,625,869,666"/>
+<area shape="rect" id="node18" href="$classblenderfds_1_1lang_1_1_s_p___r_a_d_i___f_y_i.html" title="Blender representation of the FYI parameter." alt="" coords="736,690,869,731"/>
+<area shape="rect" id="node19" href="$classblenderfds_1_1lang_1_1_s_p___r_e_a_c___f_y_i.html" title="Blender representation of the FYI parameter." alt="" coords="736,755,869,797"/>
+</map>

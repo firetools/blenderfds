@@ -1,0 +1,4 @@
+<map id="blenderfds.bl.operators.MATERIAL_OT_bf_assign_BC_to_sel_obs" name="blenderfds.bl.operators.MATERIAL_OT_bf_assign_BC_to_sel_obs">
+<area shape="rect" id="node1" title="Assign current boundary condition to selected Objects." alt="" coords="5,80,180,136"/>
+<area shape="rect" id="node2" title=" " alt="" coords="57,5,129,32"/>
+</map>

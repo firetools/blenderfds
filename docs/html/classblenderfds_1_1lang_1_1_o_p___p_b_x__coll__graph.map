@@ -1,0 +1,6 @@
+<map id="blenderfds.lang.OP_PBX" name="blenderfds.lang.OP_PBX">
+<area shape="rect" id="node1" title="Blender representation of the PBX parameter." alt="" coords="19,229,187,256"/>
+<area shape="rect" id="node2" href="$classblenderfds_1_1lang_1_1_o_p___p_b.html" title="Blender representation to export as planes." alt="" coords="24,155,183,181"/>
+<area shape="rect" id="node3" href="$classblenderfds_1_1types_1_1_b_f_param_p_b.html" title="Blender representation of an FDS parameter, helper for FDS PBX PBY PBZ parameters." alt="" coords="5,80,201,107"/>
+<area shape="rect" id="node4" href="$classblenderfds_1_1types_1_1_b_f_param.html" title="Blender representation of an FDS parameter." alt="" coords="14,5,193,32"/>
+</map>
