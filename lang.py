@@ -2087,7 +2087,7 @@ class OP_XYZ(BFParamXYZ):
         elif suffix == "IDY":
             ids = (f"{n}_y{xyz[1]:+.3f}" for xyz in xyzs)
         elif suffix == "IDZ":
-            ids = (f"'{n}_z{xyz[2]:+.3f}" for xyz in xyzs)
+            ids = (f"{n}_z{xyz[2]:+.3f}" for xyz in xyzs)
         elif suffix == "IDXY":
             ids = (f"{n}_x{xyz[0]:+.3f}_y{xyz[1]:+.3f}" for xyz in xyzs)
         elif suffix == "IDXZ":
