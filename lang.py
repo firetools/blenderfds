@@ -2196,15 +2196,11 @@ class OP_PB(BFParamPB):
         suffix = self.element.bf_id_suffix
         if suffix == "IDI":
             ids = (f"{n}_{i}" for i, _ in enumerate(pbs))
-        elif suffix == "IDXYZ":
+        else:
             ids = (
-                (f"{n}_x{pb:+.3f}", f"{n}_y{pb:+.3f}", f"{n}_z{pb:+.3f}")[
-                    int(axis)
-                ]  # the pbs cache sends floats
+                (f"{n}_x{pb:+.3f}", f"{n}_y{pb:+.3f}", f"{n}_z{pb:+.3f}")[axis]
                 for axis, pb in pbs
             )
-        else:
-            raise AssertionError(f"Unknown suffix <{suffix}>")
         result = tuple(
             (
                 FDSParam(fds_label="ID", value=hid),
