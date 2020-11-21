@@ -28,7 +28,7 @@ You can import CAD models and existing FDS input files,
 and quickly adapt them to your needs.
 
 BlenderFDS is developed in Python
-as a free and open source [Blender](http://www.blender.org/) addon,
+as a free and open source [Blender](https://www.blender.org/) addon,
 and it is fully scriptable.
 
 BlenderFDS is available for [MS Windows, MacOSX, Linux](https://github.com/firetools/blenderfds/wiki/Installing).
@@ -37,7 +37,7 @@ BlenderFDS is available for [MS Windows, MacOSX, Linux](https://github.com/firet
 
 ## What is Blender?
 
-[Blender](http://www.blender.org/) is the free and open source 3D creation suite.
+[Blender](https://www.blender.org/) is the free and open source 3D creation suite.
 It supports the entirety of the 3D pipeline from modelling to visualisation,
 and BlenderFDS makes use of its 3D modeling tools.
 
@@ -50,7 +50,7 @@ the [Italian Ministry of Foreign Affairs and International Cooperation](https://
 
 ## A family of open tools for FDS
 
-Another companion tool is [qgis2fds](https://github.com/firetools/qgis2fds/wiki), an open [QGIS](http://www.qgis.org) plugin
+Another companion tool is [qgis2fds](https://github.com/firetools/qgis2fds/wiki), an open [QGIS](https://www.qgis.org) plugin
 that exports terrains and landuse for wildfire simulation and atmospheric dispersion of fire pollutants.
 The resulting FDS file can be imported to BlenderFDS for further customization.
 
