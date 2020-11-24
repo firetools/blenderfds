@@ -108,7 +108,7 @@ class BFObject:
         @param context: the Blender context.
         @return FDS formatted string (eg. "&OBST ID='Test' /"), or None.
         """
-        if self.bf_is_tmp or not self.type == "MESH":
+        if self.hide_render or self.bf_is_tmp or not self.type == "MESH":
             return
         lines = list()
         # Inject my MOVE namelist
@@ -169,6 +169,8 @@ class BFCollection:
         @param context: the Blender context.
         @return FDS formatted string, eg. "&OBST ID='Test' /".
         """
+        if self.hide_render:
+            return
         obs = list(self.objects)
         obs.sort(key=lambda k: k.name)  # alphabetic by name
         lines = list(ob.to_fds(context) for ob in obs)
