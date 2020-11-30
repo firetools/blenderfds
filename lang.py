@@ -574,6 +574,11 @@ class SP_origin_geoname(BFParam):
             col.prop(sc, "bf_origin_lon")
             col.prop(sc, "bf_origin_lat")
             col.prop(sc, "bf_origin_north_bearing")
+            row = col.row()
+            row.alignment = "RIGHT"
+            row.label(
+                text=f"UTM {sc['bf_origin_utm_zn']}{sc['bf_origin_utm_ne'] and 'N' or 'S'} {int(sc['bf_origin_utm_easting'])}m E {int(sc['bf_origin_utm_northing'])}m N (WGS84)"
+            )
 
     def to_fds_param(self, context):
         if self.element.bf_origin_export and self.element.bf_origin_geoname:
