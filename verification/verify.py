@@ -338,9 +338,14 @@ def import_from_fds_tree(  # Ok
 
 
 class Results(list):
+    def check_path_exists(self, path):
+        if not os.path.exists(path):
+            raise Exception(f"Path <{path}> does not exist!")
+
     def write_csv(self, options=None):
         if not options:
             options = "all"
+        self.check_path_exists("results")
         filename = (
             f"results/{datetime.now().strftime('%Y%m%d_%H%M')}_{options}_results.csv"
         )
@@ -354,6 +359,7 @@ class Results(list):
     def write_txt(self, options=None, full=False):
         if not options:
             options = "all"
+        self.check_path_exists("results")
         filename = (
             f"results/{datetime.now().strftime('%Y%m%d_%H%M')}_{options}_failures.txt"
         )
