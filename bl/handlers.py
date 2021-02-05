@@ -183,6 +183,6 @@ def unregister():
     Unload the Python classes and functions from Blender.
     """
     log.debug(f"Unregistering handlers")
-    depsgraph_update_post.remove(_depsgraph_update_post)
+    # depsgraph_update_post.remove(_depsgraph_update_post)
     save_pre.remove(_save_pre)
     load_post.remove(_load_post)
