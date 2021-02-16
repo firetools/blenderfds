@@ -1,6 +1,6 @@
 import_from_fds_tree(
     test=test,
-    path="../../../fds-master/Validation/",
+    path="../../fds-master/Validation/",
     compare_with_ref=False,
     run_fds = False,
     exclude_files = None,

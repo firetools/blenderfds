@@ -274,9 +274,8 @@ def import_from_fds_case(test, filepath):  # ok
         r.time, r.success, r.log = time.time() - start_time, False, str(err)
         r.print()
     else:
-        # Get new scene, use filename as default name  # FIXME CHID?
-        name = os.path.splitext(os.path.basename(filepath))[0]
-        sc = bpy.data.scenes[name]
+        # Get new scene, it is the last one created
+        sc = bpy.data.scenes[-1]
         # Set default scene as context.scene
         bpy.context.window.scene = sc
         # Unlink bingeoms from original files
@@ -314,7 +313,7 @@ def import_from_fds_tree(  # Ok
         for p, _, files in os.walk(path):  # recursive, sends filename
             # Exclude dirs
             dir_name = os.path.basename(os.path.dirname(p))
-            if dir_name in exclude_dirs or dir_name.startswith("_"):
+            if dir_name in exclude_dirs:
                 continue
             # Loop on files
             for filename in files:
