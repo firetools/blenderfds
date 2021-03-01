@@ -4,6 +4,10 @@ BlenderFDS, import/export menu panel.
 
 import os
 
+import json
+import tempfile
+import webbrowser
+import urllib3
 import bpy, logging
 from bpy.types import Operator
 from bpy.props import StringProperty, BoolProperty, FloatProperty
@@ -195,6 +199,147 @@ def menu_func_export_to_fds(self, context):
     self.layout.operator(ExportFDS.bl_idname, text="NIST FDS (.fds)")
 
 
+@subscribe
+class ExportFDSCloudHPC(Operator):
+    """!
+    Export current Scene to FDS case file.
+    """
+
+    bl_idname = "export_scene_cloudhpc.fds"
+    bl_label = "Export FDS into CloudHPC"
+    bl_description = "Export Blender Scenes into CloudHPC"
+
+    cloudKeyFilePath = "/".join((os.path.dirname(os.path.realpath(__file__)), "CloudHPCKey.txt"))
+
+    cloudHPC_key = bpy.props.StringProperty(
+        name = "CloudHPC Key",
+        default = ""
+    )
+
+    cloudHPC_dirname = bpy.props.StringProperty(
+        name = "CloudHPC Directory",
+        default = "Directory"
+    )
+
+    def _getCloudKey(self):
+        try:
+            with open(self.cloudKeyFilePath, "r") as f:
+                return f.read()
+        except:
+            return ""
+
+    def invoke(self, context, event):
+        self.cloudHPC_key = self._getCloudKey()
+        return context.window_manager.invoke_props_dialog(self, width = 450)
+    
+    def draw(self, context):
+        col = self.layout.column(align = True)
+        col.prop(self, "cloudHPC_key")
+
+        col = self.layout.column(align = True)
+        col.prop(self, "cloudHPC_dirname")
+
+        col = self.layout.column(align = True)
+        col.operator("object.simple_operator")
+
+    def execute(self, context):
+        with tempfile.NamedTemporaryFile(mode='w+', suffix='.fds', delete=True) as temp:
+            try:
+                with open(self.cloudKeyFilePath, "w") as f:
+                    f.write(self.cloudHPC_key)
+
+                temp.writelines(context.scene.to_fds(context=context, full=True))
+                temp.seek(0)
+                self._upload_fds(self.cloudHPC_key, self.cloudHPC_dirname, context.scene.name + ".fds", temp)
+                ShowMessageBox(message="File was uploaded succesfully", title="CFD Fea Service")
+                webbrowser.open('https://cloud.cfdfeaservice.it/', new=2)
+                return {"FINISHED"}
+        
+            except Exception as e:
+                ShowMessageBox(message="An error occurred during the file upload", title="CFD Fea Service") 
+                return {"FINISHED"}
+
+    def _upload_fds(self, api_key, dirname, filename, fdsFile):
+
+        headers = {
+            'api-key': f'{api_key}',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        }
+
+        body = json.dumps({
+            'data': {
+                'dirname': f'{dirname}',
+                'basename': f'{filename}',
+                'contentType': 'application/octet-stream'
+            }
+        })
+        
+        http = urllib3.PoolManager()
+        response = http.request(
+            'POST', 
+            'https://cloud.cfdfeaservice.it/api/v1/storage/upload/url',
+            headers=headers,
+            body=body
+        )
+
+        print(response.status)
+        if(response.status != 200):
+            raise ConnectionError(response.status)
+
+        #---------------
+
+        url = json.loads(response.data.decode('utf-8'))["url"]
+
+        headers = {
+            'Content-Type': 'application/octet-stream',
+        }
+
+        body = fdsFile.read()
+
+        http = urllib3.PoolManager()
+        response = http.request(
+            'PUT',
+            url,
+            headers=headers,
+            body=body
+        )
+
+        print(response.status)
+        if(response.status != 200):
+            raise ConnectionError(response.status)
+
+
+def menu_func_export_to_cloudHPC(self, context):
+    """!
+    Export function for current Scene to FDS case file.
+    """
+    self.layout.operator(ExportFDSCloudHPC.bl_idname, text="FDS (.fds) into CloudHPC")
+
+
+def ShowMessageBox(message="", title="Message Box", icon='INFO'):
+
+    def draw(self, context):
+        self.layout.label(text=message)
+
+    bpy.context.window_manager.popup_menu(draw, title=title, icon=icon)
+
+
+@subscribe
+class SimpleOperator(Operator):
+    """Tooltip"""
+    
+    bl_idname = "object.simple_operator" # <- put this string in layout.operator()
+    bl_label = "If you don't have a CloudHPC Key, register here" # <- button name
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+        webbrowser.open('https://cloudhpc.cloud/form-request/', new=2)
+        return {'FINISHED'}
+
 # Register
 
 
@@ -208,6 +353,7 @@ def register():
         register_class(cls)
     bpy.types.TOPBAR_MT_file_import.append(menu_func_import_FDS)
     bpy.types.TOPBAR_MT_file_export.append(menu_func_export_to_fds)
+    bpy.types.TOPBAR_MT_file_export.append(menu_func_export_to_cloudHPC)
 
 
 def unregister():
@@ -220,3 +366,4 @@ def unregister():
         unregister_class(cls)
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import_FDS)
     bpy.types.TOPBAR_MT_file_export.remove(menu_func_export_to_fds)
+    bpy.types.TOPBAR_MT_file_export.remove(menu_func_export_to_cloudHPC)

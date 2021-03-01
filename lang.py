@@ -1948,75 +1948,120 @@ class OP_MESH_XB_BBOX(OP_XB):
         ob.bf_xb = "BBOX"
         if not ob.bf_xb_export:
             return
+
         # Compute
         xbs, _ = geometry.to_fds.ob_to_xbs(context, ob)
         return FDSParam(fds_label="XB", value=xbs[0], precision=6)
 
-    # def to_fds_param(self, context):
-    #     ob = self.element
-    #     if not ob.bf_xb_export:
-    #         return
-    #     # Compute
-    #     ob.bf_xb = "BBOX"  # len(xbs) == 1
-    #     xbs, msg = geometry.to_fds.ob_to_xbs(context, ob)
-    #     # Split FIXME FIXME FIXME
-    #     if (
-    #         ob.bf_mesh_ijk_export and ob.bf_mesh_ijk_split_export
-    #     ):  # FIXME new properties
-    #         # Split ijk
-    #         ijk = ob.bf_mesh_ijk
-    #         ijk_split = ob.bf_mesh_ijk_split
-    #         ijk_first = (
-    #             ijk[0] // ijk_split[0],
-    #             ijk[1] // ijk_split[1],
-    #             ijk[2] // ijk_split[2],
-    #         )
-    #         ijk_last = (
-    #             ijk[0] - ijk_first[0] * ijk_split[0],
-    #             ijk[1] - ijk_first[1] * ijk_split[1],
-    #             ijk[2] - ijk_first[2] * ijk_split[2],
-    #         )
-    #         # Split xbs
-
-    #     # Single param
-    #     if len(xbs) == 1:
-    #         return FDSParam(fds_label="XB", value=xbs[0], precision=6)
-    #     # Multi param, prepare new ID
-    #     n = ob.name
-    #     suffix = self.element.bf_id_suffix
-    #     if suffix == "IDI":
-    #         ids = (f"{n}_{i}" for i, _ in enumerate(xbs))
-    #     elif suffix == "IDX":
-    #         ids = (f"{n}_x{xb[0]:+.3f}" for xb in xbs)
-    #     elif suffix == "IDY":
-    #         ids = (f"{n}_y{xb[2]:+.3f}" for xb in xbs)
-    #     elif suffix == "IDZ":
-    #         ids = (f"{n}_z{xb[4]:+.3f}" for xb in xbs)
-    #     elif suffix == "IDXY":
-    #         ids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}" for xb in xbs)
-    #     elif suffix == "IDXZ":
-    #         ids = (f"{n}_x{xb[0]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
-    #     elif suffix == "IDYZ":
-    #         ids = (f"{n}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
-    #     elif suffix == "IDXYZ":
-    #         ids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
-    #     else:
-    #         raise AssertionError(f"Unknown suffix <{suffix}>")
-    #     # Set ijks
-    #     ijks = (ijk_first for xb in xbs)
-    #     ijks[-1] = ijk_last
-    #     # Prepare multi fds_param
-    #     result = tuple(
-    #         (
-    #             FDSParam(fds_label="ID", value=hid),
-    #             FDSParam(fds_label="IJK", value=ijk),
-    #             FDSParam(fds_label="XB", value=xb, precision=6),
-    #         )
-    #         for hid, ijk, xb in zip(ids, ijks, xbs)
-    #     )
-    #     # Send message
-    #     result[0][0].msg = msg
-    #     return result
+#    def to_fds_param(self, context):
+#        ob = self.element
+#        if not ob.bf_xb_export:
+#            return
+#
+#        # Compute
+#        ob.bf_xb = "BBOX"  # len(xbs) == 1
+#        xbs, msg = geometry.to_fds.ob_to_xbs(context, ob)
+#
+#        # Split FIXME FIXME FIXME
+#        if ( ob.bf_mesh_ijk_export ):
+#
+#            # Detection of IJK and SPLIT (if not present by default split = 1, 1, 1
+#            ijk = ob.bf_mesh_ijk
+#
+#            if ( ob.bf_mesh_split_export ):
+#               ijk_split = ob.bf_mesh_split
+#            else:
+#               ijk_split = ( 1, 1, 1)
+#
+#            #IJK calculation - we take the floor in case of rest and the last bit takes the remaining
+#            ijk_first = (
+#                ijk[0] // ijk_split[0],
+#                ijk[1] // ijk_split[1],
+#                ijk[2] // ijk_split[2],
+#            )
+#            ijk_last = (
+#                ijk[0] - ijk_first[0] * ( ijk_split[0] - 1 ),
+#                ijk[1] - ijk_first[1] * ( ijk_split[1] - 1 ),
+#                ijk[2] - ijk_first[2] * ( ijk_split[2] - 1 ),
+#            )
+#            # Definition of array of XBS (BB) and IJK for all the new meshes
+#            xbs_global = list( xbs[0] )
+#            xbs.clear()
+#            ijks = []
+#
+#            for i in range( ijk_split[0]):
+#              for j in range( ijk_split[1]):
+#                for k in range( ijk_split[2]):
+#
+#                   xbs_local = [None] * 6
+#                   ijk_local = [None] * 3
+#
+#                   ijk_local = list( ijk_first )
+#
+#                   xbs_local[0] = xbs_global[0] + i * ( xbs_global[1] - xbs_global[0] ) / ijk[0] * ijk_first[0]
+#                   xbs_local[1] = xbs_local[0]  +     ( xbs_global[1] - xbs_global[0] ) / ijk[0] * ijk_first[0]
+#                   xbs_local[2] = xbs_global[2] + j * ( xbs_global[3] - xbs_global[2] ) / ijk[1] * ijk_first[1]
+#                   xbs_local[3] = xbs_local[2]  +     ( xbs_global[3] - xbs_global[2] ) / ijk[1] * ijk_first[1]
+#                   xbs_local[4] = xbs_global[4] + k * ( xbs_global[5] - xbs_global[4] ) / ijk[2] * ijk_first[2]
+#                   xbs_local[5] = xbs_local[4]  +     ( xbs_global[5] - xbs_global[4] ) / ijk[2] * ijk_first[2]
+#
+#                   if ( i == ijk_split[0] - 1 ):
+#                      xbs_local[1] = xbs_global[1]
+#                      ijk_local[0] = ijk_last[0]
+#
+#                   if ( j == ijk_split[1] - 1 ):
+#                      xbs_local[3] = xbs_global[3]
+#                      ijk_local[1] = ijk_last[1]
+#
+#                   if ( k == ijk_split[2] - 1 ):
+#                      xbs_local[5] = xbs_global[5]
+#                      ijk_local[2] = ijk_last[2]
+#
+#                   xbs.append( xbs_local )
+#                   ijks.append( ijk_local )
+# 
+#        # Multi param, prepare new ID
+#        n = ob.name
+#        suffix = self.element.bf_id_suffix
+#
+#        if suffix == "IDI":
+#            ids = (f"{n}_{i}" for i, _ in enumerate(xbs))
+#        elif suffix == "IDX":
+#            ids = (f"{n}_x{xb[0]:+.3f}" for xb in xbs)
+#        elif suffix == "IDY":
+#            ids = (f"{n}_y{xb[2]:+.3f}" for xb in xbs)
+#        elif suffix == "IDZ":
+#            ids = (f"{n}_z{xb[4]:+.3f}" for xb in xbs)
+#        elif suffix == "IDXY":
+#            ids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}" for xb in xbs)
+#        elif suffix == "IDXZ":
+#            ids = (f"{n}_x{xb[0]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
+#        elif suffix == "IDYZ":
+#            ids = (f"{n}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
+#        elif suffix == "IDXYZ":
+#            ids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
+#        else:
+#            raise AssertionError(f"Unknown suffix <{suffix}>")
+#
+#        (
+#            has_good_ijk,
+#            cs,
+#            cell_count,
+#            cell_aspect_ratio,
+#        ) = fds.mesh_tools.calc_cell_infos(ijk=ob.bf_mesh_ijk, xb=xbs_global)
+#        msg = f"MESH Cell Size: {cs[0]:.3f} m, {cs[1]:.3f} m, {cs[2]:.3f} m | Qty: {cell_count} | Aspect: {cell_aspect_ratio:.1f} | Poisson: {has_good_ijk and 'Yes' or 'No'}"
+#
+#        # Prepare multi fds_param
+#        result = tuple(
+#            (
+#                FDSParam(fds_label="ID", value=hid, msg=msg),
+#                FDSParam(fds_label="IJK", value=ijk),
+#                FDSParam(fds_label="XB", value=xb, precision=6),
+#            )
+#            for hid, ijk, xb in zip(ids, ijks, xbs)
+#        )
+#
+#        return result
 
     def draw(self, context, layout):
         ob = self.element
@@ -3186,7 +3231,6 @@ class OP_MESH_IJK(BFParam):
 
     label = "IJK"
     description = "Cell number in x, y, and z direction"
-    fds_label = "IJK"
     bpy_type = Object
     bpy_idname = "bf_mesh_ijk"
     bpy_prop = IntVectorProperty
@@ -3211,20 +3255,24 @@ class OP_MESH_IJK(BFParam):
         )
         super().draw(context, layout)
 
-    def to_fds_param(self, context):
-        ob = self.element
-        if not ob.bf_mesh_ijk_export:
-            return
-        xb = geometry.utils.get_bbox_xb(context=context, ob=ob, world=True)
-        (
-            has_good_ijk,
-            cs,
-            cell_count,
-            cell_aspect_ratio,
-        ) = fds.mesh_tools.calc_cell_infos(ijk=ob.bf_mesh_ijk, xb=xb)
-        msg = f"MESH Cell Size: {cs[0]:.3f} m, {cs[1]:.3f} m, {cs[2]:.3f} m | Qty: {cell_count} | Aspect: {cell_aspect_ratio:.1f} | Poisson: {has_good_ijk and 'Yes' or 'No'}"
-        return FDSParam(fds_label="IJK", value=ob.bf_mesh_ijk, msg=msg)
+@subscribe
+class OP_MESH_SPLIT(BFParam):
+    """!
+    Blender definition of the split feature of the MESH
+    """
 
+    label = "Split"
+    description = "Split current mesh in X, Y or Z direction"
+    bpy_type = Object
+    bpy_idname = "bf_mesh_split"
+    bpy_prop = IntVectorProperty
+    bpy_default = (1, 1, 1)
+    bpy_other = {"size": 3, "min": 1}
+    bpy_export = "bf_mesh_split_export"
+    bpy_export_default = False
+
+    def draw(self, context, layout):
+        super().draw(context, layout)
 
 @subscribe
 class ON_MESH(BFNamelistOb):
@@ -3236,7 +3284,7 @@ class ON_MESH(BFNamelistOb):
     description = "Domain of simulation"
     enum_id = 1014
     fds_label = "MESH"
-    bf_params = OP_ID, OP_FYI, OP_MESH_IJK, OP_XB_BBOX, OP_other
+    bf_params = OP_ID, OP_FYI, OP_MESH_IJK, OP_MESH_SPLIT, OP_MESH_XB_BBOX, OP_other
     bf_other = {"appearance": "WIRE"}
 
     def draw_operators(self, context, layout):
