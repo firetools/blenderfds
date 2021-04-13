@@ -427,12 +427,8 @@ class VIEW3D_PT_bf_mesh_clean_up(Panel):
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False
-        ob = context.active_object
-        me = ob.data
         col = layout.column()
-        col.label(
-            text=f"{ob.name} | Verts: {len(me.vertices)} | Faces: {len(me.polygons)}"
-        )
+        col.label(text=context.screen.statusbar_info().split(" | Tris:", 1)[0])
         row = col.row(align=True)
         row.template_header_3D_mode()
         row.menu("VIEW3D_MT_edit_mesh_select_by_trait")
