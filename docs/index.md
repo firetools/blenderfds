@@ -19,8 +19,6 @@ as BlenderFDS does not hide the FDS complexity and flexibility.
 You can import CAD models and existing FDS input files,
 and quickly adapt them to your needs.
 
-![blenderfds](https://github.com/firetools/blenderfds/wiki/images/web/blenderfds.gif)
-
 BlenderFDS is developed in Python
 as a free and open source [Blender](https://www.blender.org/) addon,
 and it is fully scriptable.
@@ -28,6 +26,8 @@ and it is fully scriptable.
 BlenderFDS is available for [MS Windows, MacOSX, Linux](https://github.com/firetools/blenderfds/wiki/Installing).
 
 [![](https://github.com/firetools/blenderfds/wiki/images/web/win_mac_linux.png)](https://github.com/firetools/blenderfds/wiki/Installing)
+
+![blenderfds](https://github.com/firetools/blenderfds/wiki/images/web/blenderfds.gif)
 
 ## What is FDS?
 
