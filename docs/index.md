@@ -15,7 +15,7 @@
 is a large-eddy simulation (LES) code for low-speed flows,
 with an emphasis on smoke and heat transport from fires.
 
-![qgis2fds](https://github.com/firetools/blenderfds/wiki/images/web/qgis2fds-blenderfds.gif)
+![blenderfds](https://github.com/firetools/blenderfds/wiki/images/web/blenderfds.gif)
 
 ## BlenderFDS, full control over the FDS input file
 
@@ -41,18 +41,20 @@ BlenderFDS is available for [MS Windows, MacOSX, Linux](https://github.com/firet
 It supports the entirety of the 3D pipeline from modelling to visualisation,
 and BlenderFDS makes use of its 3D modeling tools.
 
+## A family of open tools for FDS
+
+Another companion tool is [qgis2fds](https://github.com/firetools/qgis2fds/wiki), an open [QGIS](https://www.qgis.org) plugin
+that exports terrains and landuse for wildfire simulation and atmospheric dispersion of fire pollutants.
+The resulting FDS file can be imported to BlenderFDS for further customization.
+
+![qgis2fds](https://github.com/firetools/blenderfds/wiki/images/web/qgis2fds-blenderfds.gif)
+
 ## Funded by the WUIFI-21 project
 
 The development of BlenderFDS is funded by a grant from
 the [Italian Ministry of Foreign Affairs and International Cooperation](https://www.esteri.it/).
 
 ![MAECI](https://github.com/firetools/blenderfds/wiki/images/logo_maeci.jpeg)
-
-## A family of open tools for FDS
-
-Another companion tool is [qgis2fds](https://github.com/firetools/qgis2fds/wiki), an open [QGIS](https://www.qgis.org) plugin
-that exports terrains and landuse for wildfire simulation and atmospheric dispersion of fire pollutants.
-The resulting FDS file can be imported to BlenderFDS for further customization.
 
 ## License
 
