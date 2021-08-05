@@ -40,17 +40,42 @@ def get_fds_trisurface(context, ob, check=True, check_open=True, world=True):
         fds_verts.extend(
             (co.x * scale_length, co.y * scale_length, co.z * scale_length)
         )
-    for f in bm.faces:
-        v = f.verts
-        fds_faces.extend((v[0].index + 1, v[1].index + 1, v[2].index + 1))
-        fds_surfs.append(f.material_index + 1)  # FDS index start from 1, not 0
-        fds_faces_surfs.extend(  # this is for GEOM ASCII notation
-            (v[0].index + 1, v[1].index + 1, v[2].index + 1, f.material_index + 1)
-        )
+    if ob.material_slots:
+        for f in bm.faces:
+            v = f.verts
+            fds_faces.extend((v[0].index + 1, v[1].index + 1, v[2].index + 1))
+            fds_surfs.append(f.material_index + 1)  # FDS index start from 1, not 0
+            fds_faces_surfs.extend(  # this is for GEOM ASCII notation
+                (v[0].index + 1, v[1].index + 1, v[2].index + 1, f.material_index + 1)
+            )
+    else:
+        for f in bm.faces:
+            v = f.verts
+            fds_faces.extend((v[0].index + 1, v[1].index + 1, v[2].index + 1))
+            fds_surfs.append(0)  # no material_slots
+            fds_faces_surfs.extend(  # this is for GEOM ASCII notation
+                (v[0].index + 1, v[1].index + 1, v[2].index + 1, 0)
+            )
     bm.free()  # clean up bmesh
     if not fds_verts or not fds_faces:
         raise BFException(ob, "The object is empty")
     return fds_verts, fds_faces, fds_surfs, fds_faces_surfs
+
+
+def get_boundary_condition_ids(context, ob):
+    ids = list()
+    material_slots = ob.material_slots
+    for ms in material_slots:
+        ma = ms.material
+        if not ma:
+            raise BFException(
+                ob,
+                f"Empty reference to boundary conditions, fill all Material slots",
+            )
+        if not ma.bf_surf_export:
+            raise BFException(ob, f"Referenced SURF <{ma.name}> is not exported")
+        ids.append(ma.name)
+    return tuple(ids)
 
 
 # Check sanity

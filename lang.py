@@ -2640,25 +2640,10 @@ class OP_GEOM_SURF_ID(BFParam):
 
     @property
     def value(self):
-        ob = self.element
-        value = list()
-        material_slots = ob.material_slots
-        if not material_slots:
-            raise BFException(
-                self,
-                f"Object <{ob.name}> has no reference to a SURF (Blender Material slot)",
-            )
-        for ms in material_slots:
-            ma = ms.material
-            if not ma:
-                raise BFException(
-                    self,
-                    f"Object <{ob.name}> has an empty reference to SURFs (Blender Material slot)",
-                )
-            if not ma.bf_surf_export:
-                raise BFException(ob, f"Referenced SURF <{ma.name}> is not exported")
-            value.append(ma.name)
-        return tuple(value) or None
+        value = geometry.calc_trisurfaces.get_boundary_condition_ids(
+            context=None, ob=self.element
+        )
+        return value or None  # if value is empty, no SURF_ID
 
     def set_value(self, context, value):
         # A single material is a string
