@@ -2843,12 +2843,13 @@ class OP_GEOM_BINARY_FILE(BFParam):
             return
         self.check(context)
         # Calc geometry
+        ob = self.element
         vs, fs, ss, _, msg = geometry.to_fds.ob_to_geom(
             context=context,
             ob=self.element,
             check=self.element.bf_geom_check_sanity,
             check_open=not self.element.bf_geom_is_terrain,
-            world=False,
+            world=not (ob.data.users > 1 or ob.bf_move_id_export),
         )
         # Save .bingeom file
         filepath = self._get_bingeom_filepath(sc=context.scene, ob=self.element)
@@ -2898,7 +2899,12 @@ class OP_GEOM_MOVE_ID(OP_MOVE_ID):
 
     @property
     def exported(self):
-        return self.element.bf_move_id_export or self.element.bf_geom_binary_file_export
+        ob = self.element
+        # export if a bingeom is exported and my data is used by other Objects
+        # or if requested
+        return (
+            ob.bf_geom_binary_file_export and ob.data.users > 1
+        ) or ob.bf_move_id_export
 
     def to_fds_param(self, context):
         # return MOVE_ID="ob_move" and its MOVE namelist
