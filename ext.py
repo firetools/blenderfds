@@ -24,7 +24,7 @@ from bpy.types import Material, Scene, Object, Collection
 import time, sys, logging
 
 from . import lang, io, fds
-from .lang import bf_namelists_by_cls, bf_namelists_by_fds_label
+from .lang import ON_MOVE, bf_namelists_by_cls, bf_namelists_by_fds_label
 from .types import FDSCase
 from .utils import BFException, BFNotImported
 
@@ -110,18 +110,7 @@ class BFObject:
         """
         if self.hide_render or self.bf_is_tmp or not self.type == "MESH":
             return
-        lines = list()
-        # Inject my MOVE namelist
-        if self.bf_move_id_export:
-            lines.append(
-                fds.move_tools.from_matrix(  # TODO cleanup
-                    hid=self.bf_move_id or self.name + "_move",
-                    matrix=self.matrix_world,
-                ).to_fds(context)
-            )
-        # Add my bf_namelist (never None)
-        lines.append(self.bf_namelist.to_fds(context))
-        return "\n".join(l for l in lines if l)
+        return self.bf_namelist.to_fds(context)
 
     def from_fds(self, context, fds_namelist):
         """!
@@ -332,14 +321,19 @@ class BFScene:
             ma = bpy.data.materials.new(hid)
             ma.from_fds(context, fds_namelist=fds_namelist)
             ma.use_fake_user = True  # prevent del (eg. used by PART)
-        # Import all MOVE namelist
-        move_id_to_matrix = dict()
+        # Record all MOVEs in a dict
+        move_id_to_move = dict()
         while True:
             fds_namelist = fds_case.get_by_label(fds_label="MOVE", remove=True)
             if not fds_namelist:
                 break
-            hid, matrix = fds.move_tools.to_matrix(fds_namelist)
-            move_id_to_matrix[hid] = matrix
+            # Get ID
+            p_id = fds_namelist.get_by_label(fds_label="ID", remove=True)
+            if not p_id:
+                raise BFNotImported(
+                    None, "MOVE namelist requires an ID in <{fds_namelist}>"
+                )
+            move_id_to_move[p_id.value] = fds_namelist
         # Import OBSTs before VENTs  # TODO generic!
         while True:
             fds_namelist = fds_case.get_by_label(fds_label="OBST", remove=True)
@@ -388,7 +382,9 @@ class BFScene:
         for ob in self.collection.objects:
             if ob.bf_move_id_export and ob.bf_move_id:
                 try:
-                    ob.matrix_world = move_id_to_matrix[ob.bf_move_id] @ ob.matrix_world
+                    ON_MOVE(ob).from_fds(
+                        context, fds_namelist=move_id_to_move[ob.bf_move_id]
+                    )
                 except KeyError:
                     raise BFException(
                         self,
