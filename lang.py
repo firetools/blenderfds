@@ -20,6 +20,9 @@ BlenderFDS, Blender to FDS interface classes.
 
 import re, os.path, logging, math  # FIXME remove math with CYL
 
+from mathutils import Matrix, Vector
+from math import radians
+
 import bpy
 from bpy.types import (
     bpy_struct,
@@ -405,7 +408,10 @@ class SP_TIME_setup_only(BFParam):
     def to_fds_param(self, context):
         if self.element.bf_time_setup_only:
             return FDSParam(
-                fds_label="T_END", value=0.0, msg="Smokeview setup only", precision=1,
+                fds_label="T_END",
+                value=0.0,
+                msg="Smokeview setup only",
+                precision=1,
             )
 
 
@@ -1163,7 +1169,9 @@ class SP_DUMP_render_file(BFParam):
 
     def _get_ge1_filepath(self, sc):
         return io.calc_path(
-            bl_path=sc.bf_config_directory or "//", name=sc.name, extension=".ge1",
+            bl_path=sc.bf_config_directory or "//",
+            name=sc.name,
+            extension=".ge1",
         )
 
     def to_fds_param(self, context):
@@ -1440,10 +1448,16 @@ class MP_RGB(BFParam):
         c = self.element.diffuse_color
         rgb = (int(c[0] * 255), int(c[1] * 255), int(c[2] * 255))
         if c[3] == 1.0:  # do not send TRANSPARENCY if it is 1
-            return FDSParam(fds_label="RGB", value=rgb,)
+            return FDSParam(
+                fds_label="RGB",
+                value=rgb,
+            )
         else:
             return (
-                FDSParam(fds_label="RGB", value=rgb,),
+                FDSParam(
+                    fds_label="RGB",
+                    value=rgb,
+                ),
                 FDSParam(fds_label="TRANSPARENCY", value=c[3], precision=2),
             )
 
@@ -1903,7 +1917,9 @@ class OP_XB(BFParamXB):
 
     def from_fds(self, context, value):
         bf_xb = geometry.from_fds.xbs_to_ob(
-            context=context, ob=self.element, xbs=(value,),
+            context=context,
+            ob=self.element,
+            xbs=(value,),
         )
         self.element.bf_xb = bf_xb
         self.element.bf_xb_export = True
@@ -2116,7 +2132,9 @@ class OP_XYZ(BFParamXYZ):
 
     def from_fds(self, context, value):
         bf_xyz = geometry.from_fds.xyzs_to_ob(
-            context=context, ob=self.element, xyzs=(value,),
+            context=context,
+            ob=self.element,
+            xyzs=(value,),
         )
         self.element.bf_xyz = bf_xyz
         self.element.bf_xyz_export = True
@@ -2219,7 +2237,9 @@ class OP_PB(BFParamPB):
 
     def from_fds(self, context, value):
         bf_pb = geometry.from_fds.pbs_to_ob(
-            context=context, ob=self.element, pbs=((self.axis, value),),
+            context=context,
+            ob=self.element,
+            pbs=((self.axis, value),),
         )
         self.element.bf_pb = bf_pb
         self.element.bf_pb_export = True
@@ -2441,6 +2461,138 @@ class ON_other(BFNamelistOb):
         return self.element.bf_other_namelist
 
 
+# MOVE
+
+
+@subscribe
+class OP_MOVE_ID(BFParamStr):
+    """!
+    Blender representation for exporting a namelist with its MOVE namelist.
+    """
+
+    label = "MOVE_ID"
+    description = "Export this namelist with a corresponding MOVE namelist"
+    fds_label = "ID"
+    bpy_type = Object
+    bpy_idname = "bf_move_id"
+    bpy_export = "bf_move_id_export"
+    bpy_export_default = True
+
+    @property
+    def exported(self):
+        return True
+
+    @property
+    def value(self):  # never empty
+        return self.element.bf_move_id or f"{self.element.name}_move"
+
+
+@subscribe
+class OP_MOVE_T34(BFParam):
+    """!
+    Blender representation of the T34 parameter.
+    """
+
+    label = "T34"
+    description = "Transformation matrix"  # FIXME
+    fds_label = "T34"
+    bpy_type = Object
+    bpy_other = {"precision": 6}
+
+    @property
+    def value(self):
+        ob = self.element
+        m = ob.matrix_world
+        return (
+            m[0][0],
+            m[1][0],
+            m[2][0],
+            m[0][1],
+            m[1][1],
+            m[2][1],
+            m[0][2],
+            m[1][2],
+            m[2][2],
+            m[0][3],
+            m[1][3],
+            m[2][3],
+        )
+
+    def set_value(self, context, value):
+        m = Matrix()
+        (
+            m[0][0],
+            m[1][0],
+            m[2][0],
+            m[0][1],
+            m[1][1],
+            m[2][1],
+            m[0][2],
+            m[1][2],
+            m[2][2],
+            m[0][3],
+            m[1][3],
+            m[2][3],
+        ) = value
+        self.element.matrix_world = m
+
+
+@subscribe
+class ON_MOVE(BFNamelistOb):
+    """!
+    Blender representation of the MOVE namelist.
+    """
+
+    label = "MOVE"
+    description = "Transformation FIXME"
+    enum_id = False  # not displayed in namelist type menu, not auto called for export
+    fds_label = "MOVE"
+
+    bf_params = (
+        OP_MOVE_ID,
+        OP_MOVE_T34,
+    )
+
+    def from_fds(self, context, fds_namelist):
+        # Other alternative params
+        p_x0 = fds_namelist.get_by_label(fds_label="X0", remove=True)
+        x0 = p_x0 and p_x0.value or 0.0
+        p_y0 = fds_namelist.get_by_label(fds_label="Y0", remove=True)
+        y0 = p_y0 and p_y0.value or 0.0
+        p_z0 = fds_namelist.get_by_label(fds_label="Z0", remove=True)
+        z0 = p_z0 and p_z0.value or 0.0
+        p_axis = fds_namelist.get_by_label(fds_label="AXIS", remove=True)
+        axis = p_axis and p_axis.value or (0.0, 0.0, 1.0)
+        p_rot_angle = fds_namelist.get_by_label(fds_label="ROTATION_ANGLE", remove=True)
+        rot_angle = p_rot_angle and p_rot_angle.value or 0.0
+        p_scale = fds_namelist.get_by_label(fds_label="SCALE", remove=True)
+        scale = p_scale and p_scale.value or 1.0
+        p_scalex = fds_namelist.get_by_label(fds_label="SCALEX", remove=True)
+        scalex = p_scalex and p_scalex.value or scale
+        p_scaley = fds_namelist.get_by_label(fds_label="SCALEY", remove=True)
+        scaley = p_scaley and p_scaley.value or scale
+        p_scalez = fds_namelist.get_by_label(fds_label="SCALEZ", remove=True)
+        scalez = p_scalez and p_scalez.value or scale
+        p_dx = fds_namelist.get_by_label(fds_label="DX", remove=True)
+        dx = p_dx and p_dx.value or 0.0
+        p_dy = fds_namelist.get_by_label(fds_label="DY", remove=True)
+        dy = p_dy and p_dy.value or 0.0
+        p_dz = fds_namelist.get_by_label(fds_label="DZ", remove=True)
+        dz = p_dz and p_dz.value or 0.0
+        # Check managed params
+        super().from_fds(context, fds_namelist)  # get the rest
+        # Assign transformation matrix, as FDS does
+        self.element.matrix_world = (
+            Matrix().Translation((x0, y0, z0))
+            @ Matrix().Rotation(radians(rot_angle), 4, Vector(axis))
+            @ Matrix().Scale(scalex, 4, (1, 0, 0))
+            @ Matrix().Scale(scaley, 4, (0, 1, 0))
+            @ Matrix().Scale(scalez, 4, (0, 0, 1))
+            @ Matrix().Translation((dx, dy, dz))
+            @ Matrix().Translation((-x0, -y0, -z0))
+        )
+
+
 # GEOM
 
 
@@ -2474,29 +2626,6 @@ class OP_GEOM_protect(BFParam):  # TODO put in operator? several ops depend on i
     bpy_idname = "bf_geom_protect"
     bpy_prop = BoolProperty
     bpy_default = True
-
-
-@subscribe
-class OP_MOVE_ID(BFParamStr):
-    """!
-    Blender representation for exporting a namelist with its MOVE namelist.
-    """
-
-    label = "MOVE_ID"
-    description = "Export this namelist with a corresponding MOVE namelist"
-    fds_label = "MOVE_ID"
-    bpy_type = Object
-    bpy_idname = "bf_move_id"
-    bpy_export = "bf_move_id_export"
-    bpy_export_default = False  # Export only when requested
-
-    @property
-    def exported(self):  # changed because inherits empty string is not exported
-        return self.element.bf_move_id_export
-
-    @property
-    def value(self):  # never empty
-        return self.element.bf_move_id or f"{self.element.name}_move"
 
 
 @subscribe
@@ -2620,7 +2749,10 @@ class OP_GEOM_XB(BFParam):
         ob = self.element
         me = ob.data
         geometry.from_fds.xbs_bbox_to_mesh(
-            context=context, me=me, xbs=xbs, set_materials=True,
+            context=context,
+            me=me,
+            xbs=xbs,
+            set_materials=True,
         )
 
     def to_fds_param(self, context):
@@ -2677,8 +2809,13 @@ class OP_GEOM_BINARY_FILE(BFParam):
         )
 
     def _get_blend_name_and_directory(self, fds_binary_file, sc):
-        fds_path = io.calc_path(bl_path=sc.bf_config_directory or "//",)
-        return io.calc_bl_name_and_dir(filepath=fds_binary_file, start=fds_path,)
+        fds_path = io.calc_path(
+            bl_path=sc.bf_config_directory or "//",
+        )
+        return io.calc_bl_name_and_dir(
+            filepath=fds_binary_file,
+            start=fds_path,
+        )
 
     def check(self, context):
         filepath = self._get_bingeom_filepath(sc=context.scene, ob=self.element)
@@ -2717,7 +2854,7 @@ class OP_GEOM_BINARY_FILE(BFParam):
             ob=self.element,
             check=self.element.bf_geom_check_sanity,
             check_open=not self.element.bf_geom_is_terrain,
-            world=not self.element.bf_move_id_export,
+            world=False,
         )
         # Save .bingeom file
         filepath = self._get_bingeom_filepath(sc=context.scene, ob=self.element)
@@ -2754,6 +2891,25 @@ class OP_GEOM_BINARY_FILE(BFParam):
         geometry.from_fds.geom_to_ob(
             context=context, ob=self.element, vs=vs, fs=fs, ss=ss
         )
+
+
+@subscribe
+class OP_GEOM_MOVE_ID(OP_MOVE_ID):
+    """!
+    Blender representation for exporting a namelist with its MOVE namelist from GEOM.
+    """
+
+    fds_label = "MOVE_ID"
+    bpy_export_default = None
+
+    @property
+    def exported(self):
+        return self.element.bf_move_id_export or self.element.bf_geom_binary_file_export
+
+    def to_fds_param(self, context):
+        # return MOVE_ID="ob_move" and its MOVE namelist
+        p = super().to_fds_param(context)
+        return p and (p, ON_MOVE(self.element).to_fds_namelist(context))
 
 
 @subscribe
@@ -2808,12 +2964,12 @@ class ON_GEOM(BFNamelistOb):
         OP_GEOM_SURF_ID,
         OP_GEOM_SURF_IDS,
         OP_GEOM_SURF_ID6,
-        OP_MOVE_ID,
         OP_GEOM_VERTS,
         OP_GEOM_FACES,
         OP_GEOM_XB,
         OP_GEOM_binary_directory,
         OP_GEOM_BINARY_FILE,
+        OP_GEOM_MOVE_ID,
         OP_GEOM_IS_TERRAIN,
         OP_GEOM_EXTEND_TERRAIN,
         OP_other,
@@ -2823,7 +2979,7 @@ class ON_GEOM(BFNamelistOb):
     def to_fds_namelist(self, context):  # VERTS and FACES are integrated here
         # First populate the Object
         fds_namelist = super().to_fds_namelist(context)
-        # Then treat VERTS and FACES
+        # Treat VERTS and FACES
         if not self.element.bf_geom_binary_file_export:  # no bingeom?
             # Prepare geometry
             vs, _, _, fss, msg = geometry.to_fds.ob_to_geom(
@@ -3303,7 +3459,7 @@ class ON_HVAC(BFNamelistOb):
 items = [
     (cls.__name__, cls.label, cls.description, cls.enum_id)
     for _, cls in bf_namelists_by_cls.items()
-    if cls.bpy_type == Object
+    if cls.bpy_type == Object and cls.enum_id
 ]
 items.sort(key=lambda k: k[1])
 OP_namelist_cls.bpy_other["items"] = items
@@ -3313,7 +3469,7 @@ OP_namelist_cls.bpy_other["items"] = items
 items = [
     (cls.__name__, cls.label, cls.description, cls.enum_id)
     for _, cls in bf_namelists_by_cls.items()
-    if cls.bpy_type == Material
+    if cls.bpy_type == Material and cls.enum_id
 ]
 items.sort(key=lambda k: k[1])
 MP_namelist_cls.bpy_other["items"] = items
