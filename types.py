@@ -267,7 +267,8 @@ class BFParam:
         """!
         Return the FDSParam representation of element instance.
         @param context: the Blender context.
-        @return None, FDSParam, (FDSParam, ...) called "many", or ((FDSParam, ...), ...) called "multi" instances.
+        @return None, FDSParam, FDSNamelist, (FDSParam, FDSNamelist,...) called "many",
+            or ((FDSParam, ...), ...) called "multi" instances of FDSParam only.
         """
         if self.exported:
             self.check(context)
@@ -875,13 +876,14 @@ class FDSNamelist:
         """!
         Class constructor.
         @param fds_label: namelist group label.
-        @param fds_params: list of FDSParam instances.
+        @param fds_params: list of FDSParam and additional FDSNamelist instances.
         @param msg: comment message.
         @param f90: FDS formatted string of parameters, eg. "ID='Test' PROP=2.34, 1.23, 3.44".
         """
         ## namelist group label
         self.fds_label = fds_label
-        ## list (single) or list of list (multi) of FDSParam instances
+        ## list (single) of FDSParam and additional FDSNamelist,
+        ## or list of list (multi) of FDSParam instances
         ## eg. (("ID=X1", "PBX=1"), ("ID=X2", "PBX=2"), ...)
         self.fds_params = fds_params or list()
         ## comment message
@@ -915,23 +917,35 @@ class FDSNamelist:
         # Classify parameters
         invps = list()  # invariant parameters
         multips = list()  # multi parameters
+        addns = list()  # additional namelists
+        # fds_params is always a tuple. Its elements can be:
+        #   None, FDSParam, FDSNamelist,
+        #   a tuple or FDSParam and FDSNamelist (many),
+        #   or a tuple of tuple of FDSParam (multi)
         for p in self.fds_params:
-            # Empty
-            if not p:  # Protect from empty (eg. None and tuple())
-                continue
-            # Invariant
-            elif isinstance(p, FDSParam):  # single
+            if not p:
+                continue  # None or empty tuple
+            elif isinstance(p, FDSParam):
+                # Invariant parameter
                 invps.append(p)
                 msgs.append(p.msg)
-            elif isinstance(p, tuple):  # many or multi
-                if isinstance(p[0], FDSParam):  # many
-                    invps.extend(p)
-                    msgs.extend(pi.msg for pi in p)
-                elif isinstance(p[0], tuple):  # multi
+            elif isinstance(p, FDSNamelist):
+                # Additional namelist
+                addns.append(p)
+                msgs.append(p.msg)
+            elif isinstance(p, tuple):
+                if isinstance(p[0], tuple):
+                    # Multi parameter
                     multips = p
-                    msgs.extend(
-                        p0.msg for p0 in multips[0]
-                    )  # msg only from first many of multi
+                    msgs.extend(p0.msg for p0 in multips[0])
+                else:
+                    # Many parameters
+                    for pp in p:
+                        if isinstance(pp, FDSParam):
+                            invps.append(pp)
+                        if isinstance(pp, FDSNamelist):
+                            addns.append(pp)
+                        msgs.append(pp.msg)
             else:
                 raise ValueError(f"Unrecognized type of <{p}>")
         # Treat invariant, many and multi parameters
@@ -952,6 +966,8 @@ class FDSNamelist:
             nls.append(invps)
         # Prepare message lines
         lines = list(f"! {m}" for m in msgs if m)  # all messages
+        # Treat additional namelists first
+        lines.extend(n.to_fds(context) for n in addns)
         # Prepare namelist lines
         if self.fds_label:
             for nl in nls:
