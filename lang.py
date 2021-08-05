@@ -2642,10 +2642,19 @@ class OP_GEOM_SURF_ID(BFParam):
     def value(self):
         ob = self.element
         value = list()
-        for ms in ob.material_slots:
+        material_slots = ob.material_slots
+        if not material_slots:
+            raise BFException(
+                self,
+                f"Object <{ob.name}> has no reference to a SURF (Blender Material slot)",
+            )
+        for ms in material_slots:
             ma = ms.material
             if not ma:
-                raise BFException(self, f"Object <{ob.name}> has empty material slot")
+                raise BFException(
+                    self,
+                    f"Object <{ob.name}> has an empty reference to SURFs (Blender Material slot)",
+                )
             if not ma.bf_surf_export:
                 raise BFException(ob, f"Referenced SURF <{ma.name}> is not exported")
             value.append(ma.name)
