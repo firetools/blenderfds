@@ -2476,7 +2476,7 @@ class OP_MOVE_ID(BFParamStr):
     bpy_type = Object
     bpy_idname = "bf_move_id"
     bpy_export = "bf_move_id_export"
-    bpy_export_default = True
+    bpy_export_default = False
 
     @property
     def exported(self):
