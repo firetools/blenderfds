@@ -91,6 +91,12 @@ class BFParam:
     def __str__(self):
         return f"{self.label}(element='{self.element.name}')"
 
+    subclasses = list()
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.subclasses.append(cls)
+
     @classmethod
     def register(cls):
         """!
@@ -466,6 +472,8 @@ class BFNamelist(BFParam):
         self.bf_params = tuple(p(element) for p in self.bf_params)
 
     # inherits __str__
+
+    subclasses = list()
 
     @classmethod
     def register(cls):

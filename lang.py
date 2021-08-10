@@ -2903,6 +2903,10 @@ items = [
 items.sort(key=lambda k: k[1])
 MP_namelist_cls.bpy_other["items"] = items
 
+# FIXME
+
+print("BFParam.subclasses:", BFParam.subclasses)
+print("BFNamelist.subclasses:", BFNamelist.subclasses)
 
 # Register
 
