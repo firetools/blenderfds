@@ -78,7 +78,7 @@ bf_namelists_by_cls = dict()  # dict of all BFNamelist classes by cls name
 bf_namelists_by_fds_label = dict()  # dict of all BFNamelist classes by fds_label
 
 
-def subscribe(cls):
+def subscribe(cls):  # FIXME replace with subclasses
     """!
     Subscribe BFNamelist, BFParam, or bpy_struct class to related collections for registration.
     @param cls: class to be registered.
