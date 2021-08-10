@@ -156,10 +156,6 @@ class WM_UL_bf_filepaths_items(UIList):
 
 @subscribe
 class SP_config_directory(BFParam):
-    """!
-    Blender representation for the destination directory of the exported case.
-    """
-
     label = "Case Directory"
     description = "Destination directory for exported case"
     bpy_type = Scene
@@ -180,10 +176,6 @@ class SP_config_directory(BFParam):
 
 @subscribe
 class SP_config_text(BFParam):
-    """!
-    Blender representation for the internal free text, included verbatim.
-    """
-
     label = "Free Text"
     description = "Internal free text, included verbatim"
     bpy_type = Scene
@@ -197,10 +189,6 @@ class SP_config_text(BFParam):
 
 @subscribe
 class SN_config(BFNamelistSc):
-    """!
-    Blender representation for the FDS Case Config.
-    """
-
     label = "FDS Case Config"
     bf_params = (SP_config_directory, SP_config_text)
 
@@ -210,10 +198,6 @@ class SN_config(BFNamelistSc):
 
 @subscribe
 class SP_config_min_edge_length_export(BFParam):
-    """!
-    Blender representation to use custom min allowed edge length.
-    """
-
     label = "Use Custom Min Edge Length"
     description = "Use custom min allowed edge length for current case"
     bpy_type = Scene
@@ -224,10 +208,6 @@ class SP_config_min_edge_length_export(BFParam):
 
 @subscribe
 class SP_config_min_edge_length(BFParam):
-    """!
-    Blender representation for the min allowed edge length.
-    """
-
     label = "Min Edge Length"
     description = "Min allowed edge length for current case"
     bpy_type = Scene
@@ -240,10 +220,6 @@ class SP_config_min_edge_length(BFParam):
 
 @subscribe
 class SP_config_min_face_area_export(BFParam):
-    """!
-    Blender representation to use custom min allowed face area.
-    """
-
     label = "Use Custom Min Face Area"
     description = "Use custom min allowed face area for current case"
     bpy_type = Scene
@@ -254,10 +230,6 @@ class SP_config_min_face_area_export(BFParam):
 
 @subscribe
 class SP_config_min_face_area(BFParam):
-    """!
-    Blender representation for the min allowed face area.
-    """
-
     label = "Min Face Area"
     description = "Min allowed face area for current case"
     bpy_type = Scene
@@ -270,10 +242,6 @@ class SP_config_min_face_area(BFParam):
 
 @subscribe
 class SP_config_default_voxel_size(BFParam):
-    """!
-    Blender representation for the default voxel/pixel resolution.
-    """
-
     label = "Voxel/Pixel Size"
     description = "Default voxel/pixel resolution"
     bpy_type = Scene
@@ -285,10 +253,6 @@ class SP_config_default_voxel_size(BFParam):
 
 @subscribe
 class SN_config_sizes(BFNamelistSc):
-    """!
-    Blender representation for the default Sizes and Thresholds.
-    """
-
     label = "Default Sizes and Thresholds"
     bf_params = (
         SP_config_min_edge_length,
@@ -302,10 +266,6 @@ class SN_config_sizes(BFNamelistSc):
 
 @subscribe
 class SN_config_units(BFNamelistSc):
-    """!
-    Blender representation for the units.
-    """
-
     label = "Units"
 
     def draw(self, context, layout):
@@ -327,10 +287,6 @@ class SN_config_units(BFNamelistSc):
 
 @subscribe
 class SP_HEAD_CHID(BFParam):
-    """!
-    Blender representation of the CHID parameter, the case identificator, also used as case filename.
-    """
-
     label = "CHID"
     description = "Case identificator, also used as case filename"
     fds_label = "CHID"
@@ -343,10 +299,6 @@ class SP_HEAD_CHID(BFParam):
 
 @subscribe
 class SP_HEAD_TITLE(BFParamFYI):
-    """!
-    Blender representation of the TITLE parameter, the case description.
-    """
-
     label = "TITLE"
     description = "Case description"
     fds_label = "TITLE"
@@ -357,10 +309,6 @@ class SP_HEAD_TITLE(BFParamFYI):
 
 @subscribe
 class SN_HEAD(BFNamelistSc):
-    """!
-    Blender representation of the HEAD namelist.
-    """
-
     label = "HEAD"
     description = "Case header"
     enum_id = 3001
@@ -372,11 +320,6 @@ class SN_HEAD(BFNamelistSc):
 
 @subscribe
 class SN_TAIL(BFNamelistSc):
-    """!
-    Blender representation of the TAIL namelist.
-    For importing only.
-    """
-
     label = "TAIL"
     description = "Case closing"
     enum_id = 3010
@@ -394,10 +337,6 @@ class SN_TAIL(BFNamelistSc):
 
 @subscribe
 class SP_TIME_setup_only(BFParam):
-    """!
-    Blender representation to set Smokeview to setup only geometry.
-    """
-
     label = "Smokeview Geometry Setup"
     description = "Set Smokeview to setup only geometry"
     bpy_type = Scene
@@ -417,10 +356,6 @@ class SP_TIME_setup_only(BFParam):
 
 @subscribe
 class SP_TIME_T_BEGIN(BFParam):
-    """!
-    Blender representation of the T_BEGIN parameter, the simulation starting time.
-    """
-
     label = "T_BEGIN [s]"
     description = "Simulation starting time"
     fds_label = "T_BEGIN"
@@ -437,10 +372,6 @@ class SP_TIME_T_BEGIN(BFParam):
 
 @subscribe
 class SP_TIME_T_END(BFParam):
-    """!
-    Blender representation of the T_END parameter, the simulation ending time.
-    """
-
     label = "T_END [s]"
     description = "Simulation ending time"
     fds_label = "T_END"
@@ -457,10 +388,6 @@ class SP_TIME_T_END(BFParam):
 
 @subscribe
 class SP_TIME_other(BFParamOther):
-    """!
-    Blender representation of other parameters for the TIME namelist.
-    """
-
     bpy_type = Scene
     bpy_idname = "bf_time_other"
     bpy_pg = WM_PG_bf_other
@@ -469,10 +396,6 @@ class SP_TIME_other(BFParamOther):
 
 @subscribe
 class SN_TIME(BFNamelistSc):
-    """!
-    Blender representation of the TIME namelist.
-    """
-
     label = "TIME"
     description = "Simulation time settings"
     enum_id = 3002
@@ -487,20 +410,12 @@ class SN_TIME(BFNamelistSc):
 
 @subscribe
 class SP_MISC_FYI(BFParamFYI):
-    """!
-    Blender representation of the FYI parameter.
-    """
-
     bpy_type = Scene
     bpy_idname = "bf_misc_fyi"
 
 
 @subscribe
 class SP_MISC_OVERWRITE(BFParam):
-    """!
-    Blender representation of the OVERWRITE parameter.
-    """
-
     label = "OVERWRITE"
     description = "Do not check for the existence of CHID.out and overwrite files"
     fds_label = "OVERWRITE"
@@ -512,10 +427,6 @@ class SP_MISC_OVERWRITE(BFParam):
 
 @subscribe
 class SP_MISC_THICKEN_OBSTRUCTIONS(BFParam):
-    """!
-    Blender representation of the THICKEN_OBSTRUCTIONS parameter, to not allow thin sheet obstructions.
-    """
-
     label = "THICKEN_OBSTRUCTIONS"
     description = "Do not allow thin sheet obstructions"
     fds_label = "THICKEN_OBSTRUCTIONS"
@@ -526,10 +437,6 @@ class SP_MISC_THICKEN_OBSTRUCTIONS(BFParam):
 
 
 def update_lonlat(self, context):
-    """!
-    Update the UTM of the context starting from longitude and latitude of the scene.
-    @param context: the Blender context.
-    """
     sc = context.scene
     utm = gis.LonLat(sc.bf_origin_lon, sc.bf_origin_lat).to_UTM()
     sc["bf_origin_utm_zn"] = utm.zn  # avoid triggering another update
@@ -540,10 +447,6 @@ def update_lonlat(self, context):
 
 @subscribe
 class SP_origin_geoname_export(BFParam):
-    """!
-    Blender representation to set if origin geoposition shall be exported to FDS.
-    """
-
     label = "Export origin geoposition"
     description = "Set if origin geoposition shall be exported to FDS"
     bpy_type = Scene
@@ -555,10 +458,6 @@ class SP_origin_geoname_export(BFParam):
 
 @subscribe
 class SP_origin_geoname(BFParam):
-    """!
-    Blender representation for the origin location geographic name.
-    """
-
     label = "Origin Geoname"
     description = "Origin location geographic name"
     bpy_type = Scene
@@ -593,10 +492,6 @@ class SP_origin_geoname(BFParam):
 
 @subscribe
 class SP_ORIGIN_LON(BFParam):
-    """!
-    Blender representation for the longitude (WGS84, EPSG:4326) of world origin in decimal degrees.
-    """
-
     label = "ORIGIN_LON"
     description = "Longitude (WGS84, EPSG:4326) of world origin in decimal degrees"
     fds_label = "ORIGIN_LON"
@@ -613,10 +508,6 @@ class SP_ORIGIN_LON(BFParam):
 
 @subscribe
 class SP_ORIGIN_LAT(BFParam):
-    """!
-    Blender representation for the latitude (WGS84, EPSG:4326) of world origin in decimal degrees.
-    """
-
     label = "ORIGIN_LAT"
     description = "Latitude (WGS84, EPSG:4326) of world origin in decimal degrees"
     fds_label = "ORIGIN_LAT"
@@ -633,10 +524,6 @@ class SP_ORIGIN_LAT(BFParam):
 
 @subscribe
 class SP_origin_utm_zn(BFParam):
-    """!
-    Blender representation for the UTM Zone Number (WGS84) of world origin.
-    """
-
     label = "Origin UTM Zone Number"
     description = "UTM Zone Number (WGS84) of world origin"
     bpy_type = Scene
@@ -648,10 +535,6 @@ class SP_origin_utm_zn(BFParam):
 
 @subscribe
 class SP_origin_utm_ne(BFParam):
-    """!
-    Blender representation for the UTM northern emisphere (WGS84) of world origin.
-    """
-
     label = "Origin UTM Northern Emisphere"
     description = "UTM northern emisphere (WGS84) of world origin"
     bpy_type = Scene
@@ -662,10 +545,6 @@ class SP_origin_utm_ne(BFParam):
 
 @subscribe
 class SP_origin_utm_easting(BFParam):
-    """!
-    Blender representation for the UTM easting (WGS84) of world origin.
-    """
-
     label = "Origin UTM Easting"
     description = "UTM easting (WGS84) of world origin"
     bpy_type = Scene
@@ -677,10 +556,6 @@ class SP_origin_utm_easting(BFParam):
 
 @subscribe
 class SP_origin_utm_northing(BFParam):
-    """!
-    Blender representation for the UTM northing (WGS84) of world origin.
-    """
-
     label = "Origin UTM Northing"
     description = "UTM northing (WGS84) of world origin"
     bpy_type = Scene
@@ -692,10 +567,6 @@ class SP_origin_utm_northing(BFParam):
 
 @subscribe
 class SP_ORIGIN_NORTH_BEARING(BFParam):
-    """!
-    Blender representation for the NORTH_BEARING parameter.
-    """
-
     label = "NORTH_BEARING"
     description = "Angle between the geographical north and the world Y axis"
     fds_label = "NORTH_BEARING"
@@ -716,10 +587,6 @@ class SP_ORIGIN_NORTH_BEARING(BFParam):
 
 @subscribe
 class SP_MISC_other(BFParamOther):
-    """!
-    Blender representation of other parameters for the MISC namelist.
-    """
-
     bpy_type = Scene
     bpy_idname = "bf_misc_other"
     bpy_pg = WM_PG_bf_other
@@ -728,10 +595,6 @@ class SP_MISC_other(BFParamOther):
 
 @subscribe
 class SN_MISC(BFNamelistSc):
-    """!
-    Blender representation of the MISC namelist.
-    """
-
     label = "MISC"
     description = "Miscellaneous parameters"
     enum_id = 3003
@@ -755,10 +618,6 @@ class SN_MISC(BFNamelistSc):
 
 @subscribe
 class SP_REAC_ID(BFParamStr):
-    """!
-    Blender representation of the ID string parameter, the identificator of the reaction.
-    """
-
     label = "ID"
     description = "Identificator of the reaction"
     fds_label = "ID"
@@ -768,20 +627,12 @@ class SP_REAC_ID(BFParamStr):
 
 @subscribe
 class SP_REAC_FYI(BFParamFYI):
-    """!
-    Blender representation of the FYI parameter.
-    """
-
     bpy_type = Scene
     bpy_idname = "bf_reac_fyi"
 
 
 @subscribe
 class SP_REAC_FUEL(BFParamStr):
-    """!
-    Blender representation of the FUEL string parameter, the identificator of fuel species.
-    """
-
     label = "FUEL"
     description = "Identificator of fuel species"
     fds_label = "FUEL"
@@ -791,10 +642,6 @@ class SP_REAC_FUEL(BFParamStr):
 
 @subscribe
 class SP_REAC_FORMULA(BFParamStr):
-    """!
-    Blender representation of the FORMULA string parameter, the chemical formula of fuel species, it can only contain C, H, O, or N.
-    """
-
     label = "FORMULA"
     description = "Chemical formula of fuel species, it can only contain C, H, O, or N"
     fds_label = "FORMULA"
@@ -804,10 +651,6 @@ class SP_REAC_FORMULA(BFParamStr):
 
 @subscribe
 class SP_REAC_CO_YIELD(BFParam):
-    """!
-    Blender representation of the CO_YIELD parameter, the fraction of fuel mass converted into carbon monoxide.
-    """
-
     label = "CO_YIELD [kg/kg]"
     description = "Fraction of fuel mass converted into carbon monoxide"
     fds_label = "CO_YIELD"
@@ -820,10 +663,6 @@ class SP_REAC_CO_YIELD(BFParam):
 
 @subscribe
 class SP_REAC_SOOT_YIELD(SP_REAC_CO_YIELD):
-    """!
-    Blender representation of the SOOT_YIELD parameter, the fraction of fuel mass converted into smoke particulate.
-    """
-
     label = "SOOT_YIELD [kg/kg]"
     description = "Fraction of fuel mass converted into smoke particulate"
     fds_label = "SOOT_YIELD"
@@ -833,10 +672,6 @@ class SP_REAC_SOOT_YIELD(SP_REAC_CO_YIELD):
 
 @subscribe
 class SP_REAC_HEAT_OF_COMBUSTION(BFParam):
-    """!
-    Blender representation of the HEAT_OF_COMBUSTION parameter, the fuel heat of combustion.
-    """
-
     label = "HEAT_OF_COMBUSTION [kJ/kg]"
     description = "Fuel heat of combustion"
     fds_label = "HEAT_OF_COMBUSTION"
@@ -849,10 +684,6 @@ class SP_REAC_HEAT_OF_COMBUSTION(BFParam):
 
 @subscribe
 class SP_REAC_IDEAL(BFParam):
-    """!
-    Blender representation of the IDEAL parameter to set ideal heat of combustion.
-    """
-
     label = "IDEAL"
     description = "Set ideal heat of combustion"
     fds_label = "IDEAL"
@@ -864,10 +695,6 @@ class SP_REAC_IDEAL(BFParam):
 
 @subscribe
 class SP_REAC_RADIATIVE_FRACTION(BFParam):
-    """!
-    Blender representation of the RADIATIVE_FRACTION parameter, the fraction of the total combustion energy that is released in the form of thermal radiation
-    """
-
     label = "RADIATIVE_FRACTION"
     description = (
         "Fraction of the total combustion energy that is released "
@@ -883,10 +710,6 @@ class SP_REAC_RADIATIVE_FRACTION(BFParam):
 
 @subscribe
 class SP_REAC_other(BFParamOther):
-    """!
-    Blender representation of other parameters for the REAC namelist.
-    """
-
     bpy_type = Scene
     bpy_idname = "bf_reac_other"
     bpy_pg = WM_PG_bf_other
@@ -895,10 +718,6 @@ class SP_REAC_other(BFParamOther):
 
 @subscribe
 class SN_REAC(BFNamelistSc):
-    """!
-    Blender representation of the REAC namelist.
-    """
-
     label = "REAC"
     description = "Reaction"
     enum_id = 3004
@@ -924,20 +743,12 @@ class SN_REAC(BFNamelistSc):
 
 @subscribe
 class SP_RADI_FYI(BFParamFYI):
-    """!
-    Blender representation of the FYI parameter.
-    """
-
     bpy_type = Scene
     bpy_idname = "bf_radi_fyi"
 
 
 @subscribe
 class SP_RADI_RADIATION(BFParam):
-    """!
-    Blender representation of the RADIATION parameter to turn on/off the radiation solver.
-    """
-
     label = "RADIATION"
     description = "Turn on/off the radiation solver"
     fds_label = "RADIATION"
@@ -949,10 +760,6 @@ class SP_RADI_RADIATION(BFParam):
 
 @subscribe
 class SP_RADI_NUMBER_RADIATION_ANGLES(BFParam):
-    """!
-    Blender representation of the NUMBER_RADIATION_ANGLES parameter, the number of angles for spatial resolution of radiation solver.
-    """
-
     label = "NUMBER_RADIATION_ANGLES"
     description = "Number of angles for spatial resolution of radiation solver"
     fds_label = "NUMBER_RADIATION_ANGLES"
@@ -965,10 +772,6 @@ class SP_RADI_NUMBER_RADIATION_ANGLES(BFParam):
 
 @subscribe
 class SP_RADI_TIME_STEP_INCREMENT(BFParam):
-    """!
-    Blender representation of the TIME_STEP_INCREMENT parameter, the frequency of calls to the radiation solver in time steps.
-    """
-
     label = "TIME_STEP_INCREMENT"
     description = "Frequency of calls to the radiation solver in time steps"
     fds_label = "TIME_STEP_INCREMENT"
@@ -981,10 +784,6 @@ class SP_RADI_TIME_STEP_INCREMENT(BFParam):
 
 @subscribe
 class SP_RADI_ANGLE_INCREMENT(BFParam):
-    """!
-    Blender representation of the ANGLE_INCREMENT parameter, the increment over which the angles are updated.
-    """
-
     label = "ANGLE_INCREMENT"
     description = "Increment over which the angles are updated"
     fds_label = "ANGLE_INCREMENT"
@@ -997,10 +796,6 @@ class SP_RADI_ANGLE_INCREMENT(BFParam):
 
 @subscribe
 class SP_RADI_RADIATION_ITERATIONS(BFParam):
-    """!
-    Blender representation of the RADIATION_ITERATIONS parameter, the number of times the radiative intensity is updated in a time step.
-    """
-
     label = "RADIATION_ITERATIONS"
     description = "Number of times the radiative intensity is updated in a time step"
     fds_label = "RADIATION_ITERATIONS"
@@ -1013,10 +808,6 @@ class SP_RADI_RADIATION_ITERATIONS(BFParam):
 
 @subscribe
 class SP_RADI_other(BFParamOther):
-    """!
-    Blender representation of other parameters for the RADI namelist.
-    """
-
     bpy_type = Scene
     bpy_idname = "bf_radi_other"
     bpy_pg = WM_PG_bf_other
@@ -1025,10 +816,6 @@ class SP_RADI_other(BFParamOther):
 
 @subscribe
 class SN_RADI(BFNamelistSc):
-    """!
-    Blender representation of the RADI namelist.
-    """
-
     label = "RADI"
     description = "Radiation parameters"
     enum_id = 3006
@@ -1051,20 +838,12 @@ class SN_RADI(BFNamelistSc):
 
 @subscribe
 class SP_PRES_FYI(BFParamFYI):
-    """!
-    Blender representation of the FYI parameter.
-    """
-
     bpy_type = Scene
     bpy_idname = "bf_pres_fyi"
 
 
 @subscribe
 class SP_PRES_BAROCLINIC(BFParam):
-    """!
-    Blender representation of the BAROCLINIC parameter.
-    """
-
     label = "BAROCLINIC"
     description = "Consider baroclinic torque"
     fds_label = "BAROCLINIC"
@@ -1076,10 +855,6 @@ class SP_PRES_BAROCLINIC(BFParam):
 
 @subscribe
 class SP_PRES_VELOCITY_TOLERANCE(BFParam):
-    """!
-    Blender representation of the VELOCITY_TOLERANCE parameter
-    """
-
     label = "VELOCITY_TOLERANCE"
     description = "Maximum allowable normal velocity component\non the solid boundary or the largest error at a mesh interface"
     fds_label = "VELOCITY_TOLERANCE"
@@ -1093,10 +868,6 @@ class SP_PRES_VELOCITY_TOLERANCE(BFParam):
 
 @subscribe
 class SP_PRES_MAX_PRESSURE_ITERATIONS(BFParam):
-    """!
-    Blender representation of the MAX_PRESSURE_ITERATIONS parameter.
-    """
-
     label = "MAX_PRESSURE_ITERATIONS"
     description = "Maximum number of pressure iterations for each half of the time step"
     fds_label = "MAX_PRESSURE_ITERATIONS"
@@ -1109,10 +880,6 @@ class SP_PRES_MAX_PRESSURE_ITERATIONS(BFParam):
 
 @subscribe
 class SP_PRES_other(BFParamOther):
-    """!
-    Blender representation of other parameters for the PRES namelist.
-    """
-
     bpy_type = Scene
     bpy_idname = "bf_pres_other"
     bpy_pg = WM_PG_bf_other
@@ -1121,10 +888,6 @@ class SP_PRES_other(BFParamOther):
 
 @subscribe
 class SN_PRES(BFNamelistSc):
-    """!
-    Blender representation of the PRES namelist.
-    """
-
     label = "PRES"
     description = "Pressure Solver"
     enum_id = 3007
@@ -1145,20 +908,12 @@ class SN_PRES(BFNamelistSc):
 
 @subscribe
 class SP_DUMP_FYI(BFParamFYI):
-    """!
-    Blender representation of the FYI parameter.
-    """
-
     bpy_type = Scene
     bpy_idname = "bf_dump_fyi"
 
 
 @subscribe
 class SP_DUMP_render_file(BFParam):
-    """!
-    Blender representation of the RENDER_FILE parameter to export geometric description file GE1.
-    """
-
     label = "Export Geometric Description File"
     description = "Export geometric description file GE1"
     fds_label = "RENDER_FILE"
@@ -1188,10 +943,6 @@ class SP_DUMP_render_file(BFParam):
 
 @subscribe
 class SP_DUMP_STATUS_FILES(BFParam):
-    """!
-    Blender representation of the STATUS_FILES parameter, the export status file (*.notready), deleted when the simulation is completed successfully.
-    """
-
     label = "STATUS_FILES"
     description = "Export status file (*.notready), deleted when the simulation is completed successfully"
     fds_label = "STATUS_FILES"
@@ -1203,10 +954,6 @@ class SP_DUMP_STATUS_FILES(BFParam):
 
 @subscribe
 class SP_DUMP_NFRAMES(BFParam):
-    """!
-    Blender representation of the NFRAMES parameter, the number of output dumps per calculation.
-    """
-
     label = "NFRAMES"
     description = "Number of output dumps per calculation"
     fds_label = "NFRAMES"
@@ -1223,10 +970,6 @@ class SP_DUMP_NFRAMES(BFParam):
 
 @subscribe
 class SP_DUMP_frames_freq(BFParam):
-    """!
-    Blender representation of the dump output every 1 s.
-    """
-
     label = "Dump Output Frequency [s]"
     description = "Dump output frequency in seconds"
     bpy_type = Scene
@@ -1250,10 +993,6 @@ class SP_DUMP_frames_freq(BFParam):
 
 @subscribe
 class SP_DUMP_DT_RESTART(BFParam):
-    """!
-    Blender representation of the DT_RESTART parameter, the time interval between restart files are saved.
-    """
-
     label = "DT_RESTART [s]"
     description = "Time interval between restart files are saved"
     fds_label = "DT_RESTART"
@@ -1266,10 +1005,6 @@ class SP_DUMP_DT_RESTART(BFParam):
 
 @subscribe
 class SP_DUMP_other(BFParamOther):
-    """!
-    Blender representation of other parameters for the DUMP namelist.
-    """
-
     bpy_type = Scene
     bpy_idname = "bf_dump_other"
     bpy_pg = WM_PG_bf_other
@@ -1278,10 +1013,6 @@ class SP_DUMP_other(BFParamOther):
 
 @subscribe
 class SN_DUMP(BFNamelistSc):
-    """!
-    Blender representation of the DUMP namelist.
-    """
-
     label = "DUMP"
     description = "Output parameters"
     enum_id = 3005
@@ -1304,10 +1035,6 @@ class SN_DUMP(BFNamelistSc):
 
 @subscribe
 class SP_CATF_check_files(BFParam):
-    """!
-    Blender representation to check file existence while exporting filepaths.
-    """
-
     label = "Check File Existance While Exporting"
     description = "Check file existence while exporting filepaths"
     bpy_type = Scene
@@ -1321,10 +1048,6 @@ class SP_CATF_check_files(BFParam):
 
 @subscribe
 class SP_CATF_files(BFParamOther):
-    """!
-    Blender representation to concatenated files (eg. PROP='/drive/test.catf').
-    """
-
     label = "Concatenated File Paths"
     description = "Concatenated files (eg. PROP='/drive/test.catf')"
     fds_label = "OTHER_FILES"
@@ -1356,10 +1079,6 @@ class SP_CATF_files(BFParamOther):
 
 @subscribe
 class SN_CATF(BFNamelistSc):
-    """!
-    Blender representation of the CATF namelist.
-    """
-
     label = "CATF"
     description = "Concatenated file paths"
     fds_label = "CATF"
@@ -1377,10 +1096,6 @@ def update_MP_namelist_cls(self, context):
 
 @subscribe
 class MP_namelist_cls(BFParam):
-    """!
-    Blender representation to the identification of FDS namelist.
-    """
-
     label = "Namelist"
     description = "Identification of FDS namelist"
     bpy_type = Material
@@ -1401,10 +1116,6 @@ class MP_namelist_cls(BFParam):
 
 @subscribe
 class MP_ID(BFParamStr):
-    """!
-    Blender representation of the ID parameter, the material identification name.
-    """
-
     label = "ID"
     description = "Material identification name"
     fds_label = "ID"
@@ -1418,21 +1129,12 @@ class MP_ID(BFParamStr):
 
 @subscribe
 class MP_FYI(BFParamFYI):
-    """!
-    Blender representation of the FYI parameter for materials.
-    """
-
     bpy_type = Material
     bpy_idname = "bf_fyi"
 
 
 @subscribe
 class MP_RGB(BFParam):
-    """!
-    Blender representation of the RGB parameter.
-    Exports both RGB and TRANSPARENCY.
-    """
-
     label = "RGB"
     description = "Red, green, blue components of color"
     fds_label = "RGB"
@@ -1464,11 +1166,6 @@ class MP_RGB(BFParam):
 
 @subscribe
 class MP_COLOR(BFParam):
-    """!
-    Blender representation of the COLOR parameter.
-    For importing only.
-    """
-
     label = "COLOR"
     description = "Color"
     fds_label = "COLOR"
@@ -1488,11 +1185,6 @@ class MP_COLOR(BFParam):
 
 @subscribe
 class MP_TRANSPARENCY(BFParam):
-    """!
-    Blender representation of the TRANSPARENCY parameter.
-    For importing only, exported by MP_RGB.
-    """
-
     label = "TRANSPARENCY"
     description = "Red, green, blue components of color and transparency"
     fds_label = "TRANSPARENCY"
@@ -1509,10 +1201,6 @@ class MP_TRANSPARENCY(BFParam):
 
 @subscribe
 class MP_THICKNESS(BFParam):
-    """!
-    Blender representation of the THICKNESS parameter, the surface thickness for heat transfer calculation.
-    """
-
     label = "THICKNESS [m]"
     description = "Surface thickness for heat transfer calculation"
     fds_label = "THICKNESS"
@@ -1533,10 +1221,6 @@ class MP_THICKNESS(BFParam):
 
 @subscribe
 class MP_HRRPUA(BFParam):
-    """!
-    Blender representation of the HRRPUA parameter, the heat release rate per unit area.
-    """
-
     label = "HRRPUA [kW/m²]"
     description = "Heat release rate per unit area"
     fds_label = "HRRPUA"
@@ -1549,10 +1233,6 @@ class MP_HRRPUA(BFParam):
 
 @subscribe
 class MP_TAU_Q(BFParam):
-    """!
-    Blender representation of the TAU_Q parameter, the ramp time for heat release rate.
-    """
-
     label = "TAU_Q [s]"
     description = "Ramp time for heat release rate"
     fds_label = "TAU_Q"
@@ -1565,10 +1245,6 @@ class MP_TAU_Q(BFParam):
 
 @subscribe
 class MP_MATL_ID(BFParamStr):
-    """!
-    Blender representation of the MATL_ID parameter, the reference to a MATL (Material) line for self properties.
-    """
-
     label = "MATL_ID"
     description = "Reference to a MATL (Material) line for self properties"
     fds_label = "MATL_ID"
@@ -1589,10 +1265,6 @@ class MP_MATL_ID(BFParamStr):
 
 @subscribe
 class MP_IGNITION_TEMPERATURE(BFParam):
-    """!
-    Blender representation of the IGNITION_TEMPERATURE parameter.
-    """
-
     label = "IGNITION_TEMPERATURE [°C]"
     description = "Ignition temperature"
     fds_label = "IGNITION_TEMPERATURE"
@@ -1607,10 +1279,6 @@ class MP_IGNITION_TEMPERATURE(BFParam):
 
 @subscribe
 class MP_BACKING(BFParam):
-    """!
-    Blender representation of the BACKING parameter, the exposition of back side surface.
-    """
-
     label = "BACKING"
     description = "Exposition of back side surface"
     fds_label = "BACKING"
@@ -1646,10 +1314,6 @@ class MP_BACKING(BFParam):
 
 @subscribe
 class MP_other(BFParamOther):
-    """!
-    Blender representation of other parameters for all namelists of Blender Material.
-    """
-
     bpy_type = Material
     bpy_idname = "bf_other"
     bpy_pg = WM_PG_bf_other
@@ -1658,10 +1322,6 @@ class MP_other(BFParamOther):
 
 @subscribe
 class MN_SURF(BFNamelistMa):
-    """!
-    Blender representation of the SURF namelist, the generic boundary condition.
-    """
-
     label = "SURF"
     description = "Generic boundary condition"
     enum_id = 2000
@@ -1701,10 +1361,6 @@ def update_OP_namelist_cls(ob, context):
 
 @subscribe
 class OP_namelist_cls(BFParam):
-    """!
-    Blender representation to the identification of FDS namelist.
-    """
-
     label = "Namelist"
     description = "Identification of FDS namelist"
     bpy_type = Object
@@ -1722,10 +1378,6 @@ class OP_namelist_cls(BFParam):
 
 @subscribe
 class OP_ID(BFParamStr):
-    """!
-    Blender representation of the ID parameter, the object identification name.
-    """
-
     label = "ID"
     description = "Object identification name"
     fds_label = "ID"
@@ -1739,10 +1391,6 @@ class OP_ID(BFParamStr):
 
 @subscribe
 class OP_FYI(BFParamFYI):
-    """!
-    Blender representation of the FYI parameter for objects.
-    """
-
     bpy_type = Object
     bpy_idname = "bf_fyi"
 
@@ -1762,10 +1410,6 @@ def update_bf_xb(ob, context):
 
 @subscribe
 class OP_XB_custom_voxel(BFParam):
-    """!
-    Blender representation to use custom voxel/pixel size for current Object.
-    """
-
     label = "Use Custom Voxel/Pixel"
     description = "Use custom voxel/pixel size for current Object"
     bpy_type = Object
@@ -1783,10 +1427,6 @@ class OP_XB_custom_voxel(BFParam):
 
 @subscribe
 class OP_XB_voxel_size(BFParam):
-    """!
-    Blender representation to use custom voxel/pixel size for current Object.
-    """
-
     label = "Custom Voxel/Pixel Size"
     description = "Custom voxel/pixel size for current Object"
     bpy_type = Object
@@ -1814,10 +1454,6 @@ class OP_XB_voxel_size(BFParam):
 
 @subscribe
 class OP_XB_center_voxels(BFParam):
-    """!
-    Blender representation to center voxels/pixels to Object bounding box.
-    """
-
     label = "Center Voxels/Pixels"
     description = "Center voxels/pixels to Object bounding box"
     bpy_type = Object
@@ -1837,10 +1473,6 @@ class OP_XB_center_voxels(BFParam):
 
 @subscribe
 class OP_XB_export(BFParam):
-    """!
-    Blender representation to set if XB shall be exported to FDS.
-    """
-
     label = "Export XB"
     description = "Set if XB shall be exported to FDS"
     bpy_type = Object
@@ -1852,10 +1484,6 @@ class OP_XB_export(BFParam):
 
 @subscribe
 class OP_XB(BFParamXB):
-    """!
-    Blender representation to export as volumes/faces.
-    """
-
     label = "XB"
     description = "Export as volumes/faces"
     fds_label = "XB"
@@ -2055,10 +1683,6 @@ def update_bf_xyz(ob, context):
 
 @subscribe
 class OP_XYZ_export(BFParam):
-    """!
-    Blender representation to set if XYZ shall be exported to FDS.
-    """
-
     label = "Export XYZ"
     description = "Set if XYZ shall be exported to FDS"
     bpy_type = Object
@@ -2070,10 +1694,6 @@ class OP_XYZ_export(BFParam):
 
 @subscribe
 class OP_XYZ(BFParamXYZ):
-    """!
-    Blender representation of the XYZ parameter to export as points.
-    """
-
     label = "XYZ"
     description = "Export as points"
     fds_label = "XYZ"
@@ -2142,10 +1762,6 @@ class OP_XYZ(BFParamXYZ):
 
 @subscribe
 class OP_XYZ_center(OP_XYZ):
-    """!
-    Blender representation of the XYZ parameter to export as points (center).
-    """
-
     description = "Export as points (center)"
     bpy_prop = None  # do not redefine
     bf_xyz_idxs = (0,)  # CENTER, VERTICES
@@ -2165,10 +1781,6 @@ def update_bf_pb(ob, context):
 
 @subscribe
 class OP_PB_export(BFParam):
-    """!
-    Blender representation to set if PBX, PBY, PBZ shall be exported to FDS.
-    """
-
     label = "Export PBX, PBY, PBZ"
     description = "Set if PBX, PBY, PBZ shall be exported to FDS"
     bpy_type = Object
@@ -2180,10 +1792,6 @@ class OP_PB_export(BFParam):
 
 @subscribe
 class OP_PB(BFParamPB):
-    """!
-    Blender representation to export as planes.
-    """
-
     label = "PBX, PBY, PBZ"
     description = "Export as planes"
     bpy_type = Object
@@ -2247,11 +1855,6 @@ class OP_PB(BFParamPB):
 
 @subscribe
 class OP_PBX(OP_PB):
-    """!
-    Blender representation of the PBX parameter.
-    For importing only.
-    """
-
     fds_label = "PBX"
     bpy_prop = None  # already defined
     axis = 0  # axis for importing
@@ -2265,32 +1868,18 @@ class OP_PBX(OP_PB):
 
 @subscribe
 class OP_PBY(OP_PBX):
-    """!
-    Blender representation of the PBY parameter.
-    For importing only.
-    """
-
     fds_label = "PBY"
     axis = 1  # axis for importing
 
 
 @subscribe
 class OP_PBZ(OP_PBX):
-    """!
-    Blender representation of the PBZ parameter.
-    For importing only.
-    """
-
     fds_label = "PBZ"
     axis = 2  # axis for importing
 
 
 @subscribe
 class OP_ID_suffix(BFParam):
-    """!
-    Blender representation to append suffix to multiple IDs.
-    """
-
     label = "IDs Suffix"
     description = "Append suffix to multiple IDs"
     bpy_type = Object
@@ -2322,10 +1911,6 @@ class OP_ID_suffix(BFParam):
 
 @subscribe
 class OP_SURF_ID(BFParam):
-    """!
-    Blender representation of the SURF_ID parameter, the reference to a SURF boundary condition.
-    """
-
     label = "SURF_ID"
     description = "Reference to SURF"
     fds_label = "SURF_ID"
@@ -2369,10 +1954,6 @@ class OP_SURF_ID(BFParam):
 
 @subscribe
 class OP_other(BFParamOther):
-    """!
-    Blender representation of other parameters for all namelists of Blender Object.
-    """
-
     bpy_type = Object
     bpy_idname = "bf_other"
     bpy_pg = WM_PG_bf_other
@@ -2381,10 +1962,6 @@ class OP_other(BFParamOther):
 
 @subscribe
 class ON_OBST(BFNamelistOb):
-    """!
-    Blender representation of the OBST namelist.
-    """
-
     label = "OBST"
     description = "Obstruction"
     enum_id = 1000
@@ -2408,10 +1985,6 @@ class ON_OBST(BFNamelistOb):
 
 @subscribe
 class OP_other_namelist(BFParam):
-    """!
-    Blender representation of the other namelist label, eg <ABCD>.
-    """
-
     label = "Label"
     description = "Other namelist label, eg <ABCD>"
     bpy_type = Object
@@ -2430,10 +2003,6 @@ class OP_other_namelist(BFParam):
 
 @subscribe
 class ON_other(BFNamelistOb):
-    """!
-    Blender representation of any other namelists.
-    """
-
     label = "Other"
     description = "Other namelist"
     enum_id = 1007
@@ -2466,10 +2035,6 @@ class ON_other(BFNamelistOb):
 
 @subscribe
 class OP_MOVE_ID(BFParamStr):
-    """!
-    Blender representation for exporting a namelist with its MOVE namelist.
-    """
-
     label = "MOVE_ID"
     description = "Export this namelist with a corresponding MOVE namelist"
     fds_label = "ID"
@@ -2489,10 +2054,6 @@ class OP_MOVE_ID(BFParamStr):
 
 @subscribe
 class OP_MOVE_T34(BFParam):
-    """!
-    Blender representation of the T34 parameter.
-    """
-
     label = "T34"
     description = "Transformation matrix"  # FIXME
     fds_label = "T34"
@@ -2539,10 +2100,6 @@ class OP_MOVE_T34(BFParam):
 
 @subscribe
 class ON_MOVE(BFNamelistOb):
-    """!
-    Blender representation of the MOVE namelist.
-    """
-
     label = "MOVE"
     description = "Transformation FIXME"
     enum_id = False  # not displayed in namelist type menu, not auto called for export
@@ -2598,10 +2155,6 @@ class ON_MOVE(BFNamelistOb):
 
 @subscribe
 class OP_GEOM_check_sanity(BFParam):
-    """!
-    Blender representation to check if closed orientable manifold, with no degenerate geometry while exporting.
-    """
-
     label = "Check Sanity While Exporting"
     description = "Check if closed orientable manifold, with no degenerate geometry while exporting"
     bpy_type = Object
@@ -2616,10 +2169,6 @@ class OP_GEOM_check_sanity(BFParam):
 
 @subscribe
 class OP_GEOM_protect(BFParam):  # TODO put in operator? several ops depend on it
-    """!
-    Blender representation to protect original Object geometry while checking its sanity.
-    """
-
     label = "Protect Original"
     description = "Protect original Object geometry while checking its sanity"
     bpy_type = Object
@@ -2630,10 +2179,6 @@ class OP_GEOM_protect(BFParam):  # TODO put in operator? several ops depend on i
 
 @subscribe
 class OP_GEOM_SURF_ID(BFParam):
-    """!
-    Blender representation for SURF_ID parameter.
-    """
-
     label = "SURF_ID"
     fds_label = "SURF_ID"
     bpy_type = Object
@@ -2666,10 +2211,6 @@ class OP_GEOM_SURF_ID(BFParam):
 
 @subscribe
 class OP_GEOM_SURF_IDS(OP_GEOM_SURF_ID):
-    """!
-    Blender representation for SURF_IDS parameter.
-    """
-
     label = "SURF_IDS"
     fds_label = "SURF_IDS"
     bpy_type = Object
@@ -2680,10 +2221,6 @@ class OP_GEOM_SURF_IDS(OP_GEOM_SURF_ID):
 
 @subscribe
 class OP_GEOM_SURF_ID6(OP_GEOM_SURF_ID):
-    """!
-    Blender representation for SURF_IDS parameter.
-    """
-
     label = "SURF_ID6"
     fds_label = "SURF_ID6"
     bpy_type = Object
@@ -2694,10 +2231,6 @@ class OP_GEOM_SURF_ID6(OP_GEOM_SURF_ID):
 
 @subscribe
 class OP_GEOM_VERTS(BFParam):
-    """!
-    Blender representation for VERTS parameter.
-    """
-
     label = "VERTS"
     fds_label = "VERTS"
     bpy_type = Object
@@ -2711,10 +2244,6 @@ class OP_GEOM_VERTS(BFParam):
 
 @subscribe
 class OP_GEOM_FACES(BFParam):
-    """!
-    Blender representation for FACES parameter.
-    """
-
     label = "FACES"
     fds_label = "FACES"
     bpy_type = Object
@@ -2728,10 +2257,6 @@ class OP_GEOM_FACES(BFParam):
 
 @subscribe
 class OP_GEOM_XB(BFParam):
-    """!
-    Blender representation for XB parameter.
-    """
-
     label = "XB"
     fds_label = "XB"
     bpy_type = Object
@@ -2755,10 +2280,6 @@ class OP_GEOM_XB(BFParam):
 
 @subscribe
 class OP_GEOM_binary_directory(BFParam):
-    """!
-    Blender representation for BINARY_FILE parameter directory.
-    """
-
     # Used in conjuction with OP_GEOM_BINARY_FILE
     # Contains abs path or path relative to saved blend file
     label = "Binary Directory"
@@ -2775,10 +2296,6 @@ class OP_GEOM_binary_directory(BFParam):
 
 @subscribe
 class OP_GEOM_BINARY_FILE(BFParam):
-    """!
-    Blender representation for BINARY_FILE parameter.
-    """
-
     label = "BINARY_FILE"
     description = "Name of the binary bingeom file"
     fds_label = "BINARY_FILE"
@@ -2890,10 +2407,6 @@ class OP_GEOM_BINARY_FILE(BFParam):
 
 @subscribe
 class OP_GEOM_MOVE_ID(OP_MOVE_ID):
-    """!
-    Blender representation for exporting a namelist with its MOVE namelist from GEOM.
-    """
-
     fds_label = "MOVE_ID"
     bpy_export_default = None
 
@@ -2914,10 +2427,6 @@ class OP_GEOM_MOVE_ID(OP_MOVE_ID):
 
 @subscribe
 class OP_GEOM_IS_TERRAIN(BFParam):
-    """!
-    Blender representation of the IS_TERRAIN parameter to set if it represents a terrain.
-    """
-
     label = "IS_TERRAIN"
     description = "Set if it represents a terrain"
     fds_label = "IS_TERRAIN"
@@ -2929,10 +2438,6 @@ class OP_GEOM_IS_TERRAIN(BFParam):
 
 @subscribe
 class OP_GEOM_EXTEND_TERRAIN(BFParam):
-    """!
-    Blender representation of the EXTEND_TERRAIN parameter to set if this terrain needs extension to fully cover the domain.
-    """
-
     label = "EXTEND_TERRAIN"
     description = "Set if this terrain needs extension to fully cover the domain"
     fds_label = "EXTEND_TERRAIN"
@@ -2949,10 +2454,6 @@ class OP_GEOM_EXTEND_TERRAIN(BFParam):
 
 @subscribe
 class ON_GEOM(BFNamelistOb):
-    """!
-    Blender representation of the GEOM namelist.
-    """
-
     label = "GEOM"
     description = "Geometry"
     enum_id = 1021
@@ -3069,10 +2570,6 @@ class ON_GEOM(BFNamelistOb):
 
 @subscribe
 class ON_HOLE(BFNamelistOb):
-    """!
-    Blender representation of the HOLE namelist.
-    """
-
     label = "HOLE"
     description = "Obstruction cutout"
     enum_id = 1009
@@ -3086,10 +2583,6 @@ class ON_HOLE(BFNamelistOb):
 
 @subscribe
 class OP_VENT_OBST_ID(BFParam):
-    """!
-    Blender representation of the OBST_ID parameter to specify OBST on which projecting the condition.
-    """
-
     label = "OBST_ID"
     description = "Specify OBST on which projecting the condition"
     fds_label = "OBST_ID"
@@ -3116,10 +2609,6 @@ class OP_VENT_OBST_ID(BFParam):
 
 @subscribe
 class ON_VENT(BFNamelistOb):
-    """!
-    Blender representation of the VENT namelist.
-    """
-
     label = "VENT"
     description = "Boundary condition patch"
     enum_id = 1010
@@ -3146,10 +2635,6 @@ class ON_VENT(BFNamelistOb):
 
 @subscribe
 class OP_DEVC_QUANTITY(BFParamStr):
-    """!
-    Blender representation of the QUANTITY parameter, the output quantity.
-    """
-
     label = "QUANTITY"
     description = "Output quantity"
     fds_label = "QUANTITY"
@@ -3162,10 +2647,6 @@ class OP_DEVC_QUANTITY(BFParamStr):
 
 @subscribe
 class OP_DEVC_SETPOINT(BFParam):
-    """!
-    Blender representation of the SETPOINT parameter, the value of the device at which its state changes.
-    """
-
     label = "SETPOINT [~]"
     description = "Value of the device at which its state changes"
     fds_label = "SETPOINT"
@@ -3180,10 +2661,6 @@ class OP_DEVC_SETPOINT(BFParam):
 
 @subscribe
 class OP_DEVC_INITIAL_STATE(BFParam):
-    """!
-    Blender representation of the INITIAL_STATE parameter to set device initial state.
-    """
-
     label = "INITIAL_STATE"
     description = "Set device initial state"
     fds_label = "INITIAL_STATE"
@@ -3195,10 +2672,6 @@ class OP_DEVC_INITIAL_STATE(BFParam):
 
 @subscribe
 class OP_DEVC_LATCH(BFParam):
-    """!
-    Blender representation of the LATCH parameter, the device only changes state once.
-    """
-
     label = "LATCH"
     description = "Device only changes state once"
     fds_label = "LATCH"
@@ -3210,10 +2683,6 @@ class OP_DEVC_LATCH(BFParam):
 
 @subscribe
 class OP_DEVC_PROP_ID(BFParamStr):
-    """!
-    Blender representation of the PROP_ID parameter, the reference to a PROP (Property) line for self properties.
-    """
-
     label = "PROP_ID"
     description = "Reference to a PROP (Property) line for self properties"
     fds_label = "PROP_ID"
@@ -3226,10 +2695,6 @@ class OP_DEVC_PROP_ID(BFParamStr):
 
 @subscribe
 class ON_DEVC(BFNamelistOb):
-    """!
-    Blender representation of the DEVC namelist.
-    """
-
     label = "DEVC"
     description = "Device"
     enum_id = 1011
@@ -3259,10 +2724,6 @@ class ON_DEVC(BFNamelistOb):
 
 @subscribe
 class OP_SLCF_VECTOR(BFParam):
-    """!
-    Blender representation of the VECTOR parameter to create animated vectors.
-    """
-
     label = "VECTOR"
     description = "Create animated vectors"
     fds_label = "VECTOR"
@@ -3274,10 +2735,6 @@ class OP_SLCF_VECTOR(BFParam):
 
 @subscribe
 class OP_SLCF_CELL_CENTERED(BFParam):
-    """!
-    Blender representation of the CELL_CENTERED parameter to output the actual cell-centered data with no averaging.
-    """
-
     label = "CELL_CENTERED"
     description = "Output the actual cell-centered data with no averaging"
     fds_label = "CELL_CENTERED"
@@ -3289,10 +2746,6 @@ class OP_SLCF_CELL_CENTERED(BFParam):
 
 @subscribe
 class ON_SLCF(BFNamelistOb):
-    """!
-    Blender representation of the SLCF namelist.
-    """
-
     label = "SLCF"
     description = "Slice file"
     enum_id = 1012
@@ -3319,10 +2772,6 @@ class ON_SLCF(BFNamelistOb):
 
 @subscribe
 class ON_PROF(BFNamelistOb):
-    """!
-    Blender representation of the PROF namelist.
-    """
-
     label = "PROF"
     description = "Wall profile output"
     enum_id = 1013
@@ -3336,10 +2785,6 @@ class ON_PROF(BFNamelistOb):
 
 @subscribe
 class OP_MESH_IJK(BFParam):
-    """!
-    Blender representation of the IJK parameter, the cell number in x, y, and z direction.
-    """
-
     label = "IJK"
     description = "Cell number in x, y, and z direction"
     fds_label = "IJK"
@@ -3384,10 +2829,6 @@ class OP_MESH_IJK(BFParam):
 
 @subscribe
 class ON_MESH(BFNamelistOb):
-    """!
-    Blender representation of the MESH namelist.
-    """
-
     label = "MESH"
     description = "Domain of simulation"
     enum_id = 1014
@@ -3406,10 +2847,6 @@ class ON_MESH(BFNamelistOb):
 
 @subscribe
 class ON_INIT(BFNamelistOb):
-    """!
-    Blender representation of the INIT namelist.
-    """
-
     label = "INIT"
     description = "Initial condition"
     enum_id = 1015
@@ -3423,10 +2860,6 @@ class ON_INIT(BFNamelistOb):
 
 @subscribe
 class ON_ZONE(BFNamelistOb):
-    """!
-    Blender representation of the ZONE namelist.
-    """
-
     label = "ZONE"
     description = "Pressure zone"
     enum_id = 1016
@@ -3440,10 +2873,6 @@ class ON_ZONE(BFNamelistOb):
 
 @subscribe
 class ON_HVAC(BFNamelistOb):
-    """!
-    Blender representation of the HVAC namelist.
-    """
-
     label = "HVAC"
     description = "HVAC system definition"
     enum_id = 1017
