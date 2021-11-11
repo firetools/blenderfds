@@ -18,18 +18,13 @@
 BlenderFDS, Blender to FDS interface metaclasses.
 """
 
-import re, os.path, logging
+import re, logging
 
 import bpy
-from bpy.types import PropertyGroup, UIList, Object, Scene, Material
+from bpy.types import Object, Scene, Material
 from bpy.props import (
     BoolProperty,
-    FloatProperty,
-    IntProperty,
     StringProperty,
-    PointerProperty,
-    EnumProperty,
-    CollectionProperty,
 )
 
 if __name__ != "__main__":
@@ -77,6 +72,11 @@ class BFParam:
     ## default value for export toggle Blender property
     bpy_export_default = None
 
+    ## List of subclassess
+    subclasses = list()
+    ## Dict of subclassess by fds_label
+    subclasses_by_fds_label = dict()
+
     ## List of registered bpy_idname for unregistering
     _registered_bpy_idnames = list()
 
@@ -88,14 +88,14 @@ class BFParam:
         ## FDS element represented by this class instance
         self.element = element
 
-    def __str__(self):
-        return f"{self.label}(element='{self.element.name}')"
-
-    subclasses = list()
-
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         cls.subclasses.append(cls)
+        if cls.fds_label:
+            cls.subclasses_by_fds_label[cls.fds_label] = cls
+
+    def __str__(self):
+        return f"{self.label}(element='{self.element.name}')"
 
     @classmethod
     def register(cls):
@@ -465,6 +465,11 @@ class BFNamelist(BFParam):
     Blender representation of an FDS namelist group.
     """
 
+    ## List of subclassess
+    subclasses = list()
+    ## Dict of subclassess by fds_label
+    subclasses_by_fds_label = dict()
+
     def __init__(self, element):
         ## FDS element represented by this class instance
         self.element = element
@@ -472,8 +477,6 @@ class BFNamelist(BFParam):
         self.bf_params = tuple(p(element) for p in self.bf_params)
 
     # inherits __str__
-
-    subclasses = list()
 
     @classmethod
     def register(cls):
