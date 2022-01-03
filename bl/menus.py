@@ -6,13 +6,10 @@ import os
 
 import bpy, logging
 from bpy.types import Operator
-from bpy.props import StringProperty, BoolProperty, FloatProperty
+from bpy.props import StringProperty, BoolProperty
 from bpy_extras.io_utils import ImportHelper, ExportHelper
-
-from ..types import FDSCase
-from .. import io
-from ..utils import BFException, BFNotImported, is_iterable
-
+from .. import utils
+from ..types import BFException
 
 log = logging.getLogger(__name__)
 
@@ -67,7 +64,7 @@ class ImportFDS(Operator, ImportHelper):
 
     def _get_new_scene_from_filepath(self, filepath):
         filepath = bpy.path.abspath(filepath)
-        name, path = io.calc_bl_name_and_dir(filepath)
+        name, path = utils.calc_bl_name_and_dir(filepath)
         # Create new scene
         sc = bpy.data.scenes.new(name)
         sc.bf_config_directory = path
@@ -138,8 +135,10 @@ class ExportFDS(Operator, ExportHelper):
     )
 
     def _get_fds_filepath(self, sc):
-        return io.calc_path(
-            bl_path=sc.bf_config_directory or "//", name=sc.name, extension=".fds",
+        return utils.calc_path(
+            bl_path=sc.bf_config_directory or "//",
+            name=sc.name,
+            extension=".fds",
         )
 
     def _get_best_fds_filepath_for_dialog(self, sc):
@@ -150,7 +149,7 @@ class ExportFDS(Operator, ExportHelper):
 
     def _get_name_and_path_from_filepath(self, filepath):
         filepath = bpy.path.abspath(filepath)
-        return io.calc_bl_name_and_dir(filepath)
+        return utils.calc_bl_name_and_dir(filepath)
 
     def _export_scene(self, context, sc):
         w = context.window_manager.windows[0]

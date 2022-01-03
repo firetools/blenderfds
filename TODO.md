@@ -1,6 +1,5 @@
 # TODO
 
-
 user doc (WUIFI-21)
 
 code snippets

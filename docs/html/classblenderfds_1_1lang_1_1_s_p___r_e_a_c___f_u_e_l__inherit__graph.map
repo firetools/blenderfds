@@ -1,5 +1,0 @@
-<map id="blenderfds.lang.SP_REAC_FUEL" name="blenderfds.lang.SP_REAC_FUEL">
-<area shape="rect" id="node1" title="Blender representation of the FUEL string parameter, the identificator of fuel species." alt="" coords="36,155,169,196"/>
-<area shape="rect" id="node2" href="$classblenderfds_1_1types_1_1_b_f_param_str.html" title="Blender representation of an FDS parameter, helper for any FDS string parameter." alt="" coords="5,80,200,107"/>
-<area shape="rect" id="node3" href="$classblenderfds_1_1types_1_1_b_f_param.html" title="Blender representation of an FDS parameter." alt="" coords="13,5,192,32"/>
-</map>

@@ -5,7 +5,6 @@ BlenderFDS, handlers.
 import bpy, logging
 from bpy.app.handlers import persistent, load_post, save_pre, depsgraph_update_post
 from bpy.types import Object
-
 from .. import geometry
 from .. import config
 
@@ -80,17 +79,28 @@ def _load_post(self):
                     ma.bf_backing = "EXPOSED"
         for ob in bpy.data.objects:
             try:
-                ob["bf_xb"] = {0: 100, 1: 200, 2: 300, 3: 400, 4: 500,}[ob["bf_xb"]]
+                ob["bf_xb"] = {
+                    0: 100,
+                    1: 200,
+                    2: 300,
+                    3: 400,
+                    4: 500,
+                }[ob["bf_xb"]]
             except KeyError:
                 if ob.bf_xb == "":
                     ob.bf_xb = "BBOX"
             try:
-                ob["bf_xyz"] = {0: 100, 1: 200,}[ob["bf_xyz"]]
+                ob["bf_xyz"] = {
+                    0: 100,
+                    1: 200,
+                }[ob["bf_xyz"]]
             except KeyError:
                 if ob.bf_xyz == "":
                     ob.bf_xyz = "CENTER"
             try:
-                ob["bf_pb"] = {0: 100,}[ob["bf_pb"]]
+                ob["bf_pb"] = {
+                    0: 100,
+                }[ob["bf_pb"]]
             except KeyError:
                 if ob.bf_pb == "":
                     ob.bf_pb = "PLANES"

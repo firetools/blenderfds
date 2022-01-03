@@ -5,8 +5,7 @@ BlenderFDS, translate geometry from FDS notation to a Blender mesh.
 import bpy, bmesh, logging
 from time import time
 from mathutils import Matrix, Vector
-from ..utils import BFException, BFNotImported, is_iterable
-from . import utils
+from ..types import BFException
 
 log = logging.getLogger(__name__)
 
@@ -31,7 +30,11 @@ def geom_verts_to_mesh(context, me, vs):
     scale_length = context.scene.unit_settings.scale_length
     for i in range(0, len(vs), 3):
         bm.verts.new(
-            (vs[i] / scale_length, vs[i + 1] / scale_length, vs[i + 2] / scale_length,)
+            (
+                vs[i] / scale_length,
+                vs[i + 1] / scale_length,
+                vs[i + 2] / scale_length,
+            )
         )
     bm.to_mesh(me)
     bm.free()
@@ -156,7 +159,9 @@ def geom_cylinder_to_ob(
     # Create tmp object
     scale_length = context.scene.unit_settings.scale_length
     bpy.ops.mesh.primitive_cylinder_add(
-        vertices=nseg_theta, radius=radius / scale_length, depth=length / scale_length,
+        vertices=nseg_theta,
+        radius=radius / scale_length,
+        depth=length / scale_length,
     )
     ob_tmp = context.object
     # Attach materials before copying Mesh
@@ -351,18 +356,27 @@ def xbs_to_ob(context, ob, xbs, bf_xb=None, matrix=None):
     # log.debug(f"Importing xbs to Object <{ob.name}>")
     if bf_xb:  # force bf_xb
         xbs_to_mesh[bf_xb](
-            context=context, me=ob.data, xbs=xbs, matrix=matrix,
+            context=context,
+            me=ob.data,
+            xbs=xbs,
+            matrix=matrix,
         )
     else:  # auto choose
         try:
             bf_xb = "FACES"
             xbs_to_mesh[bf_xb](
-                context=context, me=ob.data, xbs=xbs, matrix=matrix,
+                context=context,
+                me=ob.data,
+                xbs=xbs,
+                matrix=matrix,
             )
         except BFException:
             bf_xb = "BBOX"
             xbs_to_mesh[bf_xb](
-                context=context, me=ob.data, xbs=xbs, matrix=matrix,
+                context=context,
+                me=ob.data,
+                xbs=xbs,
+                matrix=matrix,
             )
     return bf_xb
 

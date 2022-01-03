@@ -2,8 +2,8 @@
 BlenderFDS, ui classes.
 """
 
-import bpy, logging
-from bpy.types import Panel, Menu
+import logging
+from bpy.types import Panel
 
 log = logging.getLogger(__name__)
 
@@ -86,28 +86,6 @@ class PROPERTIES_PT_navigation_bar(Panel):
                 )
 
 
-@subscribe
-class TOPBAR_MT_editor_menus(Menu):
-    """!
-    Editor menu
-    """
-
-    bl_idname = "TOPBAR_MT_editor_menus"
-    bl_label = ""
-
-    def draw(self, _context):
-        """!
-        Draw UI elements into the menu UI layout.
-        @param context: the <a href="https://docs.blender.org/api/current/bpy.context.html">blender context</a>.
-        """
-        layout = self.layout
-        layout.menu("TOPBAR_MT_app", text="", icon="BLENDER")
-        layout.menu("TOPBAR_MT_file")
-        layout.menu("TOPBAR_MT_edit")
-        layout.menu("TOPBAR_MT_window")
-        layout.menu("TOPBAR_MT_help")
-
-
 # Register
 
 
@@ -117,13 +95,13 @@ def register():
     """
     from bpy.utils import register_class, unregister_class
 
-    for cls in classes_rm:
-        try:
-            unregister_class(getattr(bpy.types, cls))
-        except AttributeError:
-            log.warning(f"Cannot rm <{cls}>")
-        else:
-            log.debug(f"rm <{cls}>")
+    # for cls in classes_rm:
+    #     try:
+    #         unregister_class(getattr(bpy.types, cls))
+    #     except AttributeError:
+    #         log.warning(f"Cannot rm <{cls}>")
+    #     else:
+    #         log.debug(f"rm <{cls}>")
 
     for cls in classes:
         register_class(cls)

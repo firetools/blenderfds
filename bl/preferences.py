@@ -6,13 +6,8 @@ import bpy
 import logging
 
 from bpy.types import AddonPreferences
-from bpy.props import (
-    BoolProperty,
-    StringProperty,
-    FloatProperty,
-    IntProperty,
-    EnumProperty,
-)
+from bpy.props import BoolProperty, FloatProperty
+
 
 log = logging.getLogger(__name__)
 
@@ -35,33 +30,6 @@ class BFPreferences(AddonPreferences):
         name="Simplify UI [Blender restart required]",
         description="Simplify BlenderFDS user interface, Blender restart required",
         default=True,
-    )
-
-    bf_pref_appearance: BoolProperty(  # TODO remove bf_
-        name="Set Default Appearance",
-        description="Automatically set default appearance to Blender Scenes, Objects, Materials,\ndepending on FDS namelist and parameters",
-        default=True,
-    )
-
-    def update_loglevel(self, context):
-        """!
-        Update the BlenderFDS log level (DEBUG, INFO, WARNING, ERROR or CRITICAL).
-        @param context: the Blender context.
-        """
-        log.setLevel(self.bf_loglevel)
-
-    bf_loglevel: EnumProperty(  # TODO remove bf_
-        name="Log Level",
-        description="Select the log level",
-        items=[
-            ("DEBUG", "Debug", ""),
-            ("INFO", "Info", ""),
-            ("WARNING", "Warning", ""),
-            ("ERROR", "Error", ""),
-            ("CRITICAL", "Critical", ""),
-        ],
-        update=update_loglevel,
-        default="INFO",
     )
 
     min_edge_length: FloatProperty(
@@ -90,10 +58,8 @@ class BFPreferences(AddonPreferences):
         box.label(text="User Interface")
         box.operator("wm.bf_load_blenderfds_settings")
         box.prop(self, "bf_pref_simplify_ui")
-        box.prop(self, "bf_pref_appearance")
         box.prop(paths, "use_load_ui")
         box.prop(paths, "use_relative_paths")
-        box.prop(self, "bf_loglevel")
         box = layout.box()
         box.label(text="Default Sizes and Thresholds")
         box.prop(self, "min_edge_length")

@@ -5,8 +5,7 @@ BlenderFDS, geometric utilities.
 # TODO change file name
 
 import bpy, bmesh
-
-from ..utils import BFException, BFNotImported, is_iterable
+from ..types import BFException
 
 # Working on Blender objects
 
@@ -32,7 +31,7 @@ def get_object_bmesh(
     # Get evaluated bmesh from ob
     bm = bmesh.new()
     depsgraph = context.evaluated_depsgraph_get()
-    bm.from_object(ob, depsgraph=depsgraph, deform=True, cage=False, face_normals=True)
+    bm.from_object(ob, depsgraph=depsgraph, cage=False, face_normals=True)
     if matrix is not None:
         bm.transform(matrix)  # transform
     if world:

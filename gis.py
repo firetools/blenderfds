@@ -1,19 +1,3 @@
-# BlenderFDS, an open tool for the NIST Fire Dynamics Simulator
-# Copyright (C) 2013  Emanuele Gissi, http://www.blenderfds.org
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTIBILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/>.
-
 """!
 BlenderFDS, Geographic information system: original code from https://github.com/Turbo87/utm
 - simplified version that only handle utm zones (and not latitude bands from MGRS grid)
@@ -36,7 +20,6 @@ Formulas : https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinat
 # epsg: string "EPSG:1234"
 
 import math
-from .utils import BFException, BFNotImported, is_iterable
 
 
 K0 = 0.9996

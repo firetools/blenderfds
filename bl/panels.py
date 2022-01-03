@@ -3,10 +3,10 @@ BlenderFDS, panel class extensions.
 """
 
 import bpy
-from bpy.types import Panel, UIList, Operator, bpy_struct
+from bpy.types import Panel, bpy_struct
+from ..types import BFNamelist
 
-from . import custom_uilist
-from .. import lang, config, geometry, gis, fds
+from .. import lang, config
 
 bl_classes = list()
 bf_classes = list()
@@ -52,7 +52,7 @@ class SCENE_PT_bf_namelist:
         """
         sc = context.scene
         # Manage Scene
-        bf_namelist = lang.bf_namelists_by_cls[self.bf_namelist_cls]
+        bf_namelist = BFNamelist.subclasses_by_cls_name[self.bf_namelist_cls]
         if bf_namelist.bpy_export:
             self.layout.prop(sc, bf_namelist.bpy_export, icon_only=True)
         if bf_namelist.description:
@@ -70,7 +70,7 @@ class SCENE_PT_bf_namelist:
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
         flow = layout.grid_flow(row_major=True, columns=1, even_columns=True)
-        bf_namelist = lang.bf_namelists_by_cls[self.bf_namelist_cls]
+        bf_namelist = BFNamelist.subclasses_by_cls_name[self.bf_namelist_cls]
         bf_namelist(sc).draw(context, flow)
 
 
@@ -91,7 +91,7 @@ class SCENE_PT_bf_case(Panel, SCENE_PT_bf_namelist):
         row = layout.row(align=True)  # general operators
         row.operator("scene.bf_show_fds_code", icon="HIDE_OFF")
         row.operator("scene.bf_props_to_scene", icon="COPYDOWN")
-        bf_namelist = lang.bf_namelists_by_cls[self.bf_namelist_cls]
+        bf_namelist = BFNamelist.subclasses_by_cls_name[self.bf_namelist_cls]
         flow = layout.grid_flow(row_major=True, columns=1, even_columns=True)
         bf_namelist(sc).draw(context, flow)
 

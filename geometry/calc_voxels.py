@@ -4,10 +4,7 @@ BlenderFDS, voxelization algorithms.
 
 import bpy, bmesh, logging
 from math import floor, ceil
-
-from mathutils import Matrix
-
-from ..utils import BFException, BFNotImported, is_iterable
+from ..types import BFException
 from . import utils
 
 log = logging.getLogger(__name__)
@@ -125,9 +122,9 @@ def _init_remesh_mod(context, ob, voxel_size):
     @param voxel_size: the voxel size of the object.
     @return the octree_depth and scale that generate the desired voxel_size.
     """
-    dimension, octree_depth = max(ob.dimensions), 0.0
+    dimension, octree_depth = max(ob.dimensions), 0
     while True:
-        octree_depth += 1.0
+        octree_depth += 1
         scale = dimension / voxel_size / 2 ** octree_depth
         if 0.010 < scale < 0.990:
             break

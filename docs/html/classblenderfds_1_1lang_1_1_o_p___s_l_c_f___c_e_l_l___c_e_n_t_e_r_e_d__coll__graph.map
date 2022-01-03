@@ -1,4 +1,0 @@
-<map id="blenderfds.lang.OP_SLCF_CELL_CENTERED" name="blenderfds.lang.OP_SLCF_CELL_CENTERED">
-<area shape="rect" id="node1" title="Blender representation of the CELL_CENTERED parameter to output the actual cell&#45;centered data with no..." alt="" coords="5,80,188,121"/>
-<area shape="rect" id="node2" href="$classblenderfds_1_1types_1_1_b_f_param.html" title="Blender representation of an FDS parameter." alt="" coords="7,5,186,32"/>
-</map>

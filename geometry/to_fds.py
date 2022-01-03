@@ -4,10 +4,8 @@ BlenderFDS, translate Blender object geometry to FDS notation.
 
 import bpy, logging
 from time import time
-from . import calc_voxels
-from . import calc_trisurfaces
-from ..utils import BFException, BFNotImported, is_iterable
-from . import utils
+from ..types import BFException
+from . import calc_voxels, calc_trisurfaces, utils
 
 
 log = logging.getLogger(__name__)
@@ -32,7 +30,11 @@ def ob_to_geom(context, ob, check=True, check_open=True, world=True):
         fds_surfs,
         fds_faces_surfs,
     ) = calc_trisurfaces.get_fds_trisurface(
-        context=context, ob=ob, check=check, check_open=check_open, world=world,
+        context=context,
+        ob=ob,
+        check=check,
+        check_open=check_open,
+        world=world,
     )
     msg = f"GEOM Vertices: {len(fds_verts)} | Faces: {len(fds_faces)}"
     return fds_verts, fds_faces, fds_surfs, fds_faces_surfs, msg

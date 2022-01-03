@@ -3,7 +3,6 @@ BlenderFDS, export geometry to ge1 cad file format.
 """
 
 import bpy, bmesh
-from ..utils import BFException, BFNotImported, is_iterable
 from . import utils
 
 # GE1 file format:

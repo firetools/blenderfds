@@ -5,33 +5,19 @@ BlenderFDS, Operator class extensions.
 import os, sys, subprocess
 
 import bpy, logging
-from bpy.types import (
-    bpy_struct,
-    PropertyGroup,
-    UIList,
-    Operator,
-    Object,
-    Scene,
-    Material,
-    Collection,
-)
+from bpy.types import Operator, Scene
 from bpy.props import (
     BoolProperty,
     FloatProperty,
-    IntProperty,
-    IntVectorProperty,
     FloatVectorProperty,
     StringProperty,
-    PointerProperty,
     EnumProperty,
-    CollectionProperty,
 )
 
-from ..types import FDSCase
-from ..utils import BFException, BFNotImported, is_iterable
-from .. import config
-from .. import geometry, gis, io, fds
-from ..lang import OP_XB, OP_XYZ, OP_PB
+from ..types import FDSCase, BFException
+from ..lang import MESH
+from .. import config, utils
+from .. import geometry, gis
 
 log = logging.getLogger(__name__)
 
@@ -385,7 +371,10 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                     context=context, ob=ob, name=f"{ob.name}_XB_tmp"
                 )
                 geometry.from_fds.xbs_to_ob(
-                    context=context, ob=ob_tmp, xbs=xbs, bf_xb=ob.bf_xb,
+                    context=context,
+                    ob=ob_tmp,
+                    xbs=xbs,
+                    bf_xb=ob.bf_xb,
                 )
                 ob_tmp.active_material = ob.active_material
                 ob_tmp.show_wire = True
@@ -638,7 +627,8 @@ class OBJECT_OT_bf_copy_FDS_properties_to_sel_obs(Operator):
         # Copy
         _bf_props_copy(context, source_element, destination_elements)
         self.report(
-            {"INFO"}, f"Copied to {len(destination_elements)} selected Object(s)",
+            {"INFO"},
+            f"Copied to {len(destination_elements)} selected Object(s)",
         )
         return {"FINISHED"}
 
@@ -719,7 +709,7 @@ def _get_namelist_items(self, context, label) -> "items":
     if sc.bf_catf_export:
         for filepath in tuple(item.name for item in sc.bf_catf_files if item.bf_export):
             try:
-                f90 = io.read_txt_file(filepath)
+                f90 = utils.read_txt_file(filepath)
             except IOError:
                 pass
             else:
@@ -917,7 +907,10 @@ class OBJECT_OT_bf_set_mesh_cell_size(Operator):
         ob = context.active_object
         # Set default
         xb = geometry.utils.get_bbox_xb(context=context, ob=ob, world=True)
-        self.bf_cell_sizes = fds.mesh_tools.calc_cell_sizes(ijk=ob.bf_mesh_ijk, xb=xb,)
+        self.bf_cell_sizes = MESH.calc_cell_sizes(
+            ijk=ob.bf_mesh_ijk,
+            xb=xb,
+        )
         # Call dialog
         wm = context.window_manager
         return wm.invoke_props_dialog(self)
@@ -926,7 +919,7 @@ class OBJECT_OT_bf_set_mesh_cell_size(Operator):
         ob = context.active_object
         ob.bf_xb, ob.bf_xb_export = "BBOX", True
         xb = geometry.utils.get_bbox_xb(context=context, ob=ob, world=True)
-        ob.bf_mesh_ijk = fds.mesh_tools.calc_ijk(
+        ob.bf_mesh_ijk = MESH.calc_ijk(
             xb=xb, desired_cs=self.bf_cell_sizes, poisson=self.bf_poisson_restriction
         )
         self.report({"INFO"}, "MESH cell size set")
@@ -975,7 +968,7 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
         for de in destination_elements:
             mijk = de.bf_mesh_ijk
             mxb = geometry.utils.get_bbox_xb(context, ob=de, world=True)
-            rijk, rxb, mijk, mxb, msgs = fds.mesh_tools.align_meshes(
+            rijk, rxb, mijk, mxb, msgs = MESH.align_meshes(
                 rijk, rxb, mijk, mxb, poisson=False, protect_rl=False
             )
             source_element.bf_mesh_ijk = rijk
@@ -990,7 +983,11 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
             de.bf_mesh_ijk = mijk
             matrix = de.matrix_world.invert()
             geometry.from_fds.xbs_to_ob(
-                context=context, ob=de, xbs=(mxb,), bf_xb="BBOX", matrix=matrix,
+                context=context,
+                ob=de,
+                xbs=(mxb,),
+                bf_xb="BBOX",
+                matrix=matrix,
             )
             log.debug("\n".join(msgs))
         # Update 3dview
@@ -1060,9 +1057,10 @@ class _bf_set_geoloc:
         # Get loc, use only unmodified z
         _, _, z = self._get_loc(context)
         sc = context.scene
-        utm = gis.LonLat(lon=self.bf_lon, lat=self.bf_lat,).to_UTM(
-            force_zn=sc.bf_origin_utm_zn, force_ne=sc.bf_origin_utm_ne
-        )
+        utm = gis.LonLat(
+            lon=self.bf_lon,
+            lat=self.bf_lat,
+        ).to_UTM(force_zn=sc.bf_origin_utm_zn, force_ne=sc.bf_origin_utm_ne)
         # Compute loc relative to scene origin
         scale_length = sc.unit_settings.scale_length
         x = (utm.easting - sc.bf_origin_utm_easting) / scale_length

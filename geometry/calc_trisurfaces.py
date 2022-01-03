@@ -4,10 +4,8 @@ BlenderFDS, algorithms for triangulated surfaces.
 
 from time import time
 from math import floor, ceil
-
 import bpy, bmesh, mathutils, logging
-
-from ..utils import BFException, BFNotImported, is_iterable
+from ..types import BFException
 from . import utils
 
 log = logging.getLogger(__name__)

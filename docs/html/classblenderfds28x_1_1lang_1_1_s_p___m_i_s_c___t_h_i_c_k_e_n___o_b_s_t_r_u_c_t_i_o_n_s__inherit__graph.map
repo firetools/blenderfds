@@ -1,4 +1,0 @@
-<map id="blenderfds28x.lang.SP_MISC_THICKEN_OBSTRUCTIONS" name="blenderfds28x.lang.SP_MISC_THICKEN_OBSTRUCTIONS">
-<area shape="rect" id="node1" title="Blender representation of the THICKEN_OBSTRUCTIONS parameter, to not allow thin sheet obstructions." alt="" coords="5,80,245,121"/>
-<area shape="rect" id="node2" href="$classblenderfds28x_1_1types_1_1_b_f_param.html" title="Blender representation of an FDS parameter." alt="" coords="26,5,225,32"/>
-</map>
