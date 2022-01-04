@@ -41,7 +41,7 @@ class BFException(Exception):
     def __str__(self):
         sender = self.sender
         if sender:
-            try:  # FIXME add element type
+            try:
                 element = sender.element
                 name = f"{element.name}: {sender.fds_label or sender.label or sender.__class__.__name__}"
             except:
