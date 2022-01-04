@@ -696,7 +696,7 @@ class MATERIAL_OT_bf_assign_BC_to_sel_obs(Operator):
 # Choose IDs for MATL_ID, PROP_ID in free text and CATF files
 
 
-def _get_namelist_items(self, context, label) -> "items":
+def _get_namelist_items(self, context, fds_label):
     """!
     Get namelist IDs available in Free Text and CATF files.
     """
@@ -717,7 +717,7 @@ def _get_namelist_items(self, context, label) -> "items":
     # Prepare list of IDs
     items = list()
     for fds_namelist in fds_case.fds_namelists:
-        if fds_namelist.label == label:
+        if fds_namelist.fds_label == fds_label:
             fds_param = fds_namelist.get_by_label("ID")
             if fds_param:
                 hid = fds_param.value
@@ -727,7 +727,7 @@ def _get_namelist_items(self, context, label) -> "items":
 
 
 def _get_matl_items(self, context):
-    return _get_namelist_items(self, context, "MATL")
+    return _get_namelist_items(self, context, fds_label="MATL")
 
 
 @subscribe
@@ -756,10 +756,14 @@ class MATERIAL_OT_bf_choose_matl_id(Operator):
         return context.active_object and context.active_object.active_material
 
     def execute(self, context):
-        ma = context.active_object.active_material
-        ma.bf_matl_id = self.bf_matl_id
-        self.report({"INFO"}, "MATL_ID parameter set")
-        return {"FINISHED"}
+        if self.bf_matl_id:
+            ma = context.active_object.active_material
+            ma.bf_matl_id = self.bf_matl_id
+            self.report({"INFO"}, "MATL_ID parameter set")
+            return {"FINISHED"}
+        else:
+            self.report({"WARNING"}, "MATL_ID parameter not set")
+            return {"CANCELLED"}
 
     def invoke(self, context, event):
         ma = context.active_object.active_material
@@ -779,7 +783,7 @@ class MATERIAL_OT_bf_choose_matl_id(Operator):
 
 
 def _get_prop_items(self, context):
-    return _get_namelist_items(self, context, "PROP")
+    return _get_namelist_items(self, context, fds_label="PROP")
 
 
 @subscribe
@@ -803,10 +807,14 @@ class OBJECT_OT_bf_choose_devc_prop_id(Operator):
         return context.active_object
 
     def execute(self, context):
-        ob = context.active_object
-        ob.bf_devc_prop_id = self.bf_devc_prop_id
-        self.report({"INFO"}, "PROP_ID parameter set")
-        return {"FINISHED"}
+        if self.bf_devc_prop_id:
+            ob = context.active_object
+            ob.bf_devc_prop_id = self.bf_devc_prop_id
+            self.report({"INFO"}, "PROP_ID parameter set")
+            return {"FINISHED"}
+        else:
+            self.report({"WARNING"}, "PROP_ID parameter not set")
+            return {"CANCELLED"}
 
     def invoke(self, context, event):
         ob = context.active_object
