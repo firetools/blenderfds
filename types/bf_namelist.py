@@ -6,7 +6,8 @@ import logging
 import bpy
 from bpy.types import Object, Scene, Material
 
-if __name__ != "__main__":
+if __name__ != "__main__":  # FIXME What's for?
+    from .. import config
     from .fds_case import FDSNamelist
     from .bf_exception import BFException, BFNotImported, BFWarning
     from .bf_param import BFParam, BFParamXB, BFParamXYZ, BFParamPB, BFParamOther
@@ -280,6 +281,12 @@ class BFNamelistMa(BFNamelist):
     """
 
     bpy_type = Material
+
+    @property
+    def exported(self):
+        return (
+            self.element.bf_surf_export and self.element.name not in config.default_mas
+        )
 
     def set_appearance(self, context):
         super().set_appearance(context)  # preferences check
