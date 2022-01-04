@@ -7,12 +7,26 @@ from ...types import (
     BFNamelistMa,
     BFNotImported,
 )
-from ... import config
-from .material import MP_ID, MP_FYI, MP_other, MP_RGB, MP_COLOR, MP_TRANSPARENCY
+from .material import MP_ID, MP_FYI, MP_RGB, MP_COLOR, MP_TRANSPARENCY, MP_other
 
 log = logging.getLogger(__name__)
 
-# FIXME FIXME FIXME add other SURF kinds
+
+class MN_SURF(BFNamelistMa):
+    label = "SURF"
+    description = "Boundary condition"
+    enum_id = 2000
+    fds_label = "SURF"
+    bpy_export = "bf_surf_export"
+    bpy_export_default = True
+    bf_params = (
+        MP_ID,
+        MP_FYI,
+        MP_RGB,
+        MP_COLOR,
+        MP_TRANSPARENCY,
+        MP_other,
+    )
 
 
 class MP_THICKNESS(BFParam):
@@ -122,13 +136,12 @@ class MP_BACKING(BFParam):
     }
 
 
-class MN_SURF(BFNamelistMa):
-    label = "SURF"
-    description = "Generic boundary condition"
-    enum_id = 2000
-    fds_label = "SURF"
-    bpy_export = "bf_surf_export"
-    bpy_export_default = True
+# FIXME FIXME FIXME remove? set generic with wizards for specific?
+class MN_SURF_burner(MN_SURF):
+    label = "SURF burner"
+    description = "Burner boundary condition"
+    enum_id = 2001
+    bpy_export_default = None  # already defined
     bf_params = (
         MP_ID,
         MP_FYI,
@@ -143,9 +156,3 @@ class MN_SURF(BFNamelistMa):
         MP_IGNITION_TEMPERATURE,
         MP_other,
     )
-
-    @property
-    def exported(self):
-        return (
-            self.element.bf_surf_export and self.element.name not in config.default_mas
-        )
