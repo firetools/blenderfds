@@ -372,24 +372,27 @@ class VIEW3D_PT_bf_remesh(Panel):
         Draw UI elements into the panel UI layout.
         @param context: the Blender context.
         """
+        # See: properties_data_mesh.py, class DATA_PT_remesh
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False
-        me = context.active_object.data
+        row = layout.row()
+        mesh = context.active_object.data  # FIXME ?
+        row.prop(mesh, "remesh_mode", text="Mode", expand=True)
         col = layout.column()
-        row = col.row()
-        # See: properties_data_mesh.py, class DATA_PT_remesh
-        row.prop(me, "remesh_mode", text="Mode", expand=True)
-        if me.remesh_mode == "VOXEL":
-            row = col.row(align=True)
-            row.prop(me, "remesh_voxel_size")
-            row.operator(
-                "sculpt.sample_detail_size", text="", icon="EYEDROPPER"
-            ).mode = "VOXEL"
-            col.prop(me, "remesh_voxel_adaptivity")
-            col.prop(me, "use_remesh_fix_poles")
-            col.prop(me, "use_remesh_smooth_normals")
-            col.prop(me, "use_remesh_preserve_volume")
+        if mesh.remesh_mode == "VOXEL":
+            col.prop(mesh, "remesh_voxel_size")
+            col.prop(mesh, "remesh_voxel_adaptivity")
+            col.prop(mesh, "use_remesh_fix_poles")
+
+            col = layout.column(heading="Preserve")
+            col.prop(mesh, "use_remesh_preserve_volume", text="Volume")
+            col.prop(mesh, "use_remesh_preserve_paint_mask", text="Paint Mask")
+            col.prop(mesh, "use_remesh_preserve_sculpt_face_sets", text="Face Sets")
+            if context.preferences.experimental.use_sculpt_vertex_colors:
+                col.prop(
+                    mesh, "use_remesh_preserve_vertex_colors", text="Vertex Colors"
+                )
             col.operator("object.voxel_remesh", text="Voxel Remesh")
         else:
             col.operator("object.quadriflow_remesh", text="QuadriFlow Remesh")
