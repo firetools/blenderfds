@@ -35,6 +35,7 @@ def register():
 
     # Update namelist_cls items (after importing all namelists)
     object.update_OP_namelist_cls_items()
+    material.update_MP_namelist_cls_items()
 
     # Register Blender entities extensions
     object.BFObject.register()

@@ -1,8 +1,20 @@
 import logging
 from bpy.types import Material
-from ...types import BFNamelist
-
-# from .lang import bf_namelists_by_cls  # FIXME FIXME FIXME
+from bpy.props import EnumProperty
+from ...types import (
+    BFParam,
+    BFParamOther,
+    BFParamFYI,
+    BFParamStr,
+    BFNamelist,
+    BFException,
+    FDSParam,
+)
+from ...bl.ui_lists import (
+    WM_PG_bf_other,
+    WM_UL_bf_other_items,
+)
+from ... import config
 
 log = logging.getLogger(__name__)
 
@@ -66,3 +78,126 @@ class BFMaterial:
         del Material.from_fds
         del Material.to_fds
         del Material.bf_namelist
+
+
+# Before updating the items, the lang classes should be imported
+# Only after updating the items, the MP_namelist_cls can be registered
+def update_MP_namelist_cls_items():
+    items = [
+        (cls.__name__, cls.label, cls.description, cls.enum_id)
+        for cls in BFNamelist.subclasses
+        if cls.bpy_type == Material and cls.enum_id
+    ]
+    items.sort(key=lambda k: k[1])
+    MP_namelist_cls.bpy_other["items"] = items
+    log.debug(f"Updated MP_namelist_cls items (before registration): {items}")
+
+
+def update_MP_namelist_cls(self, context):
+    self.bf_namelist.set_appearance(context)
+
+
+class MP_namelist_cls(BFParam):
+    label = "Namelist"
+    description = "Identification of FDS namelist"
+    bpy_type = Material
+    bpy_idname = "bf_namelist_cls"
+    bpy_prop = EnumProperty
+    bpy_other = {
+        "items": (("MN_SURF", "SURF", "Generic boundary condition", 2000),),
+        "update": update_MP_namelist_cls,
+    }
+    bpy_default = "MN_SURF"
+
+    @property
+    def exported(self):
+        if self.element.name in {"INERT", "HVAC", "MIRROR", "OPEN", "PERIODIC"}:
+            return False
+        return super().exported
+
+
+class MP_ID(BFParamStr):
+    label = "ID"
+    description = "Material identification name"
+    fds_label = "ID"
+    bpy_type = Material
+    bpy_prop = None  # to avoid creation
+    bpy_idname = "name"
+
+    def copy_to(self, dest_element):
+        pass
+
+
+class MP_FYI(BFParamFYI):
+    bpy_type = Material
+    bpy_idname = "bf_fyi"
+
+
+class MP_RGB(BFParam):
+    label = "RGB"
+    description = "Red, green, blue components of color"
+    fds_label = "RGB"
+    bpy_type = Material
+    bpy_prop = None  # Do not register
+    bpy_idname = "diffuse_color"
+
+    def set_value(self, context, value):
+        c = self.element.diffuse_color
+        c[0], c[1], c[2] = value[0] / 255.0, value[1] / 255.0, value[2] / 255.0
+
+    def to_fds_param(self, context):
+        c = self.element.diffuse_color
+        rgb = (int(c[0] * 255), int(c[1] * 255), int(c[2] * 255))
+        if c[3] == 1.0:  # do not send TRANSPARENCY if it is 1
+            return FDSParam(
+                fds_label="RGB",
+                value=rgb,
+            )
+        else:
+            return (
+                FDSParam(
+                    fds_label="RGB",
+                    value=rgb,
+                ),
+                FDSParam(fds_label="TRANSPARENCY", value=c[3], precision=2),
+            )
+
+
+class MP_COLOR(BFParam):
+    label = "COLOR"
+    description = "Color"
+    fds_label = "COLOR"
+    bpy_type = Material
+    bpy_prop = None  # Do not register
+
+    def set_value(self, context, value):
+        c = self.element.diffuse_color
+        rgb = config.fds_colors.get(value)
+        if not rgb:
+            raise BFException(self, f"Unknown color <{value}>")
+        c[0], c[1], c[2] = rgb[0] / 255.0, rgb[1] / 255.0, rgb[2] / 255.0
+
+    def to_fds_param(self, context):
+        pass
+
+
+class MP_TRANSPARENCY(BFParam):
+    label = "TRANSPARENCY"
+    description = "Red, green, blue components of color and transparency"
+    fds_label = "TRANSPARENCY"
+    bpy_type = Material
+    bpy_prop = None  # Do not register
+
+    def set_value(self, context, value):
+        c = self.element.diffuse_color
+        c[3] = value
+
+    def to_fds_param(self, context):
+        pass
+
+
+class MP_other(BFParamOther):
+    bpy_type = Material
+    bpy_idname = "bf_other"
+    bpy_pg = WM_PG_bf_other
+    bpy_ul = WM_UL_bf_other_items
