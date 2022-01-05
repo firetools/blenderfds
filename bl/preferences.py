@@ -7,7 +7,7 @@ import logging
 
 from bpy.types import AddonPreferences
 from bpy.props import BoolProperty, FloatProperty
-
+from . import ui
 
 log = logging.getLogger(__name__)
 
@@ -19,6 +19,10 @@ log = logging.getLogger(__name__)
 # Preferences
 
 
+def update_bf_pref_simplify_ui(prefs, context):
+    ui.toggle_simple_ui(prefs, context)
+
+
 class BFPreferences(AddonPreferences):
     """!
     BlenderFDS, preferences panel
@@ -27,9 +31,10 @@ class BFPreferences(AddonPreferences):
     bl_idname = __package__.split(".")[0]
 
     bf_pref_simplify_ui: BoolProperty(  # TODO remove bf_
-        name="Simplify UI [Blender restart required]",
-        description="Simplify BlenderFDS user interface, Blender restart required",
+        name="Simplify UI",
+        description="Simplify BlenderFDS user interface",
         default=True,
+        update=update_bf_pref_simplify_ui,
     )
 
     min_edge_length: FloatProperty(
@@ -71,14 +76,8 @@ class BFPreferences(AddonPreferences):
 
 
 def register():
-    """!
-    Load the Python classes and functions to blender.
-    """
     bpy.utils.register_class(BFPreferences)
 
 
 def unregister():
-    """!
-    Unload the Python classes and functions from blender.
-    """
     bpy.utils.unregister_class(BFPreferences)
