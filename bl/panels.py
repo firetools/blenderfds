@@ -109,18 +109,6 @@ class SCENE_PT_bf_config_sizes(Panel, SCENE_PT_bf_namelist):
 
 
 @subscribe
-class SCENE_PT_bf_config_units(Panel, SCENE_PT_bf_namelist):
-    """!
-    Units configuration
-    """
-
-    bf_namelist_cls = "SN_config_units"
-    bl_label = "Units"
-    bl_parent_id = "SCENE_PT_bf_case"
-    bl_options = {"DEFAULT_CLOSED"}
-
-
-@subscribe
 class SCENE_PT_bf_namelist_HEAD(Panel, SCENE_PT_bf_namelist):
     """!
     FDS HEAD

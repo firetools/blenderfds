@@ -99,20 +99,3 @@ class SN_config_sizes(BFNamelistSc):
         SP_config_min_face_area,
         SP_config_default_voxel_size,
     )
-
-
-class SN_config_units(BFNamelistSc):
-    label = "Units"
-
-    def draw(self, context, layout):
-        sc = self.element
-        unit = sc.unit_settings
-        col = layout.column()
-        col.prop(unit, "system")
-        col = col.column()
-        col.enabled = unit.system != "NONE"
-        col.prop(unit, "scale_length")
-        col.prop(unit, "use_separate")
-        col.prop(unit, "length_unit", text="Length")
-        # col.prop(unit, "mass_unit", text="Mass")  # Unused
-        # col.prop(unit, "time_unit", text="Time")  # Unused
