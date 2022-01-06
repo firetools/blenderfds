@@ -318,7 +318,7 @@ class VIEW3D_PT_bf_ob_namelist_tools(Panel):
             self.bl_label = f"FDS Temp Geometry"
             return
         bf_namelist = ob.bf_namelist
-        self.bl_label = f"FDS {bf_namelist.label}"
+        self.bl_label = f"FDS {bf_namelist.label} Tools"
 
     def draw(self, context):
         ob = context.object
