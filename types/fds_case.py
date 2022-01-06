@@ -2,10 +2,12 @@
 BlenderFDS, Blender representations of FDS entities.
 """
 
-import re
+import re, logging
 
 from .bf_exception import BFException, is_iterable
 from .. import utils
+
+log = logging.getLogger(__name__)
 
 
 class FDSParam:
@@ -236,11 +238,9 @@ class FDSNamelist:
         # nl = FDSParam, FDSParam, ...
         nls = list()  # list of nl
         if multips:
-            # Remove ID parameter, as multi embeds a new indexed ID.
-            for i, p in enumerate(invps):
-                if p.fds_label == "ID":
-                    invps.pop(i)
-                    break
+            # Remove parameters in invps that are duplicated in multips (eg. ID, IJK or XB)
+            multips_fds_labels = [p.fds_label for p in multips[0]]
+            invps = [p for p in invps if p.fds_label not in multips_fds_labels]
             # Add nl with one of multips + invps
             for multip in multips:
                 nl = list(multip)
