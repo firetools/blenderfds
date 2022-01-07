@@ -22,6 +22,7 @@ class FDSParam:
         precision=3,
         exponential=False,
         msg=None,
+        msgs=None,
         f90=None,
     ):
         """!
@@ -30,7 +31,8 @@ class FDSParam:
         @param value: parameter value of any type.
         @param precision: float precision, number of decimal digits.
         @param exponential: if True sets exponential representation of floats.
-        @param msg: comment message.
+        @param msg: comment message string.
+        @param msgs: list of comment message strings.
         @param f90: FDS formatted string of value, eg. "2.34, 1.23, 3.44" or ".TRUE.,.FALSE.".
         """
         ## parameter label
@@ -41,11 +43,12 @@ class FDSParam:
         self.precision = precision
         ## if True sets exponential representation of floats
         self.exponential = exponential
-        ## comment message
+        ## list of comment message strings
+        self.msgs = msgs or list()
         self.msg = msg
         # Fill self.value from f90 string
         if f90:
-            self.from_fds(f90=f90)
+            self.from_fds(f90=f90)  # FIXME FIXME FIXME remove!, create and then fill
 
     def __str__(self):
         res = self.to_fds()
@@ -87,6 +90,21 @@ class FDSParam:
             return tuple((self.value,))
         else:
             return self.value
+
+    @property
+    def msg(self):
+        """!
+        Return all self.msgs in one line.
+        """
+        return " | ".join(m for m in self.msgs if m)  # protect from None
+
+    @msg.setter
+    def msg(self, value):
+        """!
+        Append msg to self.msgs.
+        """
+        if value:
+            self.msgs.append(value)
 
     def to_fds(self, context=None):
         """!
@@ -158,12 +176,13 @@ class FDSNamelist:
     ## max number of columns of formatted output
     maxlen = 80  # TODO to config
 
-    def __init__(self, fds_label=None, fds_params=None, msg=None, f90=None):
+    def __init__(self, fds_label=None, fds_params=None, msg=None, msgs=None, f90=None):
         """!
         Class constructor.
         @param fds_label: namelist group label.
         @param fds_params: list of FDSParam and additional FDSNamelist instances.
-        @param msg: comment message.
+        @param msg: comment message string.
+        @param msgs: list of comment message strings.
         @param f90: FDS formatted string of parameters, eg. "ID='Test' PROP=2.34, 1.23, 3.44".
         """
         ## namelist group label
@@ -172,7 +191,8 @@ class FDSNamelist:
         ## or list of list (multi) of FDSParam instances
         ## eg. (("ID=X1", "PBX=1"), ("ID=X2", "PBX=2"), ...)
         self.fds_params = fds_params or list()
-        ## comment message
+        ## list of comment message strings
+        self.msgs = msgs or list()
         self.msg = msg
         # Fill self.fds_params from f90 string
         if f90:
@@ -180,6 +200,21 @@ class FDSNamelist:
 
     def __str__(self):
         return self.to_fds()
+
+    @property
+    def msg(self):
+        """!
+        Return all self.msgs in one line.
+        """
+        return " | ".join(m for m in self.msgs if m)  # protect from None
+
+    @msg.setter
+    def msg(self, value):
+        """!
+        Append msg to self.msgs.
+        """
+        if value:
+            self.msgs.append(value)
 
     def get_by_label(self, fds_label, remove=False):
         """!
@@ -199,7 +234,7 @@ class FDSNamelist:
         Return the FDS formatted string.
         @return FDS formatted string (eg. "&OBST ID='Test' /"), or a None.
         """
-        msgs = self.msg and self.msg.splitlines() or list()
+        msgs = self.msgs
         # Classify parameters
         invps = list()  # invariant parameters
         multips = list()  # multi parameters
@@ -214,16 +249,17 @@ class FDSNamelist:
             elif isinstance(p, FDSParam):
                 # Invariant parameter
                 invps.append(p)
-                msgs.append(p.msg)
+                msgs.extend(p.msgs)
             elif isinstance(p, FDSNamelist):
                 # Additional namelist
                 addns.append(p)
-                msgs.append(p.msg)
+                msgs.extend(p.msgs)
             elif isinstance(p, tuple):
                 if isinstance(p[0], tuple):
                     # Multi parameter
                     multips = p
-                    msgs.extend(p0.msg for p0 in multips[0])
+                    for p0 in multips[0]:
+                        msgs.extend(p0.msgs)
                 else:
                     # Many parameters
                     for pp in p:
@@ -231,7 +267,7 @@ class FDSNamelist:
                             invps.append(pp)
                         if isinstance(pp, FDSNamelist):
                             addns.append(pp)
-                        msgs.append(pp.msg)
+                        msgs.extend(pp.msgs)
             else:
                 raise ValueError(f"Unrecognized type of <{p}>")
         # Treat invariant, many and multi parameters
@@ -340,17 +376,21 @@ class FDSCase:
     Datastructure representing an FDS case.
     """
 
-    def __init__(self, fds_namelists=None, msg=None, filepath=None, f90=None):
+    def __init__(
+        self, fds_namelists=None, msg=None, msgs=None, filepath=None, f90=None
+    ):
         """!
         Class constructor.
         @param fds_namelists: list of FDSNamelist instances.
-        @param msg: comment message.
+        @param msg: comment message string.
+        @param msgs: list of comment message strings.
         @param filepath: filepath of FDS case to be imported.
         @param f90: FDS formatted string of namelists, eg. "&OBST ID='Test' /\n&TAIL /".
         """
         ## list of FDSNamelist instances
         self.fds_namelists = fds_namelists or list()
-        ## comment message
+        ## list of comment message strings
+        self.msgs = msgs or list()
         self.msg = msg
         # Fill fds_namelists from filepath or f90
         if filepath or f90:
@@ -358,6 +398,21 @@ class FDSCase:
 
     def __str__(self):
         return self.to_fds()
+
+    @property
+    def msg(self):
+        """!
+        Return all self.msgs in one line.
+        """
+        return " | ".join(m for m in self.msgs if m)  # protect from None
+
+    @msg.setter
+    def msg(self, value):
+        """!
+        Append msg to self.msgs.
+        """
+        if value:
+            self.msgs.append(value)
 
     def get_by_label(self, fds_label, remove=False):
         """!
@@ -379,8 +434,8 @@ class FDSCase:
         @return FDS formatted string (eg. "&OBST ID='Test' /"), or None.
         """
         lines = list()
-        if self.msg:
-            lines.extend(tuple(f"! {m}" for m in self.msg.splitlines()))
+        if self.msgs:
+            lines.extend(tuple(f"! {m}" for m in self.msgs))
         lines.extend(
             fds_namelist.to_fds() for fds_namelist in self.fds_namelists if fds_namelist
         )
