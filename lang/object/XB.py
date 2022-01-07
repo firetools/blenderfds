@@ -160,24 +160,16 @@ class OP_XB(BFParamXB):
         self.element.bf_xb_export = True
 
 
-class OP_XB_BBOX(OP_XB):
-    label = "XB BBox"
-    description = "Export as object bounding box"
-    bpy_idname = None
-    bpy_prop = None
+class OP_XB_BBOX(BFParamXB):
+    label = "XB"
+    description = "Export as object bounding box (BBOX)"
+    fds_label = "XB"
 
     def to_fds_param(self, context):
         ob = self.element
         ob.bf_xb = "BBOX"
-        if not ob.bf_xb_export:
-            return
-        # Compute
         xbs, _ = geometry.to_fds.ob_to_xbs(context, ob)
         return FDSParam(fds_label="XB", value=xbs[0], precision=6)
 
     def draw(self, context, layout):
-        ob = self.element
-        col = layout.column(align=False, heading="XB")
-        row = col.row(align=True)
-        row.active = ob.bf_xb_export
-        row.prop(self.element, "bf_xb_export", text="BBox")
+        layout.label(text=f"XB as object bounding box (BBOX)")
