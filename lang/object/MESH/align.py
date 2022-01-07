@@ -1,70 +1,8 @@
-import logging, re
-from bpy.types import Object
-from bpy.props import IntVectorProperty
-from ...types import BFParam, BFNamelistOb, FDSParam
-from ... import geometry
-from .object import OP_ID, OP_FYI, OP_other
-from .XB import OP_XB_BBOX
+#!/usr/bin/env python3
 
-log = logging.getLogger(__name__)
-
-
-class OP_MESH_IJK(BFParam):
-    label = "IJK"
-    description = "Cell number in x, y, and z direction"
-    fds_label = "IJK"
-    bpy_type = Object
-    bpy_idname = "bf_mesh_ijk"
-    bpy_prop = IntVectorProperty
-    bpy_default = (10, 10, 10)
-    bpy_other = {"size": 3, "min": 1}
-    bpy_export = "bf_mesh_ijk_export"
-    bpy_export_default = True
-
-    def draw(self, context, layout):
-        ob = context.object
-        col = layout.column()
-        xb = geometry.utils.get_bbox_xb(context=context, ob=ob, world=True)
-        (
-            has_good_ijk,
-            cs,
-            cell_count,
-            cell_aspect_ratio,
-        ) = calc_cell_infos(ijk=ob.bf_mesh_ijk, xb=xb)
-        col.label(text=f"Cell Size: {cs[0]:.3f}m x {cs[1]:.3f}m x {cs[2]:.3f}m")
-        col.label(
-            text=f"Cell Qty: {cell_count} | Aspect: {cell_aspect_ratio:.1f} | Poisson: {has_good_ijk and 'Yes' or 'No'}"
-        )
-        super().draw(context, layout)
-
-    def to_fds_param(self, context):
-        ob = self.element
-        if not ob.bf_mesh_ijk_export:
-            return
-        xb = geometry.utils.get_bbox_xb(context=context, ob=ob, world=True)
-        (
-            has_good_ijk,
-            cs,
-            cell_count,
-            cell_aspect_ratio,
-        ) = calc_cell_infos(ijk=ob.bf_mesh_ijk, xb=xb)
-        msg = f"MESH Cell Size: {cs[0]:.3f} m, {cs[1]:.3f} m, {cs[2]:.3f} m | Qty: {cell_count} | Aspect: {cell_aspect_ratio:.1f} | Poisson: {has_good_ijk and 'Yes' or 'No'}"
-        return FDSParam(fds_label="IJK", value=ob.bf_mesh_ijk, msg=msg)
-
-
-class ON_MESH(BFNamelistOb):
-    label = "MESH"
-    description = "Domain of simulation"
-    enum_id = 1014
-    fds_label = "MESH"
-    bf_params = OP_ID, OP_FYI, OP_MESH_IJK, OP_XB_BBOX, OP_other
-    bf_other = {"appearance": "WIRE"}
-
-    def draw_operators(self, context, layout):
-        col = layout.column()
-        col.operator("object.bf_set_mesh_cell_size")
-        col.operator("object.bf_align_selected_meshes")
-
+"""!
+Align MESHes correctly according to cells.
+"""
 
 # Mesh alignment:
 #
@@ -95,12 +33,8 @@ class ON_MESH(BFNamelistOb):
 #  |       |       |
 
 
-def _factor(n):
-    """!
-    Generator for prime factors of n.
-    Many thanks Dhananjay Nene (http://dhananjaynene.com/)
-    for publishing this code
-    """
+def get_factor(n):
+    """!Generator for prime factors of n (from http://dhananjaynene.com/)."""
     yield 1
     i = 2
     limit = n ** 0.5
@@ -115,11 +49,11 @@ def _factor(n):
         yield int(n)
 
 
-def _n_for_poisson(n):
+def get_n_for_poisson(n):
     """!Get a good number for poisson solver at least bigger than n."""
     good = set((1, 2, 3, 5))
     while True:
-        if [i for i in _factor(n) if i not in good]:
+        if [i for i in get_factor(n) if i not in good]:
             n += 1
         else:
             break
@@ -139,7 +73,7 @@ def _align_along_axis(ri, rx0, rx1, mi, mx0, mx1, poisson=False, protect_rl=Fals
     # to allow full cover of coarse cells by ref cells
     ri = round(ri / n) * n
     if poisson:
-        ri = _n_for_poisson(ri)
+        ri = get_n_for_poisson(ri)
     if protect_rl:  # protect ref length
         rcs = rl / ri  # reduce ref cell size
     else:
@@ -151,7 +85,7 @@ def _align_along_axis(ri, rx0, rx1, mi, mx0, mx1, poisson=False, protect_rl=Fals
     # trying to keep ml as close as possible to the original
     mi = round(ml / mcs)
     if poisson:
-        mi = _n_for_poisson(mi)
+        mi = get_n_for_poisson(mi)
     # Align coarse mesh positions to the ref mesh
     mx0 = rx0 + round((mx0 - rx0) / mcs) * mcs
     ml = mcs * mi  # extend other mesh due to updated mi
@@ -280,82 +214,26 @@ def align_meshes(rijk, rxb, mijk, mxb, poisson=False, protect_rl=False):
     return rijk, rxb, mijk, mxb, msgs
 
 
-def calc_poisson_ijk(ijk):
-    """!
-    Get an IJK respecting the Poisson constraint, close to the current one.
-    @param ijk: ijk of the mesh.
-    @return return new ijk value.
-    """
-    return ijk[0], _n_for_poisson(ijk[1]), _n_for_poisson(ijk[2])
-
-
-def calc_cell_sizes(ijk, xb):
-    """!
-    Calc MESH cell sizes.
-    @param ijk: ijk of the mesh.
-    @param xb: xb of the mesh.
-    @return return the MESH cell sizes.
-    """
-    return (
-        (xb[1] - xb[0]) / ijk[0],
-        (xb[3] - xb[2]) / ijk[1],
-        (xb[5] - xb[4]) / ijk[2],
-    )
-
-
-def calc_ijk(xb, desired_cs, poisson):
-    """!
-    Calc MESH IJK from cell sizes.
-    @param xb: xb of the mesh.
-    @param desired_cs: desired cell sizes.
-    @param poisson: True for respecting the Poisson constraint.
-    @return return the MESH IJK from cell sizes.
-    """
-    ijk = (
-        round((xb[1] - xb[0]) / desired_cs[0]) or 1,
-        round((xb[3] - xb[2]) / desired_cs[1]) or 1,
-        round((xb[5] - xb[4]) / desired_cs[2]) or 1,
-    )
-    if poisson:
-        return calc_poisson_ijk(ijk)
-    else:
-        return ijk
-
-
-def calc_cell_infos(ijk, xb):
-    """!
-    Calc many cell infos: cell ijk goodness, sizes, count and aspect ratio.
-    @param ijk: ijk of the mesh.
-    @param xb: xb of the mesh.
-    @return return if cell infos.
-    """
-    cs = calc_cell_sizes(ijk, xb)
-    has_good_ijk = tuple(ijk) == calc_poisson_ijk(ijk)
-    cell_count = ijk[0] * ijk[1] * ijk[2]
-    cell_sizes_sorted = sorted(cs)
-    try:
-        cell_aspect_ratio = max(
-            cell_sizes_sorted[2] / cell_sizes_sorted[0],
-            cell_sizes_sorted[2] / cell_sizes_sorted[1],
-            cell_sizes_sorted[1] / cell_sizes_sorted[0],
-        )
-    except ZeroDivisionError:
-        cell_aspect_ratio = 999.0
-    # Return
-    return has_good_ijk, cs, cell_count, cell_aspect_ratio
-
-
 def test():
-    print("Test")
     rijk, rxb, mijk, mxb, msgs = align_meshes(
         rijk=[15, 37, 51],
-        rxb=[0, 5, 0, 5, 0, 5],
+        rxb=[0.0, 5.0, 0.0, 5.0, 0.0, 5.0],
         mijk=[9, 38, 20],
-        mxb=[0, 5, 0, 5, 5, 10],
+        mxb=[0.0, 5.0, 0.0, 5.0, 5.01, 10.0],
         poisson=True,
         protect_rl=True,
     )
-    print(rijk, rxb, mijk, mxb, msgs)
+    assert rijk == [16, 40, 51]
+    assert rxb == [0.0, 5.0, 0.0, 5.0, 0.0, 5.0]
+    assert mijk == [8, 40, 20]
+    assert mxb == [0.0, 5.0, 0.0, 5.0, 5.0, 10.0]
+    assert msgs == [
+        "Close enough, alignment needed",
+        "Ref MESH cell size updated, Object size untouched",
+        "Aligned along x axis",
+        "Aligned along y axis",
+        "Close enough at ref z1, snapped",
+    ]
 
 
 if __name__ == "__main__":
