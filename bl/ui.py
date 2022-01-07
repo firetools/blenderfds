@@ -46,8 +46,8 @@ original_class_names = [
     "OBJECT_PT_instancing_size",
     "OBJECT_PT_motion_paths",
     "OBJECT_PT_motion_paths_display",
-    "OBJECT_PT_display",
-    "OBJECT_PT_visibility",
+    # "OBJECT_PT_display",
+    # "OBJECT_PT_visibility",
     "OBJECT_PT_lineart",
     "OBJECT_PT_custom_props",
     ## from: 3.0/scripts/startup/bl_ui/properties_data_mesh.py
@@ -129,16 +129,21 @@ class PROPERTIES_PT_navigation_bar_bf(Panel):
 replacement_classes = (PROPERTIES_PT_navigation_bar_bf,)
 
 
-def _set_simple_ui():  # FIXME improve
-    # Original
+def _load_original_classes():
+    log.debug(f"Load original ui classes...")
     for cls_name in original_class_names:
         module_name = f"bpy.types.{cls_name}"
-        log.debug(f"Unregister original class <{module_name}>...")
         try:
             cls = eval(module_name)
         except:
             log.debug(f"Unknown original class <{module_name}>...")
         original_classes.append(cls)
+
+
+def _set_simple_ui():  # FIXME improve
+    # Original
+    for cls in original_classes:
+        log.debug(f"Unregister original class <{cls}>...")
         unregister_class(cls)
     # Replacement
     for cls in replacement_classes:
@@ -147,22 +152,20 @@ def _set_simple_ui():  # FIXME improve
 
 
 def _set_normal_ui():
-    # Unregister replacement
+    # Replacement
     for cls in replacement_classes:
         log.debug(f"Unregister replacement class <{cls}>...")
-        try:
-            unregister_class(cls)
-        except:
-            log.debug(f"Unknown replacement class <{cls}>...")
-    # Register original
-    original_classes.reverse()
-    while original_classes:
+        unregister_class(cls)
+    # Original
+    for cls in original_classes:
         log.debug(f"Register original class <{cls}>...")
-        register_class(original_classes.pop())
+        register_class(cls)
 
 
 def toggle_simple_ui(prefs=None, context=None, force_normal=False):
     log.debug("Toggle simple ui...")
+    if not original_classes:
+        _load_original_classes()
     if force_normal:
         _set_normal_ui()
         return
