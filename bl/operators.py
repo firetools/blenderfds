@@ -914,11 +914,7 @@ class OBJECT_OT_bf_set_mesh_cell_size(Operator):
     def invoke(self, context, event):
         ob = context.active_object
         # Set default
-        xb = geometry.utils.get_bbox_xb(context=context, ob=ob, world=True)
-        self.bf_cell_sizes = MESH.calc_cell_sizes(
-            ijk=ob.bf_mesh_ijk,
-            xb=xb,
-        )
+        self.bf_cell_sizes = MESH.get_cell_sizes(context, ob)
         # Call dialog
         wm = context.window_manager
         return wm.invoke_props_dialog(self)
@@ -926,9 +922,8 @@ class OBJECT_OT_bf_set_mesh_cell_size(Operator):
     def execute(self, context):
         ob = context.active_object
         ob.bf_xb, ob.bf_xb_export = "BBOX", True
-        xb = geometry.utils.get_bbox_xb(context=context, ob=ob, world=True)
-        ob.bf_mesh_ijk = MESH.calc_ijk(
-            xb=xb, desired_cs=self.bf_cell_sizes, poisson=self.bf_poisson_restriction
+        ob.bf_mesh_ijk = MESH.get_ijk_from_desired_cs(
+            context, ob, self.bf_cell_sizes, self.bf_poisson_restriction
         )
         self.report({"INFO"}, "MESH cell size set")
         return {"FINISHED"}
