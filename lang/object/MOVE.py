@@ -179,8 +179,7 @@ def to_matrix(fds_namelist):
     p_dy = fds_namelist.get_by_label(fds_label="DY", remove=True)
     p_dz = fds_namelist.get_by_label(fds_label="DZ", remove=True)
     if fds_namelist.fds_params:
-        msg = f"MOVE namelist has unknown parameters: <{fds_namelist.fds_params}>"
-        raise AssertionError(msg)
+        raise AssertionError(f"Unknown params in MOVE: <{fds_namelist.fds_params}>")
     # Get fds_param value
     x0 = p_x0 and p_x0.value or 0.0
     y0 = p_y0 and p_y0.value or 0.0

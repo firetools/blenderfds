@@ -342,7 +342,7 @@ xbs_to_mesh = {
     "FACES": xbs_faces_to_mesh,
 }
 
-# FIXME remove bf_xb
+
 def xbs_to_ob(context, ob, xbs, bf_xb=None, matrix=None):
     """!
     Import xbs geometry ((x0,x1,y0,y1,z0,z1,), ...) into existing Blender Object.

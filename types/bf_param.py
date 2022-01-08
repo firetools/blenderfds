@@ -171,7 +171,7 @@ class BFParam:
             except TypeError:
                 raise BFNotImported(
                     sender=self,
-                    msg=f"Unsupported value <{value}> by <{self.bpy_idname}>",
+                    msg=f"Unsupported value <{value}> by <{self.bpy_idname}>",  # FIXME FIXME FIXME improve user feedback
                 )
             return
 
