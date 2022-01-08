@@ -38,7 +38,7 @@ if "bl" in locals():
 else:
     from . import bl, lang
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)  # or DEBUG
 log = logging.getLogger(__name__)
 
 
