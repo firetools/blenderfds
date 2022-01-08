@@ -47,12 +47,15 @@ class OP_MESH_nsplits(BFParam):
 class OP_MESH_XB(OP_XB_BBOX):
     def to_fds_param(self, context):  # FIXME
         ob = self.element
-        ob.bf_xb = "BBOX"
+        fds_param = super().to_fds_param(context)  # use father
+        if not ob.bf_mesh_nsplits_export:
+            return fds_param
+        # Split
         ids, ijks, xbs = split_mesh(
             hid=ob.name,
             ijk=ob.bf_mesh_ijk,
             nsplits=ob.bf_mesh_nsplits,
-            xb=geometry.utils.get_bbox_xb(context=context, ob=ob, world=True),
+            xb=fds_param.value,
         )
         result = tuple(
             (
@@ -107,7 +110,7 @@ def get_cell_aspect(cell_sizes):
 
 def get_poisson_ijk(ijk):
     """!Get an IJK respecting the Poisson constraint, close to the current one."""
-    return ijk[0], align.get_n_for_poisson(ijk[1]), align.get_n_for_poisson(ijk[2])
+    return ijk[0], get_n_for_poisson(ijk[1]), get_n_for_poisson(ijk[2])
 
 
 def get_ijk_from_desired_cs(context, ob, desired_cs, poisson):
