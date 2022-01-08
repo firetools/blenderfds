@@ -1,4 +1,4 @@
-import time, sys, logging, bpy
+import time, sys, logging, bpy, os
 from bpy.types import Scene, Object
 from bpy.props import IntVectorProperty
 from ...types import BFNamelist, FDSCase, BFException, BFNotImported
@@ -107,6 +107,9 @@ class BFScene:
         # Init
         if filepath and not f90:
             fds_case = FDSCase(filepath=filepath)
+            self.bf_config_directory = os.path.dirname(
+                filepath
+            )  # FIXME set for relative imports of other paths
         elif f90 and not filepath:
             fds_case = FDSCase(f90=f90)
         else:
