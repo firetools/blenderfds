@@ -29,18 +29,18 @@ def split_mesh(hid, ijk, nsplits, xb):
     jcells = _split_cells(ijk[1], nsplits[1])
     kcells = _split_cells(ijk[2], nsplits[2])
     # Prepare new mesh ijks and origins (in cell number)
-    origins = list()
-    origin_i, origin_j, origin_k = 0, 0, 0
+    corigins = list()
+    corigin_i, corigin_j, corigin_k = 0, 0, 0
     for i in icells:
         for j in jcells:
             for k in kcells:
                 ijks.append((i, j, k))
-                origins.append((origin_i, origin_j, origin_k))
-                origin_k += k
-            origin_k = 0
-            origin_j += j
-        origin_j = 0
-        origin_i += i
+                corigins.append((corigin_i, corigin_j, corigin_k))
+                corigin_k += k
+            corigin_k = 0
+            corigin_j += j
+        corigin_j = 0
+        corigin_i += i
     # Calc cell sizes along axis
     cs = (
         (xb[1] - xb[0]) / ijk[0],
@@ -48,15 +48,16 @@ def split_mesh(hid, ijk, nsplits, xb):
         (xb[5] - xb[4]) / ijk[2],
     )
     # Prepare xbs
-    for i, origin in enumerate(origins):
+    # corigin (0,0,0) is at coordinates xb[0], xb[2], xb [4]
+    for i, corigin in enumerate(corigins):
         xbs.append(
             (
-                origin[0] * cs[0],
-                (origin[0] + ijks[i][0]) * cs[0],
-                origin[1] * cs[1],
-                (origin[1] + ijks[i][1]) * cs[1],
-                origin[2] * cs[2],
-                (origin[2] + ijks[i][2]) * cs[2],
+                xb[0] + corigin[0] * cs[0],
+                xb[0] + (corigin[0] + ijks[i][0]) * cs[0],
+                xb[2] + corigin[1] * cs[1],
+                xb[2] + (corigin[1] + ijks[i][1]) * cs[1],
+                xb[4] + corigin[2] * cs[2],
+                xb[4] + (corigin[2] + ijks[i][2]) * cs[2],
             )
         )
     # Prepare ids
