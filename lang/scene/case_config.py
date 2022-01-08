@@ -77,7 +77,7 @@ class SP_config_min_face_area(BFParam):
     bpy_type = Scene
     bpy_idname = "bf_config_min_face_area"
     bpy_prop = FloatProperty
-    bpy_default = 1e-07
+    bpy_default = 1e-08
     bpy_other = {"unit": "AREA"}
     bpy_export = "bf_config_min_face_area_export"
 
