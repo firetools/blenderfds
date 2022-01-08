@@ -360,7 +360,9 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
         # XB
         if ob.bf_xb_export and ob.bf_namelist.bf_param_xb:
             try:
-                xbs, msg = geometry.to_fds.ob_to_xbs(context=context, ob=ob)
+                xbs, msg = geometry.to_fds.ob_to_xbs(
+                    context=context, ob=ob, bf_xb=ob.bf_xb
+                )
             except BFException as err:
                 w.cursor_modal_restore()
                 self.report({"ERROR"}, str(err))
@@ -381,7 +383,9 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
         # XYZ
         if ob.bf_xyz_export and ob.bf_namelist.bf_param_xyz:
             try:
-                xyzs, msg = geometry.to_fds.ob_to_xyzs(context=context, ob=ob)
+                xyzs, msg = geometry.to_fds.ob_to_xyzs(
+                    context=context, ob=ob, bf_xyz=ob.bf_xyz
+                )
             except BFException as err:
                 w.cursor_modal_restore()
                 self.report({"ERROR"}, str(err))
@@ -397,7 +401,9 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
         # PB
         if ob.bf_pb_export and ob.bf_namelist.bf_param_pb:
             try:
-                pbs, msg = geometry.to_fds.ob_to_pbs(context=context, ob=ob)
+                pbs, msg = geometry.to_fds.ob_to_pbs(
+                    context=context, ob=ob, bf_pb=ob.bf_pb
+                )
             except BFException as err:
                 w.cursor_modal_restore()
                 self.report({"ERROR"}, str(err))
@@ -965,7 +971,7 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
         if not source_element:
             self.report({"WARNING"}, "No source Object")
             return {"CANCELLED"}
-        # Align
+        # Align  # FIXME FIXME FIXME
         rijk = source_element.bf_mesh_ijk  # ref ijk
         rxb = geometry.utils.get_bbox_xb(context, ob=source_element, world=True)
         for de in destination_elements:

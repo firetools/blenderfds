@@ -50,7 +50,7 @@ class OP_XYZ(BFParamXYZ):
         if not ob.bf_xyz_export:
             return
         # Compute
-        xyzs, msg = geometry.to_fds.ob_to_xyzs(context, ob)
+        xyzs, msg = geometry.to_fds.ob_to_xyzs(context, ob, ob.bf_xyz)
         # Single param
         if len(xyzs) == 1:
             return FDSParam(fds_label="XYZ", value=xyzs[0])

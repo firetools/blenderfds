@@ -168,16 +168,17 @@ _choice_to_xbs = {
 }
 
 
-def ob_to_xbs(context, ob, world=True):
+def ob_to_xbs(context, ob, bf_xb, world=True):
     """!
-    Transform Object geometry according to ob.bf_xb (None, BBOX, VOXELS, FACES, PIXELS, EDGES) to FDS notation.
+    Transform Object geometry according to bf_xb to FDS notation.
     @param context: the Blender context.
     @param ob: the Blender object.
+    @param bf_xb: string in (BBOX, VOXELS, FACES, PIXELS, EDGES).
     @param world: True to return the object in world coordinates.
     @return the FDS notation and any error message: ((x0,x1,y0,y1,z0,z1,), ...), 'Msg'.
     """
     if ob.get("ob_to_xbs_cache") is None:  # recalc
-        ob["ob_to_xbs_cache"] = _choice_to_xbs[ob.bf_xb](context, ob, world)
+        ob["ob_to_xbs_cache"] = _choice_to_xbs[bf_xb](context, ob, world)
     return ob["ob_to_xbs_cache"]
 
 
@@ -231,15 +232,16 @@ def _ob_to_xyzs_center(context, ob, world):
 _choice_to_xyzs = {"CENTER": _ob_to_xyzs_center, "VERTICES": _ob_to_xyzs_vertices}
 
 
-def ob_to_xyzs(context, ob, world=True):
+def ob_to_xyzs(context, ob, bf_xyz, world=True):
     """!
-    Transform Object geometry according to ob.bf_xyz (None, CENTER, VERTICES) to xyzs notation.
+    Transform Object geometry according to bf_xyz to xyzs notation.
     @param context: the Blender context.
     @param ob: the Blender object.
+    @param bf_xyz: string in (CENTER, VERTICES).
     @param world: True to return the object in world coordinates.
     @return the xyzs notation and any error message: ((x0,y0,z0,), ...), 'Msg'.
     """
-    return _choice_to_xyzs[ob.bf_xyz](context, ob, world)
+    return _choice_to_xyzs[bf_xyz](context, ob, world)
 
 
 # to PB in Blender units (no cache)
@@ -275,11 +277,12 @@ def _ob_to_pbs_planes(context, ob, world):
     return pbs, msg
 
 
-def ob_to_pbs(context, ob, world=True):
+def ob_to_pbs(context, ob, bf_pb, world=True):
     """!
-    Transform Object geometry according to ob.bf_pb (None, PLANES) to pbs notation.
+    Transform Object geometry according to bf_pb to pbs notation.
     @param context: the Blender context.
     @param ob: the Blender object.
+    @param bf_pb: string in (PLANES,)
     @param world: True to return the object in world coordinates.
     @return the pbs notation and any error message.
     """

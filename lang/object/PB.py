@@ -52,7 +52,7 @@ class OP_PB(BFParamPB):
         # Compute
         # pbs is: (0, 3.5), (0, 4.), (2, .5) ...
         # with 0, 1, 2 perpendicular axis
-        pbs, msg = geometry.to_fds.ob_to_pbs(context, ob)
+        pbs, msg = geometry.to_fds.ob_to_pbs(context, ob, bf_pb=ob.bf_pb)
         # Prepare labels
         labels = tuple(
             f"PB{('X','Y','Z')[int(axis)]}" for axis, _ in pbs
