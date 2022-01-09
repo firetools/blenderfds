@@ -1,5 +1,7 @@
 # TODO
 
+improve test suite
+
 user doc (WUIFI-21)
 
 code snippets
