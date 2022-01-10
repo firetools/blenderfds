@@ -5,12 +5,12 @@ Split MESH parameters according to nsplits.
 """
 
 
-def _split_cells(ncell, nsplit):
+def split_cells(ncell, nsplit):
     """!
     Split ncell cells in nsplit parts, conserving the total number ncell of cells
     """
     if ncell < nsplit * 3:
-        raise Exception("Too few cells")
+        return list((ncell,))
     base = ncell // nsplit
     remainder = ncell % nsplit
     ncells = list((base,)) * nsplit
@@ -19,15 +19,31 @@ def _split_cells(ncell, nsplit):
     return ncells
 
 
+def get_nsplit(ob):
+    """!Get the number of exported splitted MESHes."""
+    ijk = ob.bf_mesh_ijk
+    if ob.bf_mesh_nsplits_export:
+        nsplits = ob.bf_mesh_nsplits
+        icells = split_cells(ijk[0], nsplits[0])
+        jcells = split_cells(ijk[1], nsplits[1])
+        kcells = split_cells(ijk[2], nsplits[2])
+        return (
+            len(icells) * len(jcells) * len(kcells),
+            icells[0] * jcells[0] * kcells[0],
+        )
+    else:
+        return 1, ijk[0] * ijk[1] * ijk[2]
+
+
 def split_mesh(hid, ijk, nsplits, xb):
     """!
     Split ijk cells along the axis in nsplits, calc new ids, ijks and xbs
     """
     ijks, xbs = list(), list()
     # Split cells along axis
-    icells = _split_cells(ijk[0], nsplits[0])
-    jcells = _split_cells(ijk[1], nsplits[1])
-    kcells = _split_cells(ijk[2], nsplits[2])
+    icells = split_cells(ijk[0], nsplits[0])
+    jcells = split_cells(ijk[1], nsplits[1])
+    kcells = split_cells(ijk[2], nsplits[2])
     # Prepare new mesh ijks and origins (in cell number)
     corigins = list()
     corigin_i, corigin_j, corigin_k = 0, 0, 0

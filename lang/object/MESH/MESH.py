@@ -5,11 +5,11 @@ MESH namelist definition
 import logging
 from bpy.types import Object
 from bpy.props import IntVectorProperty
-from ....types import BFParam, BFNamelistOb, FDSParam
+from ....types import BFParam, BFNamelistOb, FDSParam, BFException
 from .... import geometry
 from ..object import OP_ID, OP_FYI, OP_other
 from ..XB import OP_XB_BBOX
-from .split import split_mesh
+from .split import split_mesh, get_nsplit
 from .align import get_n_for_poisson
 
 log = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ class OP_MESH_IJK(BFParam):
 
 
 class OP_MESH_nsplits(BFParam):
-    label = "Split"
+    label = "Splits"
     description = "Split this MESH along each axis in an array of MESHes of similar cell number, conserving cell size"
     bpy_type = Object
     bpy_idname = "bf_mesh_nsplits"
@@ -43,13 +43,18 @@ class OP_MESH_nsplits(BFParam):
     bpy_export = "bf_mesh_nsplits_export"
     bpy_export_default = False
 
+    def check(self, context):
+        ob = self.element
+        requested_nsplit = self.value[0] * self.value[1] * self.value[2]
+        nsplit, _ = get_nsplit(ob)
+        if ob.bf_mesh_nsplits_export and requested_nsplit != nsplit:
+            raise BFException(self, "Too many splits requested for current IJK")
+
 
 class OP_MESH_XB(OP_XB_BBOX):
     def to_fds_param(self, context):  # FIXME
         ob = self.element
         fds_param = super().to_fds_param(context)  # use father
-        if not ob.bf_mesh_nsplits_export:
-            return fds_param
         # Split
         ids, ijks, xbs = split_mesh(
             hid=ob.name,
@@ -127,25 +132,18 @@ def get_ijk_from_desired_cs(context, ob, desired_cs, poisson):
         return ijk
 
 
-def get_nsplit(ob):
-    """!Get the number of exported splitted MESHes."""
-    if ob.bf_mesh_nsplits_export:
-        nsplits = ob.bf_mesh_nsplits
-        return nsplits[0] * nsplits[1] * nsplits[2]
-    else:
-        return 1
-
-
 def get_msgs(context, ob):
-    """!Get message for MEESHes."""
+    """!Get message for MESHes."""
     ijk = ob.bf_mesh_ijk
     cs = get_cell_sizes(context, ob)
     has_good_ijk = tuple(ijk) == get_poisson_ijk(ijk) and "Yes" or "No"
-    qty = ijk[0] * ijk[1] * ijk[2]
     aspect = get_cell_aspect(cs)
-    nsplit = get_nsplit(ob)
-    split = nsplit > 1 and f" / {nsplit} splits" or ""
+    nsplit, qty = get_nsplit(ob)
+    if nsplit > 1:
+        split = f"Cell Qty: {qty} · {nsplit} splits"
+    else:
+        split = f"Cell Qty: {qty}"
     return (
-        f"MESH Cell Qty: {qty}{split}",
-        f"Cell Size: {cs[0]:.3f}m x {cs[1]:.3f}m x {cs[2]:.3f}m | Aspect: {aspect:.1f} | Poisson: {has_good_ijk}",
+        f"MESH {split}",
+        f"Cell Size: {cs[0]:.3f}m · {cs[1]:.3f}m · {cs[2]:.3f}m | Aspect: {aspect:.1f} | Poisson: {has_good_ijk}",
     )
