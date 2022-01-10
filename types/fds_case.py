@@ -279,8 +279,9 @@ class FDSNamelist:
             invps = [p for p in invps if p.fds_label not in multips_fds_labels]
             # Add nl with one of multips + invps
             for multip in multips:
-                nl = list(multip)
-                nl.extend(invps)
+                nl = list()
+                nl.extend(invps)  # first invariant
+                nl.extend(multip)  # then variant
                 nls.append(nl)
         else:
             nls.append(invps)
