@@ -1,5 +1,5 @@
 """!
-BlenderFDS, import/export menu panel.
+BlenderFDS, import/export menu.
 """
 
 import os
@@ -14,27 +14,10 @@ from ..types import BFException
 log = logging.getLogger(__name__)
 
 
-# Collections
-
-bl_classes = list()
-
-
-def subscribe(cls):
-    """!
-    Subscribe class to related collection.
-    @param cls: the class to subscribe.
-    @return the class subscribed.
-    """
-    bl_classes.append(cls)
-    return cls
-
-
-# Import menus
-
-
-@subscribe
 class ImportFDS(Operator, ImportHelper):
-    "Import FDS case file to a Blender Scene."
+    """!
+    Import FDS case file to a Blender Scene.
+    """
 
     bl_idname = "import_scene.fds"
     bl_label = "Import FDS"
@@ -55,16 +38,11 @@ class ImportFDS(Operator, ImportHelper):
 
     @classmethod
     def poll(cls, context):
-        """!
-        Test if the operator can be called or not
-        @param context: the Blender context.
-        @return True if operator can be called, False otherwise.
-        """
         return context.scene is not None
 
     def _get_new_scene_from_filepath(self, filepath):
         filepath = bpy.path.abspath(filepath)
-        name, path = utils.calc_bl_name_and_dir(filepath)
+        name, path = utils.os_filepath_to_bl(filepath)
         # Create new scene
         sc = bpy.data.scenes.new(name)
         sc.bf_config_directory = path
@@ -73,6 +51,7 @@ class ImportFDS(Operator, ImportHelper):
     def execute(self, context):
         w = context.window_manager.windows[0]
         w.cursor_modal_set("WAIT")
+
         # List filepaths
         filepaths = list()
         if self.all_cases:
@@ -81,6 +60,7 @@ class ImportFDS(Operator, ImportHelper):
                     filepaths.append(f.path)
         else:
             filepaths.append(self.filepath)
+
         # Import
         for filepath in filepaths:
             if self.new_scene:
@@ -93,26 +73,17 @@ class ImportFDS(Operator, ImportHelper):
                 w.cursor_modal_restore()
                 self.report({"ERROR"}, f"Import error: {str(err)}")
                 return {"CANCELLED"}
+
         # Close
         w.cursor_modal_restore()
         self.report({"INFO"}, f"<{sc.name}> imported")
         return {"FINISHED"}
 
 
-def menu_func_import_FDS(self, context):
-    """!
-    Function to import FDS into a new scene.
-    @param context: the Blender context.
-    """
-    self.layout.operator("import_scene.fds", text="NIST FDS (.fds)")
-
-
-# Export menu
-
-
-@subscribe
 class ExportFDS(Operator, ExportHelper):
-    "Export Blender Scene to an FDS case file."
+    """!
+    Export Blender Scene to an FDS case file.
+    """
 
     bl_idname = "export_scene.fds"
     bl_label = "Export FDS"
@@ -134,33 +105,18 @@ class ExportFDS(Operator, ExportHelper):
         description="Export all available SURFs, even unrelated to exported Objects.",
     )
 
-    def _get_fds_filepath(self, sc):
-        return utils.calc_path(
-            bl_path=sc.bf_config_directory or "//",
-            name=sc.name,
-            extension=".fds",
-        )
-
-    def _get_best_fds_filepath_for_dialog(self, sc):
-        try:
-            return self._get_fds_filepath(sc)
-        except BFException:
-            return bpy.path.ensure_ext(sc.name, ".fds")
-
-    def _get_name_and_path_from_filepath(self, filepath):
-        filepath = bpy.path.abspath(filepath)
-        return utils.calc_bl_name_and_dir(filepath)
-
     def _export_scene(self, context, sc):
         w = context.window_manager.windows[0]
         w.cursor_modal_set("WAIT")
-        filepath = self._get_fds_filepath(sc)
         try:
             sc.to_fds(
-                context=context, full=True, all_surfs=self.all_surfs, filepath=filepath
+                context=context,
+                full=True,
+                all_surfs=self.all_surfs,
+                filepath=self.filepath,
             )
         except BFException as err:
-            self.report({"ERROR"}, f"Error assembling fds file:\n<{err}>")
+            self.report({"ERROR"}, str(err))
             return {"CANCELLED"}
         else:
             self.report({"INFO"}, f"Scene <{sc.name}> exported")
@@ -170,27 +126,35 @@ class ExportFDS(Operator, ExportHelper):
 
     def invoke(self, context, event):
         sc = context.scene
-        self.filepath = self._get_best_fds_filepath_for_dialog(sc)
+        try:  # get best filepath for dialog
+            self.filepath = utils.bl_path_to_os(
+                bl_path=sc.bf_config_directory or "//",
+                name=sc.name,
+                extension=".fds",
+            )
+        except BFException:
+            self.filepath = bpy.path.ensure_ext(sc.name, ".fds")
         return super().invoke(context, event)  # open dialog
 
     def execute(self, context):
         if self.all_scenes:
             for sc in bpy.data.scenes:
                 res = self._export_scene(context=context, sc=sc)
-                if res != {"FINISHED"}:  # on CANCEL break
+                if res != {"FINISHED"}:  # on any CANCEL break
                     break
         else:
-            name, path = self._get_name_and_path_from_filepath(self.filepath)
-            sc = context.scene
-            sc.name, sc.bf_config_directory = name, path
-            res = self._export_scene(context=context, sc=sc)
+            res = self._export_scene(context=context, sc=context.scene)
         return res
 
 
+# Menu functions
+
+
+def menu_func_import_FDS(self, context):
+    self.layout.operator("import_scene.fds", text="NIST FDS (.fds)")
+
+
 def menu_func_export_to_fds(self, context):
-    """!
-    Export function for current Scene to FDS case file.
-    """
     self.layout.operator(ExportFDS.bl_idname, text="NIST FDS (.fds)")
 
 
@@ -198,24 +162,20 @@ def menu_func_export_to_fds(self, context):
 
 
 def register():
-    """!
-    Load the Python classes and functions to Blender.
-    """
     from bpy.utils import register_class
 
-    for cls in bl_classes:
-        register_class(cls)
+    register_class(ImportFDS)
+    register_class(ExportFDS)
+
     bpy.types.TOPBAR_MT_file_import.append(menu_func_import_FDS)
     bpy.types.TOPBAR_MT_file_export.append(menu_func_export_to_fds)
 
 
 def unregister():
-    """!
-    Unload the Python classes and functions from Blender.
-    """
     from bpy.utils import unregister_class
 
-    for cls in reversed(bl_classes):
-        unregister_class(cls)
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import_FDS)
     bpy.types.TOPBAR_MT_file_export.remove(menu_func_export_to_fds)
+
+    unregister_class(ImportFDS)
+    unregister_class(ExportFDS)
