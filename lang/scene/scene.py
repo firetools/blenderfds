@@ -36,8 +36,10 @@ class BFScene:
         bpy.context.window.scene = self
 
         # Get scene name and dir from filepath
+        if not bpy.data.is_saved:
+            raise BFException(self, "Save the current Blender file before exporting.")
         self.name, self.bf_config_directory = utils.os_filepath_to_bl(
-            bpy.path.abspath(filepath)  # FIXME useful?
+            bpy.path.abspath(filepath)
         )
 
         # Header

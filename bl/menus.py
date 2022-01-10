@@ -116,7 +116,7 @@ class ExportFDS(Operator, ExportHelper):
                 filepath=self.filepath,
             )
         except BFException as err:
-            self.report({"ERROR"}, str(err))
+            self.report({"ERROR"}, f"Export error: {str(err)}")
             return {"CANCELLED"}
         else:
             self.report({"INFO"}, f"Scene <{sc.name}> exported")
