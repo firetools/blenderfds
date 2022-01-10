@@ -152,14 +152,14 @@ class OP_GEOM_BINARY_FILE(BFParam):
     bpy_export_default = False
 
     def _get_bingeom_filepath(self, sc, ob):
-        return utils.calc_path(
+        return utils.bl_path_to_os(
             bl_path=ob.bf_geom_binary_directory or sc.bf_config_directory or "//",
             name=ob.data.name,
             extension=".bingeom",
         )
 
     def _get_fds_binary_file(self, sc, ob):
-        return utils.calc_path(
+        return utils.bl_path_to_os(
             bl_path=ob.bf_geom_binary_directory or sc.bf_config_directory or "//",
             name=ob.data.name,
             extension=".bingeom",
@@ -167,10 +167,10 @@ class OP_GEOM_BINARY_FILE(BFParam):
         )
 
     def _get_blend_name_and_directory(self, fds_binary_file, sc):
-        fds_path = utils.calc_path(
+        fds_path = utils.bl_path_to_os(
             bl_path=sc.bf_config_directory or "//",
         )
-        return utils.calc_bl_name_and_dir(
+        return utils.os_filepath_to_bl(
             filepath=fds_binary_file,
             start=fds_path,
         )

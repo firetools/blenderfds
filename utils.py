@@ -209,7 +209,7 @@ def is_dir(path):
 # · · · · · · · · · · · · · --------------> BINARY_NAME
 
 
-def calc_path(bl_path, name=None, extension=None, bl_start=None, start=None):
+def bl_path_to_os(bl_path, name=None, extension=None, bl_start=None, start=None):
     """!
     Get the absolute or relative os path from a Blender path.
     @param bl_path: original path in Blender notation.
@@ -229,13 +229,13 @@ def calc_path(bl_path, name=None, extension=None, bl_start=None, start=None):
         path = bpy.path.ensure_ext(path, extension)
     if bl_start:
         bl_start = bpy.path.abspath(bl_start)
-        start = calc_path(bl_path=bl_start)
+        start = bl_path_to_os(bl_path=bl_start)
     if start:
         path = os.path.relpath(path, start=start)
     return path
 
 
-def calc_bl_name_and_dir(filepath, start=None):
+def os_filepath_to_bl(filepath, start=None):
     """!
     Get the name and the directory in Blender format from an os filepath.
     @param filepath: filepath in os format, eg. /path/filename.txt or path/filename.txt.
