@@ -284,9 +284,11 @@ class BFNamelistMa(BFNamelist):
 
     @property
     def exported(self):
-        return (
-            self.element.bf_surf_export and self.element.name not in config.default_mas
-        )
+        if self.element.name in config.default_mas:
+            return False  # default fds material
+        elif self.element.bf_surf_export:
+            return True  # user requested
+        return False
 
     def set_appearance(self, context):
         super().set_appearance(context)  # preferences check

@@ -39,8 +39,8 @@ class BFCollection:
         obs.sort(key=lambda k: k.name)  # alphabetic by name
         lines = list(ob.to_fds(context) for ob in obs)
         lines.extend(child.to_fds(context) for child in self.children)
-        if lines:
-            header = f"! --- Geometric namelists from Blender Collection <{self.name}>"
+        if lines and self != context.scene.collection:
+            header = f"\n! --- {self.name}"
             lines.insert(0, header)
         return "\n".join(l for l in lines if l)
 
