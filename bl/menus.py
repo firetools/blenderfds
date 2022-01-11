@@ -71,7 +71,7 @@ class ImportFDSToScene(Operator, ImportHelper):
                 sc.from_fds(context, filepath=filepath)
             except BFException as err:
                 w.cursor_modal_restore()
-                self.report({"ERROR"}, f"Import error: {str(err)}")
+                self.report({"ERROR"}, f"Import: {str(err)}")
                 return {"CANCELLED"}
 
         # Close
@@ -117,7 +117,7 @@ class ExportSceneToFDS(Operator, ExportHelper):
                 filepath=self.filepath,
             )
         except BFException as err:
-            self.report({"ERROR"}, f"Export error in Scene {sc.name}: {str(err)}")
+            self.report({"ERROR"}, f"Export: {str(err)}")
             return {"CANCELLED"}
         else:
             self.report({"INFO"}, f"Scene <{sc.name}> exported")
@@ -147,7 +147,7 @@ class ExportAllSceneToFDS(Operator):
                     save=True,
                 )
             except BFException as err:
-                self.report({"ERROR"}, f"Export error in Scene {sc.name}: {str(err)}")
+                self.report({"ERROR"}, f"Export: {str(err)}")
                 return {"CANCELLED"}
             finally:
                 w.cursor_modal_restore()

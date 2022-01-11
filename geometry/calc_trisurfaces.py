@@ -87,7 +87,7 @@ def check_geom_sanity(context, ob, protect, check_open=True):
     @param protect: if True raise BFException without context modifications.
     @param check_open: True to check if bmesh is open.
     """
-    #    log.debug(f"Check geom sanity in Object <{ob.name}>")
+    # log.debug(f"Check geom sanity in Object <{ob.name}>")
     bm = utils.get_object_bmesh(
         context=context, ob=ob, world=False, triangulate=True, lookup=True
     )

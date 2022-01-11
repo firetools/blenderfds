@@ -144,22 +144,22 @@ def _load_original_classes():
 def _set_simple_ui():  # FIXME improve
     # Original
     for cls in original_classes:
-        log.debug(f"Unregister original class <{cls}>...")
+        # log.debug(f"Unregister original class <{cls}>...")
         unregister_class(cls)
     # Replacement
     for cls in replacement_classes:
-        log.debug(f"Register replacement class <{cls}>...")
+        # log.debug(f"Register replacement class <{cls}>...")
         register_class(cls)
 
 
 def _set_normal_ui():
     # Replacement
     for cls in replacement_classes:
-        log.debug(f"Unregister replacement class <{cls}>...")
+        # log.debug(f"Unregister replacement class <{cls}>...")
         unregister_class(cls)
     # Original
     for cls in original_classes:
-        log.debug(f"Register original class <{cls}>...")
+        # log.debug(f"Register original class <{cls}>...")
         register_class(cls)
 
 

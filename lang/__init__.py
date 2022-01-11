@@ -48,13 +48,15 @@ def register():
         bf_param.register()
     for bf_namelist in BFNamelist.subclasses:
         bf_namelist.register()
-    log.debug(
-        f"""
-types.BFNamelist.subclasses: {BFNamelist.subclasses}
-types.BFNamelist.subclasses_by_fds_label: {BFNamelist.subclasses_by_fds_label}
-types.BFNamelist.subclasses_by_cls_name: {BFNamelist.subclasses_by_cls_name}
-"""
-    )
+
+
+#     log.debug(
+#         f"""
+# types.BFNamelist.subclasses: {BFNamelist.subclasses}
+# types.BFNamelist.subclasses_by_fds_label: {BFNamelist.subclasses_by_fds_label}
+# types.BFNamelist.subclasses_by_cls_name: {BFNamelist.subclasses_by_cls_name}
+# """
+#     )
 
 
 def unregister():

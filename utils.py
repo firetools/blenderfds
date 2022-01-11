@@ -2,9 +2,12 @@
 BlenderFDS, input/output routines.
 """
 
-import os, struct, bpy
+import os, struct, bpy, logging
+from pathlib import Path
 import numpy as np
 from .types import BFException
+
+log = logging.getLogger(__name__)
 
 # Read/write txt files
 # no need to catch exceptions
@@ -31,11 +34,13 @@ def read_txt_file(filepath):
     raise UnicodeDecodeError(f"Unknown text encoding in file <{filepath}>")
 
 
-def write_txt_file(filepath, text=None):
+def write_txt_file(filepath, text=None, force_dir=False):
     """!
     Write text file to filepath.
     """
     try:
+        if force_dir:
+            Path(os.path.dirname(filepath)).mkdir(parents=True, exist_ok=True)
         with open(filepath, "w", encoding="utf8", errors="ignore") as f:
             f.write(text or str())
     except Exception as err:
@@ -119,7 +124,14 @@ def _write_record(f, data):
 
 
 def write_bingeom_file(
-    geom_type, n_surf_id, fds_verts, fds_faces, fds_surfs, fds_volus, filepath
+    geom_type,
+    n_surf_id,
+    fds_verts,
+    fds_faces,
+    fds_surfs,
+    fds_volus,
+    filepath,
+    force_dir=False,
 ):
     """!
     Write FDS bingeom file.
@@ -133,6 +145,8 @@ def write_bingeom_file(
     """
 
     try:
+        if force_dir:
+            Path(os.path.dirname(filepath)).mkdir(parents=True, exist_ok=True)
         with open(filepath, "wb") as f:
             _write_record(f, np.array((geom_type,), dtype="int32"))  # was 1 only
             _write_record(
@@ -153,6 +167,8 @@ def write_bingeom_file(
             _write_record(f, np.array(fds_volus, dtype="int32"))
     except Exception as err:
         raise BFException(None, f"Error writing bingeom file <{filepath}>:\n{err}")
+    else:
+        log.debug(f"Bingeom file written: <{filepath}>")
 
 
 # File operations # TODO UNUSED?

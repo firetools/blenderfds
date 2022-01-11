@@ -33,8 +33,8 @@ class BFScene:
         lines = list()
 
         # Set mysef as the right Scene instance in the context
-        # FIXME should not be needed, see bpy.context
-        bpy.context.window.scene = self
+        # It is needed, because context.scene is needed elsewhere
+        bpy.context.window.scene = self  # set context.scene
 
         # Check and get scene name and dir from filepath
         if not bpy.data.is_saved:
@@ -77,24 +77,31 @@ class BFScene:
 
         # Material namelists
         if full:
-            mas = list(
-                set(
-                    ms.material
-                    for ob in self.objects
-                    for ms in ob.material_slots
-                    if ms.material  # not empty
+            if all_surfs:
+                header = "\n! --- Boundary conditions from all Blender Materials"
+                mas = list(ma for ma in bpy.data.materials)  # all
+            else:
+                header = "\n! --- Boundary conditions from Blender Materials"
+                mas = list(  # related to scene
+                    set(
+                        ms.material
+                        for ob in self.objects
+                        for ms in ob.material_slots
+                        if ms.material
+                    )
                 )
-            )
             mas.sort(key=lambda k: k.name)  # alphabetic sorting by name
             ma_lines = list(ma.to_fds(context) for ma in mas)
             if any(ma_lines):
-                lines.append("\n! --- Boundary conditions from Blender Materials")
+                lines.append(header)
                 lines.extend(ma_lines)
 
         # Objects from collections
         if full:
-            lines.append(" ")
-            lines.append(self.collection.to_fds(context))
+            text = self.collection.to_fds(context)
+            if text:
+                lines.append("\n! --- Geometric namelists from Blender Collections")
+                lines.append(text)
 
         # TAIL
         if full and self.bf_head_export:

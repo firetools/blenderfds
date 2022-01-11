@@ -86,9 +86,9 @@ class BFParam:
         Register related Blender properties.
         @param cls: class to be registered.
         """
-        log.debug(f"Registering <{cls.label}>")
+        # log.debug(f"Registering <{cls.label}>")
         if not cls.bpy_type:
-            log.debug(f"No bpy_type in class <{cls}>")
+            # log.debug(f"No bpy_type in class <{cls}>")
             return
         # Insert fds_default
         if cls.fds_default is not None:
@@ -145,7 +145,7 @@ class BFParam:
         for bpy_idname in cls._registered_bpy_idnames:
             if not hasattr(cls.bpy_type, bpy_idname):  # already deleted?
                 continue
-            log.debug(f"Unregistering <{bpy_idname}> Blender property")
+            # log.debug(f"Unregistering <{bpy_idname}> Blender property")
             delattr(cls.bpy_type, bpy_idname)
 
     @property
@@ -476,9 +476,9 @@ class BFParamOther(BFParam):
 
     @classmethod
     def register(cls):
-        log.debug(f"Registering <{cls.label}>")
+        # log.debug(f"Registering <{cls.label}>")
         if not cls.bpy_type:
-            log.debug(f"No bpy_type in class <{cls}>")
+            # log.debug(f"No bpy_type in class <{cls}>")
             return
         # Register index bpy_idx_idname
         bpy_idx_idname = f"{cls.bpy_idname}_idx"
@@ -528,9 +528,9 @@ class BFParamOther(BFParam):
 
     @classmethod
     def unregister(cls):
-        log.debug(f"Unregistering <{cls.label}>")
+        # log.debug(f"Unregistering <{cls.label}>")
         if not cls.bpy_type:
-            log.debug(f"No bpy_type in class <{cls}>")
+            # log.debug(f"No bpy_type in class <{cls}>")
             return
         bpy_idx_idname = f"{cls.bpy_idname}_idx"
         # Unregister operators

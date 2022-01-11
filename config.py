@@ -8,7 +8,7 @@
 ## Supported file version
 supported_file_version = 5, 0, 0
 
-## Default SURFs
+## Default SURFs  # FIXME distinguish dummy from predefined
 default_mas = {  # name: diffuse_color
     "Dummy Color1": ((1.0, 1.0, 1.0, 0.05),),  # white
     "Dummy Color2": ((1.0, 1.0, 0.0, 0.05),),  # yellow
