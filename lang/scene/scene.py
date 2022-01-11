@@ -20,13 +20,14 @@ class BFScene:
         """
         return (n(self) for n in BFNamelist.subclasses if n.bpy_type == Scene)
 
-    def to_fds(self, context, full=False, all_surfs=False, filepath=None):
+    def to_fds(self, context, full=False, all_surfs=False, save=False, filepath=None):
         """!
         Return the FDS formatted string.
         @param context: the Blender context.
         @param full: if True, return full FDS case.
         @param all_surfs: if True, return all SURF namelists, even if not related.
-        @param filepath: filepath of FDS case to be exported.
+        @param save: if True, save to disk.
+        @param filepath: set case directory and name.
         @return FDS formatted string (eg. "&OBST ID='Test' /"), or None.
         """
         lines = list()
@@ -35,12 +36,13 @@ class BFScene:
         # FIXME should not be needed, see bpy.context
         bpy.context.window.scene = self
 
-        # Get scene name and dir from filepath
+        # Check and get scene name and dir from filepath
         if not bpy.data.is_saved:
             raise BFException(self, "Save the current Blender file before exporting.")
-        self.name, self.bf_config_directory = utils.os_filepath_to_bl(
-            bpy.path.abspath(filepath)
-        )
+        if filepath:
+            self.name, self.bf_config_directory = utils.os_filepath_to_bl(
+                bpy.path.abspath(filepath)
+            )
 
         # Header
         if full:
@@ -75,23 +77,18 @@ class BFScene:
 
         # Material namelists
         if full:
-            if all_surfs:  # all SURFs exported
-                mas = list(bpy.data.materials)
-                header = "\n! --- Boundary conditions from all Blender Materials"
-            else:  # only related SURFs exported
-                mas = list(
-                    set(
-                        ms.material
-                        for ob in self.objects
-                        for ms in ob.material_slots
-                        if ms.material  # not empty
-                    )
+            mas = list(
+                set(
+                    ms.material
+                    for ob in self.objects
+                    for ms in ob.material_slots
+                    if ms.material  # not empty
                 )
-                header = "\n! --- Boundary conditions from related Blender Materials"
+            )
             mas.sort(key=lambda k: k.name)  # alphabetic sorting by name
             ma_lines = list(ma.to_fds(context) for ma in mas)
             if any(ma_lines):
-                lines.append(header)
+                lines.append("\n! --- Boundary conditions from Blender Materials")
                 lines.extend(ma_lines)
 
         # Objects from collections
@@ -105,7 +102,12 @@ class BFScene:
 
         # Write to file
         fds_text = "\n".join(l for l in lines if l)
-        if filepath:
+        if save:
+            filepath = utils.bl_path_to_os(
+                bl_path=self.bf_config_directory or "//",
+                name=self.name,
+                extension=".fds",
+            )
             utils.write_txt_file(filepath, fds_text)
         else:
             return fds_text

@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 class SP_config_directory(BFParam):
     label = "Case Directory"
-    description = "Destination directory for exported case"
+    description = "Destination directory for exported fds case"
     bpy_type = Scene
     bpy_idname = "bf_config_directory"
     bpy_prop = StringProperty
@@ -16,7 +16,7 @@ class SP_config_directory(BFParam):
 
     @property
     def exported(self):
-        return bool(self.element.bf_config_directory)
+        return True
 
     def check(self, context):
         if self.exported:

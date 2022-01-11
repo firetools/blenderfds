@@ -14,7 +14,7 @@ from ..types import BFException
 log = logging.getLogger(__name__)
 
 
-class ImportFDS(Operator, ImportHelper):
+class ImportFDSToScene(Operator, ImportHelper):
     """!
     Import FDS case file to a Blender Scene.
     """
@@ -80,49 +80,18 @@ class ImportFDS(Operator, ImportHelper):
         return {"FINISHED"}
 
 
-class ExportFDS(Operator, ExportHelper):
+class ExportSceneToFDS(Operator, ExportHelper):
     """!
-    Export Blender Scene to an FDS case file.
+    Export current Blender Scene to an FDS case file.
     """
 
-    bl_idname = "export_scene.fds"
-    bl_label = "Export FDS"
-    bl_description = "Export Blender Scenes as FDS case files"
+    bl_idname = "export_current_scene.fds"
+    bl_label = "Export to FDS"
+    bl_description = "Export current Blender Scene to an FDS case file"
 
     # Inherited from ExportHelper
     filename_ext = ".fds"
     filter_glob: StringProperty(default="*.fds", options={"HIDDEN"})
-
-    # Custom
-    all_scenes: BoolProperty(
-        name="All Scenes",
-        default=False,
-        description="Export all available Scenes to the selected path.",
-    )
-    all_surfs: BoolProperty(
-        name="All SURFs",
-        default=False,
-        description="Export all available SURFs, even unrelated to exported Objects.",
-    )
-
-    def _export_scene(self, context, sc):
-        w = context.window_manager.windows[0]
-        w.cursor_modal_set("WAIT")
-        try:
-            sc.to_fds(
-                context=context,
-                full=True,
-                all_surfs=self.all_surfs,
-                filepath=self.filepath,
-            )
-        except BFException as err:
-            self.report({"ERROR"}, f"Export error: {str(err)}")
-            return {"CANCELLED"}
-        else:
-            self.report({"INFO"}, f"Scene <{sc.name}> exported")
-            return {"FINISHED"}
-        finally:
-            w.cursor_modal_restore()
 
     def invoke(self, context, event):
         sc = context.scene
@@ -137,25 +106,66 @@ class ExportFDS(Operator, ExportHelper):
         return super().invoke(context, event)  # open dialog
 
     def execute(self, context):
-        if self.all_scenes:
-            for sc in bpy.data.scenes:
-                res = self._export_scene(context=context, sc=sc)
-                if res != {"FINISHED"}:  # on any CANCEL break
-                    break
+        w = context.window_manager.windows[0]
+        w.cursor_modal_set("WAIT")
+        sc = context.scene
+        try:
+            sc.to_fds(
+                context=context,
+                full=True,
+                save=True,
+                filepath=self.filepath,
+            )
+        except BFException as err:
+            self.report({"ERROR"}, f"Export error in Scene {sc.name}: {str(err)}")
+            return {"CANCELLED"}
         else:
-            res = self._export_scene(context=context, sc=context.scene)
-        return res
+            self.report({"INFO"}, f"Scene <{sc.name}> exported")
+            return {"FINISHED"}
+        finally:
+            w.cursor_modal_restore()
+            log.debug(f"Scene <{sc.name}> exported")
+
+
+class ExportAllSceneToFDS(Operator):
+    """!
+    Export all Blender Scene to its FDS case file.
+    """
+
+    bl_idname = "export_all_scene.fds"
+    bl_label = "Export all Scene to FDS"
+    bl_description = "Export all Blender Scene to its FDS case file"
+
+    def execute(self, context):
+        for sc in bpy.data.scenes:
+            w = context.window_manager.windows[0]
+            w.cursor_modal_set("WAIT")
+            try:
+                sc.to_fds(
+                    context=context,
+                    full=True,
+                    save=True,
+                )
+            except BFException as err:
+                self.report({"ERROR"}, f"Export error in Scene {sc.name}: {str(err)}")
+                return {"CANCELLED"}
+            finally:
+                w.cursor_modal_restore()
+                log.debug(f"Scene <{sc.name}> exported")
+        self.report({"INFO"}, f"All Scene exported as NIST FDS")
+        return {"FINISHED"}
 
 
 # Menu functions
 
 
 def menu_func_import_FDS(self, context):
-    self.layout.operator("import_scene.fds", text="NIST FDS (.fds)")
+    self.layout.operator(ImportFDSToScene.bl_idname, text="NIST FDS as Scene")
 
 
 def menu_func_export_to_fds(self, context):
-    self.layout.operator(ExportFDS.bl_idname, text="NIST FDS (.fds)")
+    self.layout.operator(ExportSceneToFDS.bl_idname, text="Scene as NIST FDS")
+    self.layout.operator(ExportAllSceneToFDS.bl_idname, text="All Scene as NIST FDS")
 
 
 # Register
@@ -164,8 +174,9 @@ def menu_func_export_to_fds(self, context):
 def register():
     from bpy.utils import register_class
 
-    register_class(ImportFDS)
-    register_class(ExportFDS)
+    register_class(ImportFDSToScene)
+    register_class(ExportSceneToFDS)
+    register_class(ExportAllSceneToFDS)
 
     bpy.types.TOPBAR_MT_file_import.append(menu_func_import_FDS)
     bpy.types.TOPBAR_MT_file_export.append(menu_func_export_to_fds)
@@ -177,5 +188,6 @@ def unregister():
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import_FDS)
     bpy.types.TOPBAR_MT_file_export.remove(menu_func_export_to_fds)
 
-    unregister_class(ImportFDS)
-    unregister_class(ExportFDS)
+    unregister_class(ImportFDSToScene)
+    unregister_class(ExportSceneToFDS)
+    unregister_class(ExportAllSceneToFDS)
