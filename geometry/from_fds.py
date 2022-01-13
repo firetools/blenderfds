@@ -187,12 +187,12 @@ def geom_cylinder_to_ob(
     elif n == 1:  # SURF_ID = 'A'
         for face in me.polygons:
             face.material_index = 0
-    elif n == 3:  # SURF_IDS = 'A', 'B', 'C'
+    elif n == 3:  # SURF_IDS = 'A', 'B', 'C' (top, sides, bottom)
         for face in me.polygons:
-            face.material_index = 1
+            face.material_index = 1  # sides
         if len(me.polygons) > 5:
-            me.polygons[-1].material_index = 0
-            me.polygons[-4].material_index = 2
+            me.polygons[-4].material_index = 0  # top
+            me.polygons[-1].material_index = 2  # bottom
     else:
         raise BFException(ob, "Bad GEOM CYLINDER: Wrong SURF_ID/IDS len")
 
@@ -306,8 +306,8 @@ def xbs_bbox_to_mesh(context, me, xbs, set_materials=False, matrix=None):
         bm.faces.new((v111, v101, v100, v110))  # +x 1
         bm.faces.new((v000, v100, v101, v001))  # -y 2
         bm.faces.new((v111, v110, v010, v011))  # +y 3
-        bm.faces.new((v000, v010, v110, v100))  # -z 4
-        bm.faces.new((v111, v011, v001, v101))  # +z 5
+        bm.faces.new((v000, v010, v110, v100))  # -z 4 bottom
+        bm.faces.new((v111, v011, v001, v101))  # +z 5 top
     if matrix:
         bm.transform(matrix)
     bm.to_mesh(me)
@@ -319,15 +319,15 @@ def xbs_bbox_to_mesh(context, me, xbs, set_materials=False, matrix=None):
     elif n == 1:  # SURF_ID = 'A'
         for face in me.polygons:
             face.material_index = 0
-    elif n == 3:  # SURF_IDS = 'A', 'B', 'C'
+    elif n == 3:  # SURF_IDS = 'A', 'B', 'C' (top, sides, bottom)
         for iface, face in enumerate(me.polygons):
-            if iface % 6 == 4:
-                face.material_index = 0
-            elif iface % 6 == 5:
-                face.material_index = 2
+            if iface % 6 == 5:
+                face.material_index = 0  # top
+            elif iface % 6 == 4:
+                face.material_index = 2  # bottom
             else:
-                face.material_index = 1
-    elif n == 6:  # SURF_ID6 = ...
+                face.material_index = 1  # sides
+    elif n == 6:  # SURF_ID6 = ... (x0, x1, y0, y1, z0, z1)
         for iface, face in enumerate(me.polygons):
             face.material_index = iface % 6
     else:
