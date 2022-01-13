@@ -131,16 +131,16 @@ class BFScene:
         # Init
         if filepath and not f90:
             fds_case = FDSCase(filepath=filepath)
-            self.bf_config_directory = os.path.dirname(
-                filepath
-            )  # FIXME set for relative imports of other paths
+            self.bf_config_directory = os.path.dirname(filepath)
         elif f90 and not filepath:
             fds_case = FDSCase(f90=f90)
         else:
             raise AssertionError("Either filepath or f90 should be set")
+
         # Prepare free text for unmanaged namelists
         te = bpy.data.texts.new(f"Imported_text")
         self.bf_config_text = te
+
         # Import SURFs first to new materials
         while True:
             fds_namelist = fds_case.get_by_label(fds_label="SURF", remove=True)
@@ -150,19 +150,20 @@ class BFScene:
             ma = bpy.data.materials.new(hid)
             ma.from_fds(context, fds_namelist=fds_namelist, free_text=te)
             ma.use_fake_user = True  # prevent del (eg. used by PART)
+
         # Record all MOVEs in a dict
         move_id_to_move = dict()
         while True:
             fds_namelist = fds_case.get_by_label(fds_label="MOVE", remove=True)
             if not fds_namelist:
                 break
-            # Get ID
-            p_id = fds_namelist.get_by_label(fds_label="ID", remove=True)
+            p_id = fds_namelist.get_by_label(fds_label="ID")
             if not p_id:
                 raise BFNotImported(
-                    None, "MOVE namelist requires an ID in <{fds_namelist}>"
+                    None, "Missing ID in MOVE namelist: <{fds_namelist}>"
                 )
             move_id_to_move[p_id.value] = fds_namelist
+
         # Import OBSTs before VENTs  # TODO generic!
         while True:
             fds_namelist = fds_case.get_by_label(fds_label="OBST", remove=True)
@@ -173,6 +174,7 @@ class BFScene:
             ob = bpy.data.objects.new(hid, object_data=me)
             self.collection.objects.link(ob)
             ob.from_fds(context, fds_namelist=fds_namelist, free_text=te)
+
         # Then the rest
         fds_case.fds_namelists.reverse()
         while fds_case.fds_namelists:
@@ -211,20 +213,20 @@ class BFScene:
             # Import to Free Text
             if not imported:
                 te.write(fds_namelist.to_fds(context) + "\n")
+
         # Transform those Objects that have a MOVE_ID
         for ob in self.collection.objects:
             if ob.bf_move_id_export and ob.bf_move_id:
-                try:
-                    ON_MOVE(ob).from_fds(
-                        context,
-                        fds_namelist=move_id_to_move[ob.bf_move_id],
-                        free_text=te,
-                    )
-                except KeyError:
+                if not ob.bf_move_id in move_id_to_move:
                     raise BFException(
-                        self,
-                        f"Unknown MOVE namelist <{ob.bf_move_id}> called by Object <{ob.name}>",
+                        self, f"Missing MOVE <{ob.bf_move_id}> in fds file"
                     )
+                ON_MOVE(ob).from_fds(
+                    context,
+                    fds_namelist=move_id_to_move[ob.bf_move_id],
+                    free_text=te,
+                )
+
         # Set imported Scene visibility
         context.window.scene = self
         # Show free text
