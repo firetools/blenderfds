@@ -3,8 +3,8 @@ from bpy.types import Object
 from bpy.props import EnumProperty, BoolProperty, FloatProperty
 from ....types import BFParam, BFParamXYZ, FDSParam
 from .... import utils
-from .ob_to_xyz import ob_to_xyzs
-from .xyz_to_ob import xyzs_to_ob
+from .ob_to_xyzs import ob_to_xyzs
+from .xyzs_to_ob import xyzs_to_ob
 
 log = logging.getLogger(__name__)
 

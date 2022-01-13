@@ -14,7 +14,7 @@ from .geom_to_ob import (
     geom_faces_to_mesh,
     geom_verts_to_mesh,
 )
-from ..XB.xb_to_ob import xbs_bbox_to_mesh
+from ..XB.xbs_to_ob import xbs_bbox_to_mesh
 
 
 log = logging.getLogger(__name__)

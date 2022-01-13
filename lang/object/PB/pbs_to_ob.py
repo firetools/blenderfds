@@ -4,7 +4,7 @@ BlenderFDS, translate geometry from FDS PB notation to a Blender mesh.
 
 import logging
 from ....types import BFException
-from ..XB.xb_to_ob import xbs_faces_to_mesh
+from ..XB.xbs_to_ob import xbs_faces_to_mesh
 
 log = logging.getLogger(__name__)
 
