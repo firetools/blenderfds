@@ -1,16 +1,35 @@
 """!
-BlenderFDS, algorithms for triangulated surfaces.
+BlenderFDS, translate Blender object geometry to FDS GEOM notation.
 """
 
 from time import time
 from math import floor, ceil
 import bpy, bmesh, mathutils, logging
-from ..types import BFException
-from . import utils
+from .... import utils
+from ....types import BFException
 
 log = logging.getLogger(__name__)
 
-# Get triangulated surface in FDS format
+
+def ob_to_geom(context, ob, check=True, check_open=True, world=True):
+    """!
+    Transform Object geometry to FDS notation.
+    @param context: the Blender context.
+    @param ob: the Blender object.
+    @param check: True to check the bmesh sanity.
+    @param check_open: True to check if bmesh is open.
+    @param world: True to return the object in world coordinates.
+    @return FDS GEOM notation as lists and message.
+    """
+    fds_verts, fds_faces, fds_surfs, fds_faces_surfs = get_fds_trisurface(
+        context=context,
+        ob=ob,
+        check=check,
+        check_open=check_open,
+        world=world,
+    )
+    msg = f"GEOM Vertices: {len(fds_verts)} | Faces: {len(fds_faces)}"
+    return fds_verts, fds_faces, fds_surfs, fds_faces_surfs, msg
 
 
 def get_fds_trisurface(context, ob, check=True, check_open=True, world=True):
@@ -24,7 +43,7 @@ def get_fds_trisurface(context, ob, check=True, check_open=True, world=True):
     @return FDS GEOM notation as lists.
     """
     # Get bmesh and check it, if requested
-    bm = utils.get_object_bmesh(
+    bm = utils.geometry.get_object_bmesh(
         context=context, ob=ob, world=world, triangulate=True, lookup=False
     )
     if check:
@@ -88,7 +107,7 @@ def check_geom_sanity(context, ob, protect, check_open=True):
     @param check_open: True to check if bmesh is open.
     """
     # log.debug(f"Check geom sanity in Object <{ob.name}>")
-    bm = utils.get_object_bmesh(
+    bm = utils.geometry.get_object_bmesh(
         context=context, ob=ob, world=False, triangulate=True, lookup=True
     )
     _check_bm_sanity(context, ob, bm, protect, check_open=check_open)
@@ -299,14 +318,16 @@ def check_intersections(context, ob, other_obs=None, protect=True):
         bpy.ops.object.mode_set(mode="OBJECT")
     epsilon_len = context.scene.bf_config_min_edge_length
     bad_faces = list()
-    bm = utils.get_object_bmesh(context=context, ob=ob, world=False, lookup=True)
+    bm = utils.geometry.get_object_bmesh(
+        context=context, ob=ob, world=False, lookup=True
+    )
     tree = mathutils.bvhtree.BVHTree.FromBMesh(bm, epsilon=epsilon_len)
     # Get self-intersections
     bad_faces.extend(_get_bm_intersected_faces(bm, tree, tree))
     # Get intersections
     for other_ob in other_obs or tuple():
         matrix = ob.matrix_world.inverted() @ other_ob.matrix_world
-        other_bm = utils.get_object_bmesh(
+        other_bm = utils.geometry.get_object_bmesh(
             context=context, ob=ob, world=False, matrix=matrix, lookup=True
         )
         other_tree = mathutils.bvhtree.BVHTree.FromBMesh(other_bm, epsilon=epsilon_len)

@@ -1,10 +1,20 @@
 import logging, os, bpy
 from bpy.types import Object
 from bpy.props import StringProperty, BoolProperty
-from ...types import BFParam, BFNamelistOb, BFException, BFNotImported, FDSParam
-from ... import geometry, utils
-from .object import OP_ID, OP_FYI, OP_other
-from .MOVE import ON_MOVE, OP_MOVE_ID
+from ....types import BFParam, BFNamelistOb, BFException, BFNotImported, FDSParam
+from .... import utils
+from ..object import OP_ID, OP_FYI, OP_other
+from ..MOVE import ON_MOVE, OP_MOVE_ID
+from . import bingeom
+from .ob_to_geom import ob_to_geom, get_boundary_condition_ids
+from .geom_to_ob import (
+    geom_to_ob,
+    geom_sphere_to_ob,
+    geom_cylinder_to_ob,
+    geom_faces_to_mesh,
+    geom_verts_to_mesh,
+)
+from ..XB.xb_to_ob import xbs_bbox_to_mesh
 
 
 log = logging.getLogger(__name__)
@@ -39,9 +49,7 @@ class OP_GEOM_SURF_ID(BFParam):
 
     @property
     def value(self):
-        value = geometry.calc_trisurfaces.get_boundary_condition_ids(
-            context=None, ob=self.element
-        )
+        value = get_boundary_condition_ids(context=None, ob=self.element)
         return value or None  # if value is empty, no SURF_ID
 
     def set_value(self, context, value):
@@ -87,7 +95,7 @@ class OP_GEOM_VERTS(BFParam):
     bpy_type = Object
 
     def set_value(self, context, value):
-        geometry.from_fds.geom_verts_to_mesh(context, me=self.element.data, vs=value)
+        geom_verts_to_mesh(context, me=self.element.data, vs=value)
 
     def to_fds_param(self, context):  # export in ON_GEOM, integrated with VERTS
         pass
@@ -99,7 +107,7 @@ class OP_GEOM_FACES(BFParam):
     bpy_type = Object
 
     def set_value(self, context, value):
-        geometry.from_fds.geom_faces_to_mesh(context, me=self.element.data, fss=value)
+        geom_faces_to_mesh(context, me=self.element.data, fss=value)
 
     def to_fds_param(self, context):  # export in ON_GEOM, integrated with VERTS
         pass
@@ -116,7 +124,7 @@ class OP_GEOM_XB(BFParam):
             raise BFNotImported(self, f"Unsupported XB value <{value}>")
         ob = self.element
         me = ob.data
-        geometry.from_fds.xbs_bbox_to_mesh(
+        xbs_bbox_to_mesh(
             context=context,
             me=me,
             xbs=xbs,
@@ -152,14 +160,14 @@ class OP_GEOM_BINARY_FILE(BFParam):
     bpy_export_default = False
 
     def _get_bingeom_filepath(self, sc, ob):
-        return utils.bl_path_to_os(
+        return utils.io.bl_path_to_os(
             bl_path=ob.bf_geom_binary_directory or sc.bf_config_directory or "//",
             name=ob.data.name,
             extension=".bingeom",
         )
 
     def _get_fds_binary_file(self, sc, ob):
-        return utils.bl_path_to_os(
+        return utils.io.bl_path_to_os(
             bl_path=ob.bf_geom_binary_directory or sc.bf_config_directory or "//",
             name=ob.data.name,
             extension=".bingeom",
@@ -167,10 +175,10 @@ class OP_GEOM_BINARY_FILE(BFParam):
         )
 
     def _get_blend_name_and_directory(self, fds_binary_file, sc):
-        fds_path = utils.bl_path_to_os(
+        fds_path = utils.io.bl_path_to_os(
             bl_path=sc.bf_config_directory or "//",
         )
-        return utils.os_filepath_to_bl(
+        return utils.io.os_filepath_to_bl(
             filepath=fds_binary_file,
             start=fds_path,
         )
@@ -208,7 +216,7 @@ class OP_GEOM_BINARY_FILE(BFParam):
         self.check(context)
         # Calc geometry
         ob = self.element
-        vs, fs, ss, _, msg = geometry.to_fds.ob_to_geom(
+        vs, fs, ss, _, msg = ob_to_geom(
             context=context,
             ob=self.element,
             check=self.element.bf_geom_check_sanity,
@@ -217,7 +225,7 @@ class OP_GEOM_BINARY_FILE(BFParam):
         )
         # Save .bingeom file
         filepath = self._get_bingeom_filepath(sc=context.scene, ob=self.element)
-        utils.write_bingeom_file(
+        bingeom.write_bingeom_file(
             geom_type=self.element.bf_geom_is_terrain and 2 or 1,
             n_surf_id=len(self.element.data.materials),
             fds_verts=vs,
@@ -246,10 +254,8 @@ class OP_GEOM_BINARY_FILE(BFParam):
         self.set_exported(context, value=True)
         # Load .bingeom file and import it
         filepath = self._get_bingeom_filepath(sc=context.scene, ob=self.element)
-        _, vs, fs, ss, _ = utils.read_bingeom_file(filepath)
-        geometry.from_fds.geom_to_ob(
-            context=context, ob=self.element, vs=vs, fs=fs, ss=ss
-        )
+        _, vs, fs, ss, _ = bingeom.read_bingeom_file(filepath)
+        geom_to_ob(context=context, ob=self.element, vs=vs, fs=fs, ss=ss)
 
 
 class OP_GEOM_MOVE_ID(OP_MOVE_ID):
@@ -326,7 +332,7 @@ class ON_GEOM(BFNamelistOb):
         # Treat VERTS and FACES
         if not self.element.bf_geom_binary_file_export:  # no bingeom?
             # Prepare geometry
-            vs, _, _, fss, msg = geometry.to_fds.ob_to_geom(
+            vs, _, _, fss, msg = ob_to_geom(
                 context=context,
                 ob=self.element,
                 check=self.element.bf_geom_check_sanity,
@@ -344,59 +350,56 @@ class ON_GEOM(BFNamelistOb):
         return fds_namelist
 
     def from_fds(self, context, fds_namelist, free_text=None):
-        if fds_namelist.get_by_label("ZVALS") or fds_namelist.get_by_label(
-            "POLY"
-        ):  # FIXME rm poly when ready
-            raise BFNotImported(self, "Not implemented")
-        # Get SPHERE
-        p_sphere_origin = fds_namelist.get_by_label("SPHERE_ORIGIN", remove=True)
-        p_sphere_radius = fds_namelist.get_by_label("SPHERE_RADIUS", remove=True)
-        p_n_levels = fds_namelist.get_by_label("N_LEVELS", remove=True)
-        # Get CYLINDER
-        p_cyl_length = fds_namelist.get_by_label("CYLINDER_LENGTH", remove=True)
-        p_cyl_radius = fds_namelist.get_by_label("CYLINDER_RADIUS", remove=True)
-        p_cyl_origin = fds_namelist.get_by_label("CYLINDER_ORIGIN", remove=True)
-        p_cyl_axis = fds_namelist.get_by_label("CYLINDER_AXIS", remove=True)
-        p_cyl_nseg_axis = fds_namelist.get_by_label("CYLINDER_NSEG_AXIS", remove=True)
-        p_cyl_nseg_theta = fds_namelist.get_by_label("CYLINDER_NSEG_THETA", remove=True)
-        # Get POLY
-        p_poly = fds_namelist.get_by_label("POLY", remove=True)
-        p_extrude = fds_namelist.get_by_label("EXTRUDE", remove=True)
+        # Other fds_params
+        ps = {  # label, default value
+            "SPHERE_ORIGIN": None,
+            "SPHERE_RADIUS": 0.5,
+            "N_LEVELS": 2,
+            "CYLINDER_ORIGIN": None,
+            "CYLINDER_LENGTH": 2.0,
+            "CYLINDER_RADIUS": 1.0,
+            "CYLINDER_AXIS": (0.0, 0.0, 1.0),
+            "CYLINDER_NSEG_AXIS": 1,
+            "CYLINDER_NSEG_THETA": 8,
+            "POLY": None,
+            "EXTRUDE": None,  # FIXME default
+            "ZVALS": None,
+        }
+        for key in ps:  # read
+            fds_param = fds_namelist.get_by_label(fds_label=key, remove=True)
+            if fds_param:  # assign value
+                ps[key] = fds_param.value
         # Populate the Object
-        super().from_fds(context, fds_namelist)
+        super().from_fds(
+            context, fds_namelist
+        )  # FIXME before? or after? or else (pop bf_param when taken care of)
         # Fill the Mesh
         if len(self.element.data.vertices):
             # Mesh already filled, no special treatment for bingeom
             return
-        elif p_sphere_origin:
-            # Treat SPHERE
-            geometry.from_fds.geom_sphere_to_ob(
+        elif ps["SPHERE_ORIGIN"] is not None:  # FIXME FIXME FIXME test
+            geom_sphere_to_ob(
                 context=context,
                 ob=self.element,
-                n_levels=3,  # FIXME p_n_levels and p_n_levels.value or 2,
-                radius=p_sphere_radius and p_sphere_radius.value or 0.5,
-                origin=p_sphere_origin.value,
+                n_levels=ps["N_LEVELS"],
+                radius=ps["SPHERE_RADIUS"],
+                origin=ps["SPHERE_ORIGIN"],
             )
-        elif p_cyl_origin:
-            # Treat CYLINDER
-            geometry.from_fds.geom_cylinder_to_ob(
+        elif ps["CYLINDER_ORIGIN"] is not None:  # FIXME FIXME FIXME test
+            geom_cylinder_to_ob(
                 context=context,
                 ob=self.element,
-                origin=p_cyl_origin.value,
-                axis=p_cyl_axis and p_cyl_axis.value or (0.0, 0.0, 1.0),
-                radius=p_cyl_radius and p_cyl_radius.value or 1.0,
-                length=p_cyl_length and p_cyl_length.value or 2.0,
-                nseg_theta=p_cyl_nseg_theta and p_cyl_nseg_theta.value or 8,
-                nseg_axis=p_cyl_nseg_axis and p_cyl_nseg_axis.value or 1,
+                origin=ps["CYLINDER_ORIGIN"],
+                axis=ps["CYLINDER_AXIS"],
+                radius=ps["CYLINDER_RADIUS"],
+                length=ps["CYLINDER_LENGTH"],
+                nseg_theta=ps["CYLINDER_THETA"],
+                nseg_axis=ps["CYLINDER_AXIS"],
             )
-        elif p_poly and p_extrude:
-            # Treat POLY
-            geometry.from_fds.geom_poly_to_ob(
-                context=context,
-                ob=self.element,
-                ps=p_poly.value,
-                extrude=p_extrude.value,
-            )
+        elif ps["POLY"] is not None:
+            raise BFNotImported(self, "POLY not implemented")
+        elif ps["ZVALS"] is not None:
+            raise BFNotImported(self, "ZVALS not implemented")
         else:
             raise BFException(self, f"Unknown GEOM type <{fds_namelist}>")
 

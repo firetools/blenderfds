@@ -1,8 +1,10 @@
 import logging
 from bpy.types import Object
 from bpy.props import EnumProperty, BoolProperty, FloatProperty
-from ...types import BFParam, BFParamXB, FDSParam
-from ... import geometry
+from ....types import BFParam, BFParamXB, FDSParam
+from .... import utils
+from .ob_to_xb import ob_to_xbs
+from .xb_to_ob import xbs_to_ob
 
 log = logging.getLogger(__name__)
 
@@ -10,7 +12,7 @@ log = logging.getLogger(__name__)
 def update_bf_xb(ob, context):
     # Remove cache and tmp objects
     ob["ob_to_xbs_cache"] = None
-    geometry.utils.rm_tmp_objects()
+    utils.geometry.rm_tmp_objects()
     # Prevent double multiparam
     if ob.bf_xb in ("VOXELS", "FACES", "PIXELS", "EDGES") and ob.bf_xb_export:
         if ob.bf_xyz == "VERTICES":
@@ -114,7 +116,7 @@ class OP_XB(BFParamXB):
         if not ob.bf_xb_export:
             return
         # Compute
-        xbs, msg = geometry.to_fds.ob_to_xbs(context, ob, ob.bf_xb)
+        xbs, msg = ob_to_xbs(context, ob, ob.bf_xb)
         # Single param
         if len(xbs) == 1:
             return FDSParam(fds_label="XB", value=xbs[0], precision=6)
@@ -151,7 +153,7 @@ class OP_XB(BFParamXB):
         return result
 
     def from_fds(self, context, value):
-        bf_xb = geometry.from_fds.xbs_to_ob(
+        bf_xb = xbs_to_ob(
             context=context,
             ob=self.element,
             xbs=(value,),
@@ -168,11 +170,11 @@ class OP_XB_BBOX(BFParamXB):  # independent from OP_XB
 
     def to_fds_param(self, context):
         ob = self.element
-        xbs, _ = geometry.to_fds.ob_to_xbs(context, ob, "BBOX")
+        xbs, _ = ob_to_xbs(context, ob, "BBOX")
         return FDSParam(fds_label="XB", value=xbs[0], precision=6)
 
     def from_fds(self, context, value):
-        geometry.from_fds.xbs_to_ob(
+        xbs_to_ob(
             context=context,
             ob=self.element,
             xbs=(value,),

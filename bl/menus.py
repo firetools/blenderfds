@@ -42,7 +42,7 @@ class ImportFDSToScene(Operator, ImportHelper):
 
     def _get_new_scene_from_filepath(self, filepath):
         filepath = bpy.path.abspath(filepath)
-        name, path = utils.os_filepath_to_bl(filepath)
+        name, path = utils.io.os_filepath_to_bl(filepath)
         # Create new scene
         sc = bpy.data.scenes.new(name)
         sc.bf_config_directory = path
@@ -96,7 +96,7 @@ class ExportSceneToFDS(Operator, ExportHelper):
     def invoke(self, context, event):
         sc = context.scene
         try:  # get best filepath for dialog
-            self.filepath = utils.bl_path_to_os(
+            self.filepath = utils.io.bl_path_to_os(
                 bl_path=sc.bf_config_directory or "//",
                 name=sc.name,
                 extension=".fds",

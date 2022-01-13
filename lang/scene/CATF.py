@@ -42,7 +42,7 @@ class SP_CATF_files(BFParamOther):
         result = list()
         for p in coll:
             if p.bf_export and p.name:
-                if el.bf_catf_check_files and not utils.is_file(p.name):
+                if el.bf_catf_check_files and not utils.io.is_file(p.name):
                     raise BFException(self, f"File path <{p.name}> does not exist")
                 result.append(tuple((FDSParam(fds_label="OTHER_FILES", value=p.name),)))
         return tuple(result)  # multi

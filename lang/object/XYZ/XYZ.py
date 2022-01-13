@@ -1,15 +1,17 @@
 import logging
 from bpy.types import Object
 from bpy.props import EnumProperty, BoolProperty, FloatProperty
-from ...types import BFParam, BFParamXYZ, FDSParam
-from ... import geometry
+from ....types import BFParam, BFParamXYZ, FDSParam
+from .... import utils
+from .ob_to_xyz import ob_to_xyzs
+from .xyz_to_ob import xyzs_to_ob
 
 log = logging.getLogger(__name__)
 
 
 def update_bf_xyz(ob, context):
     # Remove tmp objects
-    geometry.utils.rm_tmp_objects()
+    utils.geometry.rm_tmp_objects()
     # Prevent double multiparam
     if ob.bf_xyz == "VERTICES" and ob.bf_xyz_export:
         if ob.bf_xb in ("VOXELS", "FACES", "PIXELS", "EDGES"):
@@ -50,7 +52,7 @@ class OP_XYZ(BFParamXYZ):
         if not ob.bf_xyz_export:
             return
         # Compute
-        xyzs, msg = geometry.to_fds.ob_to_xyzs(context, ob, ob.bf_xyz)
+        xyzs, msg = ob_to_xyzs(context, ob, ob.bf_xyz)
         # Single param
         if len(xyzs) == 1:
             return FDSParam(fds_label="XYZ", value=xyzs[0])
@@ -87,7 +89,7 @@ class OP_XYZ(BFParamXYZ):
         return result
 
     def from_fds(self, context, value):
-        bf_xyz = geometry.from_fds.xyzs_to_ob(
+        bf_xyz = xyzs_to_ob(
             context=context,
             ob=self.element,
             xyzs=(value,),

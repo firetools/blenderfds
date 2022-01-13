@@ -2,8 +2,7 @@
 BlenderFDS, Operator class extensions.
 """
 
-import os, sys, subprocess
-
+import os, sys
 import bpy, logging
 from bpy.types import Operator, Scene
 from bpy.props import (
@@ -13,11 +12,8 @@ from bpy.props import (
     StringProperty,
     EnumProperty,
 )
-
 from ..types import FDSCase, BFException
-from ..lang import MESH
-from .. import config, utils
-from .. import geometry, gis
+from .. import config, utils, lang
 
 log = logging.getLogger(__name__)
 
@@ -56,8 +52,8 @@ class WM_OT_bf_load_blenderfds_settings(Operator):
 
     def execute(self, context):
         # Set default startup.blend
-        filepath = (
-            os.path.dirname(sys.modules[__package__].__file__) + "/../startup.blend"
+        filepath = os.path.join(
+            os.path.dirname(sys.modules[__package__].__file__), "../startup.blend"
         )
         bpy.ops.wm.open_mainfile(filepath=filepath, load_ui=True, use_scripts=True)
         bpy.ops.wm.save_homefile()
@@ -100,9 +96,7 @@ class OBJECT_OT_bf_check_intersections(Operator):
         if obs:
             obs.remove(ob)
         try:
-            geometry.calc_trisurfaces.check_intersections(
-                context, ob, obs, protect=ob.bf_geom_protect
-            )
+            lang.GEOM.check_intersections(context, ob, obs, protect=ob.bf_geom_protect)
         except BFException as err:
             self.report({"ERROR"}, str(err))
             return {"CANCELLED"}
@@ -137,7 +131,7 @@ class SCENE_OT_bf_check_sanity(Operator):
         w.cursor_modal_set("WAIT")
         ob = context.active_object
         try:
-            geometry.calc_trisurfaces.check_geom_sanity(
+            lang.GEOM.check_geom_sanity(
                 context,
                 ob,
                 protect=ob.bf_geom_protect,
@@ -305,7 +299,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
         ob = context.object
         # Hide
         if ob.bf_is_tmp or ob.bf_has_tmp:
-            geometry.utils.rm_tmp_objects()
+            utils.geometry.rm_tmp_objects()
             try:
                 context.view_layer.objects.active = ob
             except ReferenceError:
@@ -325,7 +319,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
         # Manage GEOM
         if ob.bf_namelist_cls == "ON_GEOM" and not ob.hide_render:  # was bf_export
             try:
-                vs, fs, ss, _, msg = geometry.to_fds.ob_to_geom(
+                vs, fs, ss, _, msg = lang.GEOM.ob_to_geom(
                     context=context,
                     ob=ob,
                     check=ob.bf_geom_check_sanity,
@@ -336,7 +330,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                 self.report({"ERROR"}, str(err))
                 return {"CANCELLED"}
             else:
-                ob_tmp = geometry.utils.get_tmp_object(
+                ob_tmp = utils.geometry.get_tmp_object(
                     context, ob, f"{ob.name}_GEOM_tmp"
                 )
                 # copy materials
@@ -347,9 +341,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                             self, f"Object <{ob.name}> has empty material slot"
                         )
                     ob_tmp.data.materials.append(ma)
-                geometry.from_fds.geom_to_ob(
-                    context=context, ob=ob_tmp, vs=vs, fs=fs, ss=ss
-                )
+                lang.GEOM.geom_to_ob(context=context, ob=ob_tmp, vs=vs, fs=fs, ss=ss)
                 ob_tmp.show_wire = True
                 self.report({"INFO"}, msg)
                 return {"FINISHED"}
@@ -360,19 +352,17 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
         # XB
         if ob.bf_xb_export and ob.bf_namelist.bf_param_xb:
             try:
-                xbs, msg = geometry.to_fds.ob_to_xbs(
-                    context=context, ob=ob, bf_xb=ob.bf_xb
-                )
+                xbs, msg = lang.XB.ob_to_xbs(context=context, ob=ob, bf_xb=ob.bf_xb)
             except BFException as err:
                 w.cursor_modal_restore()
                 self.report({"ERROR"}, str(err))
                 return {"CANCELLED"}
             else:
                 msgs.append(msg)
-                ob_tmp = geometry.utils.get_tmp_object(
+                ob_tmp = utils.geometry.get_tmp_object(
                     context=context, ob=ob, name=f"{ob.name}_XB_tmp"
                 )
-                geometry.from_fds.xbs_to_ob(
+                lang.XB.xbs_to_ob(
                     context=context,
                     ob=ob_tmp,
                     xbs=xbs,
@@ -383,7 +373,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
         # XYZ
         if ob.bf_xyz_export and ob.bf_namelist.bf_param_xyz:
             try:
-                xyzs, msg = geometry.to_fds.ob_to_xyzs(
+                xyzs, msg = lang.XYZ.ob_to_xyzs(
                     context=context, ob=ob, bf_xyz=ob.bf_xyz
                 )
             except BFException as err:
@@ -392,28 +382,26 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                 return {"CANCELLED"}
             else:
                 msgs.append(msg)
-                ob_tmp = geometry.utils.get_tmp_object(
+                ob_tmp = utils.geometry.get_tmp_object(
                     context=context, ob=ob, name=f"{ob.name}_XYZ_tmp"
                 )
-                geometry.from_fds.xyzs_to_ob(context=context, ob=ob_tmp, xyzs=xyzs)
+                lang.XYZ.xyzs_to_ob(context=context, ob=ob_tmp, xyzs=xyzs)
                 ob_tmp.active_material = ob.active_material
                 ob_tmp.show_wire = True
         # PB
         if ob.bf_pb_export and ob.bf_namelist.bf_param_pb:
             try:
-                pbs, msg = geometry.to_fds.ob_to_pbs(
-                    context=context, ob=ob, bf_pb=ob.bf_pb
-                )
+                pbs, msg = lang.PB.ob_to_pbs(context=context, ob=ob, bf_pb=ob.bf_pb)
             except BFException as err:
                 w.cursor_modal_restore()
                 self.report({"ERROR"}, str(err))
                 return {"CANCELLED"}
             else:
                 msgs.append(msg)
-                ob_tmp = geometry.utils.get_tmp_object(
+                ob_tmp = utils.geometry.get_tmp_object(
                     context=context, ob=ob, name=f"{ob.name}_PB*_tmp"
                 )
-                geometry.from_fds.pbs_to_ob(context=context, ob=ob_tmp, pbs=pbs)
+                lang.PB.pbs_to_ob(context=context, ob=ob_tmp, pbs=pbs)
                 ob_tmp.active_material = ob.active_material
                 ob_tmp.show_wire = True
         # Close
@@ -715,7 +703,7 @@ def _get_namelist_items(self, context, fds_label):
     if sc.bf_catf_export:
         for filepath in tuple(item.name for item in sc.bf_catf_files if item.bf_export):
             try:
-                f90 = utils.read_txt_file(filepath)
+                f90 = utils.io.read_txt_file(filepath)
             except IOError:
                 pass
             else:
@@ -920,7 +908,7 @@ class OBJECT_OT_bf_set_mesh_cell_size(Operator):
     def invoke(self, context, event):
         ob = context.active_object
         # Set default
-        self.bf_cell_sizes = MESH.get_cell_sizes(context, ob)
+        self.bf_cell_sizes = lang.MESH.get_cell_sizes(context, ob)
         # Call dialog
         wm = context.window_manager
         return wm.invoke_props_dialog(self)
@@ -973,16 +961,16 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
             return {"CANCELLED"}
         # Align  # FIXME FIXME FIXME
         rijk = source_element.bf_mesh_ijk  # ref ijk
-        rxb = geometry.utils.get_bbox_xb(context, ob=source_element, world=True)
+        rxb = utils.geometry.get_bbox_xb(context, ob=source_element, world=True)
         for de in destination_elements:
             mijk = de.bf_mesh_ijk
-            mxb = geometry.utils.get_bbox_xb(context, ob=de, world=True)
+            mxb = utils.geometry.get_bbox_xb(context, ob=de, world=True)
             rijk, rxb, mijk, mxb, msgs = MESH.align_meshes(
                 rijk, rxb, mijk, mxb, poisson=False, protect_rl=False
             )
             source_element.bf_mesh_ijk = rijk
             matrix = source_element.matrix_world.invert()
-            geometry.from_fds.xbs_to_ob(
+            lang.XB.xbs_to_ob(
                 context=context,
                 ob=source_element,
                 xbs=(rxb,),
@@ -991,7 +979,7 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
             )
             de.bf_mesh_ijk = mijk
             matrix = de.matrix_world.invert()
-            geometry.from_fds.xbs_to_ob(
+            lang.XB.xbs_to_ob(
                 context=context,
                 ob=de,
                 xbs=(mxb,),
@@ -1066,7 +1054,7 @@ class _bf_set_geoloc:
         # Get loc, use only unmodified z
         _, _, z = self._get_loc(context)
         sc = context.scene
-        utm = gis.LonLat(
+        utm = utils.gis.LonLat(
             lon=self.bf_lon,
             lat=self.bf_lat,
         ).to_UTM(force_zn=sc.bf_origin_utm_zn, force_ne=sc.bf_origin_utm_ne)
@@ -1087,7 +1075,7 @@ class _bf_set_geoloc:
         # Get loc, convert to set default
         x, y, _ = self._get_loc(context)
         scale_length = sc.unit_settings.scale_length
-        utm = gis.UTM(
+        utm = utils.gis.UTM(
             zn=sc.bf_origin_utm_zn,
             ne=sc.bf_origin_utm_ne,
             easting=sc.bf_origin_utm_easting + x * scale_length,
@@ -1150,9 +1138,6 @@ class SCENE_OT_bf_set_ob_geoloc(Operator, _bf_set_geoloc):
 
 
 def register():
-    """!
-    Load the Python classes and functions to blender.
-    """
     from bpy.utils import register_class
 
     for cls in bl_classes:
@@ -1160,9 +1145,6 @@ def register():
 
 
 def unregister():
-    """!
-    Unload the Python classes and functions from blender.
-    """
     from bpy.utils import unregister_class
 
     for cls in reversed(bl_classes):

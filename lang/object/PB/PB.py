@@ -1,15 +1,17 @@
 import logging
 from bpy.types import Object
 from bpy.props import EnumProperty, BoolProperty
-from ...types import BFParam, BFParamPB, FDSParam
-from ... import geometry
+from ....types import BFParam, BFParamPB, FDSParam
+from .... import utils
+from .ob_to_pb import ob_to_pbs
+from .pb_to_ob import pbs_to_ob
 
 log = logging.getLogger(__name__)
 
 
 def update_bf_pb(ob, context):
     # Remove tmp objects
-    geometry.utils.rm_tmp_objects()
+    utils.geometry.rm_tmp_objects()
     # Prevent double multiparam
     if ob.bf_pb == "PLANES" and ob.bf_pb_export:
         if ob.bf_xb in ("VOXELS", "FACES", "PIXELS", "EDGES"):
@@ -52,7 +54,7 @@ class OP_PB(BFParamPB):
         # Compute
         # pbs is: (0, 3.5), (0, 4.), (2, .5) ...
         # with 0, 1, 2 perpendicular axis
-        pbs, msg = geometry.to_fds.ob_to_pbs(context, ob, bf_pb=ob.bf_pb)
+        pbs, msg = ob_to_pbs(context, ob, bf_pb=ob.bf_pb)
         # Prepare labels
         labels = tuple(
             f"PB{('X','Y','Z')[int(axis)]}" for axis, _ in pbs
@@ -82,7 +84,7 @@ class OP_PB(BFParamPB):
         return result
 
     def from_fds(self, context, value):
-        bf_pb = geometry.from_fds.pbs_to_ob(
+        bf_pb = pbs_to_ob(
             context=context,
             ob=self.element,
             pbs=((self.axis, value),),

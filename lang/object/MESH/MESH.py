@@ -6,7 +6,7 @@ import logging
 from bpy.types import Object
 from bpy.props import IntVectorProperty
 from ....types import BFParam, BFNamelistOb, FDSParam, BFException
-from .... import geometry
+from .... import utils
 from ..object import OP_ID, OP_FYI, OP_other
 from ..XB import OP_XB_BBOX
 from .split import split_mesh, get_nsplit
@@ -91,7 +91,7 @@ class ON_MESH(BFNamelistOb):
 
 def get_cell_sizes(context, ob):
     """!Get cell sizes by axis."""
-    xb = geometry.utils.get_bbox_xb(context=context, ob=ob, world=True)
+    xb = utils.geometry.get_bbox_xb(context=context, ob=ob, world=True)
     ijk = ob.bf_mesh_ijk
     return (
         (xb[1] - xb[0]) / ijk[0],
@@ -120,7 +120,7 @@ def get_poisson_ijk(ijk):
 
 def get_ijk_from_desired_cs(context, ob, desired_cs, poisson):
     """!Calc MESH IJK from cell sizes."""
-    xb = geometry.utils.get_bbox_xb(context=context, ob=ob, world=True)
+    xb = utils.geometry.get_bbox_xb(context=context, ob=ob, world=True)
     ijk = (
         round((xb[1] - xb[0]) / desired_cs[0]) or 1,
         round((xb[3] - xb[2]) / desired_cs[1]) or 1,

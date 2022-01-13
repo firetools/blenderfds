@@ -3,7 +3,7 @@ BlenderFDS, export geometry to ge1 cad file format.
 """
 
 import bpy, bmesh
-from . import utils
+from .... import utils
 
 # GE1 file format:
 
@@ -76,7 +76,7 @@ def scene_to_ge1(context, scene):
     gefaces = list()
     for ob in obs:
         # Get the bmesh from the Object and triangulate
-        bm = utils.get_object_bmesh(context=context, ob=ob, world=True)
+        bm = utils.geometry.get_object_bmesh(context=context, ob=ob, world=True)
         bmesh.ops.triangulate(bm, faces=bm.faces)
         # Get ob material_slots
         material_slots = ob.material_slots

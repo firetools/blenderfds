@@ -5,7 +5,7 @@ BlenderFDS, handlers.
 import bpy, logging
 from bpy.app.handlers import persistent, load_post, save_pre, depsgraph_update_post
 from bpy.types import Object
-from .. import geometry
+from .. import utils
 from .. import config
 
 log = logging.getLogger(__name__)
@@ -120,8 +120,8 @@ def _load_post(self):
                     ob.bf_id_suffix = "IDI"
 
     # Remove all caches and tmp objects, clean up to remove stale caches
-    geometry.utils.rm_geometric_caches()
-    geometry.utils.rm_tmp_objects()
+    utils.geometry.rm_geometric_caches()
+    utils.geometry.rm_tmp_objects()
 
     # Init FDS default materials
     for k, v in config.default_mas.items():
@@ -152,8 +152,8 @@ def _save_pre(self):
     """
     # Beware: self is None
     # Remove all caches and tmp objects, clean up to prevent stale caches
-    geometry.utils.rm_geometric_caches()
-    geometry.utils.rm_tmp_objects()
+    utils.geometry.rm_geometric_caches()
+    utils.geometry.rm_tmp_objects()
     # Set file format version
     for sc in bpy.data.scenes:
         sc.bf_file_version = config.supported_file_version

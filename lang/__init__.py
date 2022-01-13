@@ -20,7 +20,6 @@ from .object import (
     SLCF,
     SURF_ID,
     VENT,
-    XB,
     XYZ,
     ZONE,
 )

@@ -464,7 +464,7 @@ class FDSCase:
         """
         # Init f90
         if filepath and not f90:
-            f90 = utils.read_txt_file(filepath)
+            f90 = utils.io.read_txt_file(filepath)
         elif f90 and filepath:
             raise AssertionError("Cannot set both filepath and f90.")
         # Scan and fill self.fds_namelist

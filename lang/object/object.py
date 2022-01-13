@@ -8,7 +8,7 @@ from ...types import (
     BFParamStr,
     BFNamelist,
 )
-from ... import geometry
+from ... import utils
 from ...bl.ui_lists import (
     WM_PG_bf_other,
     WM_UL_bf_other_items,
@@ -87,8 +87,8 @@ class BFObject:
 
 
 def update_OP_namelist_cls(ob, context):
-    geometry.utils.rm_geometric_cache(ob=ob)
-    geometry.utils.rm_tmp_objects()
+    utils.geometry.rm_geometric_cache(ob=ob)
+    utils.geometry.rm_tmp_objects()
     ob.bf_namelist.set_appearance(context)
 
 

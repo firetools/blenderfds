@@ -12,7 +12,7 @@ from ...bl.ui_lists import (
     WM_PG_bf_other,
     WM_UL_bf_other_items,
 )
-from ... import gis
+from ... import utils
 
 log = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class SP_MISC_THICKEN_OBSTRUCTIONS(BFParam):
 
 def update_lonlat(self, context):
     sc = context.scene
-    utm = gis.LonLat(sc.bf_origin_lon, sc.bf_origin_lat).to_UTM()
+    utm = utils.gis.LonLat(sc.bf_origin_lon, sc.bf_origin_lat).to_UTM()
     sc["bf_origin_utm_zn"] = utm.zn  # avoid triggering another update
     sc["bf_origin_utm_ne"] = utm.ne
     sc["bf_origin_utm_easting"] = utm.easting
@@ -71,7 +71,7 @@ class SP_origin_geoname(BFParam):
 
     def draw(self, context, layout):
         sc = self.element
-        url = gis.LonLat(lon=sc.bf_origin_lon, lat=sc.bf_origin_lat).to_url()
+        url = utils.gis.LonLat(lon=sc.bf_origin_lon, lat=sc.bf_origin_lat).to_url()
         active = self.element.bf_origin_export
         col = layout.column(align=True, heading="Origin Geolocation")
         row = col.row(align=True)

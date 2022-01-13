@@ -1,19 +1,19 @@
 import logging, io
 from bpy.types import Scene
 from bpy.props import BoolProperty, FloatProperty, IntProperty
-from ... import utils
-from ...types import (
+from .... import utils
+from ....types import (
     BFParam,
     BFParamOther,
     BFParamFYI,
     BFNamelistSc,
     FDSParam,
 )
-from ...bl.ui_lists import (
+from ....bl.ui_lists import (
     WM_PG_bf_other,
     WM_UL_bf_other_items,
 )
-from ... import geometry
+from .sc_to_ge1 import scene_to_ge1
 
 log = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ class SP_DUMP_render_file(BFParam):
     fds_default = False
 
     def _get_ge1_filepath(self, sc):
-        return utils.bl_path_to_os(
+        return utils.io.bl_path_to_os(
             bl_path=sc.bf_config_directory or "//",
             name=sc.name,
             extension=".ge1",
@@ -43,8 +43,8 @@ class SP_DUMP_render_file(BFParam):
         if self.exported:
             # Save .ge1 file
             filepath = self._get_ge1_filepath(sc=self.element)
-            ge1_text = geometry.to_ge1.scene_to_ge1(context, self)
-            utils.write_txt_file(filepath, ge1_text)
+            ge1_text = scene_to_ge1(context, self)
+            utils.io.write_txt_file(filepath, ge1_text)
             return FDSParam(fds_label="RENDER_FILE", value=f"{self.element.name}.ge1")
 
     def set_value(self, context, value=None):

@@ -1,6 +1,6 @@
 import logging, re
 from bpy.types import Object
-from bpy.props import StringProperty, BoolProperty
+from bpy.props import BoolProperty
 from ...types import BFParam, BFNamelistOb, BFException
 from .object import OP_ID, OP_FYI, OP_ID_suffix, OP_other
 from .DEVC import OP_DEVC_QUANTITY

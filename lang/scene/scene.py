@@ -40,7 +40,7 @@ class BFScene:
         if not bpy.data.is_saved:
             raise BFException(self, "Save the current Blender file before exporting.")
         if filepath:
-            self.name, self.bf_config_directory = utils.os_filepath_to_bl(
+            self.name, self.bf_config_directory = utils.io.os_filepath_to_bl(
                 bpy.path.abspath(filepath)
             )
 
@@ -110,12 +110,12 @@ class BFScene:
         # Write to file
         fds_text = "\n".join(l for l in lines if l)
         if save:
-            filepath = utils.bl_path_to_os(
+            filepath = utils.io.bl_path_to_os(
                 bl_path=self.bf_config_directory or "//",
                 name=self.name,
                 extension=".fds",
             )
-            utils.write_txt_file(filepath, fds_text)
+            utils.io.write_txt_file(filepath, fds_text)
         else:
             return fds_text
 
