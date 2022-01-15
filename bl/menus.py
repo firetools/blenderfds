@@ -136,6 +136,11 @@ class ExportAllSceneToFDS(Operator):
     bl_label = "Export all Scene to FDS"
     bl_description = "Export all Blender Scene to its FDS case file"
 
+    def invoke(self, context, event):
+        # Ask for confirmation
+        wm = context.window_manager
+        return wm.invoke_confirm(self, event)
+
     def execute(self, context):
         for sc in bpy.data.scenes:
             w = context.window_manager.windows[0]
@@ -164,19 +169,18 @@ def menu_func_import_FDS(self, context):
 
 
 def menu_func_export_to_fds(self, context):
-    self.layout.operator(ExportSceneToFDS.bl_idname, text="Scene as NIST FDS")
-    self.layout.operator(ExportAllSceneToFDS.bl_idname, text="All Scene as NIST FDS")
+    self.layout.operator(ExportAllSceneToFDS.bl_idname, text="All Scenes as NIST FDS")
+    self.layout.operator(ExportSceneToFDS.bl_idname, text="Current Scene as NIST FDS")
 
 
-# Register
+bl_classes = [ImportFDSToScene, ExportSceneToFDS, ExportAllSceneToFDS]
 
 
 def register():
     from bpy.utils import register_class
 
-    register_class(ImportFDSToScene)
-    register_class(ExportSceneToFDS)
-    register_class(ExportAllSceneToFDS)
+    for c in bl_classes:
+        register_class(c)
 
     bpy.types.TOPBAR_MT_file_import.append(menu_func_import_FDS)
     bpy.types.TOPBAR_MT_file_export.append(menu_func_export_to_fds)
@@ -188,6 +192,5 @@ def unregister():
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import_FDS)
     bpy.types.TOPBAR_MT_file_export.remove(menu_func_export_to_fds)
 
-    unregister_class(ImportFDSToScene)
-    unregister_class(ExportSceneToFDS)
-    unregister_class(ExportAllSceneToFDS)
+    for c in reversed(bl_classes):
+        unregister_class(c)

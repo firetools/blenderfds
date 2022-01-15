@@ -54,14 +54,12 @@ class WM_UL_bf_filepaths_items(UIList):
         col.prop(item, "bf_export", text="")
 
 
-# Register
-
-bl_classes = (
+bl_classes = [
     WM_PG_bf_other,
     WM_UL_bf_other_items,
     WM_PG_bf_filepaths,
     WM_UL_bf_filepaths_items,
-)
+]
 
 
 def register():
@@ -72,5 +70,5 @@ def register():
 
 def unregister():
     log.debug("Unregister ui_lists...")
-    for c in bl_classes:
+    for c in reversed(bl_classes):
         unregister_class(c)

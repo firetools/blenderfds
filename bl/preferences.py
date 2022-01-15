@@ -16,9 +16,6 @@ log = logging.getLogger(__name__)
 # prefs.bf_pref_simplify_ui
 
 
-# Preferences
-
-
 def update_bf_pref_simplify_ui(prefs, context):
     ui.toggle_simple_ui(prefs, context)
 
@@ -72,12 +69,11 @@ class BFPreferences(AddonPreferences):
         return layout
 
 
-# Register
-
-
 def register():
+    log.debug("Register preferences...")
     bpy.utils.register_class(BFPreferences)
 
 
 def unregister():
+    log.debug("Unregister preferences...")
     bpy.utils.unregister_class(BFPreferences)

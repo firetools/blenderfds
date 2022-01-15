@@ -10,8 +10,6 @@ from .. import config
 
 log = logging.getLogger(__name__)
 
-# Handlers
-
 
 @persistent
 def _load_post(self):
@@ -179,20 +177,14 @@ def _depsgraph_update_post(scene):
 
 
 def register():
-    """!
-    Load the Python classes and functions to Blender.
-    """
-    log.debug(f"Registering handlers")
+    log.debug("Registering handlers...")
     load_post.append(_load_post)
     save_pre.append(_save_pre)
     depsgraph_update_post.append(_depsgraph_update_post)
 
 
 def unregister():
-    """!
-    Unload the Python classes and functions from Blender.
-    """
-    log.debug(f"Unregistering handlers")
+    log.debug("Unregistering handlers...")
     # depsgraph_update_post.remove(_depsgraph_update_post)
     save_pre.remove(_save_pre)
     load_post.remove(_load_post)

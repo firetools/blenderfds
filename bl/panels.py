@@ -28,7 +28,7 @@ def subscribe(cls):
 # Property panels
 
 
-class SCENE_PT_bf_namelist:
+class _SCENE_PT_bf_namelist:
     """!
     FDS Panel
     """
@@ -75,7 +75,7 @@ class SCENE_PT_bf_namelist:
 
 
 @subscribe
-class SCENE_PT_bf_case(Panel, SCENE_PT_bf_namelist):
+class SCENE_PT_bf_case(Panel, _SCENE_PT_bf_namelist):
     """!
     FDS Case Config
     """
@@ -97,7 +97,7 @@ class SCENE_PT_bf_case(Panel, SCENE_PT_bf_namelist):
 
 
 @subscribe
-class SCENE_PT_bf_config_sizes(Panel, SCENE_PT_bf_namelist):
+class SCENE_PT_bf_config_sizes(Panel, _SCENE_PT_bf_namelist):
     """!
     Default Sizes and Thresholds
     """
@@ -109,7 +109,7 @@ class SCENE_PT_bf_config_sizes(Panel, SCENE_PT_bf_namelist):
 
 
 @subscribe
-class SCENE_PT_bf_namelist_HEAD(Panel, SCENE_PT_bf_namelist):
+class SCENE_PT_bf_namelist_HEAD(Panel, _SCENE_PT_bf_namelist):
     """!
     FDS HEAD
     """
@@ -120,7 +120,7 @@ class SCENE_PT_bf_namelist_HEAD(Panel, SCENE_PT_bf_namelist):
 
 
 @subscribe
-class SCENE_PT_bf_namelist_TIME(Panel, SCENE_PT_bf_namelist):
+class SCENE_PT_bf_namelist_TIME(Panel, _SCENE_PT_bf_namelist):
     """!
     FDS TIME
     """
@@ -132,7 +132,7 @@ class SCENE_PT_bf_namelist_TIME(Panel, SCENE_PT_bf_namelist):
 
 
 @subscribe
-class SCENE_PT_bf_namelist_MISC(Panel, SCENE_PT_bf_namelist):
+class SCENE_PT_bf_namelist_MISC(Panel, _SCENE_PT_bf_namelist):
     """!
     FDS MISC
     """
@@ -144,7 +144,7 @@ class SCENE_PT_bf_namelist_MISC(Panel, SCENE_PT_bf_namelist):
 
 
 @subscribe
-class SCENE_PT_bf_namelist_REAC(Panel, SCENE_PT_bf_namelist):
+class SCENE_PT_bf_namelist_REAC(Panel, _SCENE_PT_bf_namelist):
     """!
     FDS REAC
     """
@@ -156,7 +156,7 @@ class SCENE_PT_bf_namelist_REAC(Panel, SCENE_PT_bf_namelist):
 
 
 @subscribe
-class SCENE_PT_bf_namelist_RADI(Panel, SCENE_PT_bf_namelist):
+class SCENE_PT_bf_namelist_RADI(Panel, _SCENE_PT_bf_namelist):
     """!
     FDS RADI
     """
@@ -168,7 +168,7 @@ class SCENE_PT_bf_namelist_RADI(Panel, SCENE_PT_bf_namelist):
 
 
 @subscribe
-class SCENE_PT_bf_namelist_PRES(Panel, SCENE_PT_bf_namelist):
+class SCENE_PT_bf_namelist_PRES(Panel, _SCENE_PT_bf_namelist):
     """!
     FDS PRES
     """
@@ -180,7 +180,7 @@ class SCENE_PT_bf_namelist_PRES(Panel, SCENE_PT_bf_namelist):
 
 
 @subscribe
-class SCENE_PT_bf_namelist_DUMP(Panel, SCENE_PT_bf_namelist):
+class SCENE_PT_bf_namelist_DUMP(Panel, _SCENE_PT_bf_namelist):
     """!
     FDS DUMP
     """
@@ -192,7 +192,7 @@ class SCENE_PT_bf_namelist_DUMP(Panel, SCENE_PT_bf_namelist):
 
 
 @subscribe
-class SCENE_PT_bf_namelist_CATF(Panel, SCENE_PT_bf_namelist):
+class SCENE_PT_bf_namelist_CATF(Panel, _SCENE_PT_bf_namelist):
     """!
     FDS CATF
     """
@@ -482,20 +482,36 @@ class VIEW3D_PT_bf_view3d_properties(Panel):  # FIXME set view clipping automati
         subcol.prop(view, "clip_end", text="End")
 
 
-# Register
+bl_classes = [
+    SCENE_PT_bf_case,
+    SCENE_PT_bf_config_sizes,
+    SCENE_PT_bf_namelist_HEAD,
+    SCENE_PT_bf_namelist_TIME,
+    SCENE_PT_bf_namelist_MISC,
+    SCENE_PT_bf_namelist_REAC,
+    SCENE_PT_bf_namelist_RADI,
+    SCENE_PT_bf_namelist_PRES,
+    SCENE_PT_bf_namelist_DUMP,
+    SCENE_PT_bf_namelist_CATF,
+    OBJECT_PT_bf_namelist,
+    MATERIAL_PT_bf_namelist,
+    VIEW3D_PT_bf_ob_namelist_tools,
+    VIEW3D_PT_bf_remesh,
+    VIEW3D_PT_bf_mesh_clean_up,
+    VIEW3D_PT_bf_geolocation,
+    VIEW3D_PT_bf_view3d_properties,
+]
 
 
 def register():
-    """!
-    Load the Python classes and functions to blender.
-    """
-    for cls in bl_classes:
-        bpy.utils.register_class(cls)
+    from bpy.utils import register_class
+
+    for c in bl_classes:
+        register_class(c)
 
 
 def unregister():
-    """!
-    Unload the Python classes and functions from blender.
-    """
-    for cls in bl_classes:
-        bpy.utils.unregister_class(cls)
+    from bpy.utils import unregister_class
+
+    for c in reversed(bl_classes):
+        unregister_class(c)

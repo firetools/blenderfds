@@ -180,9 +180,6 @@ def toggle_simple_ui(prefs=None, context=None, force_normal=False):
         _set_normal_ui()
 
 
-# Register
-
-
 def register():
     toggle_simple_ui()  # at start, check
 
