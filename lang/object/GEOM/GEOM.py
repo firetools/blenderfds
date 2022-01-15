@@ -250,6 +250,9 @@ class OP_GEOM_BINARY_FILE(BFParam):
         self.element.data.name = name
         if self.element.data.name != name:
             raise Exception(f"Blender bug")
+        # FIXME are we sure?
+        # Isn't it better to maintain the original path?
+        # Better detach from original?
         self.element.bf_geom_binary_directory = path
         self.set_exported(context, value=True)
         # Load .bingeom file and import it
@@ -350,58 +353,59 @@ class ON_GEOM(BFNamelistOb):
         return fds_namelist
 
     def from_fds(self, context, fds_namelist, free_text=None):
-        # Other fds_params
-        ps = {  # label, default value
-            "SPHERE_ORIGIN": None,
-            "SPHERE_RADIUS": 0.5,
-            "N_LEVELS": 2,
-            "CYLINDER_ORIGIN": None,
-            "CYLINDER_LENGTH": 2.0,
-            "CYLINDER_RADIUS": 1.0,
-            "CYLINDER_AXIS": (0.0, 0.0, 1.0),
-            "CYLINDER_NSEG_AXIS": 1,
-            "CYLINDER_NSEG_THETA": 8,
-            "POLY": None,
-            "EXTRUDE": None,  # FIXME default
-            "ZVALS": None,
-        }
-        for key in ps:  # read
-            fds_param = fds_namelist.get_by_label(fds_label=key, remove=True)
-            if fds_param:  # assign value
-                ps[key] = fds_param.value
-        # Populate the Object
-        super().from_fds(
-            context, fds_namelist
-        )  # FIXME before? or after? or else (pop bf_param when taken care of)
-        # Fill the Mesh
-        if len(self.element.data.vertices):
-            # Mesh already filled, no special treatment for bingeom
-            return
-        elif ps["SPHERE_ORIGIN"] is not None:  # FIXME FIXME FIXME test
-            geom_sphere_to_ob(
-                context=context,
-                ob=self.element,
-                n_levels=ps["N_LEVELS"],
-                radius=ps["SPHERE_RADIUS"],
-                origin=ps["SPHERE_ORIGIN"],
-            )
-        elif ps["CYLINDER_ORIGIN"] is not None:  # FIXME FIXME FIXME test
-            geom_cylinder_to_ob(
-                context=context,
-                ob=self.element,
-                origin=ps["CYLINDER_ORIGIN"],
-                axis=ps["CYLINDER_AXIS"],
-                radius=ps["CYLINDER_RADIUS"],
-                length=ps["CYLINDER_LENGTH"],
-                nseg_theta=ps["CYLINDER_THETA"],
-                nseg_axis=ps["CYLINDER_AXIS"],
-            )
-        elif ps["POLY"] is not None:
-            raise BFNotImported(self, "POLY not implemented")
-        elif ps["ZVALS"] is not None:
-            raise BFNotImported(self, "ZVALS not implemented")
-        else:
-            raise BFException(self, f"Unknown GEOM type <{fds_namelist}>")
+        if not (
+            fds_namelist.get_by_label(fds_label="VERTS", remove=False)
+            or fds_namelist.get_by_label(fds_label="BINARY_FILE", remove=False)
+            or fds_namelist.get_by_label(fds_label="XB", remove=False)
+        ):
+            ps = {  # label, default value
+                "SPHERE_ORIGIN": None,
+                "SPHERE_RADIUS": 0.5,
+                "N_LEVELS": 2,
+                "CYLINDER_ORIGIN": None,
+                "CYLINDER_LENGTH": 2.0,
+                "CYLINDER_RADIUS": 1.0,
+                "CYLINDER_AXIS": (0.0, 0.0, 1.0),
+                "CYLINDER_NSEG_AXIS": 1,
+                "CYLINDER_NSEG_THETA": 8,
+                "POLY": None,
+                "EXTRUDE": None,  # FIXME default
+                "ZVALS": None,
+            }
+            for key in ps:  # read
+                fds_param = fds_namelist.get_by_label(fds_label=key, remove=True)
+                if fds_param:  # assign value
+                    ps[key] = fds_param.value
+            # Fill the Mesh
+            if len(self.element.data.vertices):
+                # Mesh already filled, no special treatment for bingeom
+                return
+            elif ps["SPHERE_ORIGIN"] is not None:  # FIXME FIXME FIXME test
+                geom_sphere_to_ob(
+                    context=context,
+                    ob=self.element,
+                    n_levels=ps["N_LEVELS"],
+                    radius=ps["SPHERE_RADIUS"],
+                    origin=ps["SPHERE_ORIGIN"],
+                )
+            elif ps["CYLINDER_ORIGIN"] is not None:  # FIXME FIXME FIXME test
+                geom_cylinder_to_ob(
+                    context=context,
+                    ob=self.element,
+                    origin=ps["CYLINDER_ORIGIN"],
+                    axis=ps["CYLINDER_AXIS"],
+                    radius=ps["CYLINDER_RADIUS"],
+                    length=ps["CYLINDER_LENGTH"],
+                    nseg_theta=ps["CYLINDER_THETA"],
+                    nseg_axis=ps["CYLINDER_AXIS"],
+                )
+            elif ps["POLY"] is not None:
+                raise BFNotImported(self, "POLY not implemented")
+            elif ps["ZVALS"] is not None:
+                raise BFNotImported(self, "ZVALS not implemented")
+            else:
+                raise BFException(self, f"Unknown GEOM type <{fds_namelist}>")
+        super().from_fds(context, fds_namelist)
 
     def draw_operators(self, context, layout):
         ob = context.object

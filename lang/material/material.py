@@ -90,7 +90,7 @@ def update_MP_namelist_cls_items():
     ]
     items.sort(key=lambda k: k[1])
     MP_namelist_cls.bpy_other["items"] = items
-    log.debug(f"Updated MP_namelist_cls items (before registration): {items}")
+    # log.debug(f"Updated MP_namelist_cls items (before registration): {items}")
 
 
 def update_MP_namelist_cls(self, context):

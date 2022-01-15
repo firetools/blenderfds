@@ -101,38 +101,37 @@ class ON_MOVE(BFNamelistOb):
     )
 
     def from_fds(self, context, fds_namelist, free_text=None):
-        # T34
-        if fds_namelist.get_by_label(fds_label="T34"):
-            super().from_fds(context, fds_namelist, free_text=free_text)  # get the rest
-            return
-        # Other fds_params
-        ps = {  # label, default value
-            "X0": 0.0,
-            "Y0": 0.0,
-            "Z0": 0.0,
-            "AXIS": (0.0, 0.0, 1.0),
-            "ROTATION_ANGLE": 0.0,
-            "SCALE": None,
-            "SCALEX": 1.0,
-            "SCALEY": 1.0,
-            "SCALEZ": 1.0,
-            "DX": 0.0,
-            "DY": 0.0,
-            "DZ": 0.0,
-        }
-        for key in ps:  # read
-            fds_param = fds_namelist.get_by_label(fds_label=key, remove=True)
-            if fds_param:  # assign value
-                ps[key] = fds_param.value
-        if ps["SCALE"]:
-            ps["SCALEX"], ps["SCALEY"], ps["SCALEZ"] = (ps["SCALE"],) * 3
-        # Assign transformation matrix, as FDS does
-        self.element.matrix_world @= (
-            Matrix().Translation((ps["DX"], ps["DY"], ps["DZ"]))  # last applied
-            @ Matrix().Scale(ps["SCALEX"], 4, (1, 0, 0))
-            @ Matrix().Scale(ps["SCALEY"], 4, (0, 1, 0))
-            @ Matrix().Scale(ps["SCALEZ"], 4, (0, 0, 1))
-            @ Matrix().Translation((ps["X0"], ps["Y0"], ps["Z0"]))
-            @ Matrix().Rotation(radians(ps["ROTATION_ANGLE"]), 4, Vector(ps["AXIS"]))
-            @ Matrix().Translation((-ps["X0"], -ps["Y0"], -ps["Z0"]))
-        )
+        if not fds_namelist.get_by_label(fds_label="T34"):
+            ps = {  # label, default value
+                "X0": 0.0,
+                "Y0": 0.0,
+                "Z0": 0.0,
+                "AXIS": (0.0, 0.0, 1.0),
+                "ROTATION_ANGLE": 0.0,
+                "SCALE": None,
+                "SCALEX": 1.0,
+                "SCALEY": 1.0,
+                "SCALEZ": 1.0,
+                "DX": 0.0,
+                "DY": 0.0,
+                "DZ": 0.0,
+            }
+            for key in ps:  # read
+                fds_param = fds_namelist.get_by_label(fds_label=key, remove=True)
+                if fds_param:  # assign value
+                    ps[key] = fds_param.value
+            if ps["SCALE"]:
+                ps["SCALEX"], ps["SCALEY"], ps["SCALEZ"] = (ps["SCALE"],) * 3
+            # Assign transformation matrix, as FDS does
+            self.element.matrix_world @= (
+                Matrix().Translation((ps["DX"], ps["DY"], ps["DZ"]))  # last applied
+                @ Matrix().Scale(ps["SCALEX"], 4, (1, 0, 0))
+                @ Matrix().Scale(ps["SCALEY"], 4, (0, 1, 0))
+                @ Matrix().Scale(ps["SCALEZ"], 4, (0, 0, 1))
+                @ Matrix().Translation((ps["X0"], ps["Y0"], ps["Z0"]))
+                @ Matrix().Rotation(
+                    radians(ps["ROTATION_ANGLE"]), 4, Vector(ps["AXIS"])
+                )
+                @ Matrix().Translation((-ps["X0"], -ps["Y0"], -ps["Z0"]))
+            )
+        super().from_fds(context, fds_namelist, free_text=free_text)  # get the rest

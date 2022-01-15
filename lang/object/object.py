@@ -102,7 +102,7 @@ def update_OP_namelist_cls_items():
     ]
     items.sort(key=lambda k: k[1])
     OP_namelist_cls.bpy_other["items"] = items
-    log.debug(f"Updated OP_namelist_cls items (before registration): {items}")
+    # log.debug(f"Updated OP_namelist_cls items (before registration): {items}")
 
 
 class OP_namelist_cls(BFParam):
