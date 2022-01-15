@@ -1,11 +1,62 @@
 import time, sys, logging, bpy, os
-from bpy.types import Scene, Object
+from bpy.types import Scene, Object, Material
 from bpy.props import IntVectorProperty
 from ...types import BFNamelist, FDSCase, BFException, BFNotImported
 from ... import utils
 from ..object.MOVE import ON_MOVE
 
 log = logging.getLogger(__name__)
+
+def _import_by_fds_label(scene, context, fds_case, free_text, fds_label=None):
+    # Init
+    if fds_label:
+        fds_namelists = fds_case.get_by_label(fds_label, remove=True)
+    else:
+        fds_namelists = fds_case.fds_namelists
+    # Import
+    for fds_namelist in fds_namelists:
+        _import_fds_namelist(scene, context, free_text, fds_namelist)
+
+
+def _import_fds_namelist(scene, context, free_text, fds_namelist):
+    is_imported = False
+    fds_label = fds_namelist.fds_label
+    bf_namelist = BFNamelist.subclasses_by_fds_label.get(fds_label, None)
+    if bf_namelist:
+        hid = f"Imported {fds_label}"
+        match bf_namelist.bpy_type:
+            case t if t == Object:
+                me = bpy.data.meshes.new(hid)  # new Mesh
+                ob = bpy.data.objects.new(hid, object_data=me)  # new Object
+                scene.collection.objects.link(ob)  # link it to Scene Collection
+                try:
+                    ob.from_fds(context, fds_namelist=fds_namelist, free_text=free_text)
+                except BFNotImported:
+                    bpy.data.objects.remove(ob, do_unlink=True)
+                else:
+                    is_imported = True
+            case t if t == Scene:
+                try:
+                    bf_namelist(scene).from_fds(
+                        context, fds_namelist=fds_namelist, free_text=free_text
+                    )
+                except BFNotImported:
+                    pass
+                else:
+                    is_imported = True
+            case t if t == Material:
+                ma = bpy.data.materials.new(hid)  # new Material
+                try:
+                    ma.from_fds(context, fds_namelist=fds_namelist, free_text=free_text)
+                except BFNotImported:
+                    bpy.data.materials.remove(ma, do_unlink=True)
+                else:
+                    ma.use_fake_user = True  # prevent del (eg. used by PART)
+                    is_imported = True
+            case _:
+                raise AssertionError(f"Unhandled bf_namelist for <{fds_namelist}>") 
+    if not is_imported:  # last resort, import to Free Text
+        free_text.write(fds_namelist.to_fds(context) + "\n")
 
 
 class BFScene:
@@ -61,21 +112,21 @@ class BFScene:
                 )
             )
 
-        # Scene namelists
+        # Append Scene namelists
         lines.extend(
             bf_namelist.to_fds(context)
             for bf_namelist in self.bf_namelists
             if bf_namelist
         )
 
-        # Free Text
+        # Append free text
         if self.bf_config_text:
             text = self.bf_config_text.as_string()
             if text:
                 text = f"\n! --- Free text from Blender Text <{self.bf_config_text.name}>\n{text}"
                 lines.append(text)
 
-        # Material namelists
+        # Append Material namelists
         if full:
             if all_surfs:
                 header = "\n! --- Boundary conditions from all Blender Materials"
@@ -96,14 +147,14 @@ class BFScene:
                 lines.append(header)
                 lines.extend(ma_lines)
 
-        # Objects from collections
+        # Append Collections and their Objects
         if full:
             text = self.collection.to_fds(context)
             if text:
                 lines.append("\n! --- Geometric namelists from Blender Collections")
                 lines.append(text)
 
-        # TAIL
+        # Append TAIL
         if full and self.bf_head_export:
             lines.append("\n&TAIL /\n ")
 
@@ -127,7 +178,9 @@ class BFScene:
         @param f90: FDS formatted string of namelists, eg. "&OBST ID='Test' /\n&TAIL /".
         """
         # Set mysef as the right Scene instance in the context
+        # this is used by context.scene calls elsewhere
         bpy.context.window.scene = self
+
         # Init
         if filepath and not f90:
             fds_case = FDSCase(filepath=filepath)
@@ -138,83 +191,28 @@ class BFScene:
             raise AssertionError("Either filepath or f90 should be set")
 
         # Prepare free text for unmanaged namelists
-        te = bpy.data.texts.new(f"Imported_text")
-        self.bf_config_text = te
+        free_text = bpy.data.texts.new(f"Imported text")
+        self.bf_config_text = free_text
 
         # Import SURFs first to new materials
-        while True:
-            fds_namelist = fds_case.get_by_label(fds_label="SURF", remove=True)
-            if not fds_namelist:
-                break
-            hid = "Imported_SURF"
-            ma = bpy.data.materials.new(hid)
-            ma.from_fds(context, fds_namelist=fds_namelist, free_text=te)
-            ma.use_fake_user = True  # prevent del (eg. used by PART)
+        _import_by_fds_label(fds_case=fds_case, fds_label="SURF", scene=self, context=context, free_text=free_text)
 
-        # Record all MOVEs in a dict
+        # Import all MOVEs in a dict
         move_id_to_move = dict()
-        while True:
-            fds_namelist = fds_case.get_by_label(fds_label="MOVE", remove=True)
-            if not fds_namelist:
-                break
+        fds_namelists = fds_case.get_by_label(fds_label="MOVE", remove=True)
+        for fds_namelist in fds_namelists:
             p_id = fds_namelist.get_by_label(fds_label="ID")
             if not p_id:
-                raise BFNotImported(
-                    None, "Missing ID in MOVE namelist: <{fds_namelist}>"
-                )
+                raise BFNotImported(None, "Missing ID: <{fds_namelist}>")
             move_id_to_move[p_id.value] = fds_namelist
 
-        # Import OBSTs before VENTs  # TODO generic!
-        while True:
-            fds_namelist = fds_case.get_by_label(fds_label="OBST", remove=True)
-            if not fds_namelist:
-                break
-            hid = "Imported_OBST"
-            me = bpy.data.meshes.new(hid)
-            ob = bpy.data.objects.new(hid, object_data=me)
-            self.collection.objects.link(ob)
-            ob.from_fds(context, fds_namelist=fds_namelist, free_text=te)
+        # Import OBSTs before VENTs
+        _import_by_fds_label(fds_case=fds_case, fds_label="OBST", scene=self, context=context, free_text=free_text)
 
-        # Then the rest
-        fds_case.fds_namelists.reverse()
-        while fds_case.fds_namelists:
-            fds_namelist = fds_case.fds_namelists.pop()
-            imported = False
-            # Import to managed BFNamelist
-            bf_namelist = BFNamelist.subclasses_by_fds_label.get(
-                fds_namelist.fds_label, None
-            )
-            if bf_namelist:
-                hid = f"Imported_{fds_namelist.fds_label}"
-                # Into new Object
-                if bf_namelist.bpy_type == Object:
-                    me = bpy.data.meshes.new(hid)
-                    ob = bpy.data.objects.new(hid, object_data=me)
-                    self.collection.objects.link(ob)
-                    try:
-                        ob.from_fds(context, fds_namelist=fds_namelist, free_text=te)
-                    except BFNotImported:
-                        bpy.data.objects.remove(ob, do_unlink=True)
-                    else:
-                        imported = True
-                # Into current Scene
-                elif bf_namelist.bpy_type == Scene:  # in current Scene
-                    try:
-                        bf_namelist(self).from_fds(
-                            context, fds_namelist=fds_namelist, free_text=te
-                        )
-                    except BFNotImported:
-                        pass
-                    else:
-                        imported = True
-                # Unhandled
-                else:
-                    raise AssertionError(f"Unhandled bf_namelist for <{fds_namelist}>")
-            # Import to Free Text
-            if not imported:
-                te.write(fds_namelist.to_fds(context) + "\n")
+        # Import all other namelists to Object or Scene
+        _import_by_fds_label(fds_case=fds_case, fds_label=None, scene=self, context=context, free_text=free_text)
 
-        # Transform those Objects that have a MOVE_ID
+        # Transform the Objects that have a MOVE_ID
         for ob in self.collection.objects:
             if ob.bf_move_id_export and ob.bf_move_id:
                 if not ob.bf_move_id in move_id_to_move:
@@ -224,13 +222,14 @@ class BFScene:
                 ON_MOVE(ob).from_fds(
                     context,
                     fds_namelist=move_id_to_move[ob.bf_move_id],
-                    free_text=te,
+                    free_text=free_text,
                 )
 
         # Set imported Scene visibility
         context.window.scene = self
+
         # Show free text
-        te.current_line_index = 0
+        free_text.current_line_index = 0
         bpy.ops.scene.bf_show_text()  # FIXME FIXME FIXME remove ops, put py
 
     @classmethod
