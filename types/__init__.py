@@ -18,6 +18,8 @@ from .bf_param import (
     BFParamPB,
     BFParamOther,
 )
-from .fds_case import FDSCase, FDSNamelist, FDSParam
+from .fds_case import FDSCase
+from .fds_namelist import FDSNamelist
+from .fds_param import FDSParam
 
 # Nothing to register here
