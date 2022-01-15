@@ -3,18 +3,14 @@ BlenderFDS, Blender representations of a FDS namelist.
 """
 
 import re, logging
-
 from .fds_param import FDSParam
 
 log = logging.getLogger(__name__)
 
 
-# FIXME inherit from a list with __getitem__, __contains__ (__iter__ from list)
-
-
-class FDSNamelist:
+class FDSNamelist(list):
     """!
-    Datastructure representing an FDS namelist.
+    List of BFParam instances representing an FDS namelist.
     """
 
     ## max number of columns of formatted output
@@ -26,7 +22,7 @@ class FDSNamelist:
         """!
         Class constructor.
         @param fds_label: namelist group label.
-        @param fds_params: list of FDSParam and additional FDSNamelist instances.
+        @param fds_params: iterable of FDSParam and additional FDSNamelist instances.
         @param msg: comment message string.
         @param msgs: list of comment message strings.
         @param f90: FDS formatted string of parameters, eg. "ID='Test' PROP=2.34, 1.23, 3.44".
@@ -36,11 +32,11 @@ class FDSNamelist:
         ## list (single) of FDSParam and additional FDSNamelist,
         ## or list of list (multi) of FDSParam instances
         ## eg. (("ID=X1", "PBX=1"), ("ID=X2", "PBX=2"), ...)
-        self.fds_params = fds_params or list()
+        super().__init__(fds_params or ())
         ## list of comment message strings
         self.msgs = msgs or list()
         self.msg = msg
-        # Fill self.fds_params from f90 string
+        # Fill self from f90 string
         if f90:
             self.from_fds(f90=f90)
 
@@ -48,13 +44,24 @@ class FDSNamelist:
         return self.to_fds()
 
     def __contains__(self, fds_label) -> bool:
-        return fds_label in (p.fds_label for p in self.fds_params)
+        # self can be a list of lists (multi), but only when exporting
+        # in that case this fails
+        return fds_label in (p.fds_label for p in self)
 
-    def __getitem__(self, fds_label) -> FDSParam:
-        for p in self.fds_params:
-            if fds_label == p.fds_label:
+    def get(self, fds_label, remove=False) -> FDSParam or None:
+        """!
+        Return the first FDSParam instance in list by its label.
+        @param fds_label: namelist parameter label.
+        @param remove: remove it from self
+        @return None or FDSParam.
+        """
+        # self can be a list of lists (multi), but only when exporting
+        # in that case this fails
+        for p in self:
+            if p.fds_label == fds_label:
+                if remove:
+                    self.remove(p)
                 return p
-        raise KeyError(fds_label)
 
     @property
     def msg(self) -> str:
@@ -71,19 +78,6 @@ class FDSNamelist:
         if value:
             self.msgs.append(value)
 
-    def get_by_label(self, fds_label, remove=False) -> FDSParam:
-        """!
-        Return the first FDSParam instance in list by its label.
-        @param fds_label: namelist parameter label.
-        @param remove: remove it from self
-        @return None or FDSParam.
-        """
-        for res in self.fds_params:
-            if res.fds_label == fds_label:
-                if remove:
-                    self.fds_params.remove(res)
-                return res
-
     def to_fds(self, context=None) -> str:
         """!
         Return the FDS formatted string.
@@ -98,7 +92,7 @@ class FDSNamelist:
         #   None, FDSParam, FDSNamelist,
         #   a tuple or FDSParam and FDSNamelist (many),
         #   or a tuple of tuple of FDSParam (multi)
-        for p in self.fds_params:
+        for p in self:
             if not p:
                 continue  # None or empty tuple
             elif isinstance(p, FDSParam):
@@ -224,4 +218,4 @@ class FDSNamelist:
         f90 = " ".join(f90.strip().splitlines())
         for match in re.finditer(self._scan_params, f90):
             label, f90_value = match.groups()
-            self.fds_params.append(FDSParam(fds_label=label, f90=f90_value))
+            self.append(FDSParam(fds_label=label, f90=f90_value))

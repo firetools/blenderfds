@@ -343,7 +343,7 @@ class ON_GEOM(BFNamelistOb):
                 world=not self.element.bf_move_id_export,
             )
             # Send VERTS and FACES
-            fds_namelist.fds_params.extend(
+            fds_namelist.extend(
                 (
                     FDSParam(fds_label="VERTS", value=vs, precision=6),
                     FDSParam(fds_label="FACES", value=fss),
@@ -354,9 +354,9 @@ class ON_GEOM(BFNamelistOb):
 
     def from_fds(self, context, fds_namelist, free_text=None):
         if not (
-            fds_namelist.get_by_label(fds_label="VERTS", remove=False)
-            or fds_namelist.get_by_label(fds_label="BINARY_FILE", remove=False)
-            or fds_namelist.get_by_label(fds_label="XB", remove=False)
+            "VERTS" in fds_namelist
+            or "BINARY_FILE" in fds_namelist
+            or "XB" in fds_namelist
         ):
             ps = {  # label, default value
                 "SPHERE_ORIGIN": None,
@@ -373,7 +373,7 @@ class ON_GEOM(BFNamelistOb):
                 "ZVALS": None,
             }
             for key in ps:  # read
-                fds_param = fds_namelist.get_by_label(fds_label=key, remove=True)
+                fds_param = fds_namelist.get(key, remove=True)
                 if fds_param:  # assign value
                     ps[key] = fds_param.value
             # Fill the Mesh

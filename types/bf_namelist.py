@@ -56,7 +56,7 @@ class BFNamelist(BFParam):
             elif issubclass(p, BFParamOther):
                 cls._bf_param_other_idx = i
 
-    def get_by_label(self, fds_label):
+    def get(self, fds_label):
         """!
         Return bf_param (class or instance) by its fds_label.
         @param fds_label: FDS parameter to be obtained.
@@ -151,7 +151,7 @@ class BFNamelist(BFParam):
         # Assemble from bf_params, protect from None
         return FDSNamelist(
             fds_label=self.fds_label,
-            fds_params=list(p.to_fds_param(context) for p in self.bf_params if p),
+            fds_params=(p.to_fds_param(context) for p in self.bf_params if p),
         )
 
     def to_fds(self, context):
@@ -174,13 +174,13 @@ class BFNamelist(BFParam):
         @param fds_namelist: instance of type FDSNamelist.
         @param free_text: instance of type Blender Text or None.
         """
-        for p in fds_namelist.fds_params:
+        for p in fds_namelist:
             imported = False
             # Protect from None
             if not p:
                 continue
             # Import to manged BFParam
-            bf_param = self.get_by_label(p.fds_label)
+            bf_param = self.get(p.fds_label)
             if bf_param:
                 try:
                     bf_param.from_fds(context=context, value=p.value)

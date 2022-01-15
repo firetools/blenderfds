@@ -2,20 +2,13 @@
 BlenderFDS, Blender interfaces to FDS parameters.
 """
 
-import logging
-import bpy
+import logging, bpy
 from bpy.types import Operator
 from bpy.props import IntProperty, CollectionProperty, BoolProperty, StringProperty
-
-
-if __name__ != "__main__":
-    from .fds_case import FDSNamelist, FDSParam
-    from .bf_exception import BFException, BFNotImported, BFWarning
+from .fds_param import FDSParam
+from .bf_exception import BFException, BFNotImported, BFWarning
 
 log = logging.getLogger(__name__)
-
-
-# Blender representations of FDS entities
 
 
 class BFParam:

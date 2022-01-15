@@ -8,14 +8,12 @@ from ..object.MOVE import ON_MOVE
 log = logging.getLogger(__name__)
 
 def _import_by_fds_label(scene, context, fds_case, free_text, fds_label=None):
-    # Init
-    if fds_label:
-        fds_namelists = fds_case.get_by_label(fds_label, remove=True)
-    else:
-        fds_namelists = fds_case.fds_namelists
-    # Import
-    for fds_namelist in fds_namelists:
-        _import_fds_namelist(scene, context, free_text, fds_namelist)
+    if fds_label:  # only selected
+        for fds_namelist in fds_case.get(fds_label, remove=True):
+            _import_fds_namelist(scene, context, free_text, fds_namelist)
+    else:  # all
+        for fds_namelist in fds_case:
+            _import_fds_namelist(scene, context, free_text, fds_namelist)
 
 
 def _import_fds_namelist(scene, context, free_text, fds_namelist):
@@ -199,9 +197,8 @@ class BFScene:
 
         # Import all MOVEs in a dict
         move_id_to_move = dict()
-        fds_namelists = fds_case.get_by_label(fds_label="MOVE", remove=True)
-        for fds_namelist in fds_namelists:
-            p_id = fds_namelist.get_by_label(fds_label="ID")
+        for fds_namelist in fds_case.get("MOVE", remove=True):
+            p_id = fds_namelist.get("ID")
             if not p_id:
                 raise BFNotImported(None, "Missing ID: <{fds_namelist}>")
             move_id_to_move[p_id.value] = fds_namelist
