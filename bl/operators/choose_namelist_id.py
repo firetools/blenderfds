@@ -29,15 +29,14 @@ def _get_namelist_items(self, context, fds_label):
             except IOError:
                 pass
             else:
-                fds_case.from_fds(f90)
+                fds_case.from_fds(f90=f90)
     # Prepare list of IDs
     items = list()
-    for fds_namelist in fds_case.fds_namelists:
-        if fds_namelist.fds_label == fds_label:
-            fds_param = fds_namelist.get_by_label("ID")
-            if fds_param:
-                hid = fds_param.value
-                items.append((hid, hid, ""))
+    for fds_namelist in fds_case.get(fds_label):
+        fds_param = fds_namelist.get("ID")
+        if fds_param:
+            hid = fds_param.value
+            items.append((hid, hid, ""))
     items.sort(key=lambda k: k[0])
     return items
 

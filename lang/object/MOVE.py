@@ -101,7 +101,7 @@ class ON_MOVE(BFNamelistOb):
     )
 
     def from_fds(self, context, fds_namelist, free_text=None):
-        if not fds_namelist.get_by_label(fds_label="T34"):
+        if not "T34" in fds_namelist:
             ps = {  # label, default value
                 "X0": 0.0,
                 "Y0": 0.0,
@@ -117,7 +117,7 @@ class ON_MOVE(BFNamelistOb):
                 "DZ": 0.0,
             }
             for key in ps:  # read
-                fds_param = fds_namelist.get_by_label(fds_label=key, remove=True)
+                fds_param = fds_namelist.get(key, remove=True)
                 if fds_param:  # assign value
                     ps[key] = fds_param.value
             if ps["SCALE"]:

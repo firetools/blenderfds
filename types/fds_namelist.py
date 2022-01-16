@@ -3,13 +3,9 @@ BlenderFDS, Blender representations of a FDS namelist.
 """
 
 import re, logging
-
 from .fds_param import FDSParam
 
 log = logging.getLogger(__name__)
-
-
-# FIXME inherit from a list with __getitem__, __contains__ (__iter__ from list)
 
 
 class FDSNamelist:
@@ -48,13 +44,24 @@ class FDSNamelist:
         return self.to_fds()
 
     def __contains__(self, fds_label) -> bool:
-        return fds_label in (p.fds_label for p in self.fds_params)
+        # self can be a list of lists (multi), but only when exporting
+        # in that case this fails
+        return fds_label in (p.fds_label for p in self)
 
-    def __getitem__(self, fds_label) -> FDSParam:
-        for p in self.fds_params:
-            if fds_label == p.fds_label:
-                return p
-        raise KeyError(fds_label)
+    def get(self, fds_label=None, remove=False) -> FDSParam or None:
+        """!
+        Return the first FDSParam instance in list by its label.
+        @param fds_label: namelist parameter label.
+        @param remove: remove it from self
+        @return None or FDSParam.
+        """
+        # self can be a list of lists (multi), but only when exporting
+        # in that case this fails
+        for fds_param in self.fds_params:
+            if not fds_label or fds_param.fds_label == fds_label:
+                if remove:
+                    self.remove(fds_param)
+                return fds_param
 
     @property
     def msg(self) -> str:
@@ -70,19 +77,6 @@ class FDSNamelist:
         """
         if value:
             self.msgs.append(value)
-
-    def get_by_label(self, fds_label, remove=False) -> FDSParam:
-        """!
-        Return the first FDSParam instance in list by its label.
-        @param fds_label: namelist parameter label.
-        @param remove: remove it from self
-        @return None or FDSParam.
-        """
-        for res in self.fds_params:
-            if res.fds_label == fds_label:
-                if remove:
-                    self.fds_params.remove(res)
-                return res
 
     def to_fds(self, context=None) -> str:
         """!

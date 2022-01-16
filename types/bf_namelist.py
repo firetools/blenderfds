@@ -5,12 +5,10 @@ BlenderFDS, Blender interfaces to FDS namelists.
 import logging
 import bpy
 from bpy.types import Object, Scene, Material
-
-if __name__ != "__main__":  # FIXME What's for?
-    from .. import config
-    from .fds_case import FDSNamelist
-    from .bf_exception import BFException, BFNotImported, BFWarning
-    from .bf_param import BFParam, BFParamXB, BFParamXYZ, BFParamPB, BFParamOther
+from .. import config
+from .fds_namelist import FDSNamelist
+from .bf_exception import BFException, BFNotImported, BFWarning
+from .bf_param import BFParam, BFParamXB, BFParamXYZ, BFParamPB, BFParamOther
 
 log = logging.getLogger(__name__)
 
@@ -56,7 +54,7 @@ class BFNamelist(BFParam):
             elif issubclass(p, BFParamOther):
                 cls._bf_param_other_idx = i
 
-    def get_by_label(self, fds_label):
+    def get(self, fds_label):
         """!
         Return bf_param (class or instance) by its fds_label.
         @param fds_label: FDS parameter to be obtained.
@@ -151,7 +149,11 @@ class BFNamelist(BFParam):
         # Assemble from bf_params, protect from None
         return FDSNamelist(
             fds_label=self.fds_label,
-            fds_params=list(p.to_fds_param(context) for p in self.bf_params if p),
+            fds_params=list(
+                bf_param.to_fds_param(context)
+                for bf_param in self.bf_params
+                if bf_param
+            ),
         )
 
     def to_fds(self, context):
@@ -174,16 +176,16 @@ class BFNamelist(BFParam):
         @param fds_namelist: instance of type FDSNamelist.
         @param free_text: instance of type Blender Text or None.
         """
-        for p in fds_namelist.fds_params:
+        for fds_param in fds_namelist.fds_params:
             imported = False
             # Protect from None
-            if not p:
+            if not fds_param:
                 continue
             # Import to manged BFParam
-            bf_param = self.get_by_label(p.fds_label)
+            bf_param = self.get(fds_param.fds_label)
             if bf_param:
                 try:
-                    bf_param.from_fds(context=context, value=p.value)
+                    bf_param.from_fds(context=context, value=fds_param.value)
                 except BFNotImported as err:
                     if free_text:
                         free_text.write(err.to_fds())
@@ -192,7 +194,9 @@ class BFNamelist(BFParam):
             # Import to BFParamOther
             if not imported and self.bf_param_other:
                 try:
-                    self.bf_param_other.set_value(context, value=p.to_fds(context))
+                    self.bf_param_other.set_value(
+                        context, value=fds_param.to_fds(context)
+                    )
                 except BFNotImported:
                     if free_text:
                         free_text.write(err.to_fds())
@@ -200,7 +204,7 @@ class BFNamelist(BFParam):
                     imported = True
             # Still not imported?
             if not imported:
-                raise BFException(self, f"Value {p} not imported")
+                raise BFException(self, f"Value {fds_param} not imported")
         # All imported, set namelist exported and appearance
         self.set_exported(context, True)
         self.set_appearance(context)

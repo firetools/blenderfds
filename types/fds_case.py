@@ -7,12 +7,9 @@ import re, logging
 from .. import utils
 from .bf_exception import BFException
 from .fds_namelist import FDSNamelist
-from .fds_param import FDSParam
 
 
 log = logging.getLogger(__name__)
-
-# FIXME inherit from a list with __getitem__, __contains__ (__iter__ from list)
 
 
 class FDSCase:
@@ -20,58 +17,34 @@ class FDSCase:
     Datastructure representing an FDS case.
     """
 
-    def __init__(
-        self, fds_namelists=None, msg=None, msgs=None, filepath=None, f90=None
-    ) -> None:
-        """!
-        Class constructor.
-        @param fds_namelists: list of FDSNamelist instances.
-        @param msg: comment message string.
-        @param msgs: list of comment message strings.
-        @param filepath: filepath of FDS case to be imported.
-        @param f90: FDS formatted string of namelists, eg. "&OBST ID='Test' /\n&TAIL /".
-        """
-        ## list of FDSNamelist instances
-        self.fds_namelists = fds_namelists or list()
-        ## list of comment message strings
-        self.msgs = msgs or list()
-        self.msg = msg
-        # Fill fds_namelists from filepath or f90
-        if filepath or f90:
-            self.from_fds(filepath=filepath, f90=f90)
+    def __init__(self) -> None:
+        super().__init__()
+        self.msgs = list()
 
     def __str__(self):
         return self.to_fds()
 
-    @property
-    def msg(self) -> str:
-        """!
-        Return all self.msgs in one line.
-        """
-        return " | ".join(m for m in self.msgs if m)  # protect from None
+    def __contains__(self, fds_label) -> bool:
+        # self can be a list of lists (multi), but only when exporting
+        # in that case this fails
+        return fds_label in (n.fds_label for n in self)
 
-    @msg.setter
-    def msg(self, value) -> None:
-        """!
-        Append msg to self.msgs.
-        """
-        if value:
-            self.msgs.append(value)
-
-    def get_by_label(self, fds_label, remove=False) -> list:
+    def get(self, fds_label=None, remove=False) -> list:
         """!
         Return the list of FDSNamelist instances by their fds_label.
         @param fds_label: namelist label.
         @param remove: remove found from self
         @return list of FDSNamelist.
         """
-        res = list()
+        # self can be a list of lists (multi), but only when exporting
+        # in that case this fails
+        fds_namelists = list()
         for fds_namelist in self.fds_namelists:
-            if fds_namelist.fds_label == fds_label:
+            if not fds_label or fds_namelist.fds_label == fds_label:
                 if remove:
                     self.fds_namelists.remove(fds_namelist)
-                res.append(fds_namelist)
-        return res
+                fds_namelists.append(fds_namelist)
+        return fds_namelists
 
     def to_fds(self, context=None) -> str:
         """!
@@ -101,7 +74,7 @@ class FDSCase:
         re.VERBOSE | re.DOTALL | re.IGNORECASE | re.MULTILINE,
     )  # MULTILINE, so that ^ is the beginning of each line
 
-    def from_fds(self, filepath=None, f90=None) -> None:
+    def from_fds(self, filepath=None, f90=None) -> None:  # FIXME context?
         """!
         Import from FDS file, on error raise BFException.
         @param filepath: filepath of FDS case to be imported.
@@ -112,12 +85,13 @@ class FDSCase:
             f90 = utils.io.read_txt_file(filepath)
         elif f90 and filepath:
             raise AssertionError("Cannot set both filepath and f90.")
-        # Scan and fill self.fds_namelist
+        elif not f90 and not filepath:
+            raise AssertionError("Both filepath and f90 unset.")
+        # Scan and fill self
         for match in re.finditer(self._scan_namelists, f90):
             label, f90_params = match.groups()
             try:
-                fds_namelist = FDSNamelist(fds_label=label, f90=f90_params)
+                self.fds_namelists.append(FDSNamelist(fds_label=label, f90=f90_params))
             except BFException as err:
                 err.msg += f"\nin namelist:\n&{label} {f90_params} /"
                 raise err
-            self.fds_namelists.append(fds_namelist)

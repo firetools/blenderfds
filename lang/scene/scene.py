@@ -8,13 +8,7 @@ from ..object.MOVE import ON_MOVE
 log = logging.getLogger(__name__)
 
 def _import_by_fds_label(scene, context, fds_case, free_text, fds_label=None):
-    # Init
-    if fds_label:
-        fds_namelists = fds_case.get_by_label(fds_label, remove=True)
-    else:
-        fds_namelists = fds_case.fds_namelists
-    # Import
-    for fds_namelist in fds_namelists:
+    for fds_namelist in fds_case.get(fds_label, remove=True):
         _import_fds_namelist(scene, context, free_text, fds_namelist)
 
 
@@ -182,13 +176,9 @@ class BFScene:
         bpy.context.window.scene = self
 
         # Init
-        if filepath and not f90:
-            fds_case = FDSCase(filepath=filepath)
-            self.bf_config_directory = os.path.dirname(filepath)
-        elif f90 and not filepath:
-            fds_case = FDSCase(f90=f90)
-        else:
-            raise AssertionError("Either filepath or f90 should be set")
+        fds_case = FDSCase()
+        fds_case.from_fds(filepath=filepath, f90=f90)
+        # self.bf_config_directory = os.path.dirname(filepath)  # FIXME useful?
 
         # Prepare free text for unmanaged namelists
         free_text = bpy.data.texts.new(f"Imported text")
@@ -199,9 +189,8 @@ class BFScene:
 
         # Import all MOVEs in a dict
         move_id_to_move = dict()
-        fds_namelists = fds_case.get_by_label(fds_label="MOVE", remove=True)
-        for fds_namelist in fds_namelists:
-            p_id = fds_namelist.get_by_label(fds_label="ID")
+        for fds_namelist in fds_case.get("MOVE", remove=True):
+            p_id = fds_namelist.get("ID")
             if not p_id:
                 raise BFNotImported(None, "Missing ID: <{fds_namelist}>")
             move_id_to_move[p_id.value] = fds_namelist
