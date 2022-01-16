@@ -23,7 +23,6 @@ class FDSParam:
         exponential=False,
         msg=None,
         msgs=None,
-        f90=None,
     ) -> None:
         """!
         Class constructor.
@@ -33,7 +32,6 @@ class FDSParam:
         @param exponential: if True sets exponential representation of floats.
         @param msg: comment message string.
         @param msgs: list of comment message strings.
-        @param f90: FDS formatted string of value, eg. "2.34, 1.23, 3.44" or ".TRUE.,.FALSE.".
         """
         ## parameter label
         self.fds_label = fds_label
@@ -46,9 +44,6 @@ class FDSParam:
         ## list of comment message strings
         self.msgs = msgs or list()
         self.msg = msg
-        # Fill self.value from f90 string
-        if f90:
-            self.from_fds(f90=f90)  # FIXME FIXME FIXME remove!, create and then fill
 
     def __str__(self) -> str:
         res = self.to_fds()

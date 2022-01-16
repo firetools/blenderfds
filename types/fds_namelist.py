@@ -4,6 +4,7 @@ BlenderFDS, Blender representations of a FDS namelist.
 
 import re, logging
 from .fds_param import FDSParam
+from types import fds_param
 
 log = logging.getLogger(__name__)
 
@@ -16,16 +17,12 @@ class FDSNamelist:
     ## max number of columns of formatted output
     maxlen = 80  # TODO to config
 
-    def __init__(
-        self, fds_label=None, fds_params=None, msg=None, msgs=None, f90=None
-    ) -> None:
+    def __init__(self, fds_label=None, fds_params=None, msgs=None) -> None:
         """!
         Class constructor.
         @param fds_label: namelist group label.
         @param fds_params: list of FDSParam and additional FDSNamelist instances.
-        @param msg: comment message string.
         @param msgs: list of comment message strings.
-        @param f90: FDS formatted string of parameters, eg. "ID='Test' PROP=2.34, 1.23, 3.44".
         """
         ## namelist group label
         self.fds_label = fds_label
@@ -34,11 +31,7 @@ class FDSNamelist:
         ## eg. (("ID=X1", "PBX=1"), ("ID=X2", "PBX=2"), ...)
         self.fds_params = fds_params or list()
         ## list of comment message strings
-        self.msgs = msgs or list()
-        self.msg = msg
-        # Fill self.fds_params from f90 string
-        if f90:
-            self.from_fds(f90=f90)
+        self.msgs = list(msgs) or list()
 
     def __str__(self) -> str:
         return self.to_fds()
@@ -62,21 +55,6 @@ class FDSNamelist:
                 if remove:
                     self.remove(fds_param)
                 return fds_param
-
-    @property
-    def msg(self) -> str:
-        """!
-        Return all self.msgs in one line.
-        """
-        return " | ".join(m for m in self.msgs if m)  # protect from None
-
-    @msg.setter
-    def msg(self, value) -> None:
-        """!
-        Append msg to self.msgs.
-        """
-        if value:
-            self.msgs.append(value)
 
     def to_fds(self, context=None) -> str:
         """!
@@ -218,4 +196,6 @@ class FDSNamelist:
         f90 = " ".join(f90.strip().splitlines())
         for match in re.finditer(self._scan_params, f90):
             label, f90_value = match.groups()
-            self.fds_params.append(FDSParam(fds_label=label, f90=f90_value))
+            fds_param = FDSParam(fds_label=label)
+            fds_param.from_fds(f90=f90)
+            self.fds_params.append(fds_param)

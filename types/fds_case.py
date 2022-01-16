@@ -7,6 +7,7 @@ import re, logging
 from .. import utils
 from .bf_exception import BFException
 from .fds_namelist import FDSNamelist
+from types import fds_namelist
 
 
 log = logging.getLogger(__name__)
@@ -17,9 +18,13 @@ class FDSCase:
     Datastructure representing an FDS case.
     """
 
-    def __init__(self) -> None:
-        super().__init__()
-        self.msgs = list()
+    def __init__(self, msgs=None) -> None:
+        """!
+        Class constructor.
+        @param msgs: list of comment message strings.
+        """
+        ## list of comment message strings
+        self.msgs = list(msgs) or list()
 
     def __str__(self):
         return self.to_fds()
@@ -90,8 +95,11 @@ class FDSCase:
         # Scan and fill self
         for match in re.finditer(self._scan_namelists, f90):
             label, f90_params = match.groups()
+            fds_namelist = FDSNamelist(fds_label=label)
             try:
-                self.fds_namelists.append(FDSNamelist(fds_label=label, f90=f90_params))
+                fds_namelist.from_fds(f90=f90)
             except BFException as err:
                 err.msg += f"\nin namelist:\n&{label} {f90_params} /"
                 raise err
+            else:
+                self.fds_namelists.append(fds_namelist)
