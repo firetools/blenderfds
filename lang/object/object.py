@@ -45,8 +45,8 @@ class BFObject:
         @param context: the Blender context.
         @param fds_namelist: FDSNamelist.
         """
-        # Set bf_namelist_cls
-        bf_namelist = BFNamelist.get_subclass(cls_name=self.bf_namelist_cls)
+        # Get subclass from offered fds_label, set bf_namelist_cls
+        bf_namelist = BFNamelist.get_subclass(fds_label=fds_namelist.fds_label)
         self.bf_namelist_cls = bf_namelist.__name__
         # Prevent default geometry (eg. XB=BBOX)
         self.bf_xb_export, self.bf_xyz_export, self.bf_pb_export = (False, False, False)

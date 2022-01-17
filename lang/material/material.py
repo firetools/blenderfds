@@ -54,7 +54,10 @@ class BFMaterial:
         @param context: the Blender context.
         @param fds_namelist: FDSNamelist.
         """
-        self.bf_namelist_cls = "MN_SURF"
+        # Get subclass from offered fds_label, set bf_namelist_cls
+        bf_namelist = BFNamelist.get_subclass(fds_label=fds_namelist.fds_label)
+        self.bf_namelist_cls = bf_namelist.__name__
+        # Import
         self.bf_namelist.from_fds(
             context, fds_namelist=fds_namelist, free_text=free_text
         )
