@@ -85,7 +85,7 @@ class OP_XYZ(BFParamXYZ):
             for hid, xyz in zip(ids, xyzs)
         )  # multi
         # Send message
-        result[0][0].msg = msg
+        result[0][0].msgs.append(msg)
         return result
 
     def from_fds(self, context, value):

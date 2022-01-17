@@ -16,12 +16,10 @@ class OP_MOVE_ID(BFParamStr):
     bpy_export = "bf_move_id_export"
     bpy_export_default = False
 
-    @property
-    def exported(self):
+    def get_exported(self):
         return True
 
-    @property
-    def value(self):  # never empty
+    def get_value(self):  # never empty
         return self.element.bf_move_id or f"{self.element.name}_move"
 
 
@@ -81,8 +79,7 @@ class OP_MOVE_T34(BFParam):
     bpy_type = Object
     bpy_other = {"precision": 6}
 
-    @property
-    def value(self):
+    def get_value(self):
         return ob_to_t34(self.element)
 
     def set_value(self, context, value):
@@ -119,7 +116,7 @@ class ON_MOVE(BFNamelistOb):
             for key in ps:  # read
                 fds_param = fds_namelist.pop(fds_label=key)
                 if fds_param:  # assign value
-                    ps[key] = fds_param.value
+                    ps[key] = fds_param.get_value()
             if ps["SCALE"]:
                 ps["SCALEX"], ps["SCALEY"], ps["SCALEZ"] = (ps["SCALE"],) * 3
             # Assign transformation matrix, as FDS does

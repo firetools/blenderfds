@@ -154,8 +154,7 @@ class BFParam:
             # log.debug(f"Unregistering <{bpy_idname}> Blender property")
             delattr(cls.bpy_type, bpy_idname)
 
-    @property
-    def value(self):  # FIXME rm property
+    def get_value(self):
         """!
         Return value from element instance.
         @return any type
@@ -181,13 +180,12 @@ class BFParam:
                 )
             return
 
-    @property
-    def exported(self):  # FIXME rm property
+    def get_exported(self):
         """!
         Return True if self is exported to FDS.
         """
         # Check if empty
-        value = self.value
+        value = self.get_value()
         if value is None or value == "":
             return False
         # Check if identical to FDS default
@@ -210,7 +208,7 @@ class BFParam:
         """
         if self.bpy_export is None:
             if not value:
-                msg = f"Cannot set self.exported = False in <{self}>"
+                msg = f"Cannot self.set_exported(False) in <{self}>"
                 raise AssertionError(msg)
         else:
             if value is None:
@@ -244,7 +242,7 @@ class BFParam:
         if not self.bpy_idname:
             return
         # Set active and alert
-        active, alert = bool(self.exported), False
+        active, alert = bool(self.get_exported()), False
         if active:
             try:
                 self.check(context)
@@ -272,12 +270,12 @@ class BFParam:
         @return None, FDSParam, FDSNamelist, (FDSParam, FDSNamelist,...) called "many",
             or ((FDSParam, ...), ...) called "multi" instances of FDSParam only.
         """
-        if self.exported:
+        if self.get_exported():
             self.check(context)
             if self.fds_label:
                 return FDSParam(
                     fds_label=self.fds_label,
-                    value=self.value,
+                    value=self.get_value(),
                     precision=self.bpy_other.get("precision", 3),
                 )
 
@@ -286,7 +284,7 @@ class BFParam:
 
     def from_fds(self, context, value, free_text=None):
         """!
-        Set self.value from py value, on error raise BFException.
+        Set self from py value, on error raise BFException.
         @param context: the Blender context.
         @param value: the value to set. Can be of any type.
         @param free_text: instance of type Blender Text or None.
@@ -340,7 +338,7 @@ class BFParamStr(BFParam):
     bpy_prop = StringProperty
 
     # def check(self, context):  # No check
-    #     value = self.value
+    #     value = self.get_value()
     #     if "&" in value or "/" in value or "#" in value:
     #         raise BFException(self, "<&>, </>, and <#> characters not allowed")
     #     # if (
@@ -546,8 +544,7 @@ class BFParamOther(BFParam):
         delattr(cls.bpy_type, cls.bpy_idname)
         delattr(cls.bpy_type, bpy_idx_idname)
 
-    @property
-    def value(self):
+    def get_value(self):
         collection = getattr(self.element, self.bpy_idname)
         return tuple(item.name for item in collection if item.bf_export)
 

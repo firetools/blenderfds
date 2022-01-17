@@ -43,7 +43,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
             return {"FINISHED"}
         # Show
         bf_namelist = ob.bf_namelist
-        if not bf_namelist.exported:
+        if not bf_namelist.get_exported():
             w.cursor_modal_restore()
             self.report({"WARNING"}, "Not exported, nothing to show!")
             return {"CANCELLED"}

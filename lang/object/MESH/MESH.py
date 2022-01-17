@@ -27,7 +27,7 @@ class OP_MESH_IJK(BFParam):
 
     def draw(self, context, layout):
         ob = context.object
-        for msg in get_msgs(context, ob):
+        for msg in _get_mesh_msgs(context, ob):
             layout.label(text=msg)
         super().draw(context, layout)
 
@@ -45,7 +45,8 @@ class OP_MESH_nsplits(BFParam):
 
     def check(self, context):
         ob = self.element
-        requested_nsplit = self.value[0] * self.value[1] * self.value[2]
+        value = self.get_value()
+        requested_nsplit = value[0] * value[1] * value[2]
         nsplit, _ = get_nsplit(ob)
         if ob.bf_mesh_nsplits_export and requested_nsplit != nsplit:
             raise BFException(self, "Too many splits requested for current IJK")
@@ -60,7 +61,7 @@ class OP_MESH_XB(OP_XB_BBOX):
             hid=ob.name,
             ijk=ob.bf_mesh_ijk,
             nsplits=ob.bf_mesh_nsplits,
-            xb=fds_param.value,
+            xb=fds_param.get_value(),
         )
         result = tuple(
             (
@@ -71,7 +72,7 @@ class OP_MESH_XB(OP_XB_BBOX):
             for hid, xb, ijk in zip(ids, xbs, ijks)
         )  # multi
         # Send message
-        result[0][0].msgs = get_msgs(context, ob)
+        result[0][0].msgs = _get_mesh_msgs(context, ob)
         return result
 
 
@@ -132,7 +133,7 @@ def get_ijk_from_desired_cs(context, ob, desired_cs, poisson):
         return ijk
 
 
-def get_msgs(context, ob):
+def _get_mesh_msgs(context, ob):
     """!Get message for MESHes."""
     ijk = ob.bf_mesh_ijk
     cs = get_cell_sizes(context, ob)

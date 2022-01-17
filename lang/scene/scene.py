@@ -74,7 +74,7 @@ def _get_id_to_fds_namelist_dict(fds_case, fds_label):
         p_id = fds_namelist.pop(fds_label="ID")
         if not p_id:
             raise BFNotImported(None, "Missing ID: <{fds_namelist}>")
-        id_to_fds_namelist[p_id.value] = fds_namelist
+        id_to_fds_namelist[p_id.get_value()] = fds_namelist
     return id_to_fds_namelist
 
 class BFScene:

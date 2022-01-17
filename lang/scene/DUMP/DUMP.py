@@ -40,7 +40,7 @@ class SP_DUMP_render_file(BFParam):
         )
 
     def to_fds_param(self, context):
-        if self.exported:
+        if self.get_exported():
             # Save .ge1 file
             filepath = self._get_ge1_filepath(sc=self.element)
             ge1_text = scene_to_ge1(context, self)
@@ -71,9 +71,8 @@ class SP_DUMP_NFRAMES(BFParam):
     bpy_prop = IntProperty
     bpy_other = {"min": 1}
 
-    @property
-    def exported(self):
-        return super().exported and not self.element.bf_dump_frames_freq_export
+    def get_exported(self):
+        return super().get_exported() and not self.element.bf_dump_frames_freq_export
 
 
 class SP_DUMP_frames_freq(BFParam):
@@ -88,7 +87,7 @@ class SP_DUMP_frames_freq(BFParam):
     bpy_export_default = False
 
     def to_fds_param(self, context):
-        if self.exported:
+        if self.get_exported():
             nframes = int(
                 (self.element.bf_time_t_end - self.element.bf_time_t_begin)
                 // self.element.bf_dump_frames_freq

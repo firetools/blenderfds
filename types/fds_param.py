@@ -3,6 +3,7 @@ BlenderFDS, Blender representations of a FDS parameter.
 """
 
 import re, logging
+from typing import Any
 from .bf_exception import BFException, is_iterable
 
 log = logging.getLogger(__name__)
@@ -34,14 +35,14 @@ class FDSParam:
         ## parameter label
         self.fds_label = fds_label
         ## parameter value of any type
-        self.value = value
+        self.set_value(value)
         ## float precision, number of decimal digits
         self.precision = precision
         ## if True sets exponential representation of floats
         self.exponential = exponential
         ## list of comment message strings
         self.msgs = msgs and list(msgs) or list()
-        self.msg = msg
+        self.msgs.append(msg)
 
     def __str__(self) -> str:
         res = self.to_fds()
@@ -53,7 +54,7 @@ class FDSParam:
         """!
         Return a tuple of FDS formatted values or an empty tuple, eg. "'Test1'","'Test2'".
         """
-        values = self.values
+        values = self.get_values()  # FIXME match case type
         if not values:
             return tuple()
         elif isinstance(values[0], float):
@@ -70,10 +71,21 @@ class FDSParam:
         elif isinstance(values[0], int):
             return tuple(str(v) for v in values)
         else:
-            raise ValueError(f"Unknown value type <{self.value}>")
+            raise ValueError(f"Unknown value type <{values}>")
 
-    @property
-    def values(self) -> tuple:
+    def get_value(self):
+        """!
+        Return self.value.
+        """
+        return self.value
+
+    def set_value(self, value) -> None:
+        """!
+        Set self.value.
+        """
+        self.value = value
+
+    def get_values(self) -> tuple:
         """!
         Return an iterable self.value.
         """
@@ -83,21 +95,6 @@ class FDSParam:
             return tuple((self.value,))
         else:
             return self.value
-
-    @property
-    def msg(self) -> str:
-        """!
-        Return all self.msgs in one line.
-        """
-        return " | ".join(m for m in self.msgs if m)  # protect from None
-
-    @msg.setter
-    def msg(self, value) -> None:
-        """!
-        Append msg to self.msgs.
-        """
-        if value:
-            self.msgs.append(value)
 
     def to_fds(self, context=None) -> str:
         """!
@@ -156,8 +153,8 @@ class FDSParam:
             if match:
                 self.exponential = True
                 self.precision += max(len(m) for m in match) - 1
-        # Record in self.value
+        # Record in self.value # FIXME change logic of self.value!
         if len(values) == 1:
-            self.value = values[0]
+            self.set_value(values[0])
         else:
-            self.value = values
+            self.set_value(values)

@@ -14,12 +14,11 @@ class SP_config_directory(BFParam):
     bpy_prop = StringProperty
     bpy_other = {"subtype": "DIR_PATH", "maxlen": 1024}
 
-    @property
-    def exported(self):
+    def get_exported(self):
         return True
 
     def check(self, context):
-        if self.exported:
+        if self.get_exported():
             value = self.element.bf_config_directory
             if not os.path.exists(bpy.path.abspath(value)):
                 raise BFException(self, f"Case directory <{value}> not existing")

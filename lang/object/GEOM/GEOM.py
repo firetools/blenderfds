@@ -47,8 +47,7 @@ class OP_GEOM_SURF_ID(BFParam):
     fds_label = "SURF_ID"
     bpy_type = Object
 
-    @property
-    def value(self):
+    def get_value(self):
         value = get_boundary_condition_ids(context=None, ob=self.element)
         return value or None  # if value is empty, no SURF_ID
 
@@ -211,7 +210,7 @@ class OP_GEOM_BINARY_FILE(BFParam):
             row.prop(ob, "bf_geom_binary_directory", text="Directory")
 
     def to_fds_param(self, context):
-        if not self.exported:
+        if not self.get_exported():
             return
         self.check(context)
         # Calc geometry
@@ -265,8 +264,7 @@ class OP_GEOM_MOVE_ID(OP_MOVE_ID):
     fds_label = "MOVE_ID"
     bpy_export_default = None
 
-    @property
-    def exported(self):
+    def get_exported(self):
         ob = self.element
         # export if a bingeom is exported and my data is used by other Objects
         # or if requested
@@ -299,8 +297,7 @@ class OP_GEOM_EXTEND_TERRAIN(BFParam):
     bpy_prop = BoolProperty
     bpy_idname = "bf_geom_extend_terrain"
 
-    @property
-    def exported(self):
+    def get_exported(self):
         ob = self.element
         return ob.bf_geom_is_terrain
 
@@ -375,7 +372,7 @@ class ON_GEOM(BFNamelistOb):
             for key in ps:  # read
                 fds_param = fds_namelist.pop(fds_label=key)
                 if fds_param:  # assign value
-                    ps[key] = fds_param.value
+                    ps[key] = fds_param.get_value()
             # Fill the Mesh
             if len(self.element.data.vertices):
                 # Mesh already filled, no special treatment for bingeom

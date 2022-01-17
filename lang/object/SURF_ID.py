@@ -14,8 +14,7 @@ class OP_SURF_ID(BFParam):
     bpy_export = "bf_surf_id_export"
     bpy_export_default = True
 
-    @property
-    def value(self):
+    def get_value(self):
         if self.element.active_material:
             return self.element.active_material.name
 
@@ -30,8 +29,7 @@ class OP_SURF_ID(BFParam):
             else:
                 self.element.active_material = ma
 
-    @property
-    def exported(self):
+    def get_exported(self):
         ob = self.element
         return ob.bf_surf_id_export and ob.active_material
 

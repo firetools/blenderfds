@@ -65,7 +65,7 @@ class BFNamelist(BFParam):
         if i is not None:
             return self.bf_params[i]
 
-    @property
+    @property  # FIXME remove property
     def bf_param_xb(self):
         """!
         Return the reference of the XB bf_param (BFParamXB class or instance).
@@ -97,8 +97,7 @@ class BFNamelist(BFParam):
         if self._bf_param_other_idx is not None:
             return self.bf_params[self._bf_param_other_idx]
 
-    @property
-    def exported(self):  # FIXME rm property
+    def get_exported(self):
         if self.bpy_export is None:
             return True
         return bool(getattr(self.element, self.bpy_export, True))
@@ -124,7 +123,7 @@ class BFNamelist(BFParam):
             self.check(context)
         except BFException:
             layout.alert = True
-        layout.active = self.exported
+        layout.active = self.get_exported()
         # Parameters
         col = layout.column()
         for p in self.bf_params:
@@ -144,7 +143,7 @@ class BFNamelist(BFParam):
         @return None, FDSNamelist, or (FDSNamelist, ...) instances.
         """
         # Get if exported and check
-        if not self.exported or not self.fds_label:
+        if not self.get_exported() or not self.fds_label:
             return
         self.check(context)
         # Assemble from bf_params, protect from None
@@ -187,7 +186,9 @@ class BFNamelist(BFParam):
             managed_bf_param = self.get(fds_param.fds_label)
             if managed_bf_param:
                 try:
-                    managed_bf_param.from_fds(context=context, value=fds_param.value)
+                    managed_bf_param.from_fds(
+                        context=context, value=fds_param.get_value()
+                    )
                 except BFNotImported as err:
                     if free_text:
                         free_text.write(err.to_fds())
@@ -246,8 +247,7 @@ class BFNamelistOb(BFNamelist):
 
     bpy_type = Object
 
-    @property
-    def exported(self):
+    def get_exported(self):
         return not self.element.hide_render
 
     def set_exported(self, context, value=None):
@@ -291,8 +291,7 @@ class BFNamelistMa(BFNamelist):
 
     bpy_type = Material
 
-    @property
-    def exported(self):
+    def get_exported(self):
         if self.element.name in config.default_mas:
             return False  # default fds material
         elif self.element.bf_surf_export:

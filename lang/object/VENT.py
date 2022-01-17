@@ -20,8 +20,7 @@ class OP_VENT_OBST_ID(BFParam):
     bpy_idname = "bf_vent_obst_id"
     bpy_other = {"type": Object}
 
-    @property
-    def value(self):
+    def get_value(self):
         if self.element.bf_vent_obst_id:
             return self.element.bf_vent_obst_id.name
 

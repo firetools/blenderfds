@@ -112,11 +112,10 @@ class MP_namelist_cls(BFParam):
     }
     bpy_default = "MN_SURF"
 
-    @property
-    def exported(self):
+    def get_exported(self):
         if self.element.name in {"INERT", "HVAC", "MIRROR", "OPEN", "PERIODIC"}:
             return False
-        return super().exported
+        return super().get_exported()
 
 
 class MP_ID(BFParamStr):
