@@ -88,7 +88,7 @@ class OP_MOVE_T34(BFParam):
 
 class ON_MOVE(BFNamelistOb):
     label = "MOVE"
-    description = "Transformation FIXME"
+    description = "Geometric transformations"
     enum_id = False  # not displayed in namelist type menu, not auto called for export
     fds_label = "MOVE"
 

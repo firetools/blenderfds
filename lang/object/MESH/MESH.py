@@ -53,7 +53,7 @@ class OP_MESH_nsplits(BFParam):
 
 
 class OP_MESH_XB(OP_XB_BBOX):
-    def to_fds_param(self, context):  # FIXME
+    def to_fds_param(self, context):
         ob = self.element
         fds_param = super().to_fds_param(context)  # use father
         # Split

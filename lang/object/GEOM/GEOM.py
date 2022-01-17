@@ -377,7 +377,7 @@ class ON_GEOM(BFNamelistOb):
             if len(self.element.data.vertices):
                 # Mesh already filled, no special treatment for bingeom
                 return
-            elif ps["SPHERE_ORIGIN"] is not None:  # FIXME FIXME FIXME test
+            elif ps["SPHERE_ORIGIN"] is not None:
                 geom_sphere_to_ob(
                     context=context,
                     ob=self.element,
@@ -385,7 +385,7 @@ class ON_GEOM(BFNamelistOb):
                     radius=ps["SPHERE_RADIUS"],
                     origin=ps["SPHERE_ORIGIN"],
                 )
-            elif ps["CYLINDER_ORIGIN"] is not None:  # FIXME FIXME FIXME test
+            elif ps["CYLINDER_ORIGIN"] is not None:
                 geom_cylinder_to_ob(
                     context=context,
                     ob=self.element,

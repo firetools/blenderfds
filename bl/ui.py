@@ -141,7 +141,7 @@ def _load_original_classes():
         original_classes.append(cls)
 
 
-def _set_simple_ui():  # FIXME improve
+def _set_simple_ui():
     # Original
     for cls in original_classes:
         # log.debug(f"Unregister original class <{cls}>...")
