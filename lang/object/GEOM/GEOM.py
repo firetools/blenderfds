@@ -373,7 +373,7 @@ class ON_GEOM(BFNamelistOb):
                 "ZVALS": None,
             }
             for key in ps:  # read
-                fds_param = fds_namelist.get(key, remove=True)
+                fds_param = fds_namelist.pop(fds_label=key)
                 if fds_param:  # assign value
                     ps[key] = fds_param.value
             # Fill the Mesh

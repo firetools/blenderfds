@@ -177,36 +177,40 @@ class BFNamelist(BFParam):
         @param fds_namelist: instance of type FDSNamelist.
         @param free_text: instance of type Blender Text or None.
         """
-        for fds_param in fds_namelist.fds_params:
-            imported = False
-            # Protect from None
+        while True:
+            fds_param = fds_namelist.pop()
             if not fds_param:
-                continue
-            # Import to manged BFParam
-            bf_param = self.get(fds_param.fds_label)
-            if bf_param:
+                break
+            is_imported = False
+
+            # Try managed bf_param
+            managed_bf_param = self.get(fds_param.fds_label)
+            if managed_bf_param:
                 try:
-                    bf_param.from_fds(context=context, value=fds_param.value)
+                    managed_bf_param.from_fds(context=context, value=fds_param.value)
                 except BFNotImported as err:
                     if free_text:
                         free_text.write(err.to_fds())
                 else:
-                    imported = True
-            # Import to BFParamOther
-            if not imported and self.bf_param_other:
+                    is_imported = True
+
+            # Try bf_param_other
+            if not is_imported and self.bf_param_other:
                 try:
                     self.bf_param_other.set_value(
                         context, value=fds_param.to_fds(context)
                     )
-                except BFNotImported:
+                except BFNotImported as err:
                     if free_text:
                         free_text.write(err.to_fds())
                 else:
-                    imported = True
-            # Still not imported?
-            if not imported:
+                    is_imported = True
+
+            # Raise if still not imported
+            if not is_imported:
                 raise BFException(self, f"Value {fds_param} not imported")
-        # All imported, set namelist exported and appearance
+
+        # Set namelist exported and appearance
         self.set_exported(context, True)
         self.set_appearance(context)
 

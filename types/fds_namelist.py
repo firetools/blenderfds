@@ -40,19 +40,17 @@ class FDSNamelist:
         # in that case this fails
         return fds_label in (fds_params.fds_label for fds_params in self.fds_params)
 
-    def get(self, fds_label=None, remove=False) -> FDSParam or None:
+    def pop(self, fds_label=None) -> FDSParam or None:
         """!
-        Return the first FDSParam instance in list by its label.
+        Return and remove the first FDSParam instance in self.fds_params by its fds_label.
         @param fds_label: namelist parameter label.
-        @param remove: remove it from self
         @return None or FDSParam.
         """
         # self.fds_params can be a list of lists (multi), but only when exporting
         # in that case this fails
         for fds_param in self.fds_params:
-            if not fds_label or fds_param.fds_label == fds_label:
-                if remove:
-                    self.fds_params.remove(fds_param)
+            if fds_param and (not fds_label or fds_param.fds_label == fds_label):
+                self.fds_params.remove(fds_param)
                 return fds_param
 
     def to_fds(self, context=None) -> str:

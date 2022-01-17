@@ -35,17 +35,16 @@ class FDSCase:
             fds_namelist.fds_label for fds_namelist in self.fds_namelists
         )
 
-    def get(self, fds_label=None, remove=False) -> FDSNamelist or None:
+    def pop(self, fds_label=None) -> FDSNamelist or None:
         """!
-        Return the first FDSNamelist instance in list by its label.
+        Return and remove the first FDSNamelist instance in self.fds_namelists by its fds_label.
         @param fds_label: namelist label.
         @param remove: remove found.
         @return FDSNamelist or None.
         """
         for fds_namelist in self.fds_namelists:
-            if not fds_label or fds_namelist.fds_label == fds_label:
-                if remove:
-                    self.fds_namelists.remove(fds_namelist)
+            if fds_namelist and (not fds_label or fds_namelist.fds_label == fds_label):
+                self.fds_namelists.remove(fds_namelist)
                 return fds_namelist
 
     def to_fds(self, context=None) -> str:
