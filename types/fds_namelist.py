@@ -14,7 +14,7 @@ class FDSNamelist:
     """
 
     ## max number of columns of formatted output
-    maxlen = 80  # TODO to config
+    MAXLEN = 80  # TODO to config
 
     def __init__(self, fds_label=None, fds_params=None, msgs=None) -> None:
         """!
@@ -126,7 +126,7 @@ class FDSNamelist:
                     label = p.fds_label
                     vs = p._get_formatted_values()  # list of str
                     if not vs:  # no formatted values
-                        if not newline and len(line) + 1 + len(label) <= self.maxlen:
+                        if not newline and len(line) + 1 + len(label) <= self.MAXLEN:
                             # Parameter to the same line
                             newline = False
                             line += " " + label
@@ -138,7 +138,7 @@ class FDSNamelist:
                         v = ",".join(vs)  # values str
                         if (
                             not newline
-                            and len(line) + 1 + len(label) + 1 + len(v) <= self.maxlen
+                            and len(line) + 1 + len(label) + 1 + len(v) <= self.MAXLEN
                         ):
                             # Parameter to the same line
                             newline = False
@@ -147,14 +147,14 @@ class FDSNamelist:
                             # Parameter to new line
                             lines.append(line)
                             line = "      " + label + "="  # new line
-                            if len(line) + len(v) <= self.maxlen:
+                            if len(line) + len(v) <= self.MAXLEN:
                                 # Formatted values do not need splitting
                                 line += v
                             else:
                                 # Formatted values need splitting
                                 newline = True  # the following needs a new line
                                 for v in vs:
-                                    if len(line) + len(v) + 1 <= self.maxlen:
+                                    if len(line) + len(v) + 1 <= self.MAXLEN:
                                         line += v + ","
                                     else:
                                         lines.append(line)
@@ -164,7 +164,7 @@ class FDSNamelist:
                 lines.append(line)
         return "\n".join(lines)
 
-    _scan_params = re.compile(
+    _RE_SCAN_PARAMS = re.compile(
         r"""
         ([A-Z][A-Z0-9_\(\):,]*?)  # label (group 0)
         [,\s\t]*                  # 0+ separators
@@ -192,9 +192,10 @@ class FDSNamelist:
         Import from FDS formatted string of parameters, on error raise BFException.
         @param f90: FDS formatted string of parameters, eg. "ID='Test' PROP=2.34, 1.23, 3.44".
         """
+        # Remove trailing spaces and newlines, then scan it
         f90 = " ".join(f90.strip().splitlines())
-        for match in re.finditer(self._scan_params, f90):
+        for match in re.finditer(self._RE_SCAN_PARAMS, f90):
             label, f90_value = match.groups()
             fds_param = FDSParam(fds_label=label)
-            fds_param.from_fds(f90=f90)
+            fds_param.from_fds(f90=f90_value)
             self.fds_params.append(fds_param)

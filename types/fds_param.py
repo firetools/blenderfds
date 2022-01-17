@@ -7,8 +7,6 @@ from .bf_exception import BFException, is_iterable
 
 log = logging.getLogger(__name__)
 
-# FIXME inherit from a list (values) with __getitem__
-
 
 class FDSParam:
     """!
@@ -114,15 +112,17 @@ class FDSParam:
             else:  # "ABC"
                 return self.fds_label
 
-    _re_decimal = r"\.([0-9]+)"  # decimal positions
+    _RE_DECIMAL_POS = r"\.([0-9]+)"  # decimal positions
 
-    _scan_decimal = re.compile(_re_decimal, re.VERBOSE | re.DOTALL | re.IGNORECASE)
+    _RE_SCAN_DECIMAL = re.compile(
+        _RE_DECIMAL_POS, re.VERBOSE | re.DOTALL | re.IGNORECASE
+    )
 
-    _re_integer = r"([0-9]*)\.?[0-9]*[eE]"  # integer postions of exp notation
+    _RE_INTEGER = r"([0-9]*)\.?[0-9]*[eE]"  # integer postions of exp notation
 
-    _scan_integer = re.compile(_re_integer, re.VERBOSE | re.DOTALL | re.IGNORECASE)
+    _RE_SCAN_INTEGER = re.compile(_RE_INTEGER, re.VERBOSE | re.DOTALL | re.IGNORECASE)
 
-    _scan_values = re.compile(
+    _RE_SCAN_VALUES = re.compile(
         r"""'.*?'|".*?"|[^,\s\t]+""", re.VERBOSE | re.DOTALL | re.IGNORECASE
     )
 
@@ -133,7 +133,7 @@ class FDSParam:
         """
         # Remove trailing spaces and newlines, then scan values
         f90c = " ".join(f90.strip().splitlines())
-        values = re.findall(self._scan_values, f90c)
+        values = re.findall(self._RE_SCAN_VALUES, f90c)
         # Eval values
         for i, v in enumerate(values):
             if v in (".TRUE.", "T"):
@@ -144,15 +144,15 @@ class FDSParam:
                 try:
                     values[i] = eval(v)
                 except Exception as err:
-                    msg = f"Error while parsing value <{v}> in <{self.fds_label}={f90}>\n<{err}>"
+                    msg = f"Error parsing value <{v}> in <{self.fds_label}={f90c}>:\n<{err}>"
                     raise BFException(self, msg)
         # Post treatment of float
         if isinstance(values[0], float):  # first value is a float
             # Get precision
-            match = re.findall(self._re_decimal, f90c)
+            match = re.findall(self._RE_DECIMAL_POS, f90c)
             self.precision = match and max(len(m) for m in match) or 1
             # Get exponential
-            match = re.findall(self._re_integer, f90c)
+            match = re.findall(self._RE_INTEGER, f90c)
             if match:
                 self.exponential = True
                 self.precision += max(len(m) for m in match) - 1
