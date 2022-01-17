@@ -48,9 +48,9 @@ class BFParam:
     ## List of subclassess
     subclasses = list()
     ## Dict of subclassess by fds_label
-    subclasses_by_fds_label = dict()
+    _subclasses_by_fds_label = dict()
     ## Dict of subclassess by cls name
-    subclasses_by_cls_name = dict()
+    _subclasses_by_cls_name = dict()
 
     ## List of registered bpy_idname for unregistering
     _registered_bpy_idnames = list()
@@ -69,9 +69,9 @@ class BFParam:
         """
         super().__init_subclass__(**kwargs)
         cls.subclasses.append(cls)  # collection of subclasses
-        cls.subclasses_by_cls_name[cls.__name__] = cls
-        if cls.fds_label and cls.fds_label not in cls.subclasses_by_fds_label:
-            cls.subclasses_by_fds_label[cls.fds_label] = cls  # only the first
+        cls._subclasses_by_cls_name[cls.__name__] = cls
+        if cls.fds_label and cls.fds_label not in cls._subclasses_by_fds_label:
+            cls._subclasses_by_fds_label[cls.fds_label] = cls  # only the first
 
     def __str__(self):
         return f"{self.label}(element='{self.element.name}')"
@@ -82,9 +82,9 @@ class BFParam:
         Get item in cls collection by fds_label or cls_name.
         """
         if cls_name:
-            return cls.subclasses_by_cls_name.get(cls_name, default)
+            return cls._subclasses_by_cls_name.get(cls_name, default)
         if fds_label:
-            return cls.subclasses_by_fds_label.get(fds_label, default)
+            return cls._subclasses_by_fds_label.get(fds_label, default)
 
     @classmethod
     def register(cls):

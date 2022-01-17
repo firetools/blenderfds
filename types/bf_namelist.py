@@ -21,9 +21,9 @@ class BFNamelist(BFParam):
     ## List of subclassess
     subclasses = list()
     ## Dict of subclassess by fds_label
-    subclasses_by_fds_label = dict()
+    _subclasses_by_fds_label = dict()
     ## Dict of subclassess by cls name
-    subclasses_by_cls_name = dict()
+    _subclasses_by_cls_name = dict()
 
     def __init__(self, element):
         ## FDS element represented by this class instance
