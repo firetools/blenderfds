@@ -393,11 +393,11 @@ class ON_GEOM(BFNamelistOb):
                     context=context,
                     ob=self.element,
                     origin=ps["CYLINDER_ORIGIN"],
-                    axis=ps["CYLINDER_AXIS"],
-                    radius=ps["CYLINDER_RADIUS"],
                     length=ps["CYLINDER_LENGTH"],
-                    nseg_theta=ps["CYLINDER_THETA"],
-                    nseg_axis=ps["CYLINDER_AXIS"],
+                    radius=ps["CYLINDER_RADIUS"],
+                    axis=ps["CYLINDER_AXIS"],
+                    nseg_axis=ps["CYLINDER_NSEG_AXIS"],
+                    nseg_theta=ps["CYLINDER_NSEG_THETA"],
                 )
             elif ps["POLY"] is not None:
                 raise BFNotImported(self, "POLY not implemented")
@@ -405,7 +405,7 @@ class ON_GEOM(BFNamelistOb):
                 raise BFNotImported(self, "ZVALS not implemented")
             else:
                 raise BFException(self, f"Unknown GEOM type <{fds_namelist}>")
-        super().from_fds(context, fds_namelist)
+        super().from_fds(context, fds_namelist=fds_namelist, free_text=free_text)
 
     def draw_operators(self, context, layout):
         ob = context.object
