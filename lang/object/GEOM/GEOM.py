@@ -349,7 +349,7 @@ class ON_GEOM(BFNamelistOb):
                     FDSParam(fds_label="FACES", value=fss),
                 )
             )
-            fds_namelist.msg = msg
+            fds_namelist.msgs.append(msg)
         return fds_namelist
 
     def from_fds(self, context, fds_namelist, free_text=None):
