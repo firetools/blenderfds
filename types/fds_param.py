@@ -42,7 +42,7 @@ class FDSParam:
         ## if True sets exponential representation of floats
         self.exponential = exponential
         ## list of comment message strings
-        self.msgs = msgs or list()
+        self.msgs = msgs and list(msgs) or list()
         self.msg = msg
 
     def __str__(self) -> str:

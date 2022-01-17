@@ -4,7 +4,6 @@ BlenderFDS, Blender representations of a FDS namelist.
 
 import re, logging
 from .fds_param import FDSParam
-from types import fds_param
 
 log = logging.getLogger(__name__)
 
@@ -31,7 +30,7 @@ class FDSNamelist:
         ## eg. (("ID=X1", "PBX=1"), ("ID=X2", "PBX=2"), ...)
         self.fds_params = fds_params or list()
         ## list of comment message strings
-        self.msgs = list(msgs) or list()
+        self.msgs = msgs and list(msgs) or list()
 
     def __str__(self) -> str:
         return self.to_fds()

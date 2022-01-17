@@ -7,8 +7,6 @@ import re, logging
 from .. import utils
 from .bf_exception import BFException
 from .fds_namelist import FDSNamelist
-from types import fds_namelist
-
 
 log = logging.getLogger(__name__)
 
@@ -24,7 +22,7 @@ class FDSCase:
         @param msgs: list of comment message strings.
         """
         ## list of comment message strings
-        self.msgs = list(msgs) or list()
+        self.msgs = msgs and list(msgs) or list()
 
     def __str__(self):
         return self.to_fds()
