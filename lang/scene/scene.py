@@ -1,3 +1,4 @@
+from email.policy import default
 import time, sys, logging, bpy, os
 from bpy.types import Scene, Object, Material
 from bpy.props import IntVectorProperty
@@ -15,7 +16,7 @@ def _import_by_fds_label(scene, context, fds_case, free_text, fds_label=None):
 def _import_fds_namelist(scene, context, free_text, fds_namelist):
     is_imported = False
     fds_label = fds_namelist.fds_label
-    bf_namelist = BFNamelist.subclasses_by_fds_label.get(fds_label, None)
+    bf_namelist = BFNamelist.get_subclass(fds_label=fds_label)
     if bf_namelist:
         hid = f"Imported {fds_label}"
         match bf_namelist.bpy_type:

@@ -27,7 +27,7 @@ class BFObject:
         """!
         Related bf_namelist, instance of BFNamelist.
         """
-        return BFNamelist.subclasses_by_cls_name[self.bf_namelist_cls](self)
+        return BFNamelist.get_subclass(cls_name=self.bf_namelist_cls)(self)
 
     def to_fds(self, context):
         """!
@@ -46,7 +46,7 @@ class BFObject:
         @param fds_namelist: FDSNamelist.
         """
         # Set bf_namelist_cls
-        bf_namelist = BFNamelist.subclasses_by_fds_label.get(fds_namelist.fds_label)
+        bf_namelist = BFNamelist.get_subclass(cls_name=self.bf_namelist_cls)
         self.bf_namelist_cls = bf_namelist.__name__
         # Prevent default geometry (eg. XB=BBOX)
         self.bf_xb_export, self.bf_xyz_export, self.bf_pb_export = (False, False, False)

@@ -31,12 +31,13 @@ class BFNamelist(BFParam):
         ## My sub params, tuple of element instances of type BFParam
         self.bf_params = tuple(p(element) for p in self.bf_params)
 
-    # inherits __str__
+    # inherit __str__(), __init_subclass__(), get_subclass()
 
     @classmethod
     def register(cls):
         super().register()
         # Indexes are used to link both the class and the instance
+        # otherwise the references are changed when instancing
         cls._bf_param_idx_by_fds_label = dict()  # fds_label: index of param
         cls._bf_param_xb_idx = None  # index of param of type BFParamXB
         cls._bf_param_xyz_idx = None  # ... of type BFParamXYZ
@@ -97,7 +98,7 @@ class BFNamelist(BFParam):
             return self.bf_params[self._bf_param_other_idx]
 
     @property
-    def exported(self):
+    def exported(self):  # FIXME rm property
         if self.bpy_export is None:
             return True
         return bool(getattr(self.element, self.bpy_export, True))

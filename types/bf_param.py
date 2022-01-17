@@ -64,14 +64,27 @@ class BFParam:
         self.element = element
 
     def __init_subclass__(cls, **kwargs):
+        """!
+        Subclass constructor.
+        """
         super().__init_subclass__(**kwargs)
-        cls.subclasses.append(cls)
+        cls.subclasses.append(cls)  # collection of subclasses
         cls.subclasses_by_cls_name[cls.__name__] = cls
-        if cls.fds_label:
-            cls.subclasses_by_fds_label[cls.fds_label] = cls
+        if cls.fds_label and cls.fds_label not in cls.subclasses_by_fds_label:
+            cls.subclasses_by_fds_label[cls.fds_label] = cls  # only the first
 
     def __str__(self):
         return f"{self.label}(element='{self.element.name}')"
+
+    @classmethod
+    def get_subclass(cls, fds_label=None, cls_name=None, default=None):
+        """!
+        Get item in cls collection by fds_label or cls_name.
+        """
+        if cls_name:
+            return cls.subclasses_by_cls_name.get(cls_name, default)
+        if fds_label:
+            return cls.subclasses_by_fds_label.get(fds_label, default)
 
     @classmethod
     def register(cls):
@@ -142,7 +155,7 @@ class BFParam:
             delattr(cls.bpy_type, bpy_idname)
 
     @property
-    def value(self):
+    def value(self):  # FIXME rm property
         """!
         Return value from element instance.
         @return any type
@@ -169,7 +182,7 @@ class BFParam:
             return
 
     @property
-    def exported(self):
+    def exported(self):  # FIXME rm property
         """!
         Return True if self is exported to FDS.
         """
@@ -575,9 +588,13 @@ class BFParamOther(BFParam):
         self.check(context)
         coll = getattr(self.element, self.bpy_idname)
         if coll:
-            return tuple(
-                (FDSParam(fds_label=p.name) for p in coll if p.bf_export and p.name)
-            )  # many
+            return tuple(  # many
+                (
+                    FDSParam(fds_label=item.name)
+                    for item in coll
+                    if item.bf_export and item.name
+                )
+            )
 
     def copy_to(self, dest_element):
         log.debug(f"  Copying <{self}> to <{dest_element.name}>")

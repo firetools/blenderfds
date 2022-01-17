@@ -38,7 +38,7 @@ class BFMaterial:
         """!
         Return related bf_namelist, instance of BFNamelist.
         """
-        return BFNamelist.subclasses_by_cls_name[self.bf_namelist_cls](self)
+        return BFNamelist.get_subclass(cls_name=self.bf_namelist_cls)(self)
 
     def to_fds(self, context):
         """!

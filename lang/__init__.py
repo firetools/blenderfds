@@ -49,15 +49,6 @@ def register():
         bf_namelist.register()
 
 
-#     log.debug(
-#         f"""
-# types.BFNamelist.subclasses: {BFNamelist.subclasses}
-# types.BFNamelist.subclasses_by_fds_label: {BFNamelist.subclasses_by_fds_label}
-# types.BFNamelist.subclasses_by_cls_name: {BFNamelist.subclasses_by_cls_name}
-# """
-#     )
-
-
 def unregister():
     import logging
     from ..types import BFParam, BFNamelist
