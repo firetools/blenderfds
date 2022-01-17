@@ -31,24 +31,22 @@ class FDSCase:
     def __contains__(self, fds_label) -> bool:
         # self can be a list of lists (multi), but only when exporting
         # in that case this fails
-        return fds_label in (n.fds_label for n in self)
+        return fds_label in (
+            fds_namelist.fds_label for fds_namelist in self.fds_namelists
+        )
 
-    def get(self, fds_label=None, remove=False) -> list:
+    def get(self, fds_label=None, remove=False) -> FDSNamelist or None:
         """!
-        Return the list of FDSNamelist instances by their fds_label.
+        Return the first FDSNamelist instance in list by its label.
         @param fds_label: namelist label.
-        @param remove: remove found from self
-        @return list of FDSNamelist.
+        @param remove: remove found.
+        @return FDSNamelist or None.
         """
-        # self can be a list of lists (multi), but only when exporting
-        # in that case this fails
-        fds_namelists = list()
         for fds_namelist in self.fds_namelists:
             if not fds_label or fds_namelist.fds_label == fds_label:
                 if remove:
                     self.fds_namelists.remove(fds_namelist)
-                fds_namelists.append(fds_namelist)
-        return fds_namelists
+                return fds_namelist
 
     def to_fds(self, context=None) -> str:
         """!

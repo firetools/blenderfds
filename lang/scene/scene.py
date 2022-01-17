@@ -1,5 +1,5 @@
-from email.policy import default
-import time, sys, logging, bpy, os
+from shutil import move
+import time, sys, logging, bpy
 from bpy.types import Scene, Object, Material
 from bpy.props import IntVectorProperty
 from ...types import BFNamelist, FDSCase, BFException, BFNotImported
@@ -8,12 +8,21 @@ from ..object.MOVE import ON_MOVE
 
 log = logging.getLogger(__name__)
 
-def _import_by_fds_label(scene, context, fds_case, free_text, fds_label=None):
-    for fds_namelist in fds_case.get(fds_label, remove=True):
+def _import(scene, context, fds_case, free_text, fds_label=None):
+    """!
+    Import all namelists with label fds_label from fds_case into scene.
+    """
+    while True:
+        fds_namelist = fds_case.get(fds_label=fds_label, remove=True)
+        if not fds_namelist:
+            break
         _import_fds_namelist(scene, context, free_text, fds_namelist)
 
 
 def _import_fds_namelist(scene, context, free_text, fds_namelist):
+    """!
+    Import a fds_namelist from fds_case into scene.
+    """
     is_imported = False
     fds_label = fds_namelist.fds_label
     bf_namelist = BFNamelist.get_subclass(fds_label=fds_label)
@@ -53,6 +62,20 @@ def _import_fds_namelist(scene, context, free_text, fds_namelist):
     if not is_imported:  # last resort, import to Free Text
         free_text.write(fds_namelist.to_fds(context) + "\n")
 
+def _get_id_to_fds_namelist_dict(fds_case, fds_label):
+    """!
+    Return all fds_namelists with fds_label into a {ID: fds_namelist} dict.
+    """
+    id_to_fds_namelist = dict()
+    while True:
+        fds_namelist = fds_case.get(fds_label=fds_label, remove=True)
+        if not fds_namelist:
+            break
+        p_id = fds_namelist.get("ID")
+        if not p_id:
+            raise BFNotImported(None, "Missing ID: <{fds_namelist}>")
+        id_to_fds_namelist[p_id.value] = fds_namelist
+    return id_to_fds_namelist
 
 class BFScene:
     """!
@@ -186,21 +209,16 @@ class BFScene:
         self.bf_config_text = free_text
 
         # Import SURFs first to new materials
-        _import_by_fds_label(fds_case=fds_case, fds_label="SURF", scene=self, context=context, free_text=free_text)
+        _import(fds_case=fds_case, fds_label="SURF", scene=self, context=context, free_text=free_text)
 
-        # Import all MOVEs in a dict
-        move_id_to_move = dict()
-        for fds_namelist in fds_case.get("MOVE", remove=True):
-            p_id = fds_namelist.get("ID")
-            if not p_id:
-                raise BFNotImported(None, "Missing ID: <{fds_namelist}>")
-            move_id_to_move[p_id.value] = fds_namelist
+        # Get all MOVEs into an id to fds_namelist dict
+        move_id_to_move = _get_id_to_fds_namelist_dict(fds_case=fds_case, fds_label="MOVE")
 
         # Import OBSTs before VENTs
-        _import_by_fds_label(fds_case=fds_case, fds_label="OBST", scene=self, context=context, free_text=free_text)
+        _import(fds_case=fds_case, fds_label="OBST", scene=self, context=context, free_text=free_text)
 
         # Import all other namelists to Object or Scene
-        _import_by_fds_label(fds_case=fds_case, fds_label=None, scene=self, context=context, free_text=free_text)
+        _import(fds_case=fds_case, fds_label=None, scene=self, context=context, free_text=free_text)
 
         # Transform the Objects that have a MOVE_ID
         for ob in self.collection.objects:

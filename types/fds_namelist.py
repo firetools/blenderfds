@@ -38,7 +38,7 @@ class FDSNamelist:
     def __contains__(self, fds_label) -> bool:
         # self can be a list of lists (multi), but only when exporting
         # in that case this fails
-        return fds_label in (p.fds_label for p in self)
+        return fds_label in (fds_params.fds_label for fds_params in self.fds_params)
 
     def get(self, fds_label=None, remove=False) -> FDSParam or None:
         """!
@@ -47,12 +47,12 @@ class FDSNamelist:
         @param remove: remove it from self
         @return None or FDSParam.
         """
-        # self can be a list of lists (multi), but only when exporting
+        # self.fds_params can be a list of lists (multi), but only when exporting
         # in that case this fails
         for fds_param in self.fds_params:
             if not fds_label or fds_param.fds_label == fds_label:
                 if remove:
-                    self.remove(fds_param)
+                    self.fds_params.remove(fds_param)
                 return fds_param
 
     def to_fds(self, context=None) -> str:
