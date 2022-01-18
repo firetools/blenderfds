@@ -21,7 +21,7 @@ class FDSCase:
         @param msgs: list of comment message strings.
         """
         ## list of FDSNamelist instances
-        super().__init__(fds_namelists or ())
+        self.fds_namelists = fds_namelists and list(fds_namelists) or list()
         ## list of comment message strings
         self.msgs = msgs and list(msgs) or list()
 

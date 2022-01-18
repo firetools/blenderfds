@@ -28,7 +28,7 @@ class FDSNamelist:
         ## list (single) of FDSParam and additional FDSNamelist,
         ## or list of list (multi) of FDSParam instances
         ## eg. (("ID=X1", "PBX=1"), ("ID=X2", "PBX=2"), ...)
-        super().__init__(fds_params or ())
+        self.fds_params = fds_params and list(fds_params) or list()
         ## list of comment message strings
         self.msgs = msgs and list(msgs) or list()
 
