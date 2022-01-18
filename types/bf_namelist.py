@@ -46,14 +46,15 @@ class BFNamelist(BFParam):
         for i, p in enumerate(cls.bf_params):
             if p.fds_label:
                 cls._bf_param_idx_by_fds_label[p.fds_label] = i
-            if issubclass(p, BFParamXB):
-                cls._bf_param_xb_idx = i
-            elif issubclass(p, BFParamXYZ):
-                cls._bf_param_xyz_idx = i
-            elif issubclass(p, BFParamPB):
-                cls._bf_param_pb_idx = i
-            elif issubclass(p, BFParamOther):
-                cls._bf_param_other_idx = i
+            match p:
+                case BFParamXB():
+                    cls._bf_param_xb_idx = i
+                case BFParamXYZ():
+                    cls._bf_param_xyz_idx = i
+                case BFParamPB():
+                    cls._bf_param_pb_idx = i
+                case BFParamOther():
+                    cls._bf_param_other_idx = i
 
     def get(self, fds_label):
         """!
@@ -271,17 +272,18 @@ class BFNamelistOb(BFNamelist):
             self.element.display_type = "TEXTURED"
             return
         self.element.show_wire = True
-        if appearance == "DUMMY0" and ma_dummy0:
-            self.element.active_material = ma_dummy0
-            self.element.display_type = "SOLID"
-        elif appearance == "DUMMY1" and ma_dummy1:
-            self.element.active_material = ma_dummy1
-            self.element.display_type = "SOLID"
-        elif appearance == "DUMMY2" and ma_dummy2:
-            self.element.active_material = ma_dummy2
-            self.element.display_type = "SOLID"
-        elif appearance == "WIRE":
-            self.element.display_type = "WIRE"
+        match appearance:
+            case "DUMMY0" if ma_dummy0:
+                self.element.active_material = ma_dummy0
+                self.element.display_type = "SOLID"
+            case "DUMMY1" if ma_dummy1:
+                self.element.active_material = ma_dummy1
+                self.element.display_type = "SOLID"
+            case "DUMMY2" if ma_dummy2:
+                self.element.active_material = ma_dummy2
+                self.element.display_type = "SOLID"
+            case "WIRE":
+                self.element.display_type = "WIRE"
 
 
 class BFNamelistMa(BFNamelist):

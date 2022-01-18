@@ -19,14 +19,15 @@ def pbs_planes_to_mesh(context, me, pbs):
     xbs = list()
     sl = context.scene.unit_settings.scale_length
     for pb in pbs:
-        if pb[0] == 0:
-            xbs.append((pb[1], pb[1], -sl, +sl, -sl, +sl))  # PBX is 0
-        elif pb[0] == 1:
-            xbs.append((-sl, +sl, pb[1], pb[1], -sl, +sl))  # PBY is 1
-        elif pb[0] == 2:
-            xbs.append((-sl, +sl, -sl, +sl, pb[1], pb[1]))  # PBZ is 2
-        else:
-            raise AssertionError(f"Unrecognized PB* <{pb}>")
+        match pb[0]:
+            case 0:
+                xbs.append((pb[1], pb[1], -sl, +sl, -sl, +sl))  # PBX is 0
+            case 1:
+                xbs.append((-sl, +sl, pb[1], pb[1], -sl, +sl))  # PBY is 1
+            case 2:
+                xbs.append((-sl, +sl, -sl, +sl, pb[1], pb[1]))  # PBZ is 2
+            case _:
+                raise AssertionError(f"Unrecognized PB* <{pb}>")
     xbs_faces_to_mesh(context=context, me=me, xbs=xbs, matrix=None)
 
 

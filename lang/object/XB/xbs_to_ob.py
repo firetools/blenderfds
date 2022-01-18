@@ -103,25 +103,26 @@ def xbs_bbox_to_mesh(context, me, xbs, set_materials=False, matrix=None):
     bm.to_mesh(me)
     bm.free()
     # Assign material_slots to faces
-    n = len(me.materials)
-    if not set_materials or n == 0:
-        return
-    elif n == 1:  # SURF_ID = 'A'
-        for face in me.polygons:
-            face.material_index = 0
-    elif n == 3:  # SURF_IDS = 'A', 'B', 'C' (top, sides, bottom)
-        for iface, face in enumerate(me.polygons):
-            if iface % 6 == 5:
-                face.material_index = 0  # top
-            elif iface % 6 == 4:
-                face.material_index = 2  # bottom
-            else:
-                face.material_index = 1  # sides
-    elif n == 6:  # SURF_ID6 = ... (x0, x1, y0, y1, z0, z1)
-        for iface, face in enumerate(me.polygons):
-            face.material_index = iface % 6
-    else:
-        raise BFException(me, "Bad GEOM XB: Wrong SURF_ID/IDS/ID6 len")
+    if set_materials:
+        match len(me.materials):
+            case 0:  # no SURF_ID
+                return
+            case 1:  # SURF_ID = 'A'
+                for face in me.polygons:
+                    face.material_index = 0
+            case 3:  # SURF_IDS = 'A', 'B', 'C' (top, sides, bottom)
+                for iface, face in enumerate(me.polygons):
+                    if iface % 6 == 5:
+                        face.material_index = 0  # top
+                    elif iface % 6 == 4:
+                        face.material_index = 2  # bottom
+                    else:
+                        face.material_index = 1  # sides
+            case 6:  # SURF_ID6 = ... (x0, x1, y0, y1, z0, z1)
+                for iface, face in enumerate(me.polygons):
+                    face.material_index = iface % 6
+            case _:
+                raise BFException(me, "Bad GEOM XB: Wrong SURF_ID/IDS/ID6 len")
 
 
 xbs_to_mesh = {

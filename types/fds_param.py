@@ -54,24 +54,25 @@ class FDSParam:
         """!
         Return a tuple of FDS formatted values or an empty tuple, eg. "'Test1'","'Test2'".
         """
-        values = self.get_values()  # FIXME match case type
+        values = self.get_values()
         if not values:
             return tuple()
-        elif isinstance(values[0], float):
-            if self.exponential:
-                return tuple(f"{v:.{self.precision}E}" for v in values)
-            else:
-                return tuple(
-                    f"{round(v,self.precision):.{self.precision}f}" for v in values
-                )
-        elif isinstance(values[0], str):
-            return tuple("'" in v and f'"{v}"' or f"'{v}'" for v in values)
-        elif isinstance(values[0], bool):  # always before int
-            return tuple(v and "T" or "F" for v in values)
-        elif isinstance(values[0], int):
-            return tuple(str(v) for v in values)
-        else:
-            raise ValueError(f"Unknown value type <{values}>")
+        match values[0]:
+            case float():
+                if self.exponential:
+                    return tuple(f"{v:.{self.precision}E}" for v in values)
+                else:
+                    return tuple(
+                        f"{round(v,self.precision):.{self.precision}f}" for v in values
+                    )
+            case str():
+                return tuple("'" in v and f'"{v}"' or f"'{v}'" for v in values)
+            case bool():  # always before int
+                return tuple(v and "T" or "F" for v in values)
+            case int():
+                return tuple(str(v) for v in values)
+            case _:
+                raise ValueError(f"Unknown value type <{values}>")
 
     def get_value(self):
         """!

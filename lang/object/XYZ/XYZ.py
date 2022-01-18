@@ -58,32 +58,32 @@ class OP_XYZ(BFParamXYZ):
             return FDSParam(fds_label="XYZ", value=xyzs[0])
         # Multi param, prepare new ID
         n = ob.name
-        suffix = self.element.bf_id_suffix
-        if suffix == "IDI":
-            ids = (f"{n}_{i}" for i, _ in enumerate(xyzs))
-        elif suffix == "IDX":
-            ids = (f"{n}_x{xyz[0]:+.3f}" for xyz in xyzs)
-        elif suffix == "IDY":
-            ids = (f"{n}_y{xyz[1]:+.3f}" for xyz in xyzs)
-        elif suffix == "IDZ":
-            ids = (f"{n}_z{xyz[2]:+.3f}" for xyz in xyzs)
-        elif suffix == "IDXY":
-            ids = (f"{n}_x{xyz[0]:+.3f}_y{xyz[1]:+.3f}" for xyz in xyzs)
-        elif suffix == "IDXZ":
-            ids = (f"{n}_x{xyz[0]:+.3f}_z{xyz[2]:+.3f}" for xyz in xyzs)
-        elif suffix == "IDYZ":
-            ids = (f"{n}_y{xyz[1]:+.3f}_z{xyz[2]:+.3f}" for xyz in xyzs)
-        elif suffix == "IDXYZ":
-            ids = (f"{n}_x{xyz[0]:+.3f}_y{xyz[1]:+.3f}_z{xyz[2]:+.3f}" for xyz in xyzs)
-        else:
-            raise AssertionError(f"Unknown suffix <{suffix}>")
-        result = tuple(
+        match self.element.bf_id_suffix:
+            case "IDI":
+                ids = (f"{n}_{i}" for i, _ in enumerate(xyzs))
+            case "IDX":
+                ids = (f"{n}_x{xyz[0]:+.3f}" for xyz in xyzs)
+            case "IDY":
+                ids = (f"{n}_y{xyz[1]:+.3f}" for xyz in xyzs)
+            case "IDZ":
+                ids = (f"{n}_z{xyz[2]:+.3f}" for xyz in xyzs)
+            case "IDXY":
+                ids = (f"{n}_x{xyz[0]:+.3f}_y{xyz[1]:+.3f}" for xyz in xyzs)
+            case "IDXZ":
+                ids = (f"{n}_x{xyz[0]:+.3f}_z{xyz[2]:+.3f}" for xyz in xyzs)
+            case "IDYZ":
+                ids = (f"{n}_y{xyz[1]:+.3f}_z{xyz[2]:+.3f}" for xyz in xyzs)
+            case "IDXYZ":
+                ids = (f"{n}_x{xyz[0]:+.3f}_y{xyz[1]:+.3f}_z{xyz[2]:+.3f}" for xyz in xyzs)
+            case _:
+                raise AssertionError(f"Unknown suffix <{self.element.bf_id_suffix}>")
+        result = tuple(  # multi
             (
                 FDSParam(fds_label="ID", value=hid),
                 FDSParam(fds_label="XYZ", value=xyz, precision=6),
             )
             for hid, xyz in zip(ids, xyzs)
-        )  # multi
+        )
         # Send message
         result[0][0].msgs.append(msg)
         return result

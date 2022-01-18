@@ -122,25 +122,25 @@ class OP_XB(BFParamXB):
             return FDSParam(fds_label="XB", value=xbs[0], precision=6)
         # Multi param, prepare new ID
         n = ob.name
-        suffix = self.element.bf_id_suffix
-        if suffix == "IDI":
-            ids = (f"{n}_{i}" for i, _ in enumerate(xbs))
-        elif suffix == "IDX":
-            ids = (f"{n}_x{xb[0]:+.3f}" for xb in xbs)
-        elif suffix == "IDY":
-            ids = (f"{n}_y{xb[2]:+.3f}" for xb in xbs)
-        elif suffix == "IDZ":
-            ids = (f"{n}_z{xb[4]:+.3f}" for xb in xbs)
-        elif suffix == "IDXY":
-            ids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}" for xb in xbs)
-        elif suffix == "IDXZ":
-            ids = (f"{n}_x{xb[0]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
-        elif suffix == "IDYZ":
-            ids = (f"{n}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
-        elif suffix == "IDXYZ":
-            ids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
-        else:
-            raise AssertionError(f"Unknown suffix <{suffix}>")
+        match self.element.bf_id_suffix:
+            case "IDI":
+                ids = (f"{n}_{i}" for i, _ in enumerate(xbs))
+            case "IDX":
+                ids = (f"{n}_x{xb[0]:+.3f}" for xb in xbs)
+            case "IDY":
+                ids = (f"{n}_y{xb[2]:+.3f}" for xb in xbs)
+            case "IDZ":
+                ids = (f"{n}_z{xb[4]:+.3f}" for xb in xbs)
+            case "IDXY":
+                ids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}" for xb in xbs)
+            case "IDXZ":
+                ids = (f"{n}_x{xb[0]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
+            case "IDYZ":
+                ids = (f"{n}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
+            case "IDXYZ":
+                ids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
+            case _:
+                raise AssertionError(f"Unknown suffix <{self.element.bf_id_suffix}>")
         result = tuple(
             (
                 FDSParam(fds_label="ID", value=hid),

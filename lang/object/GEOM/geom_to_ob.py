@@ -136,7 +136,7 @@ def geom_cylinder_to_ob(
     radius=0.5,
     length=2.0,
     nseg_theta=8,
-    nseg_axis=1,
+    nseg_axis=1,  # FIXME unused
     set_materials=True,
 ):
     """!
@@ -175,21 +175,22 @@ def geom_cylinder_to_ob(
     )
     ob.matrix_world = matrix_loc @ matrix_rot @ ob.matrix_world
     # Assign material_slots to faces
-    me = ob.data
-    n = len(me.materials)
-    if not set_materials or n == 0:
-        return
-    elif n == 1:  # SURF_ID = 'A'
-        for face in me.polygons:
-            face.material_index = 0
-    elif n == 3:  # SURF_IDS = 'A', 'B', 'C' (top, sides, bottom)
-        for face in me.polygons:
-            face.material_index = 1  # sides
-        if len(me.polygons) > 5:
-            me.polygons[-4].material_index = 0  # top
-            me.polygons[-1].material_index = 2  # bottom
-    else:
-        raise BFException(ob, "Bad GEOM CYLINDER: Wrong SURF_ID/IDS len")
+    if set_materials:
+        me = ob.data
+        match len(me.materials):
+            case 0:  # no SURF_ID
+                pass
+            case 1:  # SURF_ID = 'A'
+                for face in me.polygons:
+                    face.material_index = 0
+            case 3:  # SURF_IDS = 'A', 'B', 'C' (top, sides, bottom)
+                for face in me.polygons:
+                    face.material_index = 1  # sides
+                if len(me.polygons) > 5:
+                    me.polygons[-4].material_index = 0  # top
+                    me.polygons[-1].material_index = 2  # bottom
+            case _:
+                raise BFException(ob, "Bad GEOM CYLINDER: Wrong SURF_ID/IDS len")
 
 
 def geom_poly_to_ob(context, ob, ps, extrude):
