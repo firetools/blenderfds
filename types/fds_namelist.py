@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 
 class FDSNamelist:
     """!
-    Datastructure representing an FDS namelist.
+    List of BFParam instances representing an FDS namelist.
     """
 
     ## max number of columns of formatted output
@@ -28,7 +28,7 @@ class FDSNamelist:
         ## list (single) of FDSParam and additional FDSNamelist,
         ## or list of list (multi) of FDSParam instances
         ## eg. (("ID=X1", "PBX=1"), ("ID=X2", "PBX=2"), ...)
-        self.fds_params = fds_params or list()
+        super().__init__(fds_params or ())
         ## list of comment message strings
         self.msgs = msgs and list(msgs) or list()
 

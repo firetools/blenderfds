@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 
 class FDSCase:
     """!
-    Datastructure representing an FDS case.
+    List of BFNamelist instances representing an FDS case.
     """
 
     def __init__(self, fds_namelists=None, msgs=None) -> None:
@@ -21,7 +21,7 @@ class FDSCase:
         @param msgs: list of comment message strings.
         """
         ## list of FDSNamelist instances
-        self.fds_namelists = fds_namelists or list()
+        super().__init__(fds_namelists or ())
         ## list of comment message strings
         self.msgs = msgs and list(msgs) or list()
 
@@ -56,9 +56,7 @@ class FDSCase:
         lines = list()
         if self.msgs:
             lines.extend(tuple(f"! {m}" for m in self.msgs))
-        lines.extend(
-            fds_namelist.to_fds() for fds_namelist in self.fds_namelists if fds_namelist
-        )
+        lines.extend(fds_namelist.to_fds() for fds_namelist in self if fds_namelist)
         return "\n".join(l for l in lines if l)
 
     _RE_SCAN_NAMELISTS = re.compile(

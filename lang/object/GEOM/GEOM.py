@@ -340,7 +340,7 @@ class ON_GEOM(BFNamelistOb):
                 world=not self.element.bf_move_id_export,
             )
             # Send VERTS and FACES
-            fds_namelist.fds_params.extend(
+            fds_namelist.extend(
                 (
                     FDSParam(fds_label="VERTS", value=vs, precision=6),
                     FDSParam(fds_label="FACES", value=fss),
