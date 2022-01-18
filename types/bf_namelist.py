@@ -186,9 +186,7 @@ class BFNamelist(BFParam):
 
             # Try managed bf_param
             bf_param = self.get(fds_param.fds_label)
-            log.debug(f"fds_param: {fds_param} bf_param: {bf_param} self.bf_param_other: {self.bf_param_other}")
             if not is_imported and bf_param:
-                log.debug("managed!")
                 try:
                     bf_param.from_fds(
                         context=context, value=fds_param.get_value()
@@ -201,12 +199,10 @@ class BFNamelist(BFParam):
 
             # Try bf_param_other
             if not is_imported and self.bf_param_other:
-                log.debug("other!")
                 try:
                     self.bf_param_other.set_value(
                         context, value=fds_param.to_fds(context)
                     )
-                    log.debug(f"bf_param_other.set_value: {fds_param.to_fds(context)}")
                 except BFNotImported as err:
                     if free_text:
                         free_text.write(err.to_fds())
@@ -215,7 +211,6 @@ class BFNamelist(BFParam):
 
             # Raise if still not imported
             if not is_imported:
-                log.debug("still not imported")
                 raise BFException(self, f"Value {fds_param} not imported")
 
         # Set namelist exported and appearance
