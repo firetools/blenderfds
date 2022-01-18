@@ -46,15 +46,16 @@ class BFNamelist(BFParam):
         for i, p in enumerate(cls.bf_params):
             if p.fds_label:
                 cls._bf_param_idx_by_fds_label[p.fds_label] = i
-            match p:
-                case BFParamXB():
-                    cls._bf_param_xb_idx = i
-                case BFParamXYZ():
-                    cls._bf_param_xyz_idx = i
-                case BFParamPB():
-                    cls._bf_param_pb_idx = i
-                case BFParamOther():
-                    cls._bf_param_other_idx = i
+            # FIXME match case supports issubclass?
+            if issubclass(p, BFParamXB):
+                cls._bf_param_xb_idx = i
+            elif issubclass(p, BFParamXYZ):
+                cls._bf_param_xyz_idx = i
+            elif issubclass(p, BFParamPB):
+                cls._bf_param_pb_idx = i
+            elif issubclass(p, BFParamOther):
+                cls._bf_param_other_idx = i
+
 
     def get(self, fds_label):
         """!
@@ -184,10 +185,12 @@ class BFNamelist(BFParam):
             is_imported = False
 
             # Try managed bf_param
-            managed_bf_param = self.get(fds_param.fds_label)
-            if managed_bf_param:
+            bf_param = self.get(fds_param.fds_label)
+            log.debug(f"fds_param: {fds_param} bf_param: {bf_param} self.bf_param_other: {self.bf_param_other}")
+            if not is_imported and bf_param:
+                log.debug("managed!")
                 try:
-                    managed_bf_param.from_fds(
+                    bf_param.from_fds(
                         context=context, value=fds_param.get_value()
                     )
                 except BFNotImported as err:
@@ -198,10 +201,12 @@ class BFNamelist(BFParam):
 
             # Try bf_param_other
             if not is_imported and self.bf_param_other:
+                log.debug("other!")
                 try:
                     self.bf_param_other.set_value(
                         context, value=fds_param.to_fds(context)
                     )
+                    log.debug(f"bf_param_other.set_value: {fds_param.to_fds(context)}")
                 except BFNotImported as err:
                     if free_text:
                         free_text.write(err.to_fds())
@@ -210,6 +215,7 @@ class BFNamelist(BFParam):
 
             # Raise if still not imported
             if not is_imported:
+                log.debug("still not imported")
                 raise BFException(self, f"Value {fds_param} not imported")
 
         # Set namelist exported and appearance
