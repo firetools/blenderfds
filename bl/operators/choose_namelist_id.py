@@ -32,8 +32,11 @@ def _get_namelist_items(self, context, fds_label):
                 fds_case.from_fds(f90=f90)
     # Prepare list of IDs
     items = list()
-    for fds_namelist in fds_case.pop(fds_label=fds_label):
-        fds_param = fds_namelist.pop(fds_label="ID")
+    while True:
+        fds_namelist = fds_case.get_fds_namelist(fds_label=fds_label, remove=True)
+        if not fds_namelist:
+            break
+        fds_param = fds_namelist.get_fds_param(fds_label="ID", remove=True)
         if fds_param:
             hid = fds_param.get_value()
             items.append((hid, hid, ""))

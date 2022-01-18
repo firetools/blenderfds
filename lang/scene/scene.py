@@ -13,7 +13,7 @@ def _import(scene, context, fds_case, free_text, fds_label=None):
     Import all namelists with label fds_label from fds_case into scene.
     """
     while True:
-        fds_namelist = fds_case.pop(fds_label=fds_label)
+        fds_namelist = fds_case.get_fds_namelist(fds_label=fds_label, remove=True)
         if not fds_namelist:
             break
         _import_fds_namelist(scene, context, free_text, fds_namelist)
@@ -68,10 +68,10 @@ def _get_id_to_fds_namelist_dict(fds_case, fds_label):
     """
     id_to_fds_namelist = dict()
     while True:
-        fds_namelist = fds_case.pop(fds_label=fds_label)
+        fds_namelist = fds_case.get_fds_namelist(fds_label=fds_label, remove=True)
         if not fds_namelist:
             break
-        p_id = fds_namelist.pop(fds_label="ID")
+        p_id = fds_namelist.get_fds_param(fds_label="ID", remove=False)
         if not p_id:
             raise BFNotImported(None, "Missing ID: <{fds_namelist}>")
         id_to_fds_namelist[p_id.get_value()] = fds_namelist

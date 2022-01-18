@@ -40,7 +40,7 @@ class FDSNamelist:
         # in that case this fails
         return fds_label in (fds_params.fds_label for fds_params in self.fds_params)
 
-    def pop(self, fds_label=None) -> FDSParam or None:
+    def get_fds_param(self, fds_label=None, remove=False) -> FDSParam or None:
         """!
         Return and remove the first FDSParam instance in self.fds_params by its fds_label.
         @param fds_label: namelist parameter label.
@@ -50,7 +50,8 @@ class FDSNamelist:
         # in that case this fails
         for fds_param in self.fds_params:
             if fds_param and (not fds_label or fds_param.fds_label == fds_label):
-                self.fds_params.remove(fds_param)
+                if remove:
+                    self.fds_params.remove(fds_param)
                 return fds_param
 
     def to_fds(self, context=None) -> str:
@@ -62,7 +63,7 @@ class FDSNamelist:
         invariant_ps, multi_ps, additional_ns = list(), list(), list()
         msgs = self.msgs
         while True:
-            p = self.pop()
+            p = self.get_fds_param()
             if not p:
                 break
             match p:

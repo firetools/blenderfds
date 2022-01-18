@@ -114,7 +114,7 @@ class ON_MOVE(BFNamelistOb):
                 "DZ": 0.0,
             }
             for key in ps:  # read
-                fds_param = fds_namelist.pop(fds_label=key)
+                fds_param = fds_namelist.get_fds_param(fds_label=key, remove=True)
                 if fds_param:  # assign value
                     ps[key] = fds_param.get_value()
             if ps["SCALE"]:

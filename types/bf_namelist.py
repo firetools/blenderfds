@@ -175,7 +175,7 @@ class BFNamelist(BFParam):
         @param free_text: instance of type Blender Text or None.
         """
         while True:
-            fds_param = fds_namelist.pop()
+            fds_param = fds_namelist.get_fds_param(fds_label=None, remove=True)
             if not fds_param:
                 break
             is_imported = False
