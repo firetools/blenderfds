@@ -2,28 +2,9 @@
 BlenderFDS, panel class extensions.
 """
 
-import bpy
-from bpy.types import Panel, bpy_struct
+from bpy.types import Panel
 from ..types import BFNamelist
-
-from .. import lang, config
-
-bl_classes = list()
-bf_classes = list()
-
-
-def subscribe(cls):
-    """!
-    Subscribe class to related collection.
-    @param cls: the class to subscribe.
-    @return the class subscribed.
-    """
-    if issubclass(cls, bpy_struct):
-        bl_classes.append(cls)
-    else:
-        bf_classes.append(cls)
-    return cls
-
+from .. import config
 
 # Property panels
 
@@ -74,7 +55,6 @@ class _SCENE_PT_bf_namelist:
         bf_namelist(sc).draw(context, flow)
 
 
-@subscribe
 class SCENE_PT_bf_case(Panel, _SCENE_PT_bf_namelist):
     """!
     FDS Case Config
@@ -96,7 +76,6 @@ class SCENE_PT_bf_case(Panel, _SCENE_PT_bf_namelist):
         bf_namelist(sc).draw(context, flow)
 
 
-@subscribe
 class SCENE_PT_bf_config_sizes(Panel, _SCENE_PT_bf_namelist):
     """!
     Default Sizes and Thresholds
@@ -108,7 +87,6 @@ class SCENE_PT_bf_config_sizes(Panel, _SCENE_PT_bf_namelist):
     bl_options = {"DEFAULT_CLOSED"}
 
 
-@subscribe
 class SCENE_PT_bf_namelist_HEAD(Panel, _SCENE_PT_bf_namelist):
     """!
     FDS HEAD
@@ -119,7 +97,6 @@ class SCENE_PT_bf_namelist_HEAD(Panel, _SCENE_PT_bf_namelist):
     bl_parent_id = "SCENE_PT_bf_case"
 
 
-@subscribe
 class SCENE_PT_bf_namelist_TIME(Panel, _SCENE_PT_bf_namelist):
     """!
     FDS TIME
@@ -131,7 +108,6 @@ class SCENE_PT_bf_namelist_TIME(Panel, _SCENE_PT_bf_namelist):
     bl_options = {"DEFAULT_CLOSED"}
 
 
-@subscribe
 class SCENE_PT_bf_namelist_MISC(Panel, _SCENE_PT_bf_namelist):
     """!
     FDS MISC
@@ -143,7 +119,6 @@ class SCENE_PT_bf_namelist_MISC(Panel, _SCENE_PT_bf_namelist):
     bl_options = {"DEFAULT_CLOSED"}
 
 
-@subscribe
 class SCENE_PT_bf_namelist_REAC(Panel, _SCENE_PT_bf_namelist):
     """!
     FDS REAC
@@ -155,7 +130,6 @@ class SCENE_PT_bf_namelist_REAC(Panel, _SCENE_PT_bf_namelist):
     bl_options = {"DEFAULT_CLOSED"}
 
 
-@subscribe
 class SCENE_PT_bf_namelist_RADI(Panel, _SCENE_PT_bf_namelist):
     """!
     FDS RADI
@@ -167,7 +141,6 @@ class SCENE_PT_bf_namelist_RADI(Panel, _SCENE_PT_bf_namelist):
     bl_options = {"DEFAULT_CLOSED"}
 
 
-@subscribe
 class SCENE_PT_bf_namelist_PRES(Panel, _SCENE_PT_bf_namelist):
     """!
     FDS PRES
@@ -179,7 +152,6 @@ class SCENE_PT_bf_namelist_PRES(Panel, _SCENE_PT_bf_namelist):
     bl_options = {"DEFAULT_CLOSED"}
 
 
-@subscribe
 class SCENE_PT_bf_namelist_DUMP(Panel, _SCENE_PT_bf_namelist):
     """!
     FDS DUMP
@@ -191,7 +163,6 @@ class SCENE_PT_bf_namelist_DUMP(Panel, _SCENE_PT_bf_namelist):
     bl_options = {"DEFAULT_CLOSED"}
 
 
-@subscribe
 class SCENE_PT_bf_namelist_CATF(Panel, _SCENE_PT_bf_namelist):
     """!
     FDS CATF
@@ -203,7 +174,6 @@ class SCENE_PT_bf_namelist_CATF(Panel, _SCENE_PT_bf_namelist):
     bl_options = {"DEFAULT_CLOSED"}
 
 
-@subscribe
 class OBJECT_PT_bf_namelist(Panel):
     """!
     FDS geometric namelist
@@ -248,7 +218,6 @@ class OBJECT_PT_bf_namelist(Panel):
         ob.bf_namelist.draw(context, flow)  # draw namelist
 
 
-@subscribe
 class MATERIAL_PT_bf_namelist(Panel):
     """!
     FDS SURF
@@ -294,7 +263,6 @@ class MATERIAL_PT_bf_namelist(Panel):
 # Toolbar panels
 
 
-@subscribe
 class VIEW3D_PT_bf_ob_namelist_tools(Panel):
     """!
     Object namelist tools
@@ -331,7 +299,6 @@ class VIEW3D_PT_bf_ob_namelist_tools(Panel):
         ob.bf_namelist.draw_operators(context, layout)
 
 
-@subscribe
 class VIEW3D_PT_bf_remesh(Panel):
     """!
     Object remesh panel
@@ -386,7 +353,6 @@ class VIEW3D_PT_bf_remesh(Panel):
             col.operator("object.quadriflow_remesh", text="QuadriFlow Remesh")
 
 
-@subscribe
 class VIEW3D_PT_bf_mesh_clean_up(Panel):
     """!
     Mesh clean up panel
@@ -426,7 +392,6 @@ class VIEW3D_PT_bf_mesh_clean_up(Panel):
         col.menu("VIEW3D_MT_edit_mesh_clean")
 
 
-@subscribe
 class VIEW3D_PT_bf_geolocation(Panel):
     """!
     Geolocation panel
@@ -462,7 +427,6 @@ class VIEW3D_PT_bf_geolocation(Panel):
         col.operator("wm.url_open", text="Transform Coordinates").url = url
 
 
-@subscribe
 class VIEW3D_PT_bf_view3d_properties(Panel):  # FIXME set view clipping automatically
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
