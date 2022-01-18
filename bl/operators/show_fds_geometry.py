@@ -81,7 +81,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
         # Manage XB, XYZ, PB*
         msgs, ob_tmp = list(), None
         # XB
-        if ob.bf_xb_export and ob.bf_namelist.bf_param_xb:
+        if ob.bf_xb_export and ob.bf_namelist.get_bf_param_xb():
             try:
                 xbs, msg = lang.XB.ob_to_xbs(context=context, ob=ob, bf_xb=ob.bf_xb)
             except BFException as err:
@@ -102,7 +102,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                 ob_tmp.active_material = ob.active_material
                 ob_tmp.show_wire = True
         # XYZ
-        if ob.bf_xyz_export and ob.bf_namelist.bf_param_xyz:
+        if ob.bf_xyz_export and ob.bf_namelist.get_bf_param_xyz():
             try:
                 xyzs, msg = lang.XYZ.ob_to_xyzs(
                     context=context, ob=ob, bf_xyz=ob.bf_xyz
@@ -120,7 +120,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                 ob_tmp.active_material = ob.active_material
                 ob_tmp.show_wire = True
         # PB
-        if ob.bf_pb_export and ob.bf_namelist.bf_param_pb:
+        if ob.bf_pb_export and ob.bf_namelist.get_bf_param_pb():
             try:
                 pbs, msg = lang.PB.ob_to_pbs(context=context, ob=ob, bf_pb=ob.bf_pb)
             except BFException as err:

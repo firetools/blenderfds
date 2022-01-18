@@ -57,7 +57,7 @@ class BFNamelist(BFParam):
                 cls._bf_param_other_idx = i
 
 
-    def get(self, fds_label):
+    def get_bf_param(self, fds_label):
         """!
         Return bf_param (class or instance) by its fds_label.
         @param fds_label: FDS parameter to be obtained.
@@ -67,32 +67,28 @@ class BFNamelist(BFParam):
         if i is not None:
             return self.bf_params[i]
 
-    @property  # FIXME remove property
-    def bf_param_xb(self):
+    def get_bf_param_xb(self):
         """!
         Return the reference of the XB bf_param (BFParamXB class or instance).
         """
         if self._bf_param_xb_idx is not None:
             return self.bf_params[self._bf_param_xb_idx]
 
-    @property
-    def bf_param_xyz(self):
+    def get_bf_param_xyz(self):
         """!
         Return the reference of the XYZ bf_param (BFParamXYZ class or instance).
         """
         if self._bf_param_xyz_idx is not None:
             return self.bf_params[self._bf_param_xyz_idx]
 
-    @property
-    def bf_param_pb(self):
+    def get_bf_param_pb(self):
         """!
         Return the reference of the PB bf_param (BFParamPB class or instance).
         """
         if self._bf_param_pb_idx is not None:
             return self.bf_params[self._bf_param_pb_idx]
 
-    @property
-    def bf_param_other(self):
+    def get_bf_param_other(self):
         """!
         Return the reference of the other bf_param (class or instance).
         """
@@ -185,7 +181,7 @@ class BFNamelist(BFParam):
             is_imported = False
 
             # Try managed bf_param
-            bf_param = self.get(fds_param.fds_label)
+            bf_param = self.get_bf_param(fds_label=fds_param.fds_label)
             if not is_imported and bf_param:
                 try:
                     bf_param.from_fds(
@@ -198,9 +194,10 @@ class BFNamelist(BFParam):
                     is_imported = True
 
             # Try bf_param_other
-            if not is_imported and self.bf_param_other:
+            bf_param_other = self.get_bf_param_other()
+            if not is_imported and bf_param_other:
                 try:
-                    self.bf_param_other.set_value(
+                    bf_param_other.set_value(
                         context, value=fds_param.to_fds(context)
                     )
                 except BFNotImported as err:
