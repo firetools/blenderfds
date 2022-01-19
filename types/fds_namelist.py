@@ -40,7 +40,10 @@ class FDSNamelist:
         # in that case this fails
         return fds_label in (fds_params.fds_label for fds_params in self.fds_params)
 
-    def get_fds_param(self, fds_label=None, remove=False) -> FDSParam or None:
+    def copy(self):  # shallow copy
+        return FDSNamelist(fds_label=self.fds_label, fds_params=self.fds_params[:], msgs=self.msgs[:])
+
+    def get_fds_param(self, fds_label, remove) -> FDSParam or None:
         """!
         Return and remove the first FDSParam instance in self.fds_params by its fds_label.
         @param fds_label: namelist parameter label.
@@ -63,7 +66,7 @@ class FDSNamelist:
         invariant_ps, multi_ps, additional_ns = list(), list(), list()
         msgs = self.msgs
         while True:
-            p = self.get_fds_param()
+            p = self.get_fds_param(fds_label=None, remove=True)
             if not p:
                 break
             match p:
