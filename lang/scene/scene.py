@@ -74,7 +74,7 @@ def _get_id_to_fds_namelist_dict(fds_case, fds_label):
         p_id = fds_namelist.get_fds_param(fds_label="ID", remove=False)
         if not p_id:
             raise BFNotImported(None, "Missing ID: <{fds_namelist}>")
-        id_to_fds_namelist[p_id.get_value()] = fds_namelist
+        id_to_fds_namelist[p_id.get_value()] = fds_namelist.copy()  # because it gets consumed
     return id_to_fds_namelist
 
 class BFScene:
@@ -229,7 +229,7 @@ class BFScene:
                     )
                 ON_MOVE(ob).from_fds(
                     context,
-                    fds_namelist=move_id_to_move[ob.bf_move_id],
+                    fds_namelist=move_id_to_move[ob.bf_move_id].copy(),
                     free_text=free_text,
                 )
 
