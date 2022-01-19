@@ -3,7 +3,6 @@ BlenderFDS, Blender representations of a FDS parameter.
 """
 
 import re, logging
-from typing import Any
 from .bf_exception import BFException, is_iterable
 
 log = logging.getLogger(__name__)
@@ -50,6 +49,15 @@ class FDSParam:
             return res[:37] + " ... " + res[-37:]
         return res
 
+    def copy(self):  # shallow copy
+        return FDSParam(
+            fds_label=self.fds_label,
+            value=self.get_values()[:],
+            precision=self.precision,
+            exponential=self.exponential,
+            msgs=self.msgs[:],
+        )
+
     def _get_formatted_values(self) -> tuple:
         """!
         Return a tuple of FDS formatted values or an empty tuple, eg. "'Test1'","'Test2'".
@@ -78,24 +86,31 @@ class FDSParam:
         """!
         Return self.value.
         """
-        return self.value
+        if not self._values:
+            return None
+        if len(self._values) == 1:
+            return self._values[0]
+        return self._values
 
     def set_value(self, value) -> None:
         """!
-        Set self.value.
+        Set self._values
         """
-        self.value = value
+        match value:
+            case None:
+                self._values = list()
+            case int()|float()|str():
+                self._values = list((value,))
+            case v if is_iterable(v):  # FIXME faster check?
+                self._values = list(value)
+            case _:
+                raise Exception("Unhandled value type: {value}")
 
-    def get_values(self) -> tuple:
+    def get_values(self) -> list:
         """!
-        Return an iterable self.value.
+        Return self._values.
         """
-        if self.value is None:
-            return tuple()
-        elif not is_iterable(self.value):
-            return tuple((self.value,))
-        else:
-            return self.value
+        return self._values
 
     def to_fds(self, context=None) -> str:
         """!
@@ -154,8 +169,5 @@ class FDSParam:
             if match:
                 self.exponential = True
                 self.precision += max(len(m) for m in match) - 1
-        # Record in self.value # FIXME change logic of self.value!
-        if len(values) == 1:
-            self.set_value(values[0])
-        else:
-            self.set_value(values)
+        # Record
+        self.set_value(values)
