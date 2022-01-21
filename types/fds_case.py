@@ -77,7 +77,7 @@ class FDSCase:
         re.VERBOSE | re.DOTALL | re.IGNORECASE | re.MULTILINE,
     )  # MULTILINE, so that ^ is the beginning of each line
 
-    def from_fds(self, filepath=None, f90=None) -> None:  # FIXME context?
+    def from_fds(self, filepath=None, f90=None) -> None:
         """!
         Import from FDS file, on error raise BFException.
         @param filepath: filepath of FDS case to be imported.

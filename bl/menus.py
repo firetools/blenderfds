@@ -97,7 +97,7 @@ class ExportSceneToFDS(Operator, ExportHelper):
         sc = context.scene
         try:  # get best filepath for dialog
             self.filepath = utils.io.bl_path_to_os(
-                bl_path=sc.bf_config_directory or "//",
+                bl_path=sc.bf_config_directory or "//.",
                 name=sc.name,
                 extension=".fds",
             )

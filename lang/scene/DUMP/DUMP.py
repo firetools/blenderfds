@@ -34,7 +34,7 @@ class SP_DUMP_render_file(BFParam):
 
     def _get_ge1_filepath(self, sc):
         return utils.io.bl_path_to_os(
-            bl_path=sc.bf_config_directory or "//",
+            bl_path=sc.bf_config_directory or "//.",
             name=sc.name,
             extension=".ge1",
         )

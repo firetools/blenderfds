@@ -46,7 +46,6 @@ class BFNamelist(BFParam):
         for i, p in enumerate(cls.bf_params):
             if p.fds_label:
                 cls._bf_param_idx_by_fds_label[p.fds_label] = i
-            # FIXME match case supports issubclass?
             if issubclass(p, BFParamXB):
                 cls._bf_param_xb_idx = i
             elif issubclass(p, BFParamXYZ):

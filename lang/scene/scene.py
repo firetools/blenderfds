@@ -1,5 +1,4 @@
-from shutil import move
-import time, sys, logging, bpy
+import time, sys, logging, bpy, os
 from bpy.types import Scene, Object, Material
 from bpy.props import IntVectorProperty
 from ...types import BFNamelist, FDSCase, BFException, BFNotImported
@@ -180,7 +179,7 @@ class BFScene:
         fds_text = "\n".join(l for l in lines if l)
         if save:
             filepath = utils.io.bl_path_to_os(
-                bl_path=self.bf_config_directory or "//",
+                bl_path=self.bf_config_directory or "//.",
                 name=self.name,
                 extension=".fds",
             )
@@ -202,7 +201,10 @@ class BFScene:
         # Init
         fds_case = FDSCase()
         fds_case.from_fds(filepath=filepath, f90=f90)
-        # self.bf_config_directory = os.path.dirname(filepath)  # FIXME useful?
+
+        # Set imported fds case dir, because others rely on it
+        # it is removed later
+        self.bf_config_directory = os.path.dirname(filepath)
 
         # Prepare free text for unmanaged namelists
         free_text = bpy.data.texts.new(f"Imported text")
@@ -239,6 +241,10 @@ class BFScene:
         # Show free text
         free_text.current_line_index = 0
         bpy.ops.scene.bf_show_text()  # FIXME FIXME FIXME remove ops, put py
+
+        # Remove imported fds case dir, to avoid overwriting imported case
+        self.bf_config_directory = "//."
+
 
     @classmethod
     def register(cls):
