@@ -32,20 +32,20 @@ class SP_DUMP_render_file(BFParam):
     bpy_prop = BoolProperty
     fds_default = False
 
-    def _get_ge1_filepath(self, sc):
-        return utils.io.bl_path_to_os(
-            bl_path=sc.bf_config_directory or "//.",
-            name=sc.name,
-            extension=".ge1",
-        )
-
     def to_fds_param(self, context):
         if self.get_exported():
+            # Get filepaths
+            filepath, filepath_rfds = utils.io.transform_rbl_to_abs_and_rfds(
+                context,
+                filepath_rbl=context.scene.bf_config_directory,
+                name=self.element.name,
+                extension=".ge1",
+            )
             # Save .ge1 file
-            filepath = self._get_ge1_filepath(sc=self.element)
             ge1_text = scene_to_ge1(context, self)
             utils.io.write_txt_file(filepath, ge1_text)
-            return FDSParam(fds_label="RENDER_FILE", value=f"{self.element.name}.ge1")
+            # Return
+            return FDSParam(fds_label="RENDER_FILE", value=filepath_rfds)
 
     def set_value(self, context, value=None):
         self.element.bf_dump_render_file = bool(value)

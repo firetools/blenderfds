@@ -142,6 +142,7 @@ class OP_GEOM_binary_directory(BFParam):
     bpy_type = Object
     bpy_idname = "bf_geom_binary_directory"
     bpy_prop = StringProperty
+    bpy_default = ""  # current fds dir
     bpy_other = {"subtype": "DIR_PATH", "maxlen": 1024}
 
     # Taken care at OP_GEOM_BINARY_FILE
@@ -158,35 +159,18 @@ class OP_GEOM_BINARY_FILE(BFParam):
     bpy_export = "bf_geom_binary_file_export"
     bpy_export_default = False
 
-    def _get_bingeom_filepath(self, sc, ob):
-        return utils.io.bl_path_to_os(
-            bl_path=ob.bf_geom_binary_directory or sc.bf_config_directory or "//",
-            name=ob.data.name,
-            extension=".bingeom",
-        )
-
-    def _get_fds_binary_file(self, sc, ob):
-        return utils.io.bl_path_to_os(
-            bl_path=ob.bf_geom_binary_directory or sc.bf_config_directory or "//",
-            name=ob.data.name,
-            extension=".bingeom",
-            bl_start=sc.bf_config_directory,
-        )
-
-    def _get_blend_name_and_directory(self, fds_binary_file, sc):
-        fds_path = utils.io.bl_path_to_os(
-            bl_path=sc.bf_config_directory or "//",
-        )
-        return utils.io.os_filepath_to_bl(
-            filepath=fds_binary_file,
-            start=fds_path,
+    def _get_bingeom_path_rbl(self, context):
+        return (
+            self.element.bf_geom_binary_directory or context.scene.bf_config_directory
         )
 
     def check(self, context):
-        filepath = self._get_bingeom_filepath(sc=context.scene, ob=self.element)
-        path = os.path.dirname(filepath)
+        # Get absolute path
+        path_rbl = self._get_bingeom_path_rbl(context)
+        path = utils.io.transform_rbl_to_abs(filepath_rbl=path_rbl)
+        # Check existance
         if self.element.bf_geom_binary_directory and not os.path.exists(path):
-            raise BFException(self, f"Bingeom directory <{path}> not existing")
+            raise BFException(self, f"Bingeom directory not existing: <{path}>")
 
     def draw(self, context, layout):
         ob, mesh, space = context.object, context.mesh, context.space_data
@@ -213,6 +197,16 @@ class OP_GEOM_BINARY_FILE(BFParam):
         if not self.get_exported():
             return
         self.check(context)
+        sc, ob = context.scene, self.element
+
+        # Get filepaths
+        filepath, filepath_rfds = utils.io.transform_rbl_to_abs_and_rfds(
+            context,
+            filepath_rbl=self._get_bingeom_path_rbl(context),
+            name=ob.data.name,
+            extension=".bingeom",
+        )
+
         # Calc geometry
         ob = self.element
         vs, fs, ss, _, msg = ob_to_geom(
@@ -222,8 +216,8 @@ class OP_GEOM_BINARY_FILE(BFParam):
             check_open=not self.element.bf_geom_is_terrain,
             world=not (ob.data.users > 1 or ob.bf_move_id_export),
         )
-        # Save .bingeom file
-        filepath = self._get_bingeom_filepath(sc=context.scene, ob=self.element)
+
+        # Save the .bingeom file  # FIXME one only command
         bingeom.write_bingeom_file(
             geom_type=self.element.bf_geom_is_terrain and 2 or 1,
             n_surf_id=len(self.element.data.materials),
@@ -233,31 +227,24 @@ class OP_GEOM_BINARY_FILE(BFParam):
             fds_volus=list(),
             filepath=filepath,
         )
-        # Prepare fds_param
-        value = self._get_fds_binary_file(sc=context.scene, ob=self.element)
-        return FDSParam(fds_label="BINARY_FILE", value=value, msg=msg)
+
+        # Prepare fds_param, relative to the fds_path
+        return FDSParam(fds_label="BINARY_FILE", value=filepath_rfds, msg=msg)
 
     def from_fds(self, context, value):
-        if not value:
-            return
-        # Calc and assign value
-        name, path = self._get_blend_name_and_directory(
-            fds_binary_file=value, sc=context.scene
+        # Get filepaths
+        filepath, _, path_rbl, name = utils.io.transform_rfds_to_abs_and_rbl(
+            context, filepath_rfds=value
         )
-        # Blender bug, assign twice to have it right  # TODO
-        self.element.data.name = name
-        self.element.data.name = name
-        if self.element.data.name != name:
-            raise Exception(f"Blender bug")
-        # FIXME are we sure?
-        # Isn't it better to maintain the original path?
-        # Better detach from original?
-        self.element.bf_geom_binary_directory = path
-        self.set_exported(context, value=True)
-        # Load .bingeom file and import it
-        filepath = self._get_bingeom_filepath(sc=context.scene, ob=self.element)
+
+        # Import bingeom geometry to Object
         _, vs, fs, ss, _ = bingeom.read_bingeom_file(filepath)
         geom_to_ob(context=context, ob=self.element, vs=vs, fs=fs, ss=ss)
+
+        # Set Object Data and path
+        self.element.data.name = name
+        self.element.bf_geom_binary_directory = ""  # disconnect from path_rbl
+        self.set_exported(context, value=True)
 
 
 class OP_GEOM_MOVE_ID(OP_MOVE_ID):

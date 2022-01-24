@@ -88,14 +88,13 @@ class BFScene:
         """
         return (n(self) for n in BFNamelist.subclasses if n.bpy_type == Scene)
 
-    def to_fds(self, context, full=False, all_surfs=False, save=False, filepath=None):
+    def to_fds(self, context, full=False, all_surfs=False, save=False):
         """!
         Return the FDS formatted string.
         @param context: the Blender context.
         @param full: if True, return full FDS case.
         @param all_surfs: if True, return all SURF namelists, even if not related.
         @param save: if True, save to disk.
-        @param filepath: set case directory and name.
         @return FDS formatted string (eg. "&OBST ID='Test' /"), or None.
         """
         lines = list()
@@ -103,14 +102,6 @@ class BFScene:
         # Set mysef as the right Scene instance in the context
         # It is needed, because context.scene is needed elsewhere
         bpy.context.window.scene = self  # set context.scene
-
-        # Check and get scene name and dir from filepath
-        if not bpy.data.is_saved:
-            raise BFException(self, "Save the current Blender file before exporting.")
-        if filepath:
-            self.name, self.bf_config_directory = utils.io.os_filepath_to_bl(
-                bpy.path.abspath(filepath)
-            )
 
         # Header
         if full:
@@ -175,17 +166,16 @@ class BFScene:
         if full and self.bf_head_export:
             lines.append("\n&TAIL /\n ")
 
-        # Write to file
+        # Write and return
         fds_text = "\n".join(l for l in lines if l)
         if save:
-            filepath = utils.io.bl_path_to_os(
-                bl_path=self.bf_config_directory or "//.",
+            filepath = utils.io.transform_rbl_to_abs(
+                filepath_rbl=self.bf_config_directory,
                 name=self.name,
-                extension=".fds",
+                extension=".fds"
             )
             utils.io.write_txt_file(filepath, fds_text)
-        else:
-            return fds_text
+        return fds_text
 
     def from_fds(self, context, filepath=None, f90=None):
         """!
@@ -199,6 +189,7 @@ class BFScene:
         bpy.context.window.scene = self
 
         # Init
+        filepath = utils.io.transform_rbl_to_abs(filepath)
         fds_case = FDSCase()
         fds_case.from_fds(filepath=filepath, f90=f90)
 
@@ -242,8 +233,8 @@ class BFScene:
         free_text.current_line_index = 0
         bpy.ops.scene.bf_show_text()  # FIXME FIXME FIXME remove ops, put py
 
-        # Remove imported fds case dir, to avoid overwriting imported case
-        self.bf_config_directory = "//."
+        # Disconnect from fds case dir, to avoid overwriting imported case
+        self.bf_config_directory = ""
 
 
     @classmethod

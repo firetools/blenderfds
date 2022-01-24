@@ -2,9 +2,9 @@
 BlenderFDS, FDS bingeom files input/output routines.
 """
 
-import os, struct, logging
-from pathlib import Path
+import struct, logging
 import numpy as np
+from .... import utils
 from ....types import BFException
 
 log = logging.getLogger(__name__)
@@ -108,7 +108,7 @@ def write_bingeom_file(
 
     try:
         if force_dir:
-            Path(os.path.dirname(filepath)).mkdir(parents=True, exist_ok=True)
+            utils.io.make_dir(filepath)
         with open(filepath, "wb") as f:
             _write_record(f, np.array((geom_type,), dtype="int32"))  # was 1 only
             _write_record(
