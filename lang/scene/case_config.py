@@ -12,7 +12,7 @@ class SP_config_directory(BFParam):
     bpy_type = Scene
     bpy_idname = "bf_config_directory"
     bpy_prop = StringProperty
-    bpy_default = "//."  # current blend dir
+    # no bpy_default, user choice when saving
     bpy_other = {"subtype": "DIR_PATH", "maxlen": 1024}
 
     def get_exported(self):

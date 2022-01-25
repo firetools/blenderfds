@@ -69,7 +69,7 @@ class ImportFDSToScene(Operator, ImportHelper):
 
         # Close
         w.cursor_modal_restore()
-        self.report({"INFO"}, f"FDS cases imported")
+        self.report({"INFO"}, f"{len(filepaths)} imported")
         return {"FINISHED"}
 
 
@@ -154,7 +154,7 @@ class ExportAllSceneToFDS(Operator):
                 self.report({"ERROR"}, f"Export: {str(err)}")
                 return {"CANCELLED"}
         w.cursor_modal_restore()
-        self.report({"INFO"}, f"{len(bpy.data.scenes)} Scene instances exported")
+        self.report({"INFO"}, f"{len(bpy.data.scenes)} exported")
         return {"FINISHED"}
 
 

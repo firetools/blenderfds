@@ -35,7 +35,7 @@ class OBJECT_OT_bf_check_intersections(Operator):
         try:
             lang.GEOM.check_intersections(context, ob, obs, protect=ob.bf_geom_protect)
         except BFException as err:
-            self.report({"ERROR"}, str(err))
+            self.report({"ERROR"}, f"Check intersections: {err}")
             return {"CANCELLED"}
         else:
             self.report({"INFO"}, "No intersection detected")
@@ -69,7 +69,7 @@ class SCENE_OT_bf_check_sanity(Operator):
                 check_open=not ob.bf_geom_is_terrain,
             )
         except BFException as err:
-            self.report({"ERROR"}, str(err))
+            self.report({"ERROR"}, f"Check sanity: {err}")
             return {"CANCELLED"}
         else:
             self.report({"INFO"}, "Geometry sanity ok")

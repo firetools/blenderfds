@@ -76,7 +76,7 @@ class _show_fds_code:
             layout.label(text=line)
 
     def execute(self, context):
-        self.report({"INFO"}, "FDS Code Shown")
+        self.report({"INFO"}, "FDS code shown")
         return {"FINISHED"}
 
     def _get_lines(self, context):
@@ -93,7 +93,7 @@ class _show_fds_code:
         try:
             self.lines = self._get_lines(context)  # get FDS code
         except BFException as err:
-            self.report({"ERROR"}, str(err))
+            self.report({"ERROR"}, f"Show: {err}")
             return {"CANCELLED"}
         else:
             wm = context.window_manager
@@ -210,10 +210,10 @@ class SCENE_OT_bf_show_text(Operator):
                     done = True
                     break
         if done:
-            self.report({"INFO"}, f"See <{te.name}> in Blender text editor")
+            self.report({"INFO"}, f"See Blender text editor: <{te.name}>")
             return {"FINISHED"}
         else:
-            self.report({"WARNING"}, f"Open a Blender text editor first")
+            self.report({"WARNING"}, f"Open Blender text editor first")
             return {"CANCELLED"}
 
 

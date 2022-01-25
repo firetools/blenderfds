@@ -45,7 +45,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
         bf_namelist = ob.bf_namelist
         if not bf_namelist.get_exported():
             w.cursor_modal_restore()
-            self.report({"WARNING"}, "Not exported, nothing to show!")
+            self.report({"WARNING"}, "Not exported, nothing to show")
             return {"CANCELLED"}
         # Manage GEOM
         if ob.bf_namelist_cls == "ON_GEOM" and not ob.hide_render:  # was bf_export
@@ -58,7 +58,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                     world=True,
                 )
             except BFException as err:
-                self.report({"ERROR"}, str(err))
+                self.report({"ERROR"}, f"Show: {err}")
                 return {"CANCELLED"}
             else:
                 ob_tmp = utils.geometry.get_tmp_object(
@@ -86,7 +86,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                 xbs, msg = lang.XB.ob_to_xbs(context=context, ob=ob, bf_xb=ob.bf_xb)
             except BFException as err:
                 w.cursor_modal_restore()
-                self.report({"ERROR"}, str(err))
+                self.report({"ERROR"}, f"Show: {err}")
                 return {"CANCELLED"}
             else:
                 msgs.append(msg)
@@ -109,7 +109,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                 )
             except BFException as err:
                 w.cursor_modal_restore()
-                self.report({"ERROR"}, str(err))
+                self.report({"ERROR"}, f"Show: {err}")
                 return {"CANCELLED"}
             else:
                 msgs.append(msg)
@@ -125,7 +125,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                 pbs, msg = lang.PB.ob_to_pbs(context=context, ob=ob, bf_pb=ob.bf_pb)
             except BFException as err:
                 w.cursor_modal_restore()
-                self.report({"ERROR"}, str(err))
+                self.report({"ERROR"}, f"Show: {err}")
                 return {"CANCELLED"}
             else:
                 msgs.append(msg)
@@ -139,10 +139,10 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
         w.cursor_modal_restore()
         msg = "; ".join(msg for msg in msgs if msg)
         if ob_tmp:
-            self.report({"INFO"}, msg or "Geometry exported.")
+            self.report({"INFO"}, msg or "Geometry exported")
             return {"FINISHED"}
         else:
-            self.report({"WARNING"}, msg or "No geometry exported.")
+            self.report({"WARNING"}, msg or "No geometry exported")
             return {"CANCELLED"}
 
 

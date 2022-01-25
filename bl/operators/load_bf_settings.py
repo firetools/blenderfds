@@ -32,7 +32,7 @@ class WM_OT_bf_load_blenderfds_settings(Operator):
         # Save user preferences
         bpy.ops.wm.save_userpref()
         # Report
-        self.report({"INFO"}, "Default BlenderFDS settings loaded")
+        self.report({"INFO"}, "Default settings loaded")
         return {"FINISHED"}
 
 

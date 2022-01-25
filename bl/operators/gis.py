@@ -84,7 +84,7 @@ class _bf_set_geoloc:
         sc = context.scene
         # Check origin geolocation
         if not sc.bf_misc_export or not sc.bf_origin_export:
-            self.report({"ERROR"}, "Set origin geolocation in MISC namelist.")
+            self.report({"ERROR"}, "Undefined location, set origin geolocation in MISC")
             return {"FINISHED"}
         # Get loc, convert to set default
         x, y, _ = self._get_loc(context)
