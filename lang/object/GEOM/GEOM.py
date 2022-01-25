@@ -137,6 +137,7 @@ class OP_GEOM_XB(BFParam):
 class OP_GEOM_binary_directory(BFParam):
     # Used in conjuction with OP_GEOM_BINARY_FILE
     # Contains abs path or path relative to saved blend file
+    # When empty is the same as the fds case file (as in FDS)
     label = "Binary Directory"
     description = "Destination directory for the binary bingeom file"
     bpy_type = Object
@@ -159,18 +160,10 @@ class OP_GEOM_BINARY_FILE(BFParam):
     bpy_export = "bf_geom_binary_file_export"
     bpy_export_default = False
 
-    def _get_bingeom_path_rbl(self, context):
-        return (
-            self.element.bf_geom_binary_directory or context.scene.bf_config_directory
-        )
-
     def check(self, context):
-        # Get absolute path
-        path_rbl = self._get_bingeom_path_rbl(context)
-        path = utils.io.transform_rbl_to_abs(filepath_rbl=path_rbl)
-        # Check existance
-        if self.element.bf_geom_binary_directory and not os.path.exists(path):
-            raise BFException(self, f"Bingeom directory not existing: <{path}>")
+        d = self.element.bf_geom_binary_directory
+        if d and not os.path.exists(utils.io.transform_rbl_to_abs(filepath_rbl=d)):
+            raise BFException(self, f"Bingeom directory not existing: <{d}>")
 
     def draw(self, context, layout):
         ob, mesh, space = context.object, context.mesh, context.space_data
@@ -197,12 +190,12 @@ class OP_GEOM_BINARY_FILE(BFParam):
         if not self.get_exported():
             return
         self.check(context)
-        sc, ob = context.scene, self.element
+        ob = self.element
 
         # Get filepaths
         filepath, filepath_rfds = utils.io.transform_rbl_to_abs_and_rfds(
             context,
-            filepath_rbl=self._get_bingeom_path_rbl(context),
+            filepath_rbl=self.element.bf_geom_binary_directory,
             name=ob.data.name,
             extension=".bingeom",
         )

@@ -69,11 +69,17 @@ def transform_rbl_to_abs_and_rfds(context, filepath_rbl, name="", extension=""):
     """!
     Transform filepath relative to blender file to absolute and relative to fds case file.
     """
-    filepath_rfds = filepath = transform_rbl_to_abs(
-        filepath_rbl=filepath_rbl, name=name, extension=extension
+    filepath = transform_rbl_to_abs(
+        filepath_rbl=filepath_rbl or get_abs_fds_path(context.scene),
+        name=name,
+        extension=extension,
     )
-    if not is_abs(filepath_rbl):
+    if not filepath_rbl:  # empty means same as fds case path
+        filepath_rfds = os.path.basename(filepath)
+    elif not is_abs(filepath_rbl):
         filepath_rfds = transform_abs_to_rfds(filepath, context.scene)
+    else:
+        filepath_rfds = filepath
     return filepath, filepath_rfds
 
 
@@ -96,13 +102,17 @@ def transform_rfds_to_abs_and_rbl(context, filepath_rfds):
     """!
     Transform filepath relative to fds file to absolute and relative to blender file.
     """
-    filepath_rbl = filepath = transform_rfds_to_abs(
-        context=context, filepath_rfds=filepath_rfds
+    filepath = transform_rfds_to_abs(
+        context=context, filepath_rfds=filepath_rfds or get_abs_fds_path(context.scene)
     )
-    if not is_abs(filepath_rfds):
+    if not filepath_rfds:  # empty means same as fds case path
+        filepath_rbl = ""
+    elif not is_abs(filepath_rfds):
         filepath_rbl = transform_abs_to_rbl(filepath)
-    path_rbl = os.path.dirname(filepath)
-    name = os.path.splitext(os.path.basename(filepath))[0]
+    else:
+        filepath_rbl = filepath
+    path_rbl = os.path.dirname(filepath_rbl)
+    name = os.path.splitext(bpy.path.basename(filepath_rbl))[0]
     return filepath, filepath_rbl, path_rbl, name
 
 
@@ -157,7 +167,7 @@ def append_filename(path="", name="", extension="") -> str:
 
 def extract_path_name(filepath) -> tuple:
     path = os.path.dirname(filepath)
-    name = os.path.splitext(os.path.basename(filepath))[0]
+    name = os.path.splitext(bpy.path.basename(filepath))[0]
     return path, name
 
 
