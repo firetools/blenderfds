@@ -102,7 +102,7 @@ def geom_to_ob(context, ob, vs, fs=None, ss=None, fss=None):
 # Special GEOMs
 
 
-def geom_sphere_to_ob(context, ob, n_levels=2, radius=0.5, origin=(0.0, 0.0, 0.0)):
+def geom_sphere_to_ob(context, ob, origin, n_levels=2, radius=0.5):
     """!
     Import GEOM SPHERE into Blender Object.
     @param context: the blender context.
@@ -114,7 +114,7 @@ def geom_sphere_to_ob(context, ob, n_levels=2, radius=0.5, origin=(0.0, 0.0, 0.0
     # Create new object
     scale_length = context.scene.unit_settings.scale_length
     bpy.ops.mesh.primitive_ico_sphere_add(
-        subdivisions=n_levels, radius=radius / scale_length
+        subdivisions=n_levels, radius=radius/scale_length
     )
     ob_tmp = context.object
     # Attach materials before copying Mesh
@@ -124,7 +124,7 @@ def geom_sphere_to_ob(context, ob, n_levels=2, radius=0.5, origin=(0.0, 0.0, 0.0
     ob.data = ob_tmp.data
     bpy.data.objects.remove(ob_tmp, do_unlink=True)
     # Set location and rotation for original Object
-    matrix_loc = Matrix.Translation(Vector(origin) / scale_length)
+    matrix_loc = Matrix.Translation(Vector(origin)/scale_length)
     ob.matrix_world = matrix_loc @ ob.matrix_world
 
 
