@@ -294,12 +294,11 @@ class BFParam:
     # No to_fds, because to_fds_param can be None, many or multi
     # and it makes no sense
 
-    def from_fds(self, context, value, free_text=None):
+    def from_fds(self, context, value):
         """!
         Set self from py value, on error raise BFException.
         @param context: the Blender context.
         @param value: the value to set. Can be of any type.
-        @param free_text: instance of type Blender Text or None.
         """
         self.set_value(context, value)
         self.set_exported(context, True)

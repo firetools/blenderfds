@@ -39,7 +39,7 @@ class BFObject:
             return
         return self.bf_namelist.to_fds(context)
 
-    def from_fds(self, context, fds_namelist, free_text=None):
+    def from_fds(self, context, fds_namelist):
         """!
         Set self.bf_namelist from FDSNamelist, on error raise BFException.
         @param context: the Blender context.
@@ -51,9 +51,7 @@ class BFObject:
         # Prevent default geometry (eg. XB=BBOX)
         self.bf_xb_export, self.bf_xyz_export, self.bf_pb_export = (False, False, False)
         # Import
-        self.bf_namelist.from_fds(
-            context, fds_namelist=fds_namelist, free_text=free_text
-        )
+        self.bf_namelist.from_fds(context, fds_namelist=fds_namelist)
 
     @classmethod
     def register(cls):

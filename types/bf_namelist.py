@@ -166,12 +166,11 @@ class BFNamelist(BFParam):
             else:
                 return "\n".join(line.to_fds(context) for line in fds_namelist if line)
 
-    def from_fds(self, context, fds_namelist, free_text=None):
+    def from_fds(self, context, fds_namelist):
         """!
         Set self.bf_params value, on error raise BFException.
         @param context: the Blender context.
         @param fds_namelist: instance of type FDSNamelist.
-        @param free_text: instance of type Blender Text or None.
         """
         while True:
             fds_param = fds_namelist.get_fds_param(fds_label=None, remove=True)
@@ -187,8 +186,7 @@ class BFNamelist(BFParam):
                         context=context, value=fds_param.get_value()
                     )
                 except BFNotImported as err:
-                    if free_text:
-                        free_text.write(err.to_fds())
+                    context.scene.bf_config_text.write(err.to_fds())
                 else:
                     is_imported = True
 
@@ -200,8 +198,7 @@ class BFNamelist(BFParam):
                         context, value=fds_param.to_fds(context)
                     )
                 except BFNotImported as err:
-                    if free_text:
-                        free_text.write(err.to_fds())
+                    context.scene.bf_config_text.write(err.to_fds())
                 else:
                     is_imported = True
 

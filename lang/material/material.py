@@ -48,7 +48,7 @@ class BFMaterial:
         """
         return self.bf_namelist.to_fds(context)
 
-    def from_fds(self, context, fds_namelist, free_text=None):
+    def from_fds(self, context, fds_namelist):
         """!
         Set self.bf_namelist from FDSNamelist, on error raise BFException.
         @param context: the Blender context.
@@ -58,9 +58,7 @@ class BFMaterial:
         bf_namelist = BFNamelist.get_subclass(fds_label=fds_namelist.fds_label)
         self.bf_namelist_cls = bf_namelist.__name__
         # Import
-        self.bf_namelist.from_fds(
-            context, fds_namelist=fds_namelist, free_text=free_text
-        )
+        self.bf_namelist.from_fds(context, fds_namelist=fds_namelist)
 
     @classmethod
     def register(cls):

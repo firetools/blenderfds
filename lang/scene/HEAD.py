@@ -44,5 +44,5 @@ class SN_TAIL(BFNamelistSc):
     def to_fds_namelist(self, context):
         pass
 
-    def from_fds(self, context, fds_namelist, free_text=None):
+    def from_fds(self, context, fds_namelist):
         pass
