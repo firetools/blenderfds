@@ -103,34 +103,46 @@ class BFParam:
             # ...in bpy_default if not present
             if cls.bpy_default is None:
                 cls.bpy_default = cls.fds_default
-        # Create bpy_prop
-        if cls.bpy_prop:
-            if not cls.bpy_idname or not cls.label or not cls.description:
-                raise AssertionError(
-                    f"No bpy_idname, label or description in class <{cls}>"
+        # Create bpy_idname
+        if cls.bpy_prop and cls.bpy_idname:
+            # Check label and description
+            if not cls.label or not cls.description:
+                raise AssertionError(f"No label or description in <{cls}>")
+            if hasattr(cls.bpy_type, cls.bpy_idname):
+                # Already existing bpy_type.bpy_idname
+                # log.debug(f"Using existing <{cls.bpy_idname}> Blender property")
+                if cls.bpy_other or cls.bpy_default:
+                    raise AssertionError(f"Unused bpy_other or bpy_default in <{cls}>")
+            else:
+                # New bpy_type.bpy_idname
+                # log.debug(f"Setting <{cls.bpy_idname}> Blender property")
+                bpy_other = cls.bpy_other.copy()
+                if cls.bpy_default is not None:
+                    bpy_other["default"] = cls.bpy_default
+                setattr(
+                    cls.bpy_type,
+                    cls.bpy_idname,
+                    cls.bpy_prop(
+                        name=cls.label, description=cls.description, **bpy_other
+                    ),
                 )
-            bpy_other = cls.bpy_other.copy()
-            if cls.bpy_default is not None:
-                bpy_other["default"] = cls.bpy_default
-            # log.debug(f"Setting <{cls.bpy_idname}> Blender property")
-            setattr(
-                cls.bpy_type,
-                cls.bpy_idname,
-                cls.bpy_prop(name=cls.label, description=cls.description, **bpy_other),
-            )
-            cls._registered_bpy_idnames.append(cls.bpy_idname)
+                cls._registered_bpy_idnames.append(cls.bpy_idname)
+        # elif cls.bpy_prop or cls.bpy_idname:
+        #     log.debug(f"Unused bpy_prop or bpy_idname in <{cls}>")
+        # else:
+        #     log.debug(f"No bpy_prop and bpy_idname in <{cls}>")
         # Create bpy_export
         if cls.bpy_export:
             if hasattr(cls.bpy_type, cls.bpy_export):
+                # Already existing bpy_type.bpy_export
                 # log.debug(f"Using <{cls.bpy_export}> Blender property as export ref")
                 if cls.bpy_export_default is not None:
-                    msg = f"Unused bpy_export_default in class <{cls.__name__}>"
-                    raise AssertionError(msg)
+                    raise AssertionError(f"Unused bpy_export_default in <{cls}>")
             else:
+                # New bpy_type.bpy_export
                 # log.debug(f"Setting <{cls.bpy_export}> Blender property")
                 if cls.bpy_export_default is None:
-                    msg = f"Undefined bpy_export_default in class <{cls.__name__}>"
-                    raise AssertionError(msg)
+                    raise AssertionError(f"Undefined bpy_export_default in <{cls}>")
                 setattr(
                     cls.bpy_type,
                     cls.bpy_export,
@@ -176,7 +188,7 @@ class BFParam:
             except TypeError:
                 raise BFNotImported(
                     sender=self,
-                    msg=f"Unsupported value <{value}> by <{self.bpy_idname}>",  # FIXME FIXME FIXME improve user feedback
+                    msg=f"Unsupported value: <{value}>",
                 )
             return
 
@@ -191,7 +203,7 @@ class BFParam:
         # Check if identical to FDS default
         d = self.fds_default
         if d is not None:
-            if isinstance(value, float):  # floats comparison
+            if isinstance(value, float):  # FIXME floats comparison
                 return value > d + 1e-6 or value < d - 1e-6
             elif value == d:  # other comparison
                 return False
