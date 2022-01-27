@@ -45,7 +45,7 @@ class OP_MESH_nsplits(BFParam):
 
     def check(self, context):
         ob = self.element
-        value = self.get_value()
+        value = self.get_value(context)
         requested_nsplit = value[0] * value[1] * value[2]
         nsplit, _ = get_nsplit(ob)
         if ob.bf_mesh_nsplits_export and requested_nsplit != nsplit:
@@ -61,7 +61,7 @@ class OP_MESH_XB(OP_XB_BBOX):
             hid=ob.name,
             ijk=ob.bf_mesh_ijk,
             nsplits=ob.bf_mesh_nsplits,
-            xb=fds_param.get_value(),
+            xb=fds_param.get_value(context),
         )
         result = tuple(
             (

@@ -3,7 +3,7 @@ BlenderFDS, Blender interfaces to FDS parameters.
 """
 
 import logging, bpy
-from bpy.types import Operator
+from bpy.types import Operator, Mesh
 from bpy.props import IntProperty, CollectionProperty, BoolProperty, StringProperty
 from .fds_param import FDSParam
 from .bf_exception import BFException, BFNotImported, BFWarning
@@ -30,7 +30,7 @@ class BFParam:
     fds_label = None
     ## FDS default value
     fds_default = None
-    ## type in bpy.types for Blender property, eg. Object
+    ## type in bpy.types for Blender property (Scene, Material, Object, or Mesh)
     bpy_type = None
     ## idname of related bpy.types Blender property, eg. "bf_id"
     bpy_idname = None
@@ -60,6 +60,9 @@ class BFParam:
         Class constructor.
         @param element: FDS element represented by this class instance.
         """
+        # Treat Mesh BFParam  # FIXME check
+        if self.bpy_type == Mesh:
+            element = element.data
         ## FDS element represented by this class instance
         self.element = element
 
@@ -166,7 +169,7 @@ class BFParam:
             # log.debug(f"Unregistering <{bpy_idname}> Blender property")
             delattr(cls.bpy_type, bpy_idname)
 
-    def get_value(self):
+    def get_value(self, context):
         """!
         Return value from element instance.
         @return any type
@@ -192,12 +195,12 @@ class BFParam:
                 )
             return
 
-    def get_exported(self):
+    def get_exported(self, context):
         """!
         Return True if self is exported to FDS.
         """
         # Check if empty
-        value = self.get_value()
+        value = self.get_value(context)
         if value is None or value == "":
             return False
         # Check if identical to FDS default
@@ -254,7 +257,7 @@ class BFParam:
         if not self.bpy_idname:
             return
         # Set active and alert
-        active, alert = bool(self.get_exported()), False
+        active, alert = bool(self.get_exported(context)), False
         if active:
             try:
                 self.check(context)
@@ -282,12 +285,12 @@ class BFParam:
         @return None, FDSParam, FDSNamelist, (FDSParam, FDSNamelist,...) called "many",
             or ((FDSParam, ...), ...) called "multi" instances of FDSParam only.
         """
-        if self.get_exported():
+        if self.get_exported(context):
             self.check(context)
             if self.fds_label:
                 return FDSParam(
                     fds_label=self.fds_label,
-                    value=self.get_value(),
+                    value=self.get_value(context),
                     precision=self.bpy_other.get("precision", 3),
                 )
 
@@ -303,7 +306,7 @@ class BFParam:
         self.set_value(context, value)
         self.set_exported(context, True)
 
-    def copy_to(self, dest_element):
+    def copy_to(self, dest_element):  # FIXME add context
         """!
         Copy self values to destination element.
         @param dest_element: element of the same type of self.element.
@@ -349,7 +352,7 @@ class BFParamStr(BFParam):
     bpy_prop = StringProperty
 
     # def check(self, context):  # No check
-    #     value = self.get_value()
+    #     value = self.get_value(context)
     #     if "&" in value or "/" in value or "#" in value:
     #         raise BFException(self, "<&>, </>, and <#> characters not allowed")
     #     # if (
@@ -555,7 +558,7 @@ class BFParamOther(BFParam):
         delattr(cls.bpy_type, cls.bpy_idname)
         delattr(cls.bpy_type, bpy_idx_idname)
 
-    def get_value(self):
+    def get_value(self, context):
         collection = getattr(self.element, self.bpy_idname)
         return tuple(item.name for item in collection if item.bf_export)
 

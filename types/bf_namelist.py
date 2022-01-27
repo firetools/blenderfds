@@ -29,7 +29,7 @@ class BFNamelist(BFParam):
         ## FDS element represented by this class instance
         self.element = element
         ## My sub params, tuple of element instances of type BFParam
-        self.bf_params = tuple(p(element) for p in self.bf_params)
+        self.bf_params = tuple(p(element=element) for p in self.bf_params)
 
     # inherit __str__(), __init_subclass__(), get_subclass()
 
@@ -94,7 +94,7 @@ class BFNamelist(BFParam):
         if self._bf_param_other_idx is not None:
             return self.bf_params[self._bf_param_other_idx]
 
-    def get_exported(self):
+    def get_exported(self, context):
         if self.bpy_export is None:
             return True
         return bool(getattr(self.element, self.bpy_export, True))
@@ -120,7 +120,7 @@ class BFNamelist(BFParam):
             self.check(context)
         except BFException:
             layout.alert = True
-        layout.active = self.get_exported()
+        layout.active = self.get_exported(context)
         # Parameters
         col = layout.column()
         for p in self.bf_params:
@@ -140,7 +140,7 @@ class BFNamelist(BFParam):
         @return None, FDSNamelist, or (FDSNamelist, ...) instances.
         """
         # Get if exported and check
-        if not self.get_exported() or not self.fds_label:
+        if not self.get_exported(context) or not self.fds_label:
             return
         self.check(context)
         # Assemble from bf_params, protect from None
@@ -183,7 +183,7 @@ class BFNamelist(BFParam):
             if not is_imported and bf_param:
                 try:
                     bf_param.from_fds(
-                        context=context, value=fds_param.get_value()
+                        context=context, value=fds_param.get_value(context)
                     )
                 except BFNotImported as err:
                     context.scene.bf_config_text.write(err.to_fds())
@@ -210,7 +210,7 @@ class BFNamelist(BFParam):
         self.set_exported(context, True)
         self.set_appearance(context)
 
-    def copy_to(self, dest_element):
+    def copy_to(self, dest_element):  # FIXME add context
         """!
         Copy self values to destination element.
         @param dest_element: element of the same type of self.element.
@@ -242,7 +242,7 @@ class BFNamelistOb(BFNamelist):
 
     bpy_type = Object
 
-    def get_exported(self):
+    def get_exported(self, context):
         return not self.element.hide_render
 
     def set_exported(self, context, value=None):
@@ -287,7 +287,7 @@ class BFNamelistMa(BFNamelist):
 
     bpy_type = Material
 
-    def get_exported(self):
+    def get_exported(self, context):
         if self.element.name in config.default_mas:
             return False  # default fds material
         elif self.element.bf_surf_export:

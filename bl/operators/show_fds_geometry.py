@@ -43,14 +43,14 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
             return {"FINISHED"}
         # Show
         bf_namelist = ob.bf_namelist
-        if not bf_namelist.get_exported():
+        if not bf_namelist.get_exported(context):
             w.cursor_modal_restore()
             self.report({"WARNING"}, "Not exported, nothing to show")
             return {"CANCELLED"}
         # Manage GEOM
         if ob.bf_namelist_cls == "ON_GEOM" and not ob.hide_render:  # was bf_export
             try:
-                vs, fs, ss, _, msg = lang.GEOM.ob_to_geom(
+                fds_verts, fds_faces, fds_surfs, _, msg = lang.GEOM.ob_to_geom(
                     context=context,
                     ob=ob,
                     check=ob.bf_geom_check_sanity,
@@ -72,7 +72,13 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                             self, f"Object <{ob.name}> has empty material slot"
                         )
                     ob_tmp.data.materials.append(ma)
-                lang.GEOM.geom_to_ob(context=context, ob=ob_tmp, vs=vs, fs=fs, ss=ss)
+                lang.GEOM.geom_to_ob(
+                    context=context,
+                    ob=ob_tmp,
+                    fds_verts=fds_verts,
+                    fds_faces=fds_faces,
+                    fds_surfs=fds_surfs,
+                )
                 ob_tmp.show_wire = True
                 self.report({"INFO"}, msg)
                 return {"FINISHED"}

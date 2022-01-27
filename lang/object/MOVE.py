@@ -70,7 +70,7 @@ def other_to_ob(
     if scale:
         scalex = scaley = scalez = scale
     # Apply to Object
-    ob.matrix_world @= (
+    ob.matrix_world = (
         Matrix().Translation((dx, dy, dz))  # last applied
         @ Matrix().Scale(scalex, 4, (1, 0, 0))
         @ Matrix().Scale(scaley, 4, (0, 1, 0))
@@ -78,6 +78,7 @@ def other_to_ob(
         @ Matrix().Translation((x0, y0, z0))
         @ Matrix().Rotation(radians(rotation_angle), 4, Vector(axis))
         @ Matrix().Translation((-x0, -y0, -z0))  # first applied
+        @ ob.matrix_world
     )
 
 
@@ -123,7 +124,7 @@ class ON_MOVE(BFNamelistOb):
         for fds_label in ps:
             fds_param = fds_namelist.get_fds_param(fds_label=fds_label, remove=True)
             if fds_param:
-                ps[fds_label] = fds_param.get_value()  # assign value
+                ps[fds_label] = fds_param.get_value(context)  # assign value
         # Treat T34
         if ps["T34"]:
             t34_to_ob(

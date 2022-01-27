@@ -33,7 +33,7 @@ class SP_DUMP_render_file(BFParam):
     fds_default = False
 
     def to_fds_param(self, context):
-        if self.get_exported():
+        if self.get_exported(context):
             # Get filepaths
             filepath, filepath_rfds = utils.io.transform_rbl_to_abs_and_rfds(
                 context,
@@ -71,8 +71,11 @@ class SP_DUMP_NFRAMES(BFParam):
     bpy_prop = IntProperty
     bpy_other = {"min": 1}
 
-    def get_exported(self):
-        return super().get_exported() and not self.element.bf_dump_frames_freq_export
+    def get_exported(self, context):
+        return (
+            super().get_exported(context)
+            and not self.element.bf_dump_frames_freq_export
+        )
 
 
 class SP_DUMP_frames_freq(BFParam):
@@ -87,7 +90,7 @@ class SP_DUMP_frames_freq(BFParam):
     bpy_export_default = False
 
     def to_fds_param(self, context):
-        if self.get_exported():
+        if self.get_exported(context):
             nframes = int(
                 (self.element.bf_time_t_end - self.element.bf_time_t_begin)
                 // self.element.bf_dump_frames_freq

@@ -101,7 +101,7 @@ def write_bingeom_file(
     @param n_surf_id: number of referred boundary conditions
     @param fds_verts: vertices coordinates in FDS flat format, eg. (x0, y0, z0, x1, y1, ...)
     @param fds_faces: faces connectivity in FDS flat format, eg. (i0, j0, k0, i1, ...)
-    @param fds_surfs: boundary condition indexes, eg. (i0, i1, ...)
+    @param fds_surfs: boundary condition indexes in FDS flat format, eg. (b0, b1, ...)
     @param fds_volus: volumes connectivity in FDS flat format, eg. (i0, j0, k0, w0, i1, ...)
     @param filepath: destination filepath
     """

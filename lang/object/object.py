@@ -27,7 +27,7 @@ class BFObject:
         """!
         Related bf_namelist, instance of BFNamelist.
         """
-        return BFNamelist.get_subclass(cls_name=self.bf_namelist_cls)(self)
+        return BFNamelist.get_subclass(cls_name=self.bf_namelist_cls)(element=self)
 
     def to_fds(self, context):
         """!

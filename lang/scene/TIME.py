@@ -43,8 +43,8 @@ class SP_TIME_T_BEGIN(BFParam):
     bpy_prop = FloatProperty
     bpy_other = {"step": 100.0, "precision": 1}  # "unit": "TIME", not working
 
-    def get_exported(self):
-        return super().get_exported() and not self.element.bf_time_setup_only
+    def get_exported(self, context):
+        return super().get_exported(context) and not self.element.bf_time_setup_only
 
 
 class SP_TIME_T_END(BFParam):
@@ -57,8 +57,8 @@ class SP_TIME_T_END(BFParam):
     bpy_default = 1.0
     bpy_other = {"step": 100.0, "precision": 1}  # "unit": "TIME", not working
 
-    def get_exported(self):
-        return super().get_exported() and not self.element.bf_time_setup_only
+    def get_exported(self, context):
+        return super().get_exported(context) and not self.element.bf_time_setup_only
 
 
 class SP_TIME_other(BFParamOther):

@@ -7,11 +7,12 @@ from math import floor, ceil
 import bpy, bmesh, mathutils, logging
 from .... import utils
 from ....types import BFException
+from . import bingeom
 
 log = logging.getLogger(__name__)
 
 
-def ob_to_geom(context, ob, check=True, check_open=True, world=True):
+def ob_to_geom(context, ob, check=True, check_open=True, world=True, filepath=None):
     """!
     Transform Object geometry to FDS notation.
     @param context: the Blender context.
@@ -19,6 +20,7 @@ def ob_to_geom(context, ob, check=True, check_open=True, world=True):
     @param check: True to check the bmesh sanity.
     @param check_open: True to check if bmesh is open.
     @param world: True to return the object in world coordinates.
+    @param filepath: if set, write to bingeom file.
     @return FDS GEOM notation as lists and message.
     """
     fds_verts, fds_faces, fds_surfs, fds_faces_surfs = get_fds_trisurface(
@@ -29,6 +31,16 @@ def ob_to_geom(context, ob, check=True, check_open=True, world=True):
         world=world,
     )
     msg = f"GEOM Vertices: {len(fds_verts)} | Faces: {len(fds_faces)}"
+    if filepath:
+        bingeom.write_bingeom_file(
+            geom_type=ob.bf_geom_is_terrain and 2 or 1,
+            n_surf_id=len(ob.data.materials),
+            fds_verts=fds_verts,
+            fds_faces=fds_faces,
+            fds_surfs=fds_surfs,
+            fds_volus=list(),
+            filepath=filepath,
+        )
     return fds_verts, fds_faces, fds_surfs, fds_faces_surfs, msg
 
 

@@ -1,103 +1,92 @@
 import bpy, bmesh, logging
 from mathutils import Matrix, Vector
 from ....types import BFException
+from . import bingeom
 
 log = logging.getLogger(__name__)
 
 epsilon = 1e-5  # TODO unify epsilon mgmt
 
-# From GEOM
 
-
-def geom_verts_to_mesh(context, me, vs):
-    """!
-    Import GEOM VERTS into Blender Mesh.
-    @param context: the blender context.
-    @param me: the Blender Mesh.
-    @param vs: the FDS GEOM VERTS vertices.
-    """
-    # Check input length
-    if len(vs) % 3:
-        raise BFException(me, f"Bad GEOM: len of VERTS is not multiple of 3")
-    # Create a new bmesh, never add to existing
-    bm = bmesh.new()
-    # Fill the bm.verts
-    scale_length = context.scene.unit_settings.scale_length
-    for i in range(0, len(vs), 3):
-        bm.verts.new(
-            (
-                vs[i] / scale_length,
-                vs[i + 1] / scale_length,
-                vs[i + 2] / scale_length,
-            )
-        )
-    bm.to_mesh(me)
-    bm.free()
-
-
-def geom_faces_to_mesh(context, me, fs=None, ss=None, fss=None):
-    """!
-    Import GEOM FACES into Blender Mesh.
-    @param context: the blender context.
-    @param me: the Blender Mesh.
-    @param fs: the FDS GEOM faces vector.
-    @param ss: the FDS GEOM surfs vector.
-    @param fss: the FDS GEOM FACES faces indexes and boundary condition indexes.
-    """
-    # Transform fss to fs and ss
-    if fss:
-        if fs or ss:
-            raise AssertionError("Set faces and surfs or faces_surfs, not both")
-        else:
-            fs, ss = list(), list()
-            for i in range(0, len(fss), 4):
-                fs.extend(fss[i : i + 3])
-                ss.append(fss[i + 3])
-    # Check input length
-    if len(fs) % 3:
-        raise BFException(me, f"Bad GEOM: len of FACES is not multiple of 3")
-    if len(ss) != len(fs) // 3:
-        raise BFException(
-            me, f"Bad GEOM: len of FACE SURFS is not equal to len of FACES"
-        )
-    # Get the bmesh from existing
-    bm = bmesh.new()
-    bm.from_mesh(me)
-    # Fill the bm.faces
-    bm.verts.ensure_lookup_table()
-    for i in range(0, len(fs), 3):
-        bm.faces.new(
-            (
-                bm.verts[fs[i] - 1],  # -1 from F90 to py indexes
-                bm.verts[fs[i + 1] - 1],
-                bm.verts[fs[i + 2] - 1],
-            )
-        )
-    bm.to_mesh(me)
-    bm.free()
-    # Check and assign materials to faces
-    if max(ss) > len(me.materials):  # from F90 to py indexes
-        raise BFException(
-            me,
-            f"Bad GEOM: FACE SURF index is higher that available SURF_ID number: {max(ss)}",
-        )
-    for iface, face in enumerate(me.polygons):
-        face.material_index = ss[iface] - 1  # -1 from F90 to py indexes
-
-
-def geom_to_ob(context, ob, vs, fs=None, ss=None, fss=None):
+def geom_to_ob(context, ob, fds_verts=None, fds_faces=None, fds_surfs=None, fds_faces_surfs=None, filepath=None):
     """!
     Import GEOM into Blender Object.
     @param context: the blender context.
     @param ob: the Blender Object.
-    @param vs: the FDS GEOM VERTS vertices.
-    @param fs: the FDS GEOM faces vector.
-    @param ss: the FDS GEOM surfs vector.
-    @param fss: the FDS GEOM FACES faces indexes and boundary condition indexes.
+    @param fds_verts: vertices coordinates in FDS flat format, eg. (x0, y0, z0, x1, y1, ...)
+    @param fds_faces: faces connectivity in FDS flat format, eg. (i0, j0, k0, i1, ...)
+    @param fds_surfs: boundary condition indexes in FDS flat format, eg. (b0, b1, ...)
+    @param fds_faces_surfs: faces connectivity and boundary condition indexes faces connectivity, eg. (i0, j0, k0, b0, i1, ...)
+    @param filepath: if set, read from bingeom file.
     """
-    geom_verts_to_mesh(context, me=ob.data, vs=vs)
-    geom_faces_to_mesh(context, me=ob.data, fs=fs, ss=ss, fss=fss)
+    if filepath:
+        _, fds_verts, fds_faces, fds_surfs, _ = bingeom.read_bingeom_file(filepath)
+        fds_faces_surfs = None
+    geom_to_mesh(context, me=ob.data, fds_verts=fds_verts, fds_faces=fds_faces, fds_surfs=fds_surfs, fds_faces_surfs=fds_faces_surfs)
 
+
+def geom_to_mesh(context, me, fds_verts, fds_faces=None, fds_surfs=None, fds_faces_surfs=None):
+    """!
+    Import GEOM VERTS and FACES into Blender Mesh.
+    @param context: the blender context.
+    @param me: the Blender Mesh.
+    @param fds_verts: vertices coordinates in FDS flat format, eg. (x0, y0, z0, x1, y1, ...)
+    @param fds_faces: faces connectivity in FDS flat format, eg. (i0, j0, k0, i1, ...)
+    @param fds_surfs: boundary condition indexes in FDS flat format, eg. (b0, b1, ...)
+    @param fds_faces_surfs: faces connectivity and boundary condition indexes faces connectivity, eg. (i0, j0, k0, b0, i1, ...)
+    """
+    # Transform fss to fs and ss
+    if fds_faces_surfs:
+        if fds_faces or fds_surfs:
+            raise AssertionError("Set faces and surfs or faces_surfs, not both")
+        else:
+            fds_faces, fds_surfs = list(), list()
+            for i in range(0, len(fds_faces_surfs), 4):
+                fds_faces.extend(fds_faces_surfs[i : i + 3])
+                fds_surfs.append(fds_faces_surfs[i + 3])
+    # Check input length
+    if len(fds_verts) % 3:
+        raise BFException(me, f"Bad GEOM: len of VERTS is not multiple of 3")
+    if len(fds_faces) % 3:
+        raise BFException(me, f"Bad GEOM: len of FACES is not multiple of 3")
+    if len(fds_surfs) != len(fds_faces) // 3:
+        raise BFException(
+            me, f"Bad GEOM: len of FACE SURFS is not equal to len of FACES"
+        )
+    # Create a new bmesh, 
+    bm = bmesh.new()
+    # bm.from_mesh(me) # never add to existing?
+    # Fill the bm.verts
+    scale_length = context.scene.unit_settings.scale_length
+    for i in range(0, len(fds_verts), 3):
+        bm.verts.new(
+            (
+                fds_verts[i] / scale_length,
+                fds_verts[i + 1] / scale_length,
+                fds_verts[i + 2] / scale_length,
+            )
+        )
+    # Fill the bm.faces
+    bm.verts.ensure_lookup_table()
+    for i in range(0, len(fds_faces), 3):
+        bm.faces.new(
+            (
+                bm.verts[fds_faces[i] - 1],  # -1 from F90 to py indexes
+                bm.verts[fds_faces[i + 1] - 1],
+                bm.verts[fds_faces[i + 2] - 1],
+            )
+        )
+    # Update mesh
+    bm.to_mesh(me)
+    bm.free()
+    # Check and assign materials to faces
+    if max(fds_surfs) > len(me.materials):  # from F90 to py indexes
+        raise BFException(
+            me,
+            f"Bad GEOM: FACE SURF index higher that available SURF_ID: {max(fds_surfs)}",
+        )
+    for iface, face in enumerate(me.polygons):
+        face.material_index = fds_surfs[iface] - 1  # -1 from F90 to py indexes
 
 # Special GEOMs
 
@@ -136,7 +125,7 @@ def geom_cylinder_to_ob(
     radius=0.5,
     length=2.0,
     nseg_theta=8,
-    nseg_axis=1,  # FIXME unused
+    nseg_axis=1,
     set_materials=True,
 ):
     """!

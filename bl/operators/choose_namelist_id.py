@@ -38,7 +38,7 @@ def _get_namelist_items(self, context, fds_label):
             break
         fds_param = fds_namelist.get_fds_param(fds_label="ID", remove=True)
         if fds_param:
-            hid = fds_param.get_value()
+            hid = fds_param.get_value(context)
             items.append((hid, hid, ""))
     items.sort(key=lambda k: k[0])
     return items

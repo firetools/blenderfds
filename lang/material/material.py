@@ -38,7 +38,7 @@ class BFMaterial:
         """!
         Return related bf_namelist, instance of BFNamelist.
         """
-        return BFNamelist.get_subclass(cls_name=self.bf_namelist_cls)(self)
+        return BFNamelist.get_subclass(cls_name=self.bf_namelist_cls)(element=self)
 
     def to_fds(self, context):
         """!
@@ -110,10 +110,10 @@ class MP_namelist_cls(BFParam):
     }
     bpy_default = "MN_SURF"
 
-    def get_exported(self):
+    def get_exported(self, context):
         if self.element.name in {"INERT", "HVAC", "MIRROR", "OPEN", "PERIODIC"}:
             return False
-        return super().get_exported()
+        return super().get_exported(context)
 
 
 class MP_ID(BFParamStr):
