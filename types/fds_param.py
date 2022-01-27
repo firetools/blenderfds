@@ -34,7 +34,7 @@ class FDSParam:
         ## parameter label
         self.fds_label = fds_label
         ## parameter value of any type
-        self.set_value(value)
+        self.set_value(context=None, value=value)
         ## float precision, number of decimal digits
         self.precision = precision
         ## if True sets exponential representation of floats
@@ -82,7 +82,7 @@ class FDSParam:
             case _:
                 raise ValueError(f"Unknown value type <{values}>")
 
-    def get_value(self):
+    def get_value(self, context=None):
         """!
         Return self.value.
         """
@@ -92,7 +92,7 @@ class FDSParam:
             return self._values[0]
         return self._values
 
-    def set_value(self, value) -> None:
+    def set_value(self, context=None, value=None) -> None:
         """!
         Set self._values
         """
@@ -106,7 +106,7 @@ class FDSParam:
             case _:
                 raise Exception("Unhandled value type: {value}")
 
-    def get_values(self) -> list:
+    def get_values(self, context=None) -> list:
         """!
         Return self._values.
         """
@@ -170,4 +170,4 @@ class FDSParam:
                 self.exponential = True
                 self.precision += max(len(m) for m in match) - 1
         # Record
-        self.set_value(values)
+        self.set_value(context=None, value=values)
