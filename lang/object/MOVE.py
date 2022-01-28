@@ -27,27 +27,45 @@ def bl_matrix_to_t34(m) -> list:
     return tuple(m[i][j] for j in range(4) for i in range(3))
 
 
-def ob_to_t34(ob) -> list:
-    return bl_matrix_to_t34(ob.matrix_world)
-
-
-def ob_to_other():  # TODO
-    return  # dx, dy, dz, scale, scalex, scaley, scalez, x0, y0, z0, rotation_angle, axis, ob
-
-
 # Import functions
 
 
-def t34_to_bl_matrix(t34) -> Matrix:
-    m = list(tuple(t34[j * 3 + i] for j in range(4)) for i in range(3))
-    m.append((0.0, 0.0, 0.0, 1.0))  # add last row
-    return Matrix(m)
+def fds_move_to_bl_matrix(
+    t34=None,
+    dx=0.0,
+    dy=0.0,
+    dz=0.0,
+    scale=None,
+    scalex=1.0,
+    scaley=1.0,
+    scalez=1.0,
+    x0=0.0,
+    y0=0.0,
+    z0=0.0,
+    rotation_angle=0.0,
+    axis=(0.0, 0.0, 1.0),
+) -> Matrix:
+    if t34:
+        m = list(tuple(t34[j * 3 + i] for j in range(4)) for i in range(3))
+        m.append((0.0, 0.0, 0.0, 1.0))  # add last row
+        return Matrix(m)
+    if scale:
+        scalex = scaley = scalez = scale
+    return (
+        Matrix().Translation((dx, dy, dz))  # last applied
+        @ Matrix().Scale(scalex, 4, (1, 0, 0))
+        @ Matrix().Scale(scaley, 4, (0, 1, 0))
+        @ Matrix().Scale(scalez, 4, (0, 0, 1))
+        @ Matrix().Translation((x0, y0, z0))
+        @ Matrix().Rotation(radians(rotation_angle), 4, Vector(axis))
+        @ Matrix().Translation((-x0, -y0, -z0))  # first applied
+    )
 
 
-def t34_to_ob(t34, ob):
-    m = t34_to_bl_matrix(t34)
-    if m.is_orthogonal:  # no shearing and skewing
-        ob.matrix_world = m
+def transform_ob(ob, m, force_othogonal=False):
+    if force_othogonal or m.is_orthogonal:
+        # No shearing and skewing
+        ob.matrix_world = m @ ob.matrix_world
     else:
         # Get translation, rotation and scaling matrices
         loc, rot, sca = m.decompose()
@@ -60,26 +78,8 @@ def t34_to_ob(t34, ob):
         # Get the shearing and skewing in another matrix
         mh = mout.inverted_safe() @ m
         # Apply to Object and Mesh
-        ob.matrix_world = mout
+        ob.matrix_world = mout @ ob.matrix_world
         ob.data.transform(mh)
-
-
-def other_to_ob(
-    dx, dy, dz, scale, scalex, scaley, scalez, x0, y0, z0, rotation_angle, axis, ob
-):
-    if scale:
-        scalex = scaley = scalez = scale
-    # Apply to Object
-    ob.matrix_world = (
-        Matrix().Translation((dx, dy, dz))  # last applied
-        @ Matrix().Scale(scalex, 4, (1, 0, 0))
-        @ Matrix().Scale(scaley, 4, (0, 1, 0))
-        @ Matrix().Scale(scalez, 4, (0, 0, 1))
-        @ Matrix().Translation((x0, y0, z0))
-        @ Matrix().Rotation(radians(rotation_angle), 4, Vector(axis))
-        @ Matrix().Translation((-x0, -y0, -z0))  # first applied
-        @ ob.matrix_world
-    )
 
 
 # Class
@@ -95,11 +95,12 @@ class ON_MOVE(BFNamelistOb):
     fds_label = "MOVE"
 
     def to_fds_namelist(self, context):
+        t34 = bl_matrix_to_t34(m=self.element.matrix_world)
         return FDSNamelist(
             fds_label=self.fds_label,
             fds_params=(
                 FDSParam(fds_label="ID", value=f"{self.element.name}_move"),
-                FDSParam(fds_label="T34", value=ob_to_t34(self.element), precision=6),
+                FDSParam(fds_label="T34", value=t34, precision=6),
             ),
         )
 
@@ -127,13 +128,12 @@ class ON_MOVE(BFNamelistOb):
                 ps[fds_label] = fds_param.get_value(context)  # assign value
         # Treat T34
         if ps["T34"]:
-            t34_to_ob(
-                t34=ps["T34"],
-                ob=self.element,
-            )
+            m = fds_move_to_bl_matrix(t34=ps["T34"])
+            transform_ob(ob=self.element, m=m, force_othogonal=False)
         # Treat other cases
         else:
-            other_to_ob(
+            m = fds_move_to_bl_matrix(
+                t34=None,
                 x0=ps["X0"],
                 y0=ps["Y0"],
                 z0=ps["Z0"],
@@ -146,5 +146,5 @@ class ON_MOVE(BFNamelistOb):
                 dx=ps["DX"],
                 dy=ps["DY"],
                 dz=ps["DZ"],
-                ob=self.element,
             )
+            transform_ob(ob=self.element, m=m, force_othogonal=True)
