@@ -129,5 +129,3 @@ def write_bingeom_file(
             _write_record(f, np.array(fds_volus, dtype="int32"))
     except Exception as err:
         raise BFException(None, f"Error writing bingeom file <{filepath}>:\n{err}")
-    else:
-        log.debug(f"Bingeom file written: <{filepath}>")

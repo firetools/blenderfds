@@ -19,7 +19,7 @@ def _load_post(self):
     # Beware: self is None
     # Check file format version
     bf_file_version = tuple(bpy.data.scenes[0].bf_file_version)
-    log.debug(f"Load post, file version: <{bf_file_version}>")
+    # log.debug(f"Load post, file version: <{bf_file_version}>")
     if bf_file_version == (4, 0, 0):
         for ma in bpy.data.materials:
             ma.bf_namelist_cls = "MN_SURF"

@@ -46,13 +46,17 @@ def geom_to_mesh(context, me, fds_verts, fds_faces=None, fds_surfs=None, fds_fac
                 fds_surfs.append(fds_faces_surfs[i + 3])
     # Check input length
     if len(fds_verts) % 3:
-        raise BFException(me, f"Bad GEOM: len of VERTS is not multiple of 3")
+        raise BFException(me, f"Bad GEOM: VERTS vector length not multiple of 3")
     if len(fds_faces) % 3:
-        raise BFException(me, f"Bad GEOM: len of FACES is not multiple of 3")
+        raise BFException(me, f"Bad GEOM: FACES vector length not multiple of 3")
     if len(fds_surfs) != len(fds_faces) // 3:
         raise BFException(
-            me, f"Bad GEOM: len of FACE SURFS is not equal to len of FACES"
+            me, f"Bad GEOM: FACE SURFS vector length different from FACES vector"
         )
+    if max(fds_surfs) > len(me.materials):
+        raise BFException(
+            me, f"Bad GEOM: Max FACE SURF index ({max(fds_surfs)}) > SURF_ID {len(me.materials)}",
+        )        
     # Create a new bmesh, 
     bm = bmesh.new()
     # bm.from_mesh(me) # never add to existing?
@@ -79,14 +83,10 @@ def geom_to_mesh(context, me, fds_verts, fds_faces=None, fds_surfs=None, fds_fac
     # Update mesh
     bm.to_mesh(me)
     bm.free()
-    # Check and assign materials to faces
-    if max(fds_surfs) > len(me.materials):  # from F90 to py indexes
-        raise BFException(
-            me,
-            f"Bad GEOM: FACE SURF index higher that available SURF_ID: {max(fds_surfs)}",
-        )
+    # Assign materials to faces
     for iface, face in enumerate(me.polygons):
-        face.material_index = fds_surfs[iface] - 1  # -1 from F90 to py indexes
+        material_index = fds_surfs[iface] - 1  # -1 from F90 to py indexes
+        face.material_index = material_index
 
 # Special GEOMs
 
