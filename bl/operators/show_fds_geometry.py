@@ -53,7 +53,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                 fds_verts, fds_faces, fds_surfs, _, msg = lang.GEOM.ob_to_geom(
                     context=context,
                     ob=ob,
-                    check=ob.bf_geom_check_sanity,
+                    check=ob.data.bf_geom_check_sanity,
                     check_open=not ob.bf_geom_is_terrain,
                     world=True,
                 )

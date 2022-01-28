@@ -18,28 +18,6 @@ from ..XB.xbs_to_ob import xbs_bbox_to_mesh
 log = logging.getLogger(__name__)
 
 
-class OP_GEOM_check_sanity(BFParam):
-    label = "Check Sanity While Exporting"
-    description = "Check if closed orientable manifold, with no degenerate geometry while exporting"
-    bpy_type = Object
-    bpy_idname = "bf_geom_check_sanity"
-    bpy_prop = BoolProperty
-    bpy_default = True
-
-    def draw(self, context, layout):
-        ob = self.element
-        layout.prop(ob, "bf_geom_check_sanity")
-
-
-class OP_GEOM_protect(BFParam):
-    label = "Protect Original Geometry"
-    description = "Protect original Object geometry while checking its sanity\n(eg. do not triangulate)"
-    bpy_type = Object
-    bpy_idname = "bf_geom_protect"
-    bpy_prop = BoolProperty
-    bpy_default = True
-
-
 class OP_GEOM_SURF_ID(BFParam):
     label = "SURF_ID"
     fds_label = "SURF_ID"
@@ -120,7 +98,7 @@ class OP_GEOM_BINARY_FILE(BFParam):
         _, _, _, _, msg = ob_to_geom(
             context=context,
             ob=ob,
-            check=ob.bf_geom_check_sanity,
+            check=ob.data.bf_geom_check_sanity,
             check_open=not ob.bf_geom_is_terrain,
             world=not move_id,
             filepath=filepath,
@@ -170,6 +148,24 @@ class OP_GEOM_binary_directory(BFParam):  # This is a Mesh property
             raise BFException(self, f"Binary directory not existing: <{d}>")
 
 
+class OP_GEOM_check_sanity(BFParam):  # This is a Mesh property
+    label = "Check Sanity While Exporting"
+    description = "Check if closed orientable manifold, with no degenerate geometry while exporting"
+    bpy_type = Mesh
+    bpy_idname = "bf_geom_check_sanity"
+    bpy_prop = BoolProperty
+    bpy_default = True
+
+
+class OP_GEOM_protect(BFParam):  # This is a Mesh property
+    label = "Protect Original Geometry"
+    description = "Protect original Object geometry while checking its sanity\n(eg. do not triangulate)"
+    bpy_type = Mesh
+    bpy_idname = "bf_geom_protect"
+    bpy_prop = BoolProperty
+    bpy_default = True
+
+
 class OP_GEOM_IS_TERRAIN(BFParam):
     label = "IS_TERRAIN"
     description = "Set if it represents a terrain"
@@ -191,7 +187,7 @@ class OP_GEOM_EXTEND_TERRAIN(BFParam):
 
     def get_exported(self, context):
         ob = self.element
-        return ob.bf_geom_is_terrain
+        return ob.bf_geom_is_terrain and ob.bf_geom_extend_terrain
 
 
 class ON_GEOM(BFNamelistOb):
@@ -202,15 +198,15 @@ class ON_GEOM(BFNamelistOb):
     bf_params = (
         OP_ID,
         OP_FYI,
-        OP_GEOM_check_sanity,
-        OP_GEOM_protect,
-        OP_GEOM_BINARY_FILE,
-        OP_GEOM_binary_directory,
-        OP_GEOM_IS_TERRAIN,
-        OP_GEOM_EXTEND_TERRAIN,
-        OP_GEOM_SURF_ID,
+        OP_GEOM_SURF_ID,  # before bingeom
         OP_GEOM_SURF_IDS,
         OP_GEOM_SURF_ID6,
+        OP_GEOM_BINARY_FILE,  # after SURF_ID
+        OP_GEOM_binary_directory,
+        OP_GEOM_check_sanity,
+        OP_GEOM_protect,
+        OP_GEOM_IS_TERRAIN,
+        OP_GEOM_EXTEND_TERRAIN,
         OP_other,
     )
     bf_other = {"appearance": "TEXTURED"}
@@ -252,9 +248,8 @@ class ON_GEOM(BFNamelistOb):
         super().from_fds(context, fds_namelist=fds_namelist)
         # Treat MOVE
         if ps["MOVE_ID"]:
-            self.element["MOVE_ID"] = ps[
-                "MOVE_ID"
-            ]  # scene will apply the transformation
+            # set hook, scene will apply the transformation
+            self.element["MOVE_ID"] = ps["MOVE_ID"]
         # Treat alternative geometries
         if ps["VERTS"] and ps["FACES"]:
             geom_to_mesh(
