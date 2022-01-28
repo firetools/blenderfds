@@ -112,7 +112,9 @@ class OP_GEOM_BINARY_FILE(BFParam):
             fds_params.extend(
                 (
                     FDSParam(
-                        fds_label="MOVE_ID", value=move_id, msg="BINARY_FILE is shared"
+                        fds_label="MOVE_ID",
+                        value=move_id,
+                        msg="BINARY_FILE is shared",
                     ),
                     ON_MOVE(ob).to_fds_namelist(context),
                 )
@@ -127,7 +129,7 @@ class OP_GEOM_BINARY_FILE(BFParam):
         geom_to_ob(context=context, ob=self.element, filepath=filepath)
         # Set properties
         self.element.data.name = name
-        self.element.data.bf_geom_binary_directory = ""  # disconnect from original
+        self.element.data.bf_geom_binary_directory = ""  # unlink from original path_rbl
 
 
 class OP_GEOM_binary_directory(BFParam):  # This is a Mesh property
@@ -246,10 +248,6 @@ class ON_GEOM(BFNamelistOb):
                 ps[fds_label] = fds_param.get_value(context)  # assign value
         # All other params (eg. ID, SURF_ID, BINARY_FILE, ...)
         super().from_fds(context, fds_namelist=fds_namelist)
-        # Treat MOVE
-        if ps["MOVE_ID"]:
-            # set hook, scene will apply the transformation
-            self.element["MOVE_ID"] = ps["MOVE_ID"]
         # Treat alternative geometries
         if ps["VERTS"] and ps["FACES"]:
             geom_to_mesh(
@@ -293,6 +291,10 @@ class ON_GEOM(BFNamelistOb):
             raise BFNotImported(self, "POLY not implemented")
         elif ps["ZVALS"] is not None:
             raise BFNotImported(self, "ZVALS not implemented")
+        # Treat MOVE
+        if ps["MOVE_ID"]:
+            # set hook, scene will apply the transformation
+            self.element["MOVE_ID"] = ps["MOVE_ID"]
 
     def draw_operators(self, context, layout):
         ob = context.object
