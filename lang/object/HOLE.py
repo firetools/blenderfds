@@ -12,4 +12,4 @@ class ON_HOLE(BFNamelistOb):
     enum_id = 1009
     fds_label = "HOLE"
     bf_params = OP_ID, OP_FYI, OP_XB, OP_other
-    bf_other = {"appearance": "DUMMY0"}
+    bf_other = {"appearance": "WIRE"}

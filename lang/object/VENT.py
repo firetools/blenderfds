@@ -54,4 +54,3 @@ class ON_VENT(BFNamelistOb):
         OP_ID_suffix,
         OP_other,
     )
-    bf_other = {"appearance": "TEXTURED"}

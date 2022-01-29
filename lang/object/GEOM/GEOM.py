@@ -211,7 +211,6 @@ class ON_GEOM(BFNamelistOb):
         OP_GEOM_EXTEND_TERRAIN,
         OP_other,
     )
-    bf_other = {"appearance": "TEXTURED"}
 
     def from_fds(self, context, fds_namelist):
         # Read fds_params

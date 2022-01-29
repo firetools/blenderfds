@@ -247,33 +247,25 @@ class BFNamelistOb(BFNamelist):
             self.element.hide_render = not bool(value)
 
     def set_appearance(self, context):
-        super().set_appearance(context)  # preferences check
-        # Init
-        ma_inert = bpy.data.materials.get("INERT")
-        ma_dummy0 = bpy.data.materials.get("Dummy Color1")  # HOLE
-        ma_dummy1 = bpy.data.materials.get("Dummy Color2")  # DEVC, SLCF, PROF, ...
-        ma_dummy2 = bpy.data.materials.get("Dummy Color3")  # INIT, ZONE
-        # WIRE: MESH, HVAC
-        # Set
-        appearance = self.bf_other.get("appearance")
-        if appearance == "TEXTURED" and ma_inert:
-            self.element.show_wire = False
-            self.element.display_type = "TEXTURED"
-            return
-        self.element.show_wire = True
-        match appearance:
-            case "DUMMY0" if ma_dummy0:
-                self.element.active_material = ma_dummy0
-                self.element.display_type = "SOLID"
-            case "DUMMY1" if ma_dummy1:
-                self.element.active_material = ma_dummy1
-                self.element.display_type = "SOLID"
-            case "DUMMY2" if ma_dummy2:
-                self.element.active_material = ma_dummy2
-                self.element.display_type = "SOLID"
+        # Defaults
+        display_type = "TEXTURED"
+        show_name = False
+        show_in_front = False
+        # Mods
+        match self.bf_other.get("appearance"):
+            case "BBOX":
+                # FIXME make bbox?
+                display_type, show_name, show_in_front = "WIRE", True, True
             case "WIRE":
-                self.element.display_type = "WIRE"
-
+                display_type = "WIRE"
+            case _:
+                pass
+        # Set
+        ob = self.element
+        ob.display_type = display_type
+        ob.show_name = show_name
+        ob.show_in_front = show_in_front
+        # ob.show_wire = show_wire  # unused 
 
 class BFNamelistMa(BFNamelist):
     """!
@@ -290,5 +282,4 @@ class BFNamelistMa(BFNamelist):
         return False
 
     def set_appearance(self, context):
-        super().set_appearance(context)  # preferences check
-        self.element.use_nodes = False
+        pass

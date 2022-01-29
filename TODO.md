@@ -8,10 +8,7 @@ code snippets
 
 ## TODO Improvements
 
-
 Import MULT
-
-split MESH
 
 progress_begin(min, max)
 

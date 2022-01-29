@@ -49,4 +49,4 @@ class ON_SLCF(BFNamelistOb):
         OP_ID_suffix,
         OP_other,
     )
-    bf_other = {"appearance": "DUMMY1"}
+    bf_other = {"appearance": "WIRE"}

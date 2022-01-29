@@ -12,4 +12,4 @@ class ON_ZONE(BFNamelistOb):
     enum_id = 1016
     fds_label = "ZONE"
     bf_params = OP_ID, OP_FYI, OP_XYZ, OP_other
-    bf_other = {"appearance": "DUMMY2"}
+    bf_other = {"appearance": "WIRE"}

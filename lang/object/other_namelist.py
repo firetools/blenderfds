@@ -49,7 +49,6 @@ class ON_other(BFNamelistOb):
         OP_ID_suffix,
         OP_other,
     )
-    bf_other = {"appearance": "TEXTURED"}
 
     @property
     def fds_label(self):

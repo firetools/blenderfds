@@ -13,4 +13,4 @@ class ON_INIT(BFNamelistOb):
     enum_id = 1015
     fds_label = "INIT"
     bf_params = OP_ID, OP_FYI, OP_XB, OP_XYZ, OP_ID_suffix, OP_other
-    bf_other = {"appearance": "DUMMY2"}
+    bf_other = {"appearance": "WIRE"}

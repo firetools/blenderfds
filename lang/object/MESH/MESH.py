@@ -82,7 +82,7 @@ class ON_MESH(BFNamelistOb):
     enum_id = 1014
     fds_label = "MESH"
     bf_params = OP_ID, OP_FYI, OP_MESH_IJK, OP_MESH_nsplits, OP_MESH_XB, OP_other
-    bf_other = {"appearance": "WIRE"}
+    bf_other = {"appearance": "BBOX"}
 
     def draw_operators(self, context, layout):
         col = layout.column()

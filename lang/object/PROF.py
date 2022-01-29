@@ -13,4 +13,4 @@ class ON_PROF(BFNamelistOb):
     enum_id = 1013
     fds_label = "PROF"
     bf_params = OP_ID, OP_FYI, OP_DEVC_QUANTITY, OP_XYZ, OP_ID_suffix, OP_other
-    bf_other = {"appearance": "DUMMY1"}
+    bf_other = {"appearance": "WIRE"}
