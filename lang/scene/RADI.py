@@ -39,6 +39,8 @@ class SP_RADI_NUMBER_RADIATION_ANGLES(BFParam):
     bpy_idname = "bf_radi_number_radiation_angles"
     bpy_prop = IntProperty
     bpy_other = {"min": 1}
+    bpy_export = "bf_radi_number_radiation_angles_export"
+    bpy_export_default = True
 
 
 class SP_RADI_TIME_STEP_INCREMENT(BFParam):
@@ -50,6 +52,8 @@ class SP_RADI_TIME_STEP_INCREMENT(BFParam):
     bpy_idname = "bf_radi_time_step_increment"
     bpy_prop = IntProperty
     bpy_other = {"min": 1}
+    bpy_export = "bf_radi_time_step_increment_export"
+    bpy_export_default = True
 
 
 class SP_RADI_ANGLE_INCREMENT(BFParam):
@@ -61,6 +65,8 @@ class SP_RADI_ANGLE_INCREMENT(BFParam):
     bpy_idname = "bf_radi_angle_increment"
     bpy_prop = IntProperty
     bpy_other = {"min": 1}
+    bpy_export = "bf_radi_angle_increment_export"
+    bpy_export_default = True
 
 
 class SP_RADI_RADIATION_ITERATIONS(BFParam):
@@ -72,6 +78,8 @@ class SP_RADI_RADIATION_ITERATIONS(BFParam):
     bpy_idname = "bf_radi_radiation_iterations"
     bpy_prop = IntProperty
     bpy_other = {"min": 1}
+    bpy_export = "bf_radi_radiation_iterations_export"
+    bpy_export_default = True
 
 
 class SP_RADI_other(BFParamOther):

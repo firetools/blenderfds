@@ -51,6 +51,8 @@ class SP_PRES_MAX_PRESSURE_ITERATIONS(BFParam):
     bpy_idname = "bf_pres_max_pressure_iterations"
     bpy_prop = IntProperty
     bpy_other = {"min": 1}
+    bpy_export = "bf_pres_max_pressure_iterations_export"
+    bpy_export_default = False  # FIXME think to defaults everywhere!
 
 
 class SP_PRES_other(BFParamOther):
