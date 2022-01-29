@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 
 class SP_CATF_check_files(BFParam):
-    label = "Check File Existance While Exporting"
+    label = "Check File Existance"
     description = "Check file existence while exporting filepaths"
     bpy_type = Scene
     bpy_idname = "bf_catf_check_files"

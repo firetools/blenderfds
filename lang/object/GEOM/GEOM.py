@@ -42,9 +42,9 @@ class OP_GEOM_SURF_ID(BFParam):
                 raise BFException(self, f"Unknown SURF_ID <{name}>")
             ob.data.materials.append(ma)
 
-    def draw(self, context, layout):  # FIXME
-        ma_names = ", ".join(self.get_value(context)) or "Empty"
-        layout.label(text=f"SURF_ID: {ma_names}")  # FIXME
+    def draw(self, context, layout):
+        ma_names = ", ".join(self.get_value(context)) or "None"
+        layout.label(text=f"SURF_ID: {ma_names}")
 
 
 class OP_GEOM_SURF_IDS(OP_GEOM_SURF_ID):  # importing only

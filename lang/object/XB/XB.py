@@ -181,4 +181,4 @@ class OP_XB_BBOX(BFParamXB):  # independent from OP_XB
         )
 
     def draw(self, context, layout):
-        layout.label(text=f"XB as object bounding box (BBOX)")
+        layout.label(text=f"XB: bounding box (BBOX)")
