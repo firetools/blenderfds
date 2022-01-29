@@ -16,7 +16,7 @@ class _SCENE_PT_bf_namelist:
 
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
-    bl_label = "FDS Panel"
+    bl_label = "FDS Generic Scene Panel"
     bl_context = "scene"
 
     bf_namelist_cls = "SN_HEAD"  # example
@@ -32,14 +32,11 @@ class _SCENE_PT_bf_namelist:
         @param context: the Blender context.
         """
         sc = context.scene
-        # Manage Scene
         bf_namelist = BFNamelist.get_subclass(cls_name=self.bf_namelist_cls)
-        if bf_namelist.bpy_export:
+        if bf_namelist.bpy_export:  # add export toggle
             self.layout.prop(sc, bf_namelist.bpy_export, icon_only=True)
-        if bf_namelist.description:
+        if bf_namelist.description and bf_namelist.label:
             self.bl_label = f"FDS {bf_namelist.label} ({bf_namelist.description})"
-        else:
-            self.bl_label = bf_namelist.label
 
     def draw(self, context):
         """!
@@ -61,7 +58,7 @@ class SCENE_PT_bf_case(Panel, _SCENE_PT_bf_namelist):
     """
 
     bf_namelist_cls = "SN_config"
-    bl_label = "FDS Case"
+    bl_label = "FDS Case Config"
 
     def draw(self, context):
         sc = context.scene
@@ -76,17 +73,6 @@ class SCENE_PT_bf_case(Panel, _SCENE_PT_bf_namelist):
         bf_namelist(sc).draw(context, flow)
 
 
-class SCENE_PT_bf_config_sizes(Panel, _SCENE_PT_bf_namelist):
-    """!
-    Default Sizes and Thresholds
-    """
-
-    bf_namelist_cls = "SN_config_sizes"
-    bl_label = "Default Sizes and Thresholds"
-    bl_parent_id = "SCENE_PT_bf_case"
-    bl_options = {"DEFAULT_CLOSED"}
-
-
 class SCENE_PT_bf_namelist_HEAD(Panel, _SCENE_PT_bf_namelist):
     """!
     FDS HEAD
@@ -94,7 +80,6 @@ class SCENE_PT_bf_namelist_HEAD(Panel, _SCENE_PT_bf_namelist):
 
     bf_namelist_cls = "SN_HEAD"
     bl_label = "FDS HEAD"
-    bl_parent_id = "SCENE_PT_bf_case"
 
 
 class SCENE_PT_bf_namelist_TIME(Panel, _SCENE_PT_bf_namelist):
@@ -104,7 +89,6 @@ class SCENE_PT_bf_namelist_TIME(Panel, _SCENE_PT_bf_namelist):
 
     bf_namelist_cls = "SN_TIME"
     bl_label = "FDS TIME"
-    bl_parent_id = "SCENE_PT_bf_case"
     bl_options = {"DEFAULT_CLOSED"}
 
 
@@ -115,7 +99,6 @@ class SCENE_PT_bf_namelist_MISC(Panel, _SCENE_PT_bf_namelist):
 
     bf_namelist_cls = "SN_MISC"
     bl_label = "FDS MISC"
-    bl_parent_id = "SCENE_PT_bf_case"
     bl_options = {"DEFAULT_CLOSED"}
 
 
@@ -126,7 +109,6 @@ class SCENE_PT_bf_namelist_REAC(Panel, _SCENE_PT_bf_namelist):
 
     bf_namelist_cls = "SN_REAC"
     bl_label = "FDS REAC"
-    bl_parent_id = "SCENE_PT_bf_case"
     bl_options = {"DEFAULT_CLOSED"}
 
 
@@ -137,7 +119,6 @@ class SCENE_PT_bf_namelist_RADI(Panel, _SCENE_PT_bf_namelist):
 
     bf_namelist_cls = "SN_RADI"
     bl_label = "FDS RADI"
-    bl_parent_id = "SCENE_PT_bf_case"
     bl_options = {"DEFAULT_CLOSED"}
 
 
@@ -148,7 +129,6 @@ class SCENE_PT_bf_namelist_PRES(Panel, _SCENE_PT_bf_namelist):
 
     bf_namelist_cls = "SN_PRES"
     bl_label = "FDS PRES"
-    bl_parent_id = "SCENE_PT_bf_case"
     bl_options = {"DEFAULT_CLOSED"}
 
 
@@ -159,7 +139,6 @@ class SCENE_PT_bf_namelist_DUMP(Panel, _SCENE_PT_bf_namelist):
 
     bf_namelist_cls = "SN_DUMP"
     bl_label = "FDS DUMP"
-    bl_parent_id = "SCENE_PT_bf_case"
     bl_options = {"DEFAULT_CLOSED"}
 
 
@@ -170,7 +149,16 @@ class SCENE_PT_bf_namelist_CATF(Panel, _SCENE_PT_bf_namelist):
 
     bf_namelist_cls = "SN_CATF"
     bl_label = "FDS CATF"
-    bl_parent_id = "SCENE_PT_bf_case"
+    bl_options = {"DEFAULT_CLOSED"}
+
+
+class SCENE_PT_bf_config_sizes(Panel, _SCENE_PT_bf_namelist):
+    """!
+    FDS Default Sizes and Thresholds
+    """
+
+    bf_namelist_cls = "SN_config_sizes"
+    bl_label = "FDS Default Sizes and Thresholds"
     bl_options = {"DEFAULT_CLOSED"}
 
 
@@ -182,7 +170,7 @@ class OBJECT_PT_bf_namelist(Panel):
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
-    bl_label = "FDS Namelist"
+    bl_label = "FDS Geometric Namelist"
 
     @classmethod
     def poll(cls, context):
@@ -226,7 +214,7 @@ class MATERIAL_PT_bf_namelist(Panel):
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "material"
-    bl_label = "FDS SURF"
+    bl_label = "FDS Boundary Condition"
 
     @classmethod
     def poll(cls, context):
@@ -427,28 +415,8 @@ class VIEW3D_PT_bf_geolocation(Panel):
         col.operator("wm.url_open", text="Transform Coordinates").url = url
 
 
-class VIEW3D_PT_bf_view3d_properties(Panel):  # FIXME set view clipping automatically
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
-    bl_category = "FDS"
-    bl_label = "View"
-    bl_options = {"DEFAULT_CLOSED"}
-
-    def draw(self, context):
-        layout = self.layout
-        view = context.space_data
-        layout.use_property_split = True
-        layout.use_property_decorate = False  # No animation.
-        col = layout.column()
-
-        subcol = col.column(align=True)
-        subcol.prop(view, "clip_start", text="Clip Start")
-        subcol.prop(view, "clip_end", text="End")
-
-
 bl_classes = [
     SCENE_PT_bf_case,
-    SCENE_PT_bf_config_sizes,
     SCENE_PT_bf_namelist_HEAD,
     SCENE_PT_bf_namelist_TIME,
     SCENE_PT_bf_namelist_MISC,
@@ -457,13 +425,13 @@ bl_classes = [
     SCENE_PT_bf_namelist_PRES,
     SCENE_PT_bf_namelist_DUMP,
     SCENE_PT_bf_namelist_CATF,
+    SCENE_PT_bf_config_sizes,
     OBJECT_PT_bf_namelist,
     MATERIAL_PT_bf_namelist,
     VIEW3D_PT_bf_ob_namelist_tools,
     VIEW3D_PT_bf_remesh,
     VIEW3D_PT_bf_mesh_clean_up,
     VIEW3D_PT_bf_geolocation,
-    VIEW3D_PT_bf_view3d_properties,
 ]
 
 
