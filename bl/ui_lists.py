@@ -25,11 +25,11 @@ class WM_UL_bf_other_items(UIList):
     """
 
     def draw_item(self, context, layout, data, item, icon, active_data):
-        col = layout.column()
-        col.active = item.bf_export
-        col.prop(item, "name", text="", emboss=False, icon_value=icon)
-        col = layout.column()
-        col.prop(item, "bf_export", text="")
+        row = layout.row()
+        row.active = item.bf_export
+        row = row.split(factor=0.08)
+        row.prop(item, "bf_export", text="")
+        row.prop(item, "name", text="", emboss=False, icon_value=icon)
 
 
 class WM_PG_bf_filepaths(PropertyGroup):
@@ -47,11 +47,11 @@ class WM_UL_bf_filepaths_items(UIList):
     """
 
     def draw_item(self, context, layout, data, item, icon, active_data):
-        col = layout.column()
-        col.active = item.bf_export
-        col.prop(item, "name", text="", emboss=False, icon_value=icon)
-        col = layout.column()
-        col.prop(item, "bf_export", text="")
+        row = layout.row()
+        row.active = item.bf_export
+        row = row.split(factor=0.08)
+        row.prop(item, "bf_export", text="")
+        row.prop(item, "name", text="", emboss=False, icon_value=icon)
 
 
 bl_classes = [
