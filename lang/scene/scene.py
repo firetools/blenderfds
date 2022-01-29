@@ -28,19 +28,19 @@ def _import_fds_namelist(scene, context, fds_namelist):
     if bf_namelist:
         hid = f"Imported {fds_label}"
         match bf_namelist.bpy_type:
+            case t if t == Scene:
+                try:
+                    bf_namelist(element=scene).from_fds(context, fds_namelist=fds_namelist)
+                except BFNotImported as err:
+                    scene.bf_config_text.write(err.to_fds())
+                else:
+                    is_imported = True
             case t if t == Object:
                 me = bpy.data.meshes.new(hid)  # new Mesh
                 ob = bpy.data.objects.new(hid, object_data=me)  # new Object
                 scene.collection.objects.link(ob)  # link it to Scene Collection
                 try:
                     ob.from_fds(context, fds_namelist=fds_namelist)
-                except BFNotImported as err:
-                    scene.bf_config_text.write(err.to_fds())
-                else:
-                    is_imported = True
-            case t if t == Scene:
-                try:
-                    bf_namelist(element=scene).from_fds(context, fds_namelist=fds_namelist)
                 except BFNotImported as err:
                     scene.bf_config_text.write(err.to_fds())
                 else:
