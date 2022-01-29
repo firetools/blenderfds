@@ -54,7 +54,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                     context=context,
                     ob=ob,
                     check=ob.data.bf_geom_check_sanity,
-                    check_open=not ob.bf_geom_is_terrain,
+                    check_open=not ob.data.bf_geom_is_terrain,
                     world=True,
                 )
             except BFException as err:

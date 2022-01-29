@@ -33,7 +33,7 @@ def ob_to_geom(context, ob, check=True, check_open=True, world=True, filepath=No
     msg = f"GEOM Vertices: {len(fds_verts)} | Faces: {len(fds_faces)}"
     if filepath:
         bingeom.write_bingeom_file(
-            geom_type=ob.bf_geom_is_terrain and 2 or 1,
+            geom_type=ob.data.bf_geom_is_terrain and 2 or 1,
             n_surf_id=len(ob.data.materials),
             fds_verts=fds_verts,
             fds_faces=fds_faces,

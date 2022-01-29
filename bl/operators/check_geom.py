@@ -66,7 +66,7 @@ class SCENE_OT_bf_check_sanity(Operator):
                 context,
                 ob,
                 protect=ob.data.bf_geom_protect,
-                check_open=not ob.bf_geom_is_terrain,
+                check_open=not ob.data.bf_geom_is_terrain,
             )
         except BFException as err:
             self.report({"ERROR"}, f"Check sanity: {err}")

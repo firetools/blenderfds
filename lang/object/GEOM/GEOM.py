@@ -99,7 +99,7 @@ class OP_GEOM_BINARY_FILE(BFParam):
             context=context,
             ob=ob,
             check=ob.data.bf_geom_check_sanity,
-            check_open=not ob.bf_geom_is_terrain,
+            check_open=not ob.data.bf_geom_is_terrain,
             world=not move_id,
             filepath=filepath,
         )
@@ -168,28 +168,28 @@ class OP_GEOM_protect(BFParam):  # This is a Mesh property
     bpy_default = True
 
 
-class OP_GEOM_IS_TERRAIN(BFParam):
+class OP_GEOM_IS_TERRAIN(BFParam):  # This is a Mesh property
     label = "IS_TERRAIN"
     description = "Set if it represents a terrain"
     fds_label = "IS_TERRAIN"
     fds_default = False
-    bpy_type = Object
+    bpy_type = Mesh
     bpy_prop = BoolProperty
     bpy_idname = "bf_geom_is_terrain"
 
 
-class OP_GEOM_EXTEND_TERRAIN(BFParam):
+class OP_GEOM_EXTEND_TERRAIN(BFParam):  # This is a Mesh property
     label = "EXTEND_TERRAIN"
     description = "Set if this terrain needs extension to fully cover the domain"
     fds_label = "EXTEND_TERRAIN"
     fds_default = False
-    bpy_type = Object
+    bpy_type = Mesh
     bpy_prop = BoolProperty
     bpy_idname = "bf_geom_extend_terrain"
 
     def get_exported(self, context):
-        ob = self.element
-        return ob.bf_geom_is_terrain and ob.bf_geom_extend_terrain
+        me = self.element
+        return me.bf_geom_is_terrain and me.bf_geom_extend_terrain
 
 
 class ON_GEOM(BFNamelistOb):
