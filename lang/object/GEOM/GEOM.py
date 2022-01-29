@@ -293,8 +293,13 @@ class ON_GEOM(BFNamelistOb):
             raise BFNotImported(self, "ZVALS not implemented")
         # Treat MOVE
         if ps["MOVE_ID"]:
-            # set hook, scene will apply the transformation
-            self.element["MOVE_ID"] = ps["MOVE_ID"]
+            try:
+                m = context.scene["bf_move_coll"][ps["MOVE_ID"]]
+            except KeyError as err:
+                raise BFNotImported(self, f"Missing MOVE ID={ps['MOVE_ID']}")
+            utils.geometry.transform_ob(
+                ob=self.element, m=m, force_othogonal=False
+            )  # FIXME True?
 
     def draw_operators(self, context, layout):
         ob = context.object

@@ -5,6 +5,7 @@ BlenderFDS, geometric utilities.
 # TODO change file name
 
 import bpy, bmesh
+from mathutils import Matrix
 from ..types import BFException
 
 # Working on Blender objects
@@ -101,6 +102,30 @@ def rm_geometric_caches():
         ob["ob_to_xbs_cache"] = None  # TODO or del?
         # ob["ob_to_xyzs_cache"] = None
         # ob["ob_to_pbs_cache"] = None
+
+
+def transform_ob(ob, m, force_othogonal=False):
+    """!
+    Trasform Object with matrix.
+    """
+    m = Matrix(m)
+    if force_othogonal or m.is_orthogonal:
+        # No shearing and skewing
+        ob.matrix_world = m @ ob.matrix_world
+    else:
+        # Get translation, rotation and scaling matrices
+        loc, rot, sca = m.decompose()
+        mloc = Matrix.Translation(loc)
+        mrot = rot.to_matrix().to_4x4()
+        msca = Matrix.Identity(4)
+        msca[0][0], msca[1][1], msca[2][2] = sca
+        # Get the matrix that can be used for matrix_world
+        mout = mloc @ mrot @ msca  # do not forget, the order is important
+        # Get the shearing and skewing in another matrix
+        mh = mout.inverted_safe() @ m
+        # Apply to Object and Mesh
+        ob.matrix_world = mout @ ob.matrix_world
+        ob.data.transform(mh)
 
 
 # Working on Blender materials

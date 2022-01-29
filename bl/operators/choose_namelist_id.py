@@ -32,7 +32,7 @@ def _get_namelist_items(self, context, fds_label):
                 fds_case.from_fds(f90=f90)
     # Prepare list of IDs
     items = list()
-    while True:
+    while True:  # FIXME transform in for loop
         fds_namelist = fds_case.get_fds_namelist(fds_label=fds_label, remove=True)
         if not fds_namelist:
             break

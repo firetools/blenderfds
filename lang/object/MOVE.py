@@ -1,7 +1,7 @@
 import logging
 from math import radians
 from mathutils import Matrix, Vector
-from ...types import BFNamelistOb, FDSNamelist, FDSParam
+from ...types import BFNamelistSc, BFNamelistOb, FDSNamelist, FDSParam, BFNotImported
 
 log = logging.getLogger(__name__)
 
@@ -23,7 +23,10 @@ log = logging.getLogger(__name__)
 # Export functions
 
 
-def bl_matrix_to_t34(m) -> list:
+def bl_matrix_to_t34(m) -> tuple:
+    """!
+    Transform the Blender transformation matrix in the FDS MOVE T34 notation.
+    """
     return tuple(m[i][j] for j in range(4) for i in range(3))
 
 
@@ -45,64 +48,42 @@ def fds_move_to_bl_matrix(
     rotation_angle=0.0,
     axis=(0.0, 0.0, 1.0),
 ) -> Matrix:
+    """!
+    Transform the FDS MOVE notation in a Blender 4x4 transformation matrix.
+    """
     if t34:
         m = list(tuple(t34[j * 3 + i] for j in range(4)) for i in range(3))
         m.append((0.0, 0.0, 0.0, 1.0))  # add last row
-        return Matrix(m)
-    if scale:
-        scalex = scaley = scalez = scale
-    return (
-        Matrix().Translation((dx, dy, dz))  # last applied
-        @ Matrix().Scale(scalex, 4, (1, 0, 0))
-        @ Matrix().Scale(scaley, 4, (0, 1, 0))
-        @ Matrix().Scale(scalez, 4, (0, 0, 1))
-        @ Matrix().Translation((x0, y0, z0))
-        @ Matrix().Rotation(radians(rotation_angle), 4, Vector(axis))
-        @ Matrix().Translation((-x0, -y0, -z0))  # first applied
-    )
-
-
-def transform_ob(ob, m, force_othogonal=False):
-    if force_othogonal or m.is_orthogonal:
-        # No shearing and skewing
-        ob.matrix_world = m @ ob.matrix_world
+        m = Matrix(m)
     else:
-        # Get translation, rotation and scaling matrices
-        loc, rot, sca = m.decompose()
-        mloc = Matrix.Translation(loc)
-        mrot = rot.to_matrix().to_4x4()
-        msca = Matrix.Identity(4)
-        msca[0][0], msca[1][1], msca[2][2] = sca
-        # Get the matrix that can be used for matrix_world
-        mout = mloc @ mrot @ msca  # do not forget, the order is important
-        # Get the shearing and skewing in another matrix
-        mh = mout.inverted_safe() @ m
-        # Apply to Object and Mesh
-        ob.matrix_world = mout @ ob.matrix_world
-        ob.data.transform(mh)
+        if scale:
+            scalex = scaley = scalez = scale
+        m = (
+            Matrix().Translation((dx, dy, dz))  # last applied
+            @ Matrix().Scale(scalex, 4, (1, 0, 0))
+            @ Matrix().Scale(scaley, 4, (0, 1, 0))
+            @ Matrix().Scale(scalez, 4, (0, 0, 1))
+            @ Matrix().Translation((x0, y0, z0))
+            @ Matrix().Rotation(radians(rotation_angle), 4, Vector(axis))
+            @ Matrix().Translation((-x0, -y0, -z0))  # first applied
+        )
+    return m
 
 
 # Class
 
 
-class ON_MOVE(BFNamelistOb):
+class SN_MOVE(BFNamelistSc):
     # This namelist is not displayed in the bf_namelist_cls menu,
-    # and has no panel. When importing, it is used to translate
-    # fds transformations in Blender matrix_world (and Mesh shearing and skewing)
+    # and has no panel. Used for importing only, it translates
+    # fds transformations in Blender matrix of a scene dict
     label = "MOVE"
     description = "Geometric transformations"
     enum_id = False  # no bf_namelist_cls menu, no automatic export
     fds_label = "MOVE"
 
     def to_fds_namelist(self, context):
-        t34 = bl_matrix_to_t34(m=self.element.matrix_world)
-        return FDSNamelist(
-            fds_label=self.fds_label,
-            fds_params=(
-                FDSParam(fds_label="ID", value=f"{self.element.name}_move"),
-                FDSParam(fds_label="T34", value=t34, precision=6),
-            ),
-        )
+        raise Exception("The Scene SN_MOVE cannot export!")
 
     def from_fds(self, context, fds_namelist):
         # Read fds_params
@@ -126,14 +107,20 @@ class ON_MOVE(BFNamelistOb):
             fds_param = fds_namelist.get_fds_param(fds_label=fds_label, remove=True)
             if fds_param:
                 ps[fds_label] = fds_param.get_value(context)  # assign value
+        # Check ID
+        hid = ps["ID"]
+        if not hid:
+            raise BFNotImported(self, f"Missing ID in: {fds_namelist}")
+        # Prepare Scene dict
+        if "bf_move_coll" not in context.scene:
+            context.scene["bf_move_coll"] = dict()
+        bf_move_coll = context.scene["bf_move_coll"]
         # Treat T34
         if ps["T34"]:
             m = fds_move_to_bl_matrix(t34=ps["T34"])
-            transform_ob(ob=self.element, m=m, force_othogonal=False)
         # Treat other cases
         else:
             m = fds_move_to_bl_matrix(
-                t34=None,
                 x0=ps["X0"],
                 y0=ps["Y0"],
                 z0=ps["Z0"],
@@ -147,4 +134,27 @@ class ON_MOVE(BFNamelistOb):
                 dy=ps["DY"],
                 dz=ps["DZ"],
             )
-            transform_ob(ob=self.element, m=m, force_othogonal=True)
+        # Set Scene dict
+        bf_move_coll[hid] = m
+
+
+class ON_MOVE(BFNamelistOb):
+    # This namelist is not displayed in the bf_namelist_cls menu,
+    # and has no panel. Used for exporting only.
+    label = "MOVE"
+    description = "Geometric transformations"
+    enum_id = False  # no bf_namelist_cls menu, no automatic export
+    fds_label = "MOVE"
+
+    def to_fds_namelist(self, context):
+        t34 = bl_matrix_to_t34(m=self.element.matrix_world)
+        return FDSNamelist(
+            fds_label=self.fds_label,
+            fds_params=(
+                FDSParam(fds_label="ID", value=f"{self.element.name}_move"),
+                FDSParam(fds_label="T34", value=t34, precision=6),
+            ),
+        )
+
+    def from_fds(self, context, fds_namelist):
+        raise Exception("The Object ON_MOVE cannot export!")

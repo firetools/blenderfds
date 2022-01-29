@@ -172,10 +172,7 @@ class BFNamelist(BFParam):
         @param context: the Blender context.
         @param fds_namelist: instance of type FDSNamelist.
         """
-        while True:
-            fds_param = fds_namelist.get_fds_param(fds_label=None, remove=True)
-            if not fds_param:
-                break
+        for fds_param in fds_namelist.fds_params:
             is_imported = False
 
             # Try managed bf_param

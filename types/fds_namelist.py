@@ -65,10 +65,7 @@ class FDSNamelist:
         # Classify params
         invariant_ps, multi_ps, additional_ns = list(), list(), list()
         msgs = self.msgs
-        while True:
-            p = self.get_fds_param(fds_label=None, remove=True)
-            if not p:
-                break
+        for p in self.fds_params:
             match p:
                 case FDSParam():  # single param
                     invariant_ps.append(p)

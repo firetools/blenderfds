@@ -34,23 +34,23 @@ def _import_fds_namelist(scene, context, fds_namelist):
                 scene.collection.objects.link(ob)  # link it to Scene Collection
                 try:
                     ob.from_fds(context, fds_namelist=fds_namelist)
-                except BFNotImported:
-                    bpy.data.objects.remove(ob, do_unlink=True)
+                except BFNotImported as err:
+                    scene.bf_config_text.write(err.to_fds())
                 else:
                     is_imported = True
             case t if t == Scene:
                 try:
                     bf_namelist(element=scene).from_fds(context, fds_namelist=fds_namelist)
-                except BFNotImported:
-                    pass
+                except BFNotImported as err:
+                    scene.bf_config_text.write(err.to_fds())
                 else:
                     is_imported = True
             case t if t == Material:
                 ma = bpy.data.materials.new(hid)  # new Material
                 try:
                     ma.from_fds(context, fds_namelist=fds_namelist)
-                except BFNotImported:
-                    bpy.data.materials.remove(ma, do_unlink=True)
+                except BFNotImported as err:
+                    scene.bf_config_text.write(err.to_fds())
                 else:
                     ma.use_fake_user = True  # prevent del (eg. used by PART)
                     is_imported = True
@@ -58,21 +58,6 @@ def _import_fds_namelist(scene, context, fds_namelist):
                 raise AssertionError(f"Unhandled bf_namelist for <{fds_namelist}>") 
     if not is_imported:  # last resort, import to Free Text
         scene.bf_config_text.write(fds_namelist.to_fds(context) + "\n")
-
-def _get_id_to_fds_namelist_dict(context, fds_case, fds_label):
-    """!
-    Return all fds_namelists with fds_label into a {ID: fds_namelist} dict.
-    """
-    id_to_fds_namelist = dict()
-    while True:
-        fds_namelist = fds_case.get_fds_namelist(fds_label=fds_label, remove=True)
-        if not fds_namelist:
-            break
-        p_id = fds_namelist.get_fds_param(fds_label="ID", remove=False)
-        if not p_id:
-            raise BFNotImported(None, "Missing ID: <{fds_namelist}>")
-        id_to_fds_namelist[p_id.get_value(context)] = fds_namelist  # .copy()  # FIXME because it gets consumed
-    return id_to_fds_namelist
 
 class BFScene:
     """!
@@ -202,30 +187,14 @@ class BFScene:
         # Import SURFs first to new materials
         _import(fds_case=fds_case, fds_label="SURF", scene=self, context=context)
 
-        # Get all MOVEs into an id to fds_namelist dict
-        move_id_to_move = _get_id_to_fds_namelist_dict(context=context, fds_case=fds_case, fds_label="MOVE")
+        # Import MOVEs before geometries
+        _import(fds_case=fds_case, fds_label="MOVE", scene=self, context=context)
 
         # Import OBSTs before VENTs
         _import(fds_case=fds_case, fds_label="OBST", scene=self, context=context)
 
         # Import all other namelists to Object or Scene
         _import(fds_case=fds_case, fds_label=None, scene=self, context=context)
-
-        # Transform the Objects that have a MOVE_ID
-        for ob in self.collection.objects:
-            move_id = ob.get("MOVE_ID")  # tmp property
-            if not move_id:
-                continue
-            del ob["MOVE_ID"]  # clean up of tmp property
-            # Get the called MOVE
-            fds_namelist = move_id_to_move.get(move_id)
-            if not fds_namelist:
-                raise BFException(self, f"Missing MOVE ID='{ob.bf_move_id}'")  # FIXME compatible err msgs
-            # Apply the called MOVE to the Object
-            ON_MOVE(ob).from_fds(
-                context=context,
-                fds_namelist=fds_namelist.copy()  # it is consumed
-            )
 
         # Set imported Scene visibility
         context.window.scene = self
@@ -236,7 +205,6 @@ class BFScene:
 
         # Disconnect from fds case dir, to avoid overwriting imported case
         self.bf_config_directory = ""
-
 
     @classmethod
     def register(cls):
