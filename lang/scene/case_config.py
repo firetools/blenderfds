@@ -6,9 +6,19 @@ from ...types import BFParam, BFNamelistSc, BFException
 log = logging.getLogger(__name__)
 
 
+class SP_config_case_name(BFParam):
+    label = "Filename"
+    description = "Filename for exported FDS case,\nalso used as HEAD CHID"
+    bpy_type = Scene
+    bpy_idname = "name"
+
+    def copy_to(self, dest_element):
+        pass
+
+
 class SP_config_directory(BFParam):
-    label = "Case Directory"
-    description = "Destination directory for exported fds case"
+    label = "Directory"
+    description = "Destination directory for exported FDS case"
     bpy_type = Scene
     bpy_idname = "bf_config_directory"
     bpy_prop = StringProperty
@@ -39,7 +49,11 @@ class SP_config_text(BFParam):
 
 class SN_config(BFNamelistSc):
     label = "FDS Case Config"
-    bf_params = (SP_config_directory, SP_config_text)
+    bf_params = (
+        SP_config_case_name,
+        SP_config_directory,
+        SP_config_text,
+    )
 
 
 class SP_config_min_edge_length_export(BFParam):
