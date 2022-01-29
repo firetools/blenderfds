@@ -102,7 +102,7 @@ class OP_XB(BFParamXB):
     bpy_other = {
         "update": update_bf_xb,
         "items": (
-            ("BBOX", "BBox", "Export object bounding box", 100),
+            ("BBOX", "Bounding Box", "Export object bounding box", 100),
             ("VOXELS", "Voxels", "Export voxels from voxelized solid Object", 200),
             ("FACES", "Faces", "Export faces, one for each face", 300),
             ("PIXELS", "Pixels", "Export pixels from pixelized flat Object", 400),
@@ -181,4 +181,4 @@ class OP_XB_BBOX(BFParamXB):  # independent from OP_XB
         )
 
     def draw(self, context, layout):
-        layout.label(text=f"XB: bounding box (BBOX)")
+        layout.label(text=f"XB: Bounding Box")
