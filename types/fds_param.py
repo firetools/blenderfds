@@ -41,13 +41,21 @@ class FDSParam:
         self.exponential = exponential
         ## list of comment message strings
         self.msgs = msgs and list(msgs) or list()
-        self.msgs.append(msg)
+        if msg:
+            self.msgs.append(msg)
 
     def __str__(self) -> str:
-        res = self.to_fds()
-        if len(res) > 80:
-            return res[:37] + " ... " + res[-37:]
+        try:
+            res = self.to_fds()
+            if len(res) > 80:  # shorten
+                res = res[:37] + " ... " + res[-37:]
+        except:
+            res = self.__repr__()
         return res
+
+    def __repr__(self) -> str:
+        items = ", ".join(f'{k}={v!r}' for k, v in self.__dict__.items())
+        return f"<{self.__class__.__name__}({items})>"
 
     def copy(self):  # shallow copy
         return FDSParam(

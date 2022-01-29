@@ -33,7 +33,14 @@ class FDSNamelist:
         self.msgs = msgs and list(msgs) or list()
 
     def __str__(self) -> str:
-        return self.to_fds()
+        try:
+            return self.to_fds()
+        except:
+            return self.__repr__()
+
+    def __repr__(self) -> str:
+        items = ", ".join(f'{k}={v!r}' for k, v in self.__dict__.items())
+        return f"<{self.__class__.__name__}({items})>"
 
     def __contains__(self, fds_label) -> bool:
         # self can be a list of lists (multi), but only when exporting
@@ -67,6 +74,8 @@ class FDSNamelist:
         msgs = self.msgs
         for p in self.fds_params:
             match p:
+                case None:  # empty param
+                    continue
                 case FDSParam():  # single param
                     invariant_ps.append(p)
                     msgs.extend(p.msgs)
@@ -88,9 +97,9 @@ class FDSNamelist:
                                     case FDSNamelist():
                                         additional_ns.append(pp)
                                     case _:
-                                        raise ValueError(f"Unrecognized type of <{pp}>")
+                                        raise ValueError(f"Unrecognized type of <{pp}> in <{self}>")
                 case _:
-                    raise ValueError(f"Unrecognized type of <{p}>")
+                    raise ValueError(f"Unrecognized type of {p!r} in <{self!r}>")
         # Treat invariant, many and multi parameters
         # nl = FDSParam, FDSParam, ...
         nls = list()  # list of nl

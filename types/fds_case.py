@@ -28,6 +28,10 @@ class FDSCase:
     def __str__(self):
         return self.to_fds()
 
+    def __repr__(self) -> str:
+        items = ", ".join(f'{k}={v!r}' for k, v in self.__dict__.items())
+        return f"<{self.__class__.__name__}({items})>"
+
     def __contains__(self, fds_label) -> bool:
         # self can be a list of lists (multi), but only when exporting
         # in that case this fails

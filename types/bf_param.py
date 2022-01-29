@@ -79,6 +79,10 @@ class BFParam:
     def __str__(self):
         return f"{self.label}(element='{self.element.name}')"
 
+    def __repr__(self) -> str:
+        items = ", ".join(f"{k}={v!r}" for k, v in self.__dict__.items())
+        return f"<{self.__class__.__name__}({items})>"
+
     @classmethod
     def get_subclass(cls, fds_label=None, cls_name=None, default=None):
         """!
@@ -174,7 +178,7 @@ class BFParam:
         Return value from element instance.
         @return any type
         """
-        return getattr(self.element, self.bpy_idname)
+        return getattr(self.element, self.bpy_idname or str())
 
     def set_value(self, context, value=None):
         """!
@@ -211,9 +215,7 @@ class BFParam:
             elif value == d:  # other comparison
                 return False
         # Check if bpy_export is True
-        if self.bpy_export is None:
-            return True
-        return bool(getattr(self.element, self.bpy_export, True))
+        return bool(getattr(self.element, self.bpy_export or str(), True))
 
     def set_exported(self, context, value=None):
         """!
@@ -257,7 +259,8 @@ class BFParam:
         if not self.bpy_idname:
             return
         # Set active and alert
-        active, alert = bool(self.get_exported(context)), False
+        active = bool(getattr(self.element, self.bpy_export or str(), True))
+        alert = False
         if active:
             try:
                 self.check(context)

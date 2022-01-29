@@ -50,6 +50,10 @@ class BFException(Exception):
         else:
             return self.msg
 
+    def __repr__(self) -> str:
+        items = ", ".join(f'{k}={v!r}' for k, v in self.__dict__.items())
+        return f"<{self.__class__.__name__}({items})>"
+
     def to_fds(self):
         return f"! {self.__class__.__name__}:\n! {self.__str__()}\n\n"
 

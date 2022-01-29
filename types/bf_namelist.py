@@ -31,7 +31,7 @@ class BFNamelist(BFParam):
         ## My sub params, tuple of element instances of type BFParam
         self.bf_params = tuple(p(element=element) for p in self.bf_params)
 
-    # inherit __str__(), __init_subclass__(), get_subclass()
+    # inherit __str__(), __repr()__, __init_subclass__(), get_subclass()
 
     @classmethod
     def register(cls):
@@ -95,9 +95,7 @@ class BFNamelist(BFParam):
             return self.bf_params[self._bf_param_other_idx]
 
     def get_exported(self, context):
-        if self.bpy_export is None:
-            return True
-        return bool(getattr(self.element, self.bpy_export, True))
+        return bool(getattr(self.element, self.bpy_export or str(), True))
 
     def draw_operators(self, context, layout):
         """!
