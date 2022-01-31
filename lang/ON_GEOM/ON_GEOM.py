@@ -123,7 +123,7 @@ class OP_GEOM_BINARY_FILE(BFParam):
 
     def set_value(self, context, value):
         # Read bingeom
-        filepath, _, _, name = utils.io.transform_rfds_to_abs_and_rbl(
+        filepath, _, path_rbl, name = utils.io.transform_rfds_to_abs_and_rbl(
             context=context, filepath_rfds=value
         )
         geom_to_ob(context=context, ob=self.element, filepath=filepath)

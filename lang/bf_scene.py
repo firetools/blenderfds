@@ -203,7 +203,7 @@ class BFScene:
         free_text.current_line_index = 0
         bpy.ops.scene.bf_show_text()  # FIXME FIXME FIXME remove ops, put py
 
-        # Disconnect from fds case dir, to avoid overwriting imported case
+        # Unlink from fds case dir, to avoid overwriting imported case
         self.bf_config_directory = ""
 
     @classmethod
