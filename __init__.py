@@ -28,15 +28,11 @@ bl_info = {
     "support": "COMMUNITY",
 }
 
-import logging, importlib
+import logging
 
 # bl should be imported before lang,
 # because it imports ui_lists
-if "bl" in locals():
-    importlib.reload(bl)
-    importlib.reload(lang)
-else:
-    from . import bl, lang
+from . import bl, lang
 
 logging.basicConfig(level=logging.DEBUG)  # INFO or DEBUG
 log = logging.getLogger(__name__)
