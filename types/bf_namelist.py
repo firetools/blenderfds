@@ -250,12 +250,11 @@ class BFNamelistOb(BFNamelist):
         # Defaults
         display_type = "TEXTURED"
         show_name = False
-        show_in_front = False
         # Mods
         match self.bf_other.get("appearance"):
             case "BBOX":
                 # FIXME make bbox?
-                display_type, show_name, show_in_front = "WIRE", True, True
+                display_type, show_name = "WIRE", True
             case "WIRE":
                 display_type = "WIRE"
             case _:
@@ -264,7 +263,7 @@ class BFNamelistOb(BFNamelist):
         ob = self.element
         ob.display_type = display_type
         ob.show_name = show_name
-        ob.show_in_front = show_in_front
+        # ob.show_in_front = show_in_front  # unused
         # ob.show_wire = show_wire  # unused 
 
 class BFNamelistMa(BFNamelist):

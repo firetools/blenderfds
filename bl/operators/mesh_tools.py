@@ -56,7 +56,7 @@ class OBJECT_OT_bf_set_mesh_cell_size(Operator):
     def invoke(self, context, event):
         ob = context.active_object
         # Set default
-        self.bf_cell_sizes = lang.MESH.get_cell_sizes(context, ob)
+        self.bf_cell_sizes = lang.ON_MESH.get_cell_sizes(context, ob)
         # Call dialog
         wm = context.window_manager
         return wm.invoke_props_dialog(self)
@@ -64,7 +64,7 @@ class OBJECT_OT_bf_set_mesh_cell_size(Operator):
     def execute(self, context):
         ob = context.active_object
         ob.bf_xb, ob.bf_xb_export = "BBOX", True
-        ob.bf_mesh_ijk = lang.MESH.get_ijk_from_desired_cs(
+        ob.bf_mesh_ijk = lang.ON_MESH.get_ijk_from_desired_cs(
             context, ob, self.bf_cell_sizes, self.bf_poisson_restriction
         )
         self.report({"INFO"}, "MESH cell size set")
@@ -112,12 +112,12 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
         for de in destination_elements:
             mijk = de.bf_mesh_ijk
             mxb = utils.geometry.get_bbox_xb(context, ob=de, world=True)
-            rijk, rxb, mijk, mxb, msgs = lang.MESH.align_meshes(
+            rijk, rxb, mijk, mxb, msgs = lang.ON_MESH.align_meshes(
                 rijk, rxb, mijk, mxb, poisson=False, protect_rl=False
             )
             source_element.bf_mesh_ijk = rijk
             matrix = source_element.matrix_world.invert()
-            lang.XB.xbs_to_ob(
+            lang.OP_XB.xbs_to_ob(
                 context=context,
                 ob=source_element,
                 xbs=(rxb,),
@@ -126,7 +126,7 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
             )
             de.bf_mesh_ijk = mijk
             matrix = de.matrix_world.invert()
-            lang.XB.xbs_to_ob(
+            lang.OP_XB.xbs_to_ob(
                 context=context,
                 ob=de,
                 xbs=(mxb,),

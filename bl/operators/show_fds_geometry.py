@@ -50,7 +50,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
         # Manage GEOM
         if ob.bf_namelist_cls == "ON_GEOM" and not ob.hide_render:  # was bf_export
             try:
-                fds_verts, fds_faces, fds_surfs, _, msg = lang.GEOM.ob_to_geom(
+                fds_verts, fds_faces, fds_surfs, _, msg = lang.ON_GEOM.ob_to_geom(
                     context=context,
                     ob=ob,
                     check=ob.data.bf_geom_check_sanity,
@@ -72,7 +72,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                             self, f"Object <{ob.name}> has empty material slot"
                         )
                     ob_tmp.data.materials.append(ma)
-                lang.GEOM.geom_to_ob(
+                lang.ON_GEOM.geom_to_ob(
                     context=context,
                     ob=ob_tmp,
                     fds_verts=fds_verts,
@@ -89,7 +89,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
         # XB
         if ob.bf_xb_export and ob.bf_namelist.get_bf_param_xb():
             try:
-                xbs, msg = lang.XB.ob_to_xbs(context=context, ob=ob, bf_xb=ob.bf_xb)
+                xbs, msg = lang.OP_XB.ob_to_xbs(context=context, ob=ob, bf_xb=ob.bf_xb)
             except BFException as err:
                 w.cursor_modal_restore()
                 self.report({"ERROR"}, f"Show: {err}")
@@ -99,7 +99,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                 ob_tmp = utils.geometry.get_tmp_object(
                     context=context, ob=ob, name=f"{ob.name}_XB_tmp"
                 )
-                lang.XB.xbs_to_ob(
+                lang.OP_XB.xbs_to_ob(
                     context=context,
                     ob=ob_tmp,
                     xbs=xbs,
@@ -110,7 +110,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
         # XYZ
         if ob.bf_xyz_export and ob.bf_namelist.get_bf_param_xyz():
             try:
-                xyzs, msg = lang.XYZ.ob_to_xyzs(
+                xyzs, msg = lang.OP_XYZ.ob_to_xyzs(
                     context=context, ob=ob, bf_xyz=ob.bf_xyz
                 )
             except BFException as err:
@@ -122,13 +122,13 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                 ob_tmp = utils.geometry.get_tmp_object(
                     context=context, ob=ob, name=f"{ob.name}_XYZ_tmp"
                 )
-                lang.XYZ.xyzs_to_ob(context=context, ob=ob_tmp, xyzs=xyzs)
+                lang.OP_XYZ.xyzs_to_ob(context=context, ob=ob_tmp, xyzs=xyzs)
                 ob_tmp.active_material = ob.active_material
                 ob_tmp.show_wire = True
         # PB
         if ob.bf_pb_export and ob.bf_namelist.get_bf_param_pb():
             try:
-                pbs, msg = lang.PB.ob_to_pbs(context=context, ob=ob, bf_pb=ob.bf_pb)
+                pbs, msg = lang.OP_PB.ob_to_pbs(context=context, ob=ob, bf_pb=ob.bf_pb)
             except BFException as err:
                 w.cursor_modal_restore()
                 self.report({"ERROR"}, f"Show: {err}")
@@ -138,7 +138,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
                 ob_tmp = utils.geometry.get_tmp_object(
                     context=context, ob=ob, name=f"{ob.name}_PB*_tmp"
                 )
-                lang.PB.pbs_to_ob(context=context, ob=ob_tmp, pbs=pbs)
+                lang.OP_PB.pbs_to_ob(context=context, ob=ob_tmp, pbs=pbs)
                 ob_tmp.active_material = ob.active_material
                 ob_tmp.show_wire = True
         # Close
