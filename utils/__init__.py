@@ -1,3 +1,3 @@
-from . import geometry, io, gis
+from . import geometry, io, gis, ui
 
 # Nothing to register here

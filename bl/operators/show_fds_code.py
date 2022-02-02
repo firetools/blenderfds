@@ -6,6 +6,7 @@ import logging, bpy
 from bpy.types import Operator
 from bpy.props import StringProperty, EnumProperty
 from ...types import BFException
+from ... import utils
 
 log = logging.getLogger(__name__)
 
@@ -40,10 +41,6 @@ class WM_OT_bf_dialog(Operator):
         return wm.invoke_props_dialog(self)
 
     def draw(self, context):
-        """!
-        Draw function for the operator.
-        @param context: the Blender context.
-        """
         layout = self.layout
         col = layout.column()
         col.label(text=self.msg, icon=self.type)
@@ -61,16 +58,12 @@ class _show_fds_code:
     """
 
     def draw(self, context):
-        """!
-        Draw function for the operator.
-        @param context: the Blender context.
-        """
         if self.lines:
             lines = self.lines.split("\n")
         else:
             lines = ("No FDS code is exported",)
         if len(lines) > 60:
-            lines = lines[:55] + ["..."] + lines[-4:]
+            lines = lines[:55] + ["···"] + lines[-4:]
         layout = self.layout
         for line in lines:
             layout.label(text=line)
@@ -82,8 +75,6 @@ class _show_fds_code:
     def _get_lines(self, context):
         """!
         Placeholder method to get text lines.
-        @param context: the Blender context.
-        @return text
         """
         return str()
 
@@ -113,19 +104,9 @@ class OBJECT_OT_bf_show_fds_code(_show_fds_code, Operator):
 
     @classmethod
     def poll(cls, context):
-        """!
-        Test if the operator can be called or not.
-        @param context: the Blender context.
-        @return True if operator can be called, False otherwise.
-        """
         return context.active_object
 
     def _get_lines(self, context):
-        """!
-        Get Object related FDS code.
-        @param context: the Blender context.
-        @return text
-        """
         return context.active_object.to_fds(context)
 
 
@@ -140,19 +121,9 @@ class MATERIAL_OT_bf_show_fds_code(_show_fds_code, Operator):
 
     @classmethod
     def poll(cls, context):
-        """!
-        Test if the operator can be called or not.
-        @param context: the Blender context.
-        @return True if operator can be called, False otherwise.
-        """
         return context.active_object and context.active_object.active_material
 
     def _get_lines(self, context):
-        """!
-        Get Material related FDS code.
-        @param context: the Blender context.
-        @return text
-        """
         return context.active_object.active_material.to_fds(context)
 
 
@@ -170,11 +141,6 @@ class SCENE_OT_bf_show_fds_code(_show_fds_code, Operator):
         return context.scene
 
     def _get_lines(self, context):
-        """!
-        Get Scene related FDS code.
-        @param context: the Blender context.
-        @return text
-        """
         return context.scene.to_fds(context)
 
 
@@ -188,33 +154,15 @@ class SCENE_OT_bf_show_text(Operator):
     bl_description = "Show free text in the editor"
 
     def execute(self, context):
-        te = context.scene.bf_config_text
-        # If not existing, create one
-        if not te:
-            bpy.ops.text.new()
-            te = bpy.data.texts[-1]
-            context.scene.bf_config_text = te
-        # Show text in text editor
-        done = False
-        for w in context.window_manager.windows:
-            for area in w.screen.areas:
-                if area.type == "TEXT_EDITOR":
-                    space = area.spaces[0]
-                    space.text = te
-                    space.show_line_numbers = True
-                    space.show_line_highlight = True
-                    space.show_word_wrap = True
-                    space.show_margin = True
-                    space.margin_column = 130
-                    space.show_syntax_highlight = True
-                    done = True
-                    break
-        if done:
-            self.report({"INFO"}, f"See Blender text editor: <{te.name}>")
-            return {"FINISHED"}
-        else:
-            self.report({"WARNING"}, f"Open Blender text editor first")
-            return {"CANCELLED"}
+        context.scene.bf_config_text = utils.ui.get_text_in_editor(
+            context=context,
+            text=context.scene.bf_config_text,
+            name="Text",
+        )
+        self.report(
+            {"INFO"}, f"See Blender text editor: <{context.scene.bf_config_text.name}>"
+        )
+        return {"FINISHED"}
 
 
 bl_classes = [
