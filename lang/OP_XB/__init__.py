@@ -1,4 +1,4 @@
-from .XB import (
+from .OP_XB import (
     OP_XB,
     OP_XB_custom_voxel,
     OP_XB_voxel_size,

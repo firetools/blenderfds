@@ -8,7 +8,7 @@ from bpy.types import Object, Scene, Material
 from .. import config
 from .fds_namelist import FDSNamelist
 from .bf_exception import BFException, BFNotImported, BFWarning
-from .bf_param import BFParam, BFParamXB, BFParamXYZ, BFParamPB, BFParamOther
+from .bf_param import BFParam, BFParamOther
 
 log = logging.getLogger(__name__)
 
@@ -39,19 +39,10 @@ class BFNamelist(BFParam):
         # Indexes are used to link both the class and the instance
         # otherwise the references are changed when instancing
         cls._bf_param_idx_by_fds_label = dict()  # fds_label: index of param
-        cls._bf_param_xb_idx = None  # index of param of type BFParamXB
-        cls._bf_param_xyz_idx = None  # ... of type BFParamXYZ
-        cls._bf_param_pb_idx = None  # ... of type BFParamPB
         cls._bf_param_other_idx = None  # ... of type BFParamOther
         for i, p in enumerate(cls.bf_params):
             if p.fds_label:
                 cls._bf_param_idx_by_fds_label[p.fds_label] = i
-            if issubclass(p, BFParamXB):
-                cls._bf_param_xb_idx = i
-            elif issubclass(p, BFParamXYZ):
-                cls._bf_param_xyz_idx = i
-            elif issubclass(p, BFParamPB):
-                cls._bf_param_pb_idx = i
             elif issubclass(p, BFParamOther):
                 cls._bf_param_other_idx = i
 
@@ -65,27 +56,6 @@ class BFNamelist(BFParam):
         i = self._bf_param_idx_by_fds_label.get(fds_label)
         if i is not None:
             return self.bf_params[i]
-
-    def get_bf_param_xb(self):
-        """!
-        Return the reference of the XB bf_param (BFParamXB class or instance).
-        """
-        if self._bf_param_xb_idx is not None:
-            return self.bf_params[self._bf_param_xb_idx]
-
-    def get_bf_param_xyz(self):
-        """!
-        Return the reference of the XYZ bf_param (BFParamXYZ class or instance).
-        """
-        if self._bf_param_xyz_idx is not None:
-            return self.bf_params[self._bf_param_xyz_idx]
-
-    def get_bf_param_pb(self):
-        """!
-        Return the reference of the PB bf_param (BFParamPB class or instance).
-        """
-        if self._bf_param_pb_idx is not None:
-            return self.bf_params[self._bf_param_pb_idx]
 
     def get_bf_param_other(self):
         """!

@@ -80,7 +80,7 @@ def xbs_bbox_to_mesh(context, me, xbs, set_materials=False, matrix=None):
     """
     # Set Mesh
     bm = bmesh.new()
-    # bm.from_mesh(me)  # add to current mesh FIXME parameter "new_mesh"?
+    bm.from_mesh(me)  # add to current mesh
     scale_length = context.scene.unit_settings.scale_length
     for xb in xbs:
         x0, x1, y0, y1, z0, z1 = (coo / scale_length for coo in xb)

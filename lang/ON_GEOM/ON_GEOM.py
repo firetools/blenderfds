@@ -121,6 +121,30 @@ class OP_GEOM_BINARY_FILE(BFParam):
             )
         return fds_params  # many
 
+    def show_fds_geometry(self, context, ob_tmp):
+        ob = self.element
+        if ob.hide_render:  # was bf_export
+            return
+        fds_verts, fds_faces, fds_surfs, _, _ = ob_to_geom(
+            context=context,
+            ob=ob,
+            check=ob.data.bf_geom_check_sanity,
+            check_open=not ob.data.bf_geom_is_terrain,
+            world=True,
+            filepath=None,
+        )
+        geom_to_ob(
+            context=context,
+            ob=ob_tmp,
+            fds_verts=fds_verts,
+            fds_faces=fds_faces,
+            fds_surfs=fds_surfs,
+            fds_faces_surfs=None,
+            filepath=None,
+        )
+        if fds_verts:
+            return True
+
     def set_value(self, context, value):
         # Read bingeom
         filepath, _, path_rbl, name = utils.io.transform_rfds_to_abs_and_rbl(

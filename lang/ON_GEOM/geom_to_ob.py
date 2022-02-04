@@ -59,7 +59,7 @@ def geom_to_mesh(context, me, fds_verts, fds_faces=None, fds_surfs=None, fds_fac
         )        
     # Create a new bmesh, 
     bm = bmesh.new()
-    # bm.from_mesh(me) # never add to existing?
+    bm.from_mesh(me)  # add to current mesh
     # Fill the bm.verts
     scale_length = context.scene.unit_settings.scale_length
     for i in range(0, len(fds_verts), 3):

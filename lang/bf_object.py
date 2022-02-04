@@ -85,8 +85,9 @@ class BFObject:
 
 
 def update_OP_namelist_cls(ob, context):
-    utils.geometry.rm_geometric_cache(ob=ob)
-    utils.geometry.rm_tmp_objects()
+    if not ob.bf_is_tmp:
+        utils.geometry.rm_geometric_cache(ob=ob)
+        utils.geometry.rm_tmp_objects()
     ob.bf_namelist.set_appearance(context)
 
 

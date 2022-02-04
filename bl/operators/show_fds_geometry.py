@@ -22,13 +22,14 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.object
+        return context.active_object
 
     def execute(self, context):
         w = context.window_manager.windows[0]
         w.cursor_modal_set("WAIT")
-        ob = context.object
-        # Hide
+        ob = context.active_object
+
+        # Hide tmp
         if ob.bf_is_tmp or ob.bf_has_tmp:
             utils.geometry.rm_tmp_objects()
             try:
@@ -41,115 +42,51 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
             w.cursor_modal_restore()
             self.report({"INFO"}, "Temporary geometry hidden")
             return {"FINISHED"}
-        # Show
+
+        # Check
         bf_namelist = ob.bf_namelist
-        if not bf_namelist.get_exported(context):
+        if not bf_namelist:
             w.cursor_modal_restore()
-            self.report({"WARNING"}, "Not exported, nothing to show")
+            self.report({"WARNING"}, "Not exported, no FDS geometry shown")
             return {"CANCELLED"}
-        # Manage GEOM
-        if ob.bf_namelist_cls == "ON_GEOM" and not ob.hide_render:  # was bf_export
-            try:
-                fds_verts, fds_faces, fds_surfs, _, msg = lang.ON_GEOM.ob_to_geom(
-                    context=context,
-                    ob=ob,
-                    check=ob.data.bf_geom_check_sanity,
-                    check_open=not ob.data.bf_geom_is_terrain,
-                    world=True,
+
+        # Make tmp Object and set its appearance
+        ob_tmp = utils.geometry.get_tmp_object(context, ob, f"{ob.name}_tmp")
+        ob_tmp.bf_namelist_cls = ob.bf_namelist_cls
+        ob_tmp.show_name = False
+        ob_tmp.show_wire = True
+
+        # Copy materials
+        for ms in ob.material_slots:
+            ma = ms.material
+            if not ma:
+                raise BFException(self, f"Empty material slot")
+            ob_tmp.data.materials.append(ma)
+
+        # Set tmp geometry
+        is_shown = list()
+        try:
+            is_shown.append(
+                bf_namelist.show_fds_geometry(context=context, ob_tmp=ob_tmp)
+            )
+            for bf_param in bf_namelist.bf_params:
+                is_shown.append(
+                    bf_param.show_fds_geometry(context=context, ob_tmp=ob_tmp)
                 )
-            except BFException as err:
-                self.report({"ERROR"}, f"Show: {err}")
-                return {"CANCELLED"}
-            else:
-                ob_tmp = utils.geometry.get_tmp_object(
-                    context, ob, f"{ob.name}_GEOM_tmp"
-                )
-                # copy materials
-                for ms in ob.material_slots:
-                    ma = ms.material
-                    if not ma:
-                        raise BFException(
-                            self, f"Object <{ob.name}> has empty material slot"
-                        )
-                    ob_tmp.data.materials.append(ma)
-                lang.ON_GEOM.geom_to_ob(
-                    context=context,
-                    ob=ob_tmp,
-                    fds_verts=fds_verts,
-                    fds_faces=fds_faces,
-                    fds_surfs=fds_surfs,
-                )
-                ob_tmp.show_wire = True
-                self.report({"INFO"}, msg)
-                return {"FINISHED"}
-            finally:
-                w.cursor_modal_restore()
-        # Manage XB, XYZ, PB*
-        msgs, ob_tmp = list(), None
-        # XB
-        if ob.bf_xb_export and ob.bf_namelist.get_bf_param_xb():
-            try:
-                xbs, msg = lang.OP_XB.ob_to_xbs(context=context, ob=ob, bf_xb=ob.bf_xb)
-            except BFException as err:
-                w.cursor_modal_restore()
-                self.report({"ERROR"}, f"Show: {err}")
-                return {"CANCELLED"}
-            else:
-                msgs.append(msg)
-                ob_tmp = utils.geometry.get_tmp_object(
-                    context=context, ob=ob, name=f"{ob.name}_XB_tmp"
-                )
-                lang.OP_XB.xbs_to_ob(
-                    context=context,
-                    ob=ob_tmp,
-                    xbs=xbs,
-                    bf_xb=ob.bf_xb,
-                )
-                ob_tmp.active_material = ob.active_material
-                ob_tmp.show_wire = True
-        # XYZ
-        if ob.bf_xyz_export and ob.bf_namelist.get_bf_param_xyz():
-            try:
-                xyzs, msg = lang.OP_XYZ.ob_to_xyzs(
-                    context=context, ob=ob, bf_xyz=ob.bf_xyz
-                )
-            except BFException as err:
-                w.cursor_modal_restore()
-                self.report({"ERROR"}, f"Show: {err}")
-                return {"CANCELLED"}
-            else:
-                msgs.append(msg)
-                ob_tmp = utils.geometry.get_tmp_object(
-                    context=context, ob=ob, name=f"{ob.name}_XYZ_tmp"
-                )
-                lang.OP_XYZ.xyzs_to_ob(context=context, ob=ob_tmp, xyzs=xyzs)
-                ob_tmp.active_material = ob.active_material
-                ob_tmp.show_wire = True
-        # PB
-        if ob.bf_pb_export and ob.bf_namelist.get_bf_param_pb():
-            try:
-                pbs, msg = lang.OP_PB.ob_to_pbs(context=context, ob=ob, bf_pb=ob.bf_pb)
-            except BFException as err:
-                w.cursor_modal_restore()
-                self.report({"ERROR"}, f"Show: {err}")
-                return {"CANCELLED"}
-            else:
-                msgs.append(msg)
-                ob_tmp = utils.geometry.get_tmp_object(
-                    context=context, ob=ob, name=f"{ob.name}_PB*_tmp"
-                )
-                lang.OP_PB.pbs_to_ob(context=context, ob=ob_tmp, pbs=pbs)
-                ob_tmp.active_material = ob.active_material
-                ob_tmp.show_wire = True
-        # Close
-        w.cursor_modal_restore()
-        msg = "; ".join(msg for msg in msgs if msg)
-        if ob_tmp:
-            self.report({"INFO"}, msg or "Geometry exported")
-            return {"FINISHED"}
+        except BFException as err:
+            self.report({"ERROR"}, str(err))
+            return {"CANCELLED"}
+        except Exception as err:
+            self.report({"ERROR"}, f"Unexpected error: {err}")
+            return {"CANCELLED"}
         else:
-            self.report({"WARNING"}, msg or "No geometry exported")
-            return {"CANCELLED"}
+            if any(is_shown):
+                self.report({"INFO"}, "FDS geometry shown")
+            else:
+                self.report({"WARNING"}, "No FDS geometry to show")
+            return {"FINISHED"}
+        finally:
+            w.cursor_modal_restore()
 
 
 bl_classes = [

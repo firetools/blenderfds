@@ -1,12 +1,13 @@
 import logging
 from bpy.types import Object
 from bpy.props import EnumProperty, BoolProperty, FloatProperty
-from ...types import BFParam, BFParamXB, FDSParam
+from ...types import BFParam, FDSParam
 from ... import utils
 from .ob_to_xbs import ob_to_xbs
 from .xbs_to_ob import xbs_to_ob
 
 log = logging.getLogger(__name__)
+
 
 
 def update_bf_xb(ob, context):
@@ -91,8 +92,7 @@ class OP_XB_export(BFParam):
     bpy_default = True
     bpy_other = {"update": update_bf_xb}
 
-
-class OP_XB(BFParamXB):
+class OP_XB(BFParam):  
     label = "XB"
     description = "Export as volumes/faces"
     fds_label = "XB"
@@ -115,8 +115,7 @@ class OP_XB(BFParamXB):
         ob = self.element
         if not ob.bf_xb_export:
             return
-        # Compute
-        xbs, msg = ob_to_xbs(context, ob, ob.bf_xb)
+        xbs, msg = ob_to_xbs(context=context, ob=ob, bf_xb=ob.bf_xb)
         # Single param
         if len(xbs) == 1:
             return FDSParam(fds_label="XB", value=xbs[0], precision=6)
@@ -152,6 +151,16 @@ class OP_XB(BFParamXB):
         result[0][0].msgs.append(msg)
         return result
 
+    def show_fds_geometry(self, context, ob_tmp):
+        ob = self.element
+        if self.bpy_export and not ob.bf_xb_export:
+            return
+        xbs, _ = ob_to_xbs(context=context, ob=ob, bf_xb=ob.bf_xb)
+        xbs_to_ob(context=context, ob=ob_tmp, xbs=xbs, bf_xb=ob.bf_xb)
+        ob_tmp.active_material = ob.active_material
+        if xbs:
+            return True
+
     def from_fds(self, context, value):
         bf_xb = xbs_to_ob(
             context=context,
@@ -162,11 +171,13 @@ class OP_XB(BFParamXB):
         self.element.bf_xb_export = True
 
 
-class OP_XB_BBOX(BFParamXB):  # independent from OP_XB
+class OP_XB_BBOX(OP_XB):  # independent from OP_XB
     label = "XB"
     description = "Export as object bounding box (BBOX)"
     fds_label = "XB"
     bpy_type = Object
+    bpy_idname = None
+    bpy_export = None
 
     def to_fds_param(self, context):
         ob = self.element

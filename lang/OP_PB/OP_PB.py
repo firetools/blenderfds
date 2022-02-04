@@ -1,7 +1,7 @@
 import logging
 from bpy.types import Object
 from bpy.props import EnumProperty, BoolProperty
-from ...types import BFParam, BFParamPB, FDSParam
+from ...types import BFParam, FDSParam
 from ... import utils
 from .ob_to_pbs import ob_to_pbs
 from .pbs_to_ob import pbs_to_ob
@@ -31,7 +31,7 @@ class OP_PB_export(BFParam):
     bpy_other = {"update": update_bf_pb}
 
 
-class OP_PB(BFParamPB):
+class OP_PB(BFParam):
     label = "PBX, PBY, PBZ"
     description = "Export as planes"
     bpy_type = Object
@@ -83,12 +83,19 @@ class OP_PB(BFParamPB):
         result[0][0].msgs.append(msg)
         return result
 
+    def show_fds_geometry(self, context, ob_tmp):
+        log.debug(f"Geometry to show: {self}")
+        ob = self.element
+        if not ob.bf_pb_export:
+            return
+        pbs, _ = ob_to_pbs(context, ob, bf_pb=ob.bf_pb)
+        pbs_to_ob(context=context, ob=ob_tmp, pbs=pbs)
+        ob_tmp.active_material = ob.active_material
+        if pbs:
+            return True
+
     def from_fds(self, context, value):
-        bf_pb = pbs_to_ob(
-            context=context,
-            ob=self.element,
-            pbs=((self.axis, value),),
-        )
+        bf_pb = pbs_to_ob(context=context, ob=self.element, pbs=((self.axis, value),))
         self.element.bf_pb = bf_pb
         self.element.bf_pb_export = True
 

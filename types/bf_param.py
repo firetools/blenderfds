@@ -60,7 +60,7 @@ class BFParam:
         Class constructor.
         @param element: FDS element represented by this class instance.
         """
-        # Treat Mesh BFParam  # FIXME check
+        # Treat Mesh BFParam
         if self.bpy_type == Mesh:
             element = element.data
         ## FDS element represented by this class instance
@@ -297,6 +297,14 @@ class BFParam:
                     precision=self.bpy_other.get("precision", 3),
                 )
 
+    def show_fds_geometry(self, context, ob_tmp):
+        """!
+        Append my FDS geometry to the ob_tmp.
+        @param context: the Blender context.
+        @param ob_tmp: the tmp Object that receives the geometry.
+        """
+        return
+
     # No to_fds, because to_fds_param can be None, many or multi
     # and it makes no sense
 
@@ -323,31 +331,7 @@ class BFParam:
             setattr(dest_element, self.bpy_idname, value)
 
 
-class BFParamXB(BFParam):
-    """!
-    Blender representation of an FDS parameter, helper for FDS XB parameter.
-    """
-
-    pass
-
-
-class BFParamXYZ(BFParam):
-    """!
-    Blender representation of an FDS parameter, helper for FDS XYZ parameter.
-    """
-
-    pass
-
-
-class BFParamPB(BFParam):
-    """!
-    Blender representation of an FDS parameter, helper for FDS PBX PBY PBZ parameters.
-    """
-
-    pass
-
-
-class BFParamStr(BFParam):
+class BFParamStr(BFParam):  # FIXME remove if not used
     """!
     Blender representation of an FDS parameter, helper for any FDS string parameter.
     """

@@ -46,6 +46,21 @@ def get_object_bmesh(
     return bm
 
 
+# FIXME
+# def get_new_object(context, sc=None, ob=None, name="New", set_tmp=False):
+#     if not sc:
+#         sc = context.scene
+#     me_new = bpy.data.meshes.new(name)
+#     ob_new = bpy.data.objects.new(name, object_data=me_new)
+#     sc.collection.objects.link(ob_new)
+#     if set_tmp:
+#         ob_new.bf_is_tmp = True
+#         if ob:
+#             ob.bf_has_tmp = True
+#             ob.hide_set(True)
+#     return ob_new
+
+
 def get_tmp_object(context, ob, name="tmp"):
     """!
     Get a new tmp Object from ob.
@@ -55,11 +70,11 @@ def get_tmp_object(context, ob, name="tmp"):
     @return the temp object.
     """
     # Create new tmp Object
-    co_tmp = context.collection
     me_tmp = bpy.data.meshes.new(name)
     ob_tmp = bpy.data.objects.new(name, me_tmp)
     ob_tmp.bf_is_tmp = True
-    co_tmp.objects.link(ob_tmp)
+    co = ob.users_collection[0]
+    co.objects.link(ob_tmp)
     # Set original
     ob.bf_has_tmp = True
     ob.hide_set(True)

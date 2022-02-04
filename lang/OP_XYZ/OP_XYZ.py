@@ -1,7 +1,7 @@
 import logging
 from bpy.types import Object
 from bpy.props import EnumProperty, BoolProperty, FloatProperty
-from ...types import BFParam, BFParamXYZ, FDSParam
+from ...types import BFParam, FDSParam
 from ... import utils
 from .ob_to_xyzs import ob_to_xyzs
 from .xyzs_to_ob import xyzs_to_ob
@@ -31,7 +31,7 @@ class OP_XYZ_export(BFParam):
     bpy_other = {"update": update_bf_xyz}
 
 
-class OP_XYZ(BFParamXYZ):
+class OP_XYZ(BFParam):
     label = "XYZ"
     description = "Export as points"
     fds_label = "XYZ"
@@ -51,7 +51,6 @@ class OP_XYZ(BFParamXYZ):
         ob = self.element
         if not ob.bf_xyz_export:
             return
-        # Compute
         xyzs, msg = ob_to_xyzs(context, ob, ob.bf_xyz)
         # Single param
         if len(xyzs) == 1:
@@ -87,6 +86,16 @@ class OP_XYZ(BFParamXYZ):
         # Send message
         result[0][0].msgs.append(msg)
         return result
+
+    def show_fds_geometry(self, context, ob_tmp):
+        ob = self.element
+        if not ob.bf_xyz_export:
+            return
+        xyzs, _ = ob_to_xyzs(context, ob, ob.bf_xyz)
+        xyzs_to_ob(context=context, ob=ob_tmp, xyzs=xyzs)
+        ob_tmp.active_material = ob.active_material
+        if xyzs:
+            return True
 
     def from_fds(self, context, value):
         bf_xyz = xyzs_to_ob(
