@@ -62,8 +62,8 @@ class _show_fds_code:
             lines = self.lines.split("\n")
         else:
             lines = ("No FDS code is exported",)
-        if len(lines) > 60:
-            lines = lines[:55] + ["···"] + lines[-4:]
+        if len(lines) > 20:
+            lines = lines[:15] + [" ···"] + lines[-4:]
         layout = self.layout
         for line in lines:
             layout.label(text=line)
