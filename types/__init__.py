@@ -12,7 +12,6 @@ from .bf_namelist import (
 from .bf_param import (
     BFParam,
     BFParamFYI,
-    BFParamStr,
     BFParamOther,
 )
 from .fds_case import FDSCase

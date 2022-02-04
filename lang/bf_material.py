@@ -5,7 +5,6 @@ from ..types import (
     BFParam,
     BFParamOther,
     BFParamFYI,
-    BFParamStr,
     BFNamelist,
     BFException,
     FDSParam,
@@ -116,7 +115,7 @@ class MP_namelist_cls(BFParam):
         return super().get_exported(context)
 
 
-class MP_ID(BFParamStr):
+class MP_ID(BFParam):
     label = "ID"
     description = "Material identification name"
     fds_label = "ID"

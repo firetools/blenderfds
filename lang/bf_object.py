@@ -5,7 +5,6 @@ from ..types import (
     BFParam,
     BFParamOther,
     BFParamFYI,
-    BFParamStr,
     BFNamelist,
 )
 from .. import utils
@@ -117,7 +116,7 @@ class OP_namelist_cls(BFParam):
     }
 
 
-class OP_ID(BFParamStr):
+class OP_ID(BFParam):
     label = "ID"
     description = "Object identification name"
     fds_label = "ID"

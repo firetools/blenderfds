@@ -331,30 +331,7 @@ class BFParam:
             setattr(dest_element, self.bpy_idname, value)
 
 
-class BFParamStr(BFParam):  # FIXME remove if not used
-    """!
-    Blender representation of an FDS parameter, helper for any FDS string parameter.
-    """
-
-    bpy_prop = StringProperty
-
-    # def check(self, context):  # No check
-    #     value = self.get_value(context)
-    #     if "&" in value or "/" in value or "#" in value:
-    #         raise BFException(self, "<&>, </>, and <#> characters not allowed")
-    #     # if (
-    #     #     "'" in value
-    #     #     or '"' in value
-    #     #     or "`" in value
-    #     #     or "“" in value
-    #     #     or "”" in value
-    #     #     or "‘" in value
-    #     #     or "’‌" in value
-    #     # ):
-    #     #     raise BFException(self, "Quote characters not allowed")
-
-
-class BFParamFYI(BFParamStr):
+class BFParamFYI(BFParam):
     """!
     Blender representation of an FDS parameter, helper for FDS FYI parameter.
     """

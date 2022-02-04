@@ -1,7 +1,7 @@
 import logging, re
 from bpy.types import Object
-from bpy.props import FloatProperty, BoolProperty
-from ..types import BFParam, BFParamStr, BFNamelistOb, BFException
+from bpy.props import FloatProperty, BoolProperty, StringProperty
+from ..types import BFParam, BFNamelistOb, BFException
 from .bf_object import OP_ID, OP_FYI, OP_ID_suffix, OP_other
 from .OP_XB import OP_XB
 from .OP_XYZ import OP_XYZ
@@ -10,11 +10,12 @@ from .OP_PB import OP_PB, OP_PBX, OP_PBY, OP_PBZ
 log = logging.getLogger(__name__)
 
 
-class OP_DEVC_QUANTITY(BFParamStr):
+class OP_DEVC_QUANTITY(BFParam):
     label = "QUANTITY"
     description = "Output quantity"
     fds_label = "QUANTITY"
     bpy_type = Object
+    bpy_prop = StringProperty
     bpy_idname = "bf_quantity"
 
     def draw_operators(self, context, layout):
@@ -54,11 +55,12 @@ class OP_DEVC_LATCH(BFParam):
     bpy_idname = "bf_devc_latch"
 
 
-class OP_DEVC_PROP_ID(BFParamStr):
+class OP_DEVC_PROP_ID(BFParam):
     label = "PROP_ID"
     description = "Reference to a PROP (Property) line for self properties"
     fds_label = "PROP_ID"
     bpy_type = Object
+    bpy_prop = StringProperty
     bpy_idname = "bf_devc_prop_id"
 
     def draw_operators(self, context, layout):

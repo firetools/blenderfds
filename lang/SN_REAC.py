@@ -1,9 +1,8 @@
 import logging
 from bpy.types import Scene
-from bpy.props import BoolProperty, FloatProperty
+from bpy.props import BoolProperty, FloatProperty, StringProperty
 from ..types import (
     BFParam,
-    BFParamStr,
     BFParamOther,
     BFParamFYI,
     BFNamelistSc,
@@ -16,11 +15,12 @@ from ..bl.ui_lists import (
 log = logging.getLogger(__name__)
 
 
-class SP_REAC_ID(BFParamStr):
+class SP_REAC_ID(BFParam):
     label = "ID"
     description = "Identificator of the reaction"
     fds_label = "ID"
     bpy_type = Scene
+    bpy_prop = StringProperty
     bpy_idname = "bf_reac_id"
 
 
@@ -29,19 +29,21 @@ class SP_REAC_FYI(BFParamFYI):
     bpy_idname = "bf_reac_fyi"
 
 
-class SP_REAC_FUEL(BFParamStr):
+class SP_REAC_FUEL(BFParam):
     label = "FUEL"
     description = "Identificator of fuel species"
     fds_label = "FUEL"
     bpy_type = Scene
+    bpy_prop = StringProperty
     bpy_idname = "bf_reac_fuel"
 
 
-class SP_REAC_FORMULA(BFParamStr):
+class SP_REAC_FORMULA(BFParam):
     label = "FORMULA"
     description = "Chemical formula of fuel species, it can only contain C, H, O, or N"
     fds_label = "FORMULA"
     bpy_type = Scene
+    bpy_prop = StringProperty
     bpy_idname = "bf_reac_formula"
     bpy_export = "bf_reac_formula_export"
     bpy_export_default = True

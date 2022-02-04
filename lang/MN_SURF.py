@@ -1,9 +1,8 @@
 import logging
 from bpy.types import Material
-from bpy.props import FloatProperty, EnumProperty
+from bpy.props import FloatProperty, EnumProperty, StringProperty
 from ..types import (
     BFParam,
-    BFParamStr,
     BFNamelistMa,
     BFNotImported,
 )
@@ -70,11 +69,12 @@ class MP_TAU_Q(BFParam):
     bpy_other = {"step": 10.0, "precision": 1}
 
 
-class MP_MATL_ID(BFParamStr):
+class MP_MATL_ID(BFParam):
     label = "MATL_ID"
     description = "Reference to a MATL (Material) line for self properties"
     fds_label = "MATL_ID"
     bpy_type = Material
+    bpy_prop = StringProperty
     bpy_idname = "bf_matl_id"
     bpy_export = "bf_matl_id_export"
     bpy_export_default = False
