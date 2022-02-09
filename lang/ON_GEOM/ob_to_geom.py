@@ -21,7 +21,7 @@ def ob_to_geom(context, ob, check=True, check_open=True, world=True, filepath=No
     @param check_open: True to check if bmesh is open.
     @param world: True to return the object in world coordinates.
     @param filepath: if set, write to bingeom file.
-    @return FDS GEOM notation as lists and message.
+    @return FDS GEOM notation and messages.
     """
     fds_verts, fds_faces, fds_surfs, fds_faces_surfs = get_fds_trisurface(
         context=context,
@@ -30,7 +30,7 @@ def ob_to_geom(context, ob, check=True, check_open=True, world=True, filepath=No
         check_open=check_open,
         world=world,
     )
-    msg = f"GEOM Vertices: {len(fds_verts)} | Faces: {len(fds_faces)}"
+    msgs = tuple((f"GEOM Vertices: {len(fds_verts)} | Faces: {len(fds_faces)}",))
     if filepath:
         bingeom.write_bingeom_file(
             geom_type=ob.data.bf_geom_is_terrain and 2 or 1,
@@ -41,7 +41,7 @@ def ob_to_geom(context, ob, check=True, check_open=True, world=True, filepath=No
             fds_volus=list(),
             filepath=filepath,
         )
-    return fds_verts, fds_faces, fds_surfs, fds_faces_surfs, msg
+    return fds_verts, fds_faces, fds_surfs, fds_faces_surfs, msgs
 
 
 def get_fds_trisurface(context, ob, check=True, check_open=True, world=True):
@@ -52,7 +52,7 @@ def get_fds_trisurface(context, ob, check=True, check_open=True, world=True):
     @param check: True to check the bmesh sanity.
     @param check_open: True to check if bmesh is open.
     @param world: True to return the object in world coordinates.
-    @return FDS GEOM notation as lists.
+    @return FDS GEOM notation.
     """
     # Get bmesh and check it, if requested
     bm = utils.geometry.get_object_bmesh(

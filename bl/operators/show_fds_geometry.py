@@ -10,6 +10,8 @@ from ... import utils, lang
 
 log = logging.getLogger(__name__)
 
+# FIXME reuse for setting bbox geometry? or other?
+
 
 class OBJECT_OT_bf_show_fds_geometry(Operator):
     """!
@@ -64,15 +66,10 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
             ob_tmp.data.materials.append(ma)
 
         # Set tmp geometry
-        is_shown = list()
         try:
-            is_shown.append(
-                bf_namelist.show_fds_geometry(context=context, ob_tmp=ob_tmp)
-            )
+            bf_namelist.show_fds_geometry(context=context, ob_tmp=ob_tmp)
             for bf_param in bf_namelist.bf_params:
-                is_shown.append(
-                    bf_param.show_fds_geometry(context=context, ob_tmp=ob_tmp)
-                )
+                bf_param.show_fds_geometry(context=context, ob_tmp=ob_tmp)
         except BFException as err:
             self.report({"ERROR"}, str(err))
             return {"CANCELLED"}
@@ -80,7 +77,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
             self.report({"ERROR"}, f"Unexpected error: {err}")
             return {"CANCELLED"}
         else:
-            if any(is_shown):
+            if ob_tmp.data.vertices:
                 self.report({"INFO"}, "FDS geometry shown")
             else:
                 self.report({"WARNING"}, "No FDS geometry to show")

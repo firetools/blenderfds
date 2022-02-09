@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 epsilon = 1e-5  # TODO unify epsilon mgmt
 
 
-def geom_to_ob(context, ob, fds_verts=None, fds_faces=None, fds_surfs=None, fds_faces_surfs=None, filepath=None):
+def geom_to_ob(context, ob, fds_verts=None, fds_faces=None, fds_surfs=None, fds_faces_surfs=None, filepath=None) -> None:
     """!
     Import GEOM into Blender Object.
     @param context: the blender context.
@@ -25,7 +25,7 @@ def geom_to_ob(context, ob, fds_verts=None, fds_faces=None, fds_surfs=None, fds_
     geom_to_mesh(context, me=ob.data, fds_verts=fds_verts, fds_faces=fds_faces, fds_surfs=fds_surfs, fds_faces_surfs=fds_faces_surfs)
 
 
-def geom_to_mesh(context, me, fds_verts, fds_faces=None, fds_surfs=None, fds_faces_surfs=None):
+def geom_to_mesh(context, me, fds_verts, fds_faces=None, fds_surfs=None, fds_faces_surfs=None) -> None:
     """!
     Import GEOM VERTS and FACES into Blender Mesh.
     @param context: the blender context.
@@ -91,7 +91,7 @@ def geom_to_mesh(context, me, fds_verts, fds_faces=None, fds_surfs=None, fds_fac
 # Special GEOMs
 
 
-def geom_sphere_to_ob(context, ob, origin, n_levels=2, radius=0.5):
+def geom_sphere_to_ob(context, ob, origin, n_levels=2, radius=0.5) -> None:
     """!
     Import GEOM SPHERE into Blender Object.
     @param context: the blender context.
@@ -127,7 +127,7 @@ def geom_cylinder_to_ob(
     nseg_theta=8,
     nseg_axis=1,
     set_materials=True,
-):
+) -> None:
     """!
     Import GEOM CYLINDER into Blender Object.
     @param context: the blender context.
@@ -182,7 +182,7 @@ def geom_cylinder_to_ob(
                 raise BFException(ob, "Bad GEOM CYLINDER: Wrong SURF_ID/IDS len")
 
 
-def geom_poly_to_ob(context, ob, ps, extrude):
+def geom_poly_to_ob(context, ob, ps, extrude) -> None:
     """!
     Import GEOM POLY into Blender Mesh.
     @param context: the blender context.
@@ -199,4 +199,4 @@ def geom_poly_to_ob(context, ob, ps, extrude):
     bm.to_mesh(ob.data)
     bm.free()
     # Extrude
-    # FIXME
+    # FIXME to be completed

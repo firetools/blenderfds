@@ -15,7 +15,7 @@ from .bf_param import (
     BFParamOther,
 )
 from .fds_case import FDSCase
-from .fds_namelist import FDSNamelist
+from .fds_namelist import FDSNamelist, FDSMany, FDSMulti
 from .fds_param import FDSParam
 
 # Nothing to register here

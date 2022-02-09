@@ -1,7 +1,14 @@
 import logging, os, bpy
 from bpy.types import Object, Mesh
 from bpy.props import StringProperty, BoolProperty
-from ...types import BFParam, BFNamelistOb, BFException, BFNotImported, FDSParam
+from ...types import (
+    BFParam,
+    BFNamelistOb,
+    FDSParam,
+    FDSMany,
+    BFException,
+    BFNotImported,
+)
 from ... import utils
 from ..bf_object import OP_ID, OP_FYI, OP_other
 from ..SN_MOVE import ON_MOVE
@@ -95,7 +102,7 @@ class OP_GEOM_BINARY_FILE(BFParam):
             extension=".bingeom",
         )
         move_id = ob.data.users > 1 and f"{ob.name}_move"  # shared bingeom
-        _, _, _, _, msg = ob_to_geom(
+        _, _, _, _, msgs = ob_to_geom(
             context=context,
             ob=ob,
             check=ob.data.bf_geom_check_sanity,
@@ -104,12 +111,12 @@ class OP_GEOM_BINARY_FILE(BFParam):
             filepath=filepath,
         )
         # Prepare FDSParam
-        fds_params = list()
-        fds_params.append(
-            FDSParam(fds_label=self.fds_label, value=filepath_rfds, msg=msg)
+        fds_many = FDSMany()
+        fds_many.append(
+            FDSParam(fds_label=self.fds_label, value=filepath_rfds, msgs=msgs)
         )
         if move_id:  # shared bingeom needs a MOVE namelist
-            fds_params.extend(
+            fds_many.extend(
                 (
                     FDSParam(
                         fds_label="MOVE_ID",
@@ -119,7 +126,7 @@ class OP_GEOM_BINARY_FILE(BFParam):
                     ON_MOVE(ob).to_fds_namelist(context),
                 )
             )
-        return fds_params  # many
+        return fds_many
 
     def show_fds_geometry(self, context, ob_tmp):
         ob = self.element
@@ -142,8 +149,6 @@ class OP_GEOM_BINARY_FILE(BFParam):
             fds_faces_surfs=None,
             filepath=None,
         )
-        if fds_verts:
-            return True
 
     def set_value(self, context, value):
         # Read bingeom

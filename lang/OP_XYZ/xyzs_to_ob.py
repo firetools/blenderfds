@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 # FIXME matrix, extend
 
 
-def xyzs_vertices_to_mesh(context, me, xyzs):
+def xyzs_vertices_to_mesh(context, me, xyzs) -> None:
     """!
     Import xyzs vertices ((x0,y0,z0,), ...) into existing Blender Mesh.
     @param context: the Blender context.
@@ -29,7 +29,7 @@ def xyzs_vertices_to_mesh(context, me, xyzs):
     bm.free()
 
 
-def xyzs_to_ob(context, ob, xyzs):
+def xyzs_to_ob(context, ob, xyzs) -> str():
     """!
     Import xyzs vertices ((x0,y0,z0,), ...) into existing Blender Object.
     @param xyzs: the xyzs vertices.

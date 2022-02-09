@@ -15,11 +15,11 @@ def _ob_to_pbs_planes(context, ob, world):
     @param context: the Blender context.
     @param ob: the Blender object.
     @param world: True to return the object in world coordinates.
-    @return the pbs notation and any error message: ((0,x3,), (1,x7,), (1,y9,), ...), 'Msg'.
+    @return the pbs notation and messages.
     """
     pbs = list()
-    xbs, msg = _ob_to_xbs_faces(context, ob, world)
-    epsilon = 1e-5
+    xbs, _ = _ob_to_xbs_faces(context, ob, world)
+    epsilon = 1e-5  # FIXME unified epsilon
     # For each face build a plane...
     for xb in xbs:
         if abs(xb[1] - xb[0]) < epsilon:
@@ -35,8 +35,8 @@ def _ob_to_pbs_planes(context, ob, world):
     pbs.sort()
     if not pbs:
         raise BFException(ob, "PB*: No exported planes!")
-    msg = f"PB* Planes: {len(pbs)}"
-    return pbs, msg
+    msgs = tuple((f"PB* Planes: {len(pbs)}",))
+    return pbs, msgs
 
 
 def ob_to_pbs(context, ob, bf_pb, world=True):
@@ -46,6 +46,6 @@ def ob_to_pbs(context, ob, bf_pb, world=True):
     @param ob: the Blender object.
     @param bf_pb: string in (PLANES,)
     @param world: True to return the object in world coordinates.
-    @return the pbs notation and any error message.
+    @return the pbs notation and messages.
     """
-    return _ob_to_pbs_planes(context, ob, world=world)
+    return _ob_to_pbs_planes(context, ob, world=world)  # pbs, msgs

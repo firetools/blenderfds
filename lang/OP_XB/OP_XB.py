@@ -1,7 +1,7 @@
 import logging
 from bpy.types import Object
 from bpy.props import EnumProperty, BoolProperty, FloatProperty
-from ...types import BFParam, FDSParam
+from ...types import BFParam, FDSParam, FDSMany, FDSMulti
 from ... import utils
 from .ob_to_xbs import ob_to_xbs
 from .xbs_to_ob import xbs_to_ob
@@ -111,17 +111,20 @@ class OP_XB(BFParam):
     }
     bpy_export = "bf_xb_export"
 
+    def _get_geometry(self, context):
+        ob, xbs, msgs = self.element, list(), list()
+        if ob.bf_xb_export:
+            xbs, msgs = ob_to_xbs(context=context, ob=ob, bf_xb=ob.bf_xb)
+        return ob, xbs, msgs
+
     def to_fds_param(self, context):
-        ob = self.element
-        if not ob.bf_xb_export:
-            return
-        xbs, msg = ob_to_xbs(context=context, ob=ob, bf_xb=ob.bf_xb)
+        ob, xbs, msgs = self._get_geometry(context)
         # Single param
         if len(xbs) == 1:
             return FDSParam(fds_label="XB", value=xbs[0], precision=6)
         # Multi param, prepare new ID
         n = ob.name
-        match self.element.bf_id_suffix:
+        match ob.bf_id_suffix:
             case "IDI":
                 ids = (f"{n}_{i}" for i, _ in enumerate(xbs))
             case "IDX":
@@ -140,26 +143,23 @@ class OP_XB(BFParam):
                 ids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
             case _:
                 raise AssertionError(f"Unknown suffix <{self.element.bf_id_suffix}>")
-        result = tuple(
+        return FDSMulti(
             (
-                FDSParam(fds_label="ID", value=hid),
-                FDSParam(fds_label="XB", value=xb, precision=6),
-            )
-            for hid, xb in zip(ids, xbs)
-        )  # multi
-        # Send message
-        result[0][0].msgs.append(msg)
-        return result
+                FDSMany(
+                    (
+                        FDSParam(fds_label="ID", value=hid),
+                        FDSParam(fds_label="XB", value=xb, precision=6),
+                    )
+                )
+                for hid, xb in zip(ids, xbs)
+            ),
+            msgs=msgs
+        )
 
     def show_fds_geometry(self, context, ob_tmp):
-        ob = self.element
-        if self.bpy_export and not ob.bf_xb_export:
-            return
-        xbs, _ = ob_to_xbs(context=context, ob=ob, bf_xb=ob.bf_xb)
+        ob, xbs, _ = self._get_geometry(context)
         xbs_to_ob(context=context, ob=ob_tmp, xbs=xbs, bf_xb=ob.bf_xb)
         ob_tmp.active_material = ob.active_material
-        if xbs:
-            return True
 
     def from_fds(self, context, value):
         bf_xb = xbs_to_ob(
@@ -170,7 +170,7 @@ class OP_XB(BFParam):
         self.element.bf_xb = bf_xb
         self.element.bf_xb_export = True
 
-
+# FIXME if voxels was set this is wrong!!!
 class OP_XB_BBOX(OP_XB):  # independent from OP_XB
     label = "XB"
     description = "Export as object bounding box (BBOX)"

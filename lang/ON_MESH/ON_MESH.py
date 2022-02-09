@@ -5,12 +5,15 @@ MESH namelist definition
 import logging
 from bpy.types import Object
 from bpy.props import IntVectorProperty
-from ...types import BFParam, BFNamelistOb, FDSParam, BFException
+from ...types import BFParam, BFNamelistOb, FDSParam, FDSMulti, FDSMany, BFException
 from ... import utils
 from ..bf_object import OP_ID, OP_FYI, OP_other
 from ..OP_XB import OP_XB_BBOX
 from .split import split_mesh, get_nsplit
 from .align import get_n_for_poisson
+
+from ..OP_XB.ob_to_xbs import ob_to_xbs
+from ..OP_XB.xbs_to_ob import xbs_to_ob
 
 log = logging.getLogger(__name__)
 
@@ -53,27 +56,37 @@ class OP_MESH_nsplits(BFParam):
 
 
 class OP_MESH_XB(OP_XB_BBOX):
-    def to_fds_param(self, context):
+    def _get_geometry(self, context):
         ob = self.element
-        fds_param = super().to_fds_param(context)  # use father
-        # Split
+        xbs, msgs = ob_to_xbs(context=context, ob=ob, bf_xb="BBOX")
         ids, ijks, xbs = split_mesh(
             hid=ob.name,
             ijk=ob.bf_mesh_ijk,
             nsplits=ob.bf_mesh_nsplits,
-            xb=fds_param.get_value(context),
+            xb=xbs[0],
         )
-        result = tuple(
+        msgs.extend(_get_mesh_msgs(context, ob))
+        return ob, ids, ijks, xbs, msgs
+
+    def to_fds_param(self, context):
+        ob, ids, ijks, xbs, msgs = self._get_geometry(context)
+        return FDSMulti(
             (
-                FDSParam(fds_label="ID", value=hid),
-                FDSParam(fds_label="IJK", value=ijk),
-                FDSParam(fds_label="XB", value=xb, precision=6),
-            )
-            for hid, xb, ijk in zip(ids, xbs, ijks)
-        )  # multi
-        # Send message
-        result[0][0].msgs = _get_mesh_msgs(context, ob)
-        return result
+                FDSMany(
+                    (
+                        FDSParam(fds_label="ID", value=hid),
+                        FDSParam(fds_label="IJK", value=ijk),
+                        FDSParam(fds_label="XB", value=xb, precision=6),
+                    )
+                )
+                for hid, xb, ijk in zip(ids, xbs, ijks)
+            ),
+            msgs=msgs,
+        )
+
+    def show_fds_geometry(self, context, ob_tmp):
+        _, _, _, xbs, _ = self._get_geometry(context)
+        xbs_to_ob(context=context, ob=ob_tmp, xbs=xbs, bf_xb="BBOX")
 
 
 class ON_MESH(BFNamelistOb):

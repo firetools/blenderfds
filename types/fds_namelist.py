@@ -64,61 +64,57 @@ class FDSNamelist:
                     self.fds_params.remove(fds_param)
                 return fds_param
 
+    def _classify_fds_param(self, p):
+        match p:
+            case None:
+                return
+            case FDSParam():
+                self._invariant_ps.append(p)
+                self.msgs.extend(p.msgs)
+            case FDSNamelist():
+                self._additional_ns.append(p)
+                self.msgs.extend(p.msgs)
+            case FDSMany():  # flatten many
+                for pp in p:
+                    self._classify_fds_param(pp)
+                self.msgs.extend(p.msgs)
+            case FDSMulti():  # get one multi
+                if self._multi_ps:
+                    raise Exception(f"One only FDSMulti allowed in: {self!r}")
+                self._multi_ps = p
+                self.msgs.extend(p.msgs)
+            case _:
+                raise ValueError(f"Unrecognized type of <{p!r}> in <{self!r}>")
+
+
     def to_fds(self, context=None) -> str:
         """!
         Return the FDS formatted string.
         @return FDS formatted string (eg. "&OBST ID='Test' /"), or a None.
         """
         # Classify params
-        invariant_ps, multi_ps, additional_ns = list(), list(), list()
-        msgs = self.msgs
+        self._invariant_ps, self._additional_ns, self._multi_ps  = list(), list(), None
         for p in self.fds_params:
-            match p:
-                case None:  # empty param
-                    continue
-                case FDSParam():  # single param
-                    invariant_ps.append(p)
-                    msgs.extend(p.msgs)
-                case FDSNamelist():  # add namelist
-                    additional_ns.append(p)
-                    msgs.extend(p.msgs)
-                case (tuple()|list()):  # multi or many
-                    match p[0]:
-                        case tuple():  # multi param
-                            multi_ps = p
-                            for multi_p in multi_ps[0]:
-                                msgs.extend(multi_p.msgs)
-                        case (FDSParam()|FDSNamelist()):  # many param
-                            for pp in p:
-                                msgs.extend(pp.msgs)
-                                match pp:
-                                    case FDSParam():
-                                        invariant_ps.append(pp)
-                                    case FDSNamelist():
-                                        additional_ns.append(pp)
-                                    case _:
-                                        raise ValueError(f"Unrecognized type of <{pp}> in <{self}>")
-                case _:
-                    raise ValueError(f"Unrecognized type of {p!r} in <{self!r}>")
+            self._classify_fds_param(p)
         # Treat invariant, many and multi parameters
         # nl = FDSParam, FDSParam, ...
         nls = list()  # list of nl
-        if multi_ps:
+        if self._multi_ps:
             # Remove parameters in invariant_ps that exist in multi_ps (eg. ID, IJK or XB)
-            multi_ps_fds_labels = [p.fds_label for p in multi_ps[0]]  # labels from multi_ps
-            invariant_ps = [p for p in invariant_ps if p.fds_label not in multi_ps_fds_labels]
+            multi_ps_fds_labels = [p.fds_label for p in self._multi_ps[0]]  # labels from multi_ps
+            self._invariant_ps = [p for p in self._invariant_ps if p.fds_label not in multi_ps_fds_labels]
             # Add nl with one of multi_ps + invariant_ps
-            for multi_p in multi_ps:
+            for multi_p in self._multi_ps:
                 nl = list()
-                nl.extend(invariant_ps)  # first invariant params
+                nl.extend(self._invariant_ps)  # first invariant params
                 nl.extend(multi_p)  # then multi params
                 nls.append(nl)
         else:
-            nls.append(invariant_ps)
+            nls.append(self._invariant_ps)
         # Prepare message lines
-        lines = list(f"! {m}" for m in msgs if m)  # all messages
+        lines = list(f"! {m}" for m in self.msgs if m)  # all messages
         # Treat additional namelists first
-        lines.extend(n.to_fds(context) for n in additional_ns)
+        lines.extend(n.to_fds(context) for n in self._additional_ns)
         # Prepare namelist lines
         if self.fds_label:
             for nl in nls:
@@ -203,3 +199,13 @@ class FDSNamelist:
             fds_param = FDSParam(fds_label=label)
             fds_param.from_fds(f90=f90_value)
             self.fds_params.append(fds_param)
+
+class FDSMulti(list):
+    def __init__(self, *args, msgs=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.msgs = msgs or list()
+
+class FDSMany(list):
+    def __init__(self, *args, msgs=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.msgs = msgs or list()

@@ -1,7 +1,7 @@
 import logging
 from bpy.types import Object
 from bpy.props import EnumProperty, BoolProperty, FloatProperty
-from ...types import BFParam, FDSParam
+from ...types import BFParam, FDSParam, FDSMany, FDSMulti
 from ... import utils
 from .ob_to_xyzs import ob_to_xyzs
 from .xyzs_to_ob import xyzs_to_ob
@@ -51,7 +51,7 @@ class OP_XYZ(BFParam):
         ob = self.element
         if not ob.bf_xyz_export:
             return
-        xyzs, msg = ob_to_xyzs(context, ob, ob.bf_xyz)
+        xyzs, msgs = ob_to_xyzs(context, ob, ob.bf_xyz)
         # Single param
         if len(xyzs) == 1:
             return FDSParam(fds_label="XYZ", value=xyzs[0])
@@ -76,16 +76,18 @@ class OP_XYZ(BFParam):
                 ids = (f"{n}_x{xyz[0]:+.3f}_y{xyz[1]:+.3f}_z{xyz[2]:+.3f}" for xyz in xyzs)
             case _:
                 raise AssertionError(f"Unknown suffix <{self.element.bf_id_suffix}>")
-        result = tuple(  # multi
+        return FDSMulti(
             (
-                FDSParam(fds_label="ID", value=hid),
-                FDSParam(fds_label="XYZ", value=xyz, precision=6),
-            )
-            for hid, xyz in zip(ids, xyzs)
+                FDSMany(
+                    (
+                        FDSParam(fds_label="ID", value=hid),
+                        FDSParam(fds_label="XYZ", value=xyz, precision=6),
+                    )
+                )
+                for hid, xyz in zip(ids, xyzs)
+            ),
+            msgs=msgs,
         )
-        # Send message
-        result[0][0].msgs.append(msg)
-        return result
 
     def show_fds_geometry(self, context, ob_tmp):
         ob = self.element

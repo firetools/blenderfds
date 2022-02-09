@@ -5,6 +5,7 @@ BlenderFDS, Blender interfaces to FDS parameters.
 import logging, bpy
 from bpy.types import Operator, Mesh
 from bpy.props import IntProperty, CollectionProperty, BoolProperty, StringProperty
+from .fds_namelist import FDSMany
 from .fds_param import FDSParam
 from .bf_exception import BFException, BFNotImported, BFWarning
 
@@ -285,8 +286,7 @@ class BFParam:
         """!
         Return the FDSParam representation of element instance.
         @param context: the Blender context.
-        @return None, FDSParam, FDSNamelist, (FDSParam, FDSNamelist,...) called "many",
-            or ((FDSParam, ...), ...) called "multi" instances of FDSParam only.
+        @return None, FDSParam, FDSNamelist, FDSMany or FDSMulti.
         """
         if self.get_exported(context):
             self.check(context)
@@ -563,7 +563,7 @@ class BFParamOther(BFParam):
         self.check(context)
         coll = getattr(self.element, self.bpy_idname)
         if coll:
-            return tuple(  # many
+            return FDSMany(
                 (
                     FDSParam(fds_label=item.name)
                     for item in coll

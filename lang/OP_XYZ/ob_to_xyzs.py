@@ -29,8 +29,8 @@ def _ob_to_xyzs_vertices(context, ob, world):
     xyzs.sort()
     if not xyzs:
         raise BFException(ob, "XYZ: No exported vertices!")
-    msg = f"XYZ Vertices: {len(xyzs)}"
-    return xyzs, msg
+    msgs = tuple((f"XYZ Vertices: {len(xyzs)}",))
+    return xyzs, msgs
 
 
 def _ob_to_xyzs_center(context, ob, world):
@@ -49,8 +49,8 @@ def _ob_to_xyzs_center(context, ob, world):
             ob.location[2] * scale_length,
         )
     ]
-    msg = str()
-    return xyzs, msg
+    msgs = tuple()
+    return xyzs, msgs
 
 
 _choice_to_xyzs = {"CENTER": _ob_to_xyzs_center, "VERTICES": _ob_to_xyzs_vertices}
@@ -65,4 +65,4 @@ def ob_to_xyzs(context, ob, bf_xyz, world=True):
     @param world: True to return the object in world coordinates.
     @return the xyzs notation and any error message: ((x0,y0,z0,), ...), 'Msg'.
     """
-    return _choice_to_xyzs[bf_xyz](context, ob, world)
+    return _choice_to_xyzs[bf_xyz](context, ob, world)  # xyzs, msgs

@@ -21,8 +21,8 @@ def _ob_to_xbs_voxels(context, ob, world):
     @return xbs notation and any error message: ((x0,x1,y0,y1,z0,z1,), ...), 'Msg'.
     """
     xbs, voxel_size = get_voxels(context, ob, world)
-    msg = f"XB Voxels: {len(xbs)} | Resolution: {voxel_size:.3f} m"
-    return xbs, msg
+    msgs = tuple((f"XB Voxels: {len(xbs)} | Resolution: {voxel_size:.3f} m",))
+    return xbs, msgs
 
 
 def _ob_to_xbs_pixels(context, ob, world):
@@ -36,8 +36,8 @@ def _ob_to_xbs_pixels(context, ob, world):
     xbs, voxel_size = get_pixels(context, ob, world)
     scale_length = context.scene.unit_settings.scale_length
     res = voxel_size * scale_length
-    msg = f"XB Pixels: {len(xbs)} | Resolution: {res:.3f} m"
-    return xbs, msg
+    msgs = tuple((f"XB Pixels: {len(xbs)} | Resolution: {res:.3f} m",))
+    return xbs, msgs
 
 
 def _ob_to_xbs_bbox(context, ob, world):
@@ -49,8 +49,8 @@ def _ob_to_xbs_bbox(context, ob, world):
     @return xbs notation (bounding box) and any error message: ((x0,x1,y0,y1,z0,z1,), ...), 'Msg'.
     """
     xb = utils.geometry.get_bbox_xb(context, ob, world=world)
-    xbs, msg = list((xb,)), str()
-    return xbs, msg
+    xbs, msgs = list((xb,)), tuple()
+    return xbs, msgs
 
 
 def _ob_to_xbs_faces(context, ob, world):
@@ -91,8 +91,8 @@ def _ob_to_xbs_faces(context, ob, world):
     xbs.sort()
     if not xbs:
         raise BFException(ob, "XB: No exported faces!")
-    msg = f"XB Faces: {len(xbs)}"
-    return xbs, msg
+    msgs = tuple((f"XB Faces: {len(xbs)}",))
+    return xbs, msgs
 
 
 def _ob_to_xbs_edges(context, ob, world):
@@ -124,8 +124,8 @@ def _ob_to_xbs_edges(context, ob, world):
     xbs.sort()
     if not xbs:
         raise BFException(ob, "XB: No exported edges!")
-    msg = f"XB Edges: {len(xbs)}"
-    return xbs, msg
+    msgs = tuple((f"XB Edges: {len(xbs)}",))
+    return xbs, msgs
 
 
 _choice_to_xbs = {
@@ -146,6 +146,8 @@ def ob_to_xbs(context, ob, bf_xb, world=True):
     @param world: True to return the object in world coordinates.
     @return the FDS notation and any error message: ((x0,x1,y0,y1,z0,z1,), ...), 'Msg'.
     """
-    if ob.get("ob_to_xbs_cache") is None:  # recalc
+    if ob.get("ob_to_xbs_cache") is None:
+        # Not available in cache, recalc
         ob["ob_to_xbs_cache"] = _choice_to_xbs[bf_xb](context, ob, world)
-    return ob["ob_to_xbs_cache"]
+    xbs, msgs = ob["ob_to_xbs_cache"]
+    return list(xbs), list(msgs)

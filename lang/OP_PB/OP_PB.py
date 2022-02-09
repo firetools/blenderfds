@@ -1,7 +1,7 @@
 import logging
 from bpy.types import Object
 from bpy.props import EnumProperty, BoolProperty
-from ...types import BFParam, FDSParam
+from ...types import BFParam, FDSParam, FDSMany, FDSMulti
 from ... import utils
 from .ob_to_pbs import ob_to_pbs
 from .pbs_to_ob import pbs_to_ob
@@ -47,14 +47,18 @@ class OP_PB(BFParam):
 
     axis = None  # axis for importing
 
-    def to_fds_param(self, context):
+    def _get_geometry(self, context):
         ob = self.element
         if not ob.bf_pb_export:
             return
         # Compute
         # pbs is: (0, 3.5), (0, 4.), (2, .5) ...
         # with 0, 1, 2 perpendicular axis
-        pbs, msg = ob_to_pbs(context, ob, bf_pb=ob.bf_pb)
+        pbs, msgs = ob_to_pbs(context, ob, bf_pb=ob.bf_pb)
+        return ob, pbs, msgs
+
+    def to_fds_param(self, context):
+        ob, pbs, msgs = self._get_geometry(context)
         # Prepare labels
         labels = tuple(
             f"PB{('X','Y','Z')[int(axis)]}" for axis, _ in pbs
@@ -72,27 +76,23 @@ class OP_PB(BFParam):
                 (f"{n}_x{pb:+.3f}", f"{n}_y{pb:+.3f}", f"{n}_z{pb:+.3f}")[axis]
                 for axis, pb in pbs
             )
-        result = tuple(
+        return FDSMulti(
             (
-                FDSParam(fds_label="ID", value=hid),
-                FDSParam(fds_label=label, value=pb, precision=6),
-            )
-            for hid, label, (_, pb) in zip(ids, labels, pbs)
-        )  # multi
-        # Send message
-        result[0][0].msgs.append(msg)
-        return result
+                FDSMany(
+                    (
+                        FDSParam(fds_label="ID", value=hid),
+                        FDSParam(fds_label=label, value=pb, precision=6),
+                    )
+                )
+                for hid, label, (_, pb) in zip(ids, labels, pbs)
+            ),
+            msgs=msgs,
+        )
 
     def show_fds_geometry(self, context, ob_tmp):
-        log.debug(f"Geometry to show: {self}")
-        ob = self.element
-        if not ob.bf_pb_export:
-            return
-        pbs, _ = ob_to_pbs(context, ob, bf_pb=ob.bf_pb)
+        ob, pbs, _ = self._get_geometry(context)
         pbs_to_ob(context=context, ob=ob_tmp, pbs=pbs)
         ob_tmp.active_material = ob.active_material
-        if pbs:
-            return True
 
     def from_fds(self, context, value):
         bf_pb = pbs_to_ob(context=context, ob=self.element, pbs=((self.axis, value),))
