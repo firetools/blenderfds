@@ -29,7 +29,7 @@ def _ob_to_xyzs_vertices(context, ob, world):
     xyzs.sort()
     if not xyzs:
         raise BFException(ob, "XYZ: No exported vertices!")
-    msgs = tuple((f"XYZ Vertices: {len(xyzs)}",))
+    msgs = list((f"XYZ Vertices: {len(xyzs)}",))
     return xyzs, msgs
 
 
@@ -49,7 +49,7 @@ def _ob_to_xyzs_center(context, ob, world):
             ob.location[2] * scale_length,
         )
     ]
-    msgs = tuple()
+    msgs = list()
     return xyzs, msgs
 
 

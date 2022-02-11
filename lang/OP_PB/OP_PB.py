@@ -58,23 +58,22 @@ class OP_PB(BFParam):
 
     def to_fds_param(self, context):
         ob, pbs, msgs = self._get_geometry(context)
-        # Prepare labels
-        labels = tuple(
-            f"PB{('X','Y','Z')[int(axis)]}" for axis, _ in pbs
-        )  # int to protect from float sent by cache
-        # Single param
-        if len(pbs) == 1:
-            return FDSParam(fds_label=labels[0], value=pbs[0][1], precision=6)
-        # Multi param, prepare new ID
+        labels = tuple(f"PB{('X','Y','Z')[axis]}" for axis, _ in pbs)
+        match len(pbs):
+            case 0:
+                return
+            case 1:
+                return FDSParam(fds_label=labels[0], value=pbs[0][1], precision=6)
+        # Multi
         n = ob.name
-        suffix = self.element.bf_id_suffix
-        if suffix == "IDI":
-            ids = (f"{n}_{i}" for i, _ in enumerate(pbs))
-        else:
-            ids = (
-                (f"{n}_x{pb:+.3f}", f"{n}_y{pb:+.3f}", f"{n}_z{pb:+.3f}")[axis]
-                for axis, pb in pbs
-            )
+        match ob.bf_id_suffix:
+            case "IDI":
+                ids = (f"{n}_{i}" for i, _ in enumerate(pbs))
+            case _:
+                ids = (
+                    (f"{n}_x{pb:+.3f}", f"{n}_y{pb:+.3f}", f"{n}_z{pb:+.3f}")[axis]
+                    for axis, pb in pbs
+                )
         return FDSMulti(
             (
                 FDSMany(

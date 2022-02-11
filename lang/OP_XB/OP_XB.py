@@ -119,10 +119,12 @@ class OP_XB(BFParam):
 
     def to_fds_param(self, context):
         ob, xbs, msgs = self._get_geometry(context)
-        # Single param
-        if len(xbs) == 1:
-            return FDSParam(fds_label="XB", value=xbs[0], precision=6)
-        # Multi param, prepare new ID
+        match len(xbs):
+            case 0:
+                return
+            case 1:
+                return FDSParam(fds_label="XB", value=xbs[0], precision=6)
+        # Multi
         n = ob.name
         match ob.bf_id_suffix:
             case "IDI":

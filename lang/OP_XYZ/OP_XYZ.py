@@ -47,15 +47,20 @@ class OP_XYZ(BFParam):
     }
     bpy_export = "bf_xyz_export"
 
+    def _get_geometry(self, context):
+        ob, xyzs, msgs = self.element, list(), list()
+        if ob.bf_xb_export:
+            xyzs, msgs = ob_to_xyzs(context=context, ob=ob, bf_xyz=ob.bf_xyz)
+        return ob, xyzs, msgs
+
     def to_fds_param(self, context):
-        ob = self.element
-        if not ob.bf_xyz_export:
-            return
-        xyzs, msgs = ob_to_xyzs(context, ob, ob.bf_xyz)
-        # Single param
-        if len(xyzs) == 1:
-            return FDSParam(fds_label="XYZ", value=xyzs[0])
-        # Multi param, prepare new ID
+        ob, xyzs, msgs = self._get_geometry(context)
+        match len(xyzs):
+            case 0:
+                return
+            case 1:
+                return FDSParam(fds_label="XYZ", value=xyzs[0], precision=6)
+        # Multi
         n = ob.name
         match self.element.bf_id_suffix:
             case "IDI":
@@ -90,14 +95,9 @@ class OP_XYZ(BFParam):
         )
 
     def show_fds_geometry(self, context, ob_tmp):
-        ob = self.element
-        if not ob.bf_xyz_export:
-            return
-        xyzs, _ = ob_to_xyzs(context, ob, ob.bf_xyz)
+        ob, xyzs, _ = self._get_geometry(context)
         xyzs_to_ob(context=context, ob=ob_tmp, xyzs=xyzs)
         ob_tmp.active_material = ob.active_material
-        if xyzs:
-            return True
 
     def from_fds(self, context, value):
         bf_xyz = xyzs_to_ob(

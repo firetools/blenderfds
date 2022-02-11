@@ -163,14 +163,16 @@ class OP_MOVE_ID(BFParam):
             ob = self.element
             t34 = bl_matrix_to_t34(m=ob.matrix_world)
             return FDSMany(
-                FDSParam(fds_label="MOVE_ID", value=f"{ob.name}_move"),
-                FDSNamelist(
-                    fds_label=self.fds_label,
-                    fds_params=(
-                        FDSParam(fds_label="ID", value=f"{ob.name}_move"),
-                        FDSParam(fds_label="T34", value=t34, precision=6),
+                (
+                    FDSParam(fds_label="MOVE_ID", value=f"{ob.name}_move"),
+                    FDSNamelist(
+                        fds_label="MOVE",
+                        fds_params=(
+                            FDSParam(fds_label="ID", value=f"{ob.name}_move"),
+                            FDSParam(fds_label="T34", value=t34, precision=6),
+                        ),
                     ),
-                ),
+                )
             )
 
     def from_fds(self, context, value):

@@ -3,6 +3,7 @@ BlenderFDS, translate geometry from FDS XB notation to a Blender mesh.
 """
 
 import bmesh, logging
+from mathutils import Matrix, Vector
 from ...types import BFException
 
 log = logging.getLogger(__name__)
@@ -169,4 +170,13 @@ def xbs_to_ob(context, ob, xbs, bf_xb=None, matrix=None):
                 xbs=xbs,
                 matrix=matrix,
             )
+    # Set origin FIXME FIXME FIXME
+    # try:  # protect from empty
+    #     origin = Vector(ob.data.vertices[0].co)
+    #     log.debug(f"origin={tuple(origin)}")
+    # except IndexError:
+    #     pass
+    # else:
+    #     ob.data.transform(Matrix.Translation(-origin))
+    #     ob.matrix_world = Matrix.Translation(origin) @ ob.matrix_world
     return bf_xb

@@ -21,7 +21,7 @@ def _ob_to_xbs_voxels(context, ob, world):
     @return xbs notation and any error message: ((x0,x1,y0,y1,z0,z1,), ...), 'Msg'.
     """
     xbs, voxel_size = get_voxels(context, ob, world)
-    msgs = tuple((f"XB Voxels: {len(xbs)} | Resolution: {voxel_size:.3f} m",))
+    msgs = list((f"XB Voxels: {len(xbs)} | Resolution: {voxel_size:.3f} m",))
     return xbs, msgs
 
 
@@ -36,7 +36,7 @@ def _ob_to_xbs_pixels(context, ob, world):
     xbs, voxel_size = get_pixels(context, ob, world)
     scale_length = context.scene.unit_settings.scale_length
     res = voxel_size * scale_length
-    msgs = tuple((f"XB Pixels: {len(xbs)} | Resolution: {res:.3f} m",))
+    msgs = list((f"XB Pixels: {len(xbs)} | Resolution: {res:.3f} m",))
     return xbs, msgs
 
 
@@ -49,7 +49,7 @@ def _ob_to_xbs_bbox(context, ob, world):
     @return xbs notation (bounding box) and any error message: ((x0,x1,y0,y1,z0,z1,), ...), 'Msg'.
     """
     xb = utils.geometry.get_bbox_xb(context, ob, world=world)
-    xbs, msgs = list((xb,)), tuple()
+    xbs, msgs = list((xb,)), list()
     return xbs, msgs
 
 
@@ -91,7 +91,7 @@ def _ob_to_xbs_faces(context, ob, world):
     xbs.sort()
     if not xbs:
         raise BFException(ob, "XB: No exported faces!")
-    msgs = tuple((f"XB Faces: {len(xbs)}",))
+    msgs = list((f"XB Faces: {len(xbs)}",))
     return xbs, msgs
 
 
@@ -124,7 +124,7 @@ def _ob_to_xbs_edges(context, ob, world):
     xbs.sort()
     if not xbs:
         raise BFException(ob, "XB: No exported edges!")
-    msgs = tuple((f"XB Edges: {len(xbs)}",))
+    msgs = list((f"XB Edges: {len(xbs)}",))
     return xbs, msgs
 
 

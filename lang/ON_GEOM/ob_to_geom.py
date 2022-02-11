@@ -30,7 +30,7 @@ def ob_to_geom(context, ob, check=True, check_open=True, world=True, filepath=No
         check_open=check_open,
         world=world,
     )
-    msgs = tuple((f"GEOM Vertices: {len(fds_verts)} | Faces: {len(fds_faces)}",))
+    msgs = list((f"GEOM Vertices: {len(fds_verts)} | Faces: {len(fds_faces)}",))
     if filepath:
         bingeom.write_bingeom_file(
             geom_type=ob.data.bf_geom_is_terrain and 2 or 1,
@@ -91,7 +91,7 @@ def get_fds_trisurface(context, ob, check=True, check_open=True, world=True):
     return fds_verts, fds_faces, fds_surfs, fds_faces_surfs
 
 
-def get_boundary_condition_ids(context, ob):
+def get_boundary_condition_ids(context, ob):  # FIXME used?
     ids = list()
     material_slots = ob.material_slots
     for ms in material_slots:

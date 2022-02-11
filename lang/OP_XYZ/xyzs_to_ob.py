@@ -39,14 +39,14 @@ def xyzs_to_ob(context, ob, xyzs) -> str():
     """
     # log.debug(f"Importing xyzs to Object <{ob.name}>")
     xyzs_vertices_to_mesh(context=context, me=ob.data, xyzs=xyzs)
-    # Set center to the first xyz
+    # Set origin
     try:  # protect from empty
-        xyz = Vector(xyzs[0])
+        origin = Vector(xyzs[0])
     except IndexError:
         pass
     else:
-        ob.data.transform(Matrix.Translation(-xyz))
-        ob.matrix_world = Matrix.Translation(xyz) @ ob.matrix_world
+        ob.data.transform(Matrix.Translation(-origin))
+        ob.matrix_world = Matrix.Translation(origin) @ ob.matrix_world
     if len(xyzs) == 1:
         return "CENTER"
     else:
