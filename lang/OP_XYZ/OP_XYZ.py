@@ -49,7 +49,7 @@ class OP_XYZ(BFParam):
 
     def _get_geometry(self, context):
         ob, xyzs, msgs = self.element, list(), list()
-        if ob.bf_xb_export:
+        if ob.bf_xyz_export:
             xyzs, msgs = ob_to_xyzs(context=context, ob=ob, bf_xyz=ob.bf_xyz)
         return ob, xyzs, msgs
 
