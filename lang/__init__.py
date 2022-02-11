@@ -17,6 +17,7 @@ from . import (
     SN_CATF,
     SN_DUMP,
     SN_MOVE,
+    SN_MULT,
     MN_SURF,
     OP_XB,
     OP_XYZ,

@@ -179,7 +179,8 @@ class BFParam:
         Return value from element instance.
         @return any type
         """
-        return getattr(self.element, self.bpy_idname or str())
+        if self.bpy_idname:
+            return getattr(self.element, self.bpy_idname)
 
     def set_value(self, context, value=None):
         """!
@@ -216,7 +217,9 @@ class BFParam:
             elif value == d:  # other comparison
                 return False
         # Check if bpy_export is True
-        return bool(getattr(self.element, self.bpy_export or str(), True))
+        if self.bpy_export:
+            return bool(getattr(self.element, self.bpy_export))
+        return True
 
     def set_exported(self, context, value=None):
         """!
@@ -260,8 +263,9 @@ class BFParam:
         if not self.bpy_idname:
             return
         # Set active and alert
-        active = bool(getattr(self.element, self.bpy_export or str(), True))
-        alert = False
+        active, alert = True, False
+        if self.bpy_export:
+            active = bool(getattr(self.element, self.bpy_export))
         if active:
             try:
                 self.check(context)

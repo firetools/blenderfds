@@ -26,10 +26,13 @@ class FDSCase:
         self.msgs = msgs and list(msgs) or list()
 
     def __str__(self):
-        return self.to_fds()
+        try:
+            return self.to_fds()
+        except:
+            return self.__repr__()
 
     def __repr__(self) -> str:
-        items = ", ".join(f'{k}={v!r}' for k, v in self.__dict__.items())
+        items = ", ".join(f"{k}={v!r}" for k, v in self.__dict__.items())
         return f"<{self.__class__.__name__}({items})>"
 
     def __contains__(self, fds_label) -> bool:
@@ -50,10 +53,13 @@ class FDSCase:
         @return FDSNamelist or None.
         """
         for fds_namelist in self.fds_namelists:
-            if fds_namelist and (not fds_label or fds_namelist.fds_label == fds_label):
-                if remove:
-                    self.fds_namelists.remove(fds_namelist)
-                return fds_namelist
+            if not fds_namelist:
+                continue
+            if fds_label and fds_namelist.fds_label != fds_label:
+                continue
+            if remove:
+                self.fds_namelists.remove(fds_namelist)
+            return fds_namelist
 
     def to_fds(self, context=None) -> str:
         """!

@@ -1,7 +1,17 @@
 import logging
 from math import radians
 from mathutils import Matrix, Vector
-from ..types import BFNamelistSc, BFNamelistOb, FDSNamelist, FDSParam, BFNotImported
+from bpy.types import Object
+from .. import utils
+from ..types import (
+    BFNamelistSc,
+    BFNamelistOb,
+    BFParam,
+    FDSNamelist,
+    FDSParam,
+    FDSMany,
+    BFNotImported,
+)
 
 log = logging.getLogger(__name__)
 
@@ -70,13 +80,13 @@ def fds_move_to_bl_matrix(
     return m
 
 
-# Class
+# Classes
 
 
 class SN_MOVE(BFNamelistSc):
     # This namelist is not displayed in the bf_namelist_cls menu,
     # and has no panel. Used for importing only, it translates
-    # fds transformations in Blender matrix of a scene dict
+    # FDS MOVE transformations in Blender matrix of a scene dict
     label = "MOVE"
     description = "Geometric transformations"
     enum_id = False  # no bf_namelist_cls menu, no automatic export
@@ -138,23 +148,38 @@ class SN_MOVE(BFNamelistSc):
         bf_move_coll[hid] = m
 
 
-class ON_MOVE(BFNamelistOb):
-    # This namelist is not displayed in the bf_namelist_cls menu,
-    # and has no panel. Used for exporting only.
-    label = "MOVE"
-    description = "Geometric transformations"
-    enum_id = False  # no bf_namelist_cls menu, no automatic export
-    fds_label = "MOVE"
+# This namelist is called by other BFNamelistOb
+# When called the Blender Mesh should already be available
 
-    def to_fds_namelist(self, context):
-        t34 = bl_matrix_to_t34(m=self.element.matrix_world)
-        return FDSNamelist(
-            fds_label=self.fds_label,
-            fds_params=(
-                FDSParam(fds_label="ID", value=f"{self.element.name}_move"),
-                FDSParam(fds_label="T34", value=t34, precision=6),
-            ),
-        )
 
-    def from_fds(self, context, fds_namelist):
-        raise Exception("The Object ON_MOVE cannot export!")
+class OP_MOVE_ID(BFParam):
+    label = "MOVE_ID"
+    description = "Reference to geometric transformation"
+    fds_label = "MOVE_ID"
+    bpy_type = Object
+
+    def to_fds_param(self, context):
+        if self.get_exported(context):
+            ob = self.element
+            t34 = bl_matrix_to_t34(m=ob.matrix_world)
+            return FDSMany(
+                FDSParam(fds_label="MOVE_ID", value=f"{ob.name}_move"),
+                FDSNamelist(
+                    fds_label=self.fds_label,
+                    fds_params=(
+                        FDSParam(fds_label="ID", value=f"{ob.name}_move"),
+                        FDSParam(fds_label="T34", value=t34, precision=6),
+                    ),
+                ),
+            )
+
+    def from_fds(self, context, value):
+        try:
+            m = context.scene["bf_move_coll"][value]
+        except KeyError as err:
+            raise BFNotImported(self, f"Missing MOVE ID={value}")
+        # FIXME force_othogonal=True?
+        utils.geometry.transform_ob(ob=self.element, m=m, force_othogonal=False)
+
+    def draw(self, context, layout):
+        pass

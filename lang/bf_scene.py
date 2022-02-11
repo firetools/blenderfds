@@ -17,12 +17,12 @@ def _import(scene, context, fds_case, fds_label=None) -> str:
         fds_namelist = fds_case.get_fds_namelist(fds_label=fds_label, remove=True)
         if not fds_namelist:
             break
-        fds_label, is_imported = fds_namelist.fds_label, False
-        bf_namelist = BFNamelist.get_subclass(fds_label=fds_label)
+        is_imported = False
+        bf_namelist = BFNamelist.get_subclass(fds_label=fds_namelist.fds_label)
 
         # Manage
         if bf_namelist:  # managed?
-            hid = f"New {fds_label}"  # default hid
+            hid = f"New {fds_namelist.fds_label}"  # default hid
             if bf_namelist.bpy_type == Scene:
                 try:
                     bf_namelist(element=scene).from_fds(
@@ -197,10 +197,16 @@ class BFScene:
             context=context,
         )
 
-        # Import MOVEs before geometries
+        # Import MOVEs and MULTs before geometries
         _import(
             fds_case=fds_case,
             fds_label="MOVE",
+            scene=self,
+            context=context,
+        )
+        _import(
+            fds_case=fds_case,
+            fds_label="MULT",
             scene=self,
             context=context,
         )

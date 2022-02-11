@@ -65,7 +65,9 @@ class BFNamelist(BFParam):
             return self.bf_params[self._bf_param_other_idx]
 
     def get_exported(self, context):
-        return bool(getattr(self.element, self.bpy_export or str(), True))
+        if self.bpy_export:
+            return bool(getattr(self.element, self.bpy_export))
+        return True
 
     def draw_operators(self, context, layout):
         """!
@@ -134,13 +136,17 @@ class BFNamelist(BFParam):
             else:
                 return "\n".join(line.to_fds(context) for line in fds_namelist if line)
 
-    def from_fds(self, context, fds_namelist):
+    def from_fds(self, context, fds_namelist, fds_label=None):
         """!
         Set self.bf_params value, on error raise BFException.
         @param context: the Blender context.
         @param fds_namelist: instance of type FDSNamelist.
+        @param fds_label: if set, import only self.bf_params with fds_label
         """
-        for fds_param in fds_namelist.fds_params:
+        while True:  # consume fds_namelist.fds_params
+            fds_param = fds_namelist.get_fds_param(fds_label=fds_label, remove=True)
+            if not fds_param:
+                break
             is_imported = False
 
             # Try managed bf_param

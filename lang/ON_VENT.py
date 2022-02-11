@@ -7,6 +7,7 @@ from .OP_SURF_ID import OP_SURF_ID
 from .OP_XB import OP_XB
 from .OP_XYZ import OP_XYZ
 from .OP_PB import OP_PB, OP_PBX, OP_PBY, OP_PBZ
+from .SN_MULT import OP_MULT_ID
 
 log = logging.getLogger(__name__)
 
@@ -52,5 +53,6 @@ class ON_VENT(BFNamelistOb):
         OP_PBY,
         OP_PBZ,
         OP_ID_suffix,
+        OP_MULT_ID,
         OP_other,
     )

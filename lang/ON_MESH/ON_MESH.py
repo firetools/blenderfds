@@ -15,6 +15,8 @@ from .align import get_n_for_poisson
 from ..OP_XB.ob_to_xbs import ob_to_xbs
 from ..OP_XB.xbs_to_ob import xbs_to_ob
 
+from ..SN_MULT import OP_MULT_ID
+
 log = logging.getLogger(__name__)
 
 
@@ -94,7 +96,15 @@ class ON_MESH(BFNamelistOb):
     description = "Domain of simulation"
     enum_id = 1014
     fds_label = "MESH"
-    bf_params = OP_ID, OP_FYI, OP_MESH_IJK, OP_MESH_nsplits, OP_MESH_XB, OP_other
+    bf_params = (
+        OP_ID,
+        OP_FYI,
+        OP_MESH_IJK,
+        OP_MESH_nsplits,
+        OP_MESH_XB,
+        OP_MULT_ID,
+        OP_other,
+    )
     bf_other = {"appearance": "BBOX"}
 
     def draw_operators(self, context, layout):

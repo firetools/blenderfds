@@ -59,10 +59,13 @@ class FDSNamelist:
         # self.fds_params can be a list of lists (multi), but only when exporting
         # in that case this fails
         for fds_param in self.fds_params:
-            if fds_param and (not fds_label or fds_param.fds_label == fds_label):
-                if remove:
-                    self.fds_params.remove(fds_param)
-                return fds_param
+            if not fds_param:
+                continue
+            if fds_label and fds_param.fds_label != fds_label:
+                continue
+            if remove:
+                self.fds_params.remove(fds_param)
+            return fds_param
 
     def _classify_fds_param(self, p):
         match p:

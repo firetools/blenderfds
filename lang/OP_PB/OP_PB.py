@@ -48,13 +48,12 @@ class OP_PB(BFParam):
     axis = None  # axis for importing
 
     def _get_geometry(self, context):
-        ob = self.element
-        if not ob.bf_pb_export:
-            return
-        # Compute
-        # pbs is: (0, 3.5), (0, 4.), (2, .5) ...
-        # with 0, 1, 2 perpendicular axis
-        pbs, msgs = ob_to_pbs(context, ob, bf_pb=ob.bf_pb)
+        ob, pbs, msgs = self.element, list(), list()
+        if ob.bf_pb_export:
+            # Compute
+            # pbs is: (0, 3.5), (0, 4.), (2, .5) ...
+            # with 0, 1, 2 perpendicular axis
+            pbs, msgs = ob_to_pbs(context, ob, bf_pb=ob.bf_pb)
         return ob, pbs, msgs
 
     def to_fds_param(self, context):

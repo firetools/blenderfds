@@ -5,13 +5,12 @@ from ...types import (
     BFParam,
     BFNamelistOb,
     FDSParam,
-    FDSMany,
     BFException,
     BFNotImported,
 )
 from ... import utils
 from ..bf_object import OP_ID, OP_FYI, OP_other
-from ..SN_MOVE import ON_MOVE
+from ..SN_MOVE import OP_MOVE_ID
 from .ob_to_geom import ob_to_geom, get_boundary_condition_ids
 from .geom_to_ob import (
     geom_to_ob,
@@ -93,40 +92,26 @@ class OP_GEOM_BINARY_FILE(BFParam):
             layout.template_ID(space, "pin_id", text=self.label)
 
     def to_fds_param(self, context):
-        # Write bingeom file
         ob = self.element
+        # Write bingeom file
         filepath, filepath_rfds = utils.io.transform_rbl_to_abs_and_rfds(
             context=context,
-            filepath_rbl=self.element.data.bf_geom_binary_directory,
-            name=self.element.data.name,
+            filepath_rbl=ob.data.bf_geom_binary_directory,
+            name=ob.data.name,
             extension=".bingeom",
         )
-        move_id = ob.data.users > 1 and f"{ob.name}_move"  # shared bingeom
+        has_move_id = ob.data.users > 1  # shared bingeom
         _, _, _, _, msgs = ob_to_geom(
             context=context,
             ob=ob,
             check=ob.data.bf_geom_check_sanity,
             check_open=not ob.data.bf_geom_is_terrain,
-            world=not move_id,
+            world=not has_move_id,
             filepath=filepath,
         )
-        # Prepare FDSParam
-        fds_many = FDSMany()
-        fds_many.append(
-            FDSParam(fds_label=self.fds_label, value=filepath_rfds, msgs=msgs)
-        )
-        if move_id:  # shared bingeom needs a MOVE namelist
-            fds_many.extend(
-                (
-                    FDSParam(
-                        fds_label="MOVE_ID",
-                        value=move_id,
-                        msg="BINARY_FILE is shared",
-                    ),
-                    ON_MOVE(ob).to_fds_namelist(context),
-                )
-            )
-        return fds_many
+        if has_move_id:
+            msgs.append("BINARY_FILE is shared")
+        return FDSParam(fds_label=self.fds_label, value=filepath_rfds, msgs=msgs)
 
     def show_fds_geometry(self, context, ob_tmp):
         ob = self.element
@@ -159,6 +144,11 @@ class OP_GEOM_BINARY_FILE(BFParam):
         # Set properties
         self.element.data.name = name
         self.element.data.bf_geom_binary_directory = ""  # unlink from original path_rbl
+
+
+class OP_GEOM_MOVE_ID(OP_MOVE_ID):
+    def get_exported(self, context):
+        return self.element.data.users > 1  # shared bingeom
 
 
 class OP_GEOM_binary_directory(BFParam):  # This is a Mesh property
@@ -238,13 +228,13 @@ class ON_GEOM(BFNamelistOb):
         OP_GEOM_protect,
         OP_GEOM_IS_TERRAIN,
         OP_GEOM_EXTEND_TERRAIN,
+        OP_GEOM_MOVE_ID,
         OP_other,
     )
 
     def from_fds(self, context, fds_namelist):
         # Read fds_params
         ps = {  # label: default value
-            "MOVE_ID": None,
             # Traditional
             "VERTS": None,
             "FACES": None,
@@ -274,8 +264,10 @@ class ON_GEOM(BFNamelistOb):
             fds_param = fds_namelist.get_fds_param(fds_label=fds_label, remove=True)
             if fds_param:
                 ps[fds_label] = fds_param.get_value(context)  # assign value
-        # All other params (eg. ID, SURF_ID, BINARY_FILE, ...)
-        super().from_fds(context, fds_namelist=fds_namelist)
+        # Read SURF_ID params, to prepare Material slots
+        super().from_fds(context, fds_namelist=fds_namelist, fds_label="SURF_ID")
+        super().from_fds(context, fds_namelist=fds_namelist, fds_label="SURF_IDS")
+        super().from_fds(context, fds_namelist=fds_namelist, fds_label="SURF_ID6")
         # Treat alternative geometries
         if ps["VERTS"] and ps["FACES"]:
             geom_to_mesh(
@@ -319,15 +311,8 @@ class ON_GEOM(BFNamelistOb):
             raise BFNotImported(self, "POLY not implemented")
         elif ps["ZVALS"] is not None:
             raise BFNotImported(self, "ZVALS not implemented")
-        # Treat MOVE
-        if ps["MOVE_ID"]:
-            try:
-                m = context.scene["bf_move_coll"][ps["MOVE_ID"]]
-            except KeyError as err:
-                raise BFNotImported(self, f"Missing MOVE ID={ps['MOVE_ID']}")
-            utils.geometry.transform_ob(
-                ob=self.element, m=m, force_othogonal=False
-            )  # FIXME True?
+        # Read all other remaining params (eg. BINARY_FILE, MOVE_ID)
+        super().from_fds(context, fds_namelist=fds_namelist)
 
     def draw_operators(self, context, layout):
         ob = context.object

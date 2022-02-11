@@ -8,6 +8,7 @@ from ..types import (
     BFNamelist,
     BFException,
     FDSParam,
+    FDSMany,
 )
 from ..bl.ui_lists import (
     WM_PG_bf_other,
@@ -153,12 +154,11 @@ class MP_RGB(BFParam):
                 value=rgb,
             )
         else:
-            return (
-                FDSParam(
-                    fds_label="RGB",
-                    value=rgb,
-                ),
-                FDSParam(fds_label="TRANSPARENCY", value=c[3], precision=2),
+            return FDSMany(
+                (
+                    FDSParam(fds_label="RGB", value=rgb),
+                    FDSParam(fds_label="TRANSPARENCY", value=c[3], precision=2),
+                )
             )
 
 
