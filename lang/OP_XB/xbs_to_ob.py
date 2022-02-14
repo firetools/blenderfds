@@ -3,7 +3,6 @@ BlenderFDS, translate geometry from FDS XB notation to a Blender mesh.
 """
 
 import bmesh, logging
-from mathutils import Matrix, Vector
 from ...types import BFException
 
 log = logging.getLogger(__name__)
@@ -11,16 +10,18 @@ log = logging.getLogger(__name__)
 epsilon = 1e-5  # TODO unify epsilon mgmt
 
 
-def xbs_edges_to_mesh(context, me, xbs, matrix):
+def xbs_edges_to_mesh(context, me, xbs, matrix=None, new=False):
     """!
     Import xbs edges ((x0,x1,y0,y1,z0,z1,), ...) into existing Blender Mesh.
     @param context: the Blender context.
     @param me: the Blender Mesh.
     @param xbs: the xbs edges.
     @param matrix: transform bmesh by matrix before importing.
+    @param new: set a new Mesh.
     """
     bm = bmesh.new()
-    bm.from_mesh(me)  # add to current mesh
+    if not new:
+        bm.from_mesh(me)  # from current mesh
     scale_length = context.scene.unit_settings.scale_length
     for xb in xbs:
         x0, x1, y0, y1, z0, z1 = (coo / scale_length for coo in xb)
@@ -33,16 +34,18 @@ def xbs_edges_to_mesh(context, me, xbs, matrix):
     bm.free()
 
 
-def xbs_faces_to_mesh(context, me, xbs, matrix):
+def xbs_faces_to_mesh(context, me, xbs, matrix=None, new=False):
     """!
     Import xbs faces ((x0,x1,y0,y1,z0,z1,), ...) into existing Blender Mesh.
     @param context: the Blender context.
     @param me: the Blender Mesh.
     @param xbs: the xbs edges.
     @param matrix: transform bmesh by matrix before importing.
+    @param new: set a new Mesh.
     """
     bm = bmesh.new()
-    bm.from_mesh(me)  # add to current mesh
+    if not new:
+        bm.from_mesh(me)  # from current mesh
     scale_length = context.scene.unit_settings.scale_length
     for xb in xbs:
         x0, x1, y0, y1, z0, z1 = (coo / scale_length for coo in xb)
@@ -70,7 +73,7 @@ def xbs_faces_to_mesh(context, me, xbs, matrix):
     bm.free()
 
 
-def xbs_bbox_to_mesh(context, me, xbs, set_materials=False, matrix=None):
+def xbs_bbox_to_mesh(context, me, xbs, set_materials=False, matrix=None, new=False):
     """!
     Import xbs bboxes ((x0,x1,y0,y1,z0,z1,), ...) into existing Blender Mesh.
     @param context: the Blender context.
@@ -78,10 +81,12 @@ def xbs_bbox_to_mesh(context, me, xbs, set_materials=False, matrix=None):
     @param xbs: the xbs edges.
     @param set_materials: if True set material_slots to faces
     @param matrix: transform bmesh by matrix before importing.
+    @param new: set a new Mesh.
     """
     # Set Mesh
     bm = bmesh.new()
-    bm.from_mesh(me)  # add to current mesh
+    if not new:
+        bm.from_mesh(me)  # from current mesh
     scale_length = context.scene.unit_settings.scale_length
     for xb in xbs:
         x0, x1, y0, y1, z0, z1 = (coo / scale_length for coo in xb)
@@ -135,23 +140,25 @@ xbs_to_mesh = {
 }
 
 
-def xbs_to_ob(context, ob, xbs, bf_xb=None, matrix=None):
+def xbs_to_ob(context, ob, xbs, bf_xb=None, is_world=True, new=False):  # FIXME other functions too
     """!
     Import xbs geometry ((x0,x1,y0,y1,z0,z1,), ...) into existing Blender Object.
     @param context: the Blender context.
     @param ob: the Blender object.
     @param xbs: the xbs edges.
     @param bf_xb: the xb parameter between BBOX, VOXELS, FACES, PIXELS, EDGES.
-    @param matrix: transform bmesh by matrix before importing.
+    @param is_world: coordinates are in world ref. 
+    @param new: set a new Mesh.
     @return the new xb parameter between BBOX, VOXELS, FACES, PIXELS, EDGES.
     """
-    # log.debug(f"Importing xbs to Object <{ob.name}>")
+    matrix = is_world and ob.matrix_world.inverted()
     if bf_xb:  # force bf_xb
         xbs_to_mesh[bf_xb](
             context=context,
             me=ob.data,
             xbs=xbs,
             matrix=matrix,
+            new=new
         )
     else:  # auto choose
         try:
@@ -161,6 +168,7 @@ def xbs_to_ob(context, ob, xbs, bf_xb=None, matrix=None):
                 me=ob.data,
                 xbs=xbs,
                 matrix=matrix,
+                new=new
             )
         except BFException:
             bf_xb = "BBOX"
@@ -169,7 +177,8 @@ def xbs_to_ob(context, ob, xbs, bf_xb=None, matrix=None):
                 me=ob.data,
                 xbs=xbs,
                 matrix=matrix,
-            )
+                new=new
+        )
     # Set origin FIXME FIXME FIXME
     # try:  # protect from empty
     #     origin = Vector(ob.data.vertices[0].co)
