@@ -2,27 +2,24 @@
 BlenderFDS, translate geometry from FDS XYZ notation to a Blender mesh.
 """
 
-import bmesh, logging, bpy
+import bmesh, logging
 from mathutils import Matrix, Vector
-from ...types import BFException
 
 log = logging.getLogger(__name__)
 
-# FIXME matrix, extend
 
-
-def xyzs_vertices_to_mesh(context, me, xyzs, matrix=None, new=False) -> None:
+def xyzs_vertices_to_mesh(context, me, xyzs, matrix=None, add=False) -> None:
     """!
     Import xyzs vertices ((x0,y0,z0,), ...) into existing Blender Mesh.
     @param context: the Blender context.
     @param me: the Blender Mesh.
     @param xyzs: the xyzs vertices.
     @param matrix: transform bmesh by matrix before importing.
-    @param new: set a new Object Mesh.
+    @param add: if set, add to existing Mesh.
     """
     bm = bmesh.new()
-    if not new:
-        bm.from_mesh(me)  # add to current mesh
+    if add:
+        bm.from_mesh(me)
     scale_length = context.scene.unit_settings.scale_length
     for xyz in xyzs:
         bm.verts.new(
@@ -34,28 +31,28 @@ def xyzs_vertices_to_mesh(context, me, xyzs, matrix=None, new=False) -> None:
     bm.free()
 
 
-def xyzs_to_ob(context, ob, xyzs, is_world=True, new=False) -> str():
+def xyzs_to_ob(context, ob, xyzs, is_world=True, add=False, set_origin=False) -> str():
     """!
     Import xyzs vertices ((x0,y0,z0,), ...) into existing Blender Object.
     @param xyzs: the xyzs vertices.
     @param context: the Blender context.
     @param ob: the Blender object.
     @param is_world: coordinates are in world ref.
-    @param new: set a new Mesh.
+    @param add: if set, add to existing Mesh.
+    @param set_origin: if set, set reasonable origin.
     @return: the new bf_xyz in CENTER or VERTICES
     """
-    matrix = is_world and ob.matrix_world.inverted()
-    xyzs_vertices_to_mesh(
-        context=context, me=ob.data, xyzs=xyzs, matrix=matrix, new=new
-    )
-    # Set origin
-    try:  # protect from empty
+    if not xyzs:
+        return "VERTICES"
+    if not add and set_origin:
         origin = Vector(xyzs[0])
-    except IndexError:
-        pass
+        matrix = Matrix.Translation(-origin)
+        ob.matrix_world = Matrix.Translation(+origin)
     else:
-        ob.data.transform(Matrix.Translation(-origin))  # FIXME anticipate
-        ob.matrix_world = Matrix.Translation(origin) @ ob.matrix_world
+        matrix = ob.matrix_world.inverted()
+    xyzs_vertices_to_mesh(
+        context=context, me=ob.data, xyzs=xyzs, matrix=matrix, add=add
+    )
     if len(xyzs) == 1:
         return "CENTER"
     else:

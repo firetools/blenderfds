@@ -6,6 +6,7 @@ import logging, bpy
 from bpy.types import Operator
 from bpy.props import BoolProperty, FloatVectorProperty
 from ... import utils, lang
+from ...types import BFException
 
 log = logging.getLogger(__name__)
 
@@ -106,32 +107,35 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
         if not source_element:
             self.report({"WARNING"}, "No source Object")
             return {"CANCELLED"}
-        # Align  # FIXME FIXME FIXME
+        # Align
         rijk = source_element.bf_mesh_ijk  # ref ijk
         rxb = utils.geometry.get_bbox_xb(context, ob=source_element, world=True)
         for de in destination_elements:
             mijk = de.bf_mesh_ijk
             mxb = utils.geometry.get_bbox_xb(context, ob=de, world=True)
-            rijk, rxb, mijk, mxb, msgs = lang.ON_MESH.align_meshes(
-                rijk, rxb, mijk, mxb, poisson=False, protect_rl=False
-            )
+            try:
+                rijk, rxb, mijk, mxb, msgs = lang.ON_MESH.align_meshes(
+                    rijk, rxb, mijk, mxb, poisson=False, protect_rl=False
+                )
+            except BFException as err:
+                self.report({"ERROR"}, str(err))
+                return {"CANCELLED"}
+            except Exception as err:
+                self.report({"ERROR"}, f"Unexpected error: {err}")
+                return {"CANCELLED"}
             source_element.bf_mesh_ijk = rijk
-            matrix = source_element.matrix_world.invert()
             lang.OP_XB.xbs_to_ob(
                 context=context,
                 ob=source_element,
                 xbs=(rxb,),
                 bf_xb="BBOX",
-                matrix=matrix,
             )
             de.bf_mesh_ijk = mijk
-            matrix = de.matrix_world.invert()
             lang.OP_XB.xbs_to_ob(
                 context=context,
                 ob=de,
                 xbs=(mxb,),
                 bf_xb="BBOX",
-                matrix=matrix,
             )
             log.debug("\n".join(msgs))
         # Update 3dview

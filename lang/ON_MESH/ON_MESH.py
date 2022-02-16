@@ -88,7 +88,7 @@ class OP_MESH_XB(OP_XB_BBOX):
 
     def show_fds_geometry(self, context, ob_tmp):
         _, _, _, xbs, _ = self._get_geometry(context)
-        xbs_to_ob(context=context, ob=ob_tmp, xbs=xbs, bf_xb="BBOX")
+        xbs_to_ob(context=context, ob=ob_tmp, xbs=xbs, bf_xb="BBOX", add=True)
 
 
 class ON_MESH(BFNamelistOb):

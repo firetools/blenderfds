@@ -160,7 +160,7 @@ class OP_XB(BFParam):
 
     def show_fds_geometry(self, context, ob_tmp):
         ob, xbs, _ = self._get_geometry(context)
-        xbs_to_ob(context=context, ob=ob_tmp, xbs=xbs, bf_xb=ob.bf_xb)
+        xbs_to_ob(context=context, ob=ob_tmp, xbs=xbs, bf_xb=ob.bf_xb, add=True)
         ob_tmp.active_material = ob.active_material
 
     def from_fds(self, context, value):
@@ -168,12 +168,13 @@ class OP_XB(BFParam):
             context=context,
             ob=self.element,
             xbs=(value,),
+            set_origin=True,
         )
         self.element.bf_xb = bf_xb
         self.element.bf_xb_export = True
 
-# FIXME if voxels was set this is wrong!!!
-class OP_XB_BBOX(OP_XB):  # independent from OP_XB
+
+class OP_XB_BBOX(OP_XB):
     label = "XB"
     description = "Export as object bounding box (BBOX)"
     fds_label = "XB"
@@ -191,6 +192,7 @@ class OP_XB_BBOX(OP_XB):  # independent from OP_XB
             context=context,
             ob=self.element,
             xbs=(value,),
+            set_origin=True,
         )
 
     def draw(self, context, layout):

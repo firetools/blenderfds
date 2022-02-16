@@ -96,7 +96,7 @@ class OP_XYZ(BFParam):
 
     def show_fds_geometry(self, context, ob_tmp):
         ob, xyzs, _ = self._get_geometry(context)
-        xyzs_to_ob(context=context, ob=ob_tmp, xyzs=xyzs)
+        xyzs_to_ob(context=context, ob=ob_tmp, xyzs=xyzs, add=True)
         ob_tmp.active_material = ob.active_material
 
     def from_fds(self, context, value):
@@ -104,6 +104,7 @@ class OP_XYZ(BFParam):
             context=context,
             ob=self.element,
             xyzs=(value,),
+            set_origin=True,
         )
         self.element.bf_xyz = bf_xyz
         self.element.bf_xyz_export = True

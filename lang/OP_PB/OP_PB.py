@@ -89,11 +89,11 @@ class OP_PB(BFParam):
 
     def show_fds_geometry(self, context, ob_tmp):
         ob, pbs, _ = self._get_geometry(context)
-        pbs_to_ob(context=context, ob=ob_tmp, pbs=pbs)
+        pbs_to_ob(context=context, ob=ob_tmp, pbs=pbs, add=True)
         ob_tmp.active_material = ob.active_material
 
     def from_fds(self, context, value):
-        bf_pb = pbs_to_ob(context=context, ob=self.element, pbs=((self.axis, value),))
+        bf_pb = pbs_to_ob(context=context, ob=self.element, pbs=((self.axis, value),), set_origin=True)
         self.element.bf_pb = bf_pb
         self.element.bf_pb_export = True
 
