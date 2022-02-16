@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 def _get_namelist_items(self, context, fds_label):
     """!
-    Get namelist IDs available in Free Text and CATF files.
+    Get fds_label namelist IDs available in Free Text and CATF files.
     """
     fds_case = FDSCase()
     sc = context.scene
@@ -23,7 +23,10 @@ def _get_namelist_items(self, context, fds_label):
         fds_case.from_fds(f90=sc.bf_config_text.as_string())
     # Get namelists from available CATF files
     if sc.bf_catf_export:
-        for filepath in tuple(item.name for item in sc.bf_catf_files if item.bf_export):
+        for item in sc.bf_catf_files:
+            if not item.bf_export:
+                continue
+            filepath = item.name
             try:
                 f90 = utils.io.read_txt_file(filepath)
             except IOError:
@@ -32,7 +35,7 @@ def _get_namelist_items(self, context, fds_label):
                 fds_case.from_fds(f90=f90)
     # Prepare list of IDs
     items = list()
-    while True:  # FIXME transform in for loop
+    while True:
         fds_namelist = fds_case.get_fds_namelist(fds_label=fds_label, remove=True)
         if not fds_namelist:
             break

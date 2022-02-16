@@ -48,6 +48,7 @@ def pbs_to_ob(context, ob, pbs, add=False, set_origin=False) -> str:
     if not pbs:
         return "PLANES"
     if not add and set_origin:
+        matrix = None
         ob.matrix_world = Matrix()
     else:
         matrix = ob.matrix_world.inverted()

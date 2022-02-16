@@ -59,6 +59,7 @@ class BFMaterial:
         self.bf_namelist_cls = bf_namelist.__name__
         # Import
         self.bf_namelist.from_fds(context, fds_namelist=fds_namelist)
+        self.use_fake_user = True  # eg. used by CTRL
 
     @classmethod
     def register(cls):
@@ -111,7 +112,7 @@ class MP_namelist_cls(BFParam):
     bpy_default = "MN_SURF"
 
     def get_exported(self, context):
-        if self.element.name in {"INERT", "HVAC", "MIRROR", "OPEN", "PERIODIC"}:
+        if self.element.name in config.default_mas:
             return False
         return super().get_exported(context)
 
