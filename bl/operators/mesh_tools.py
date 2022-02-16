@@ -72,9 +72,6 @@ class OBJECT_OT_bf_set_mesh_cell_size(Operator):
         return {"FINISHED"}
 
 
-# FIXME FIXME FIXME  align meshes
-
-
 class OBJECT_OT_bf_align_selected_meshes(Operator):
     bl_label = "Align Selected"
     bl_idname = "object.bf_align_selected_meshes"
@@ -123,6 +120,7 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
             except Exception as err:
                 self.report({"ERROR"}, f"Unexpected error: {err}")
                 return {"CANCELLED"}
+            # Set source element
             source_element.bf_mesh_ijk = rijk
             lang.OP_XB.xbs_to_ob(
                 context=context,
@@ -130,7 +128,10 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
                 xbs=(rxb,),
                 bf_xb="BBOX",
             )
+            # Set destination element
             de.bf_mesh_ijk = mijk
+            if de.data == source_element.data:
+                de.data = bpy.data.meshes.new(de.data.name)  # detach
             lang.OP_XB.xbs_to_ob(
                 context=context,
                 ob=de,
