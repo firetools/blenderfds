@@ -4,6 +4,8 @@
 Align MESHes correctly according to cells.
 """
 
+from ...types import BFException
+
 # Mesh alignment:
 #
 # Before:
@@ -63,11 +65,15 @@ def get_n_for_poisson(n):
 def _align_along_axis(ri, rx0, rx1, mi, mx0, mx1, poisson=False, protect_rl=False):
     """!Align coarse MESH to fixed ref MESH along an axis."""
     # Init
-    assert rx0 < rx1 and mx0 < mx1  # coordinate order
+    if rx0 >= rx1 or mx0 >= mx1:
+        raise Exception("Coordinate order error")
     rl, ml = rx1 - rx0, mx1 - mx0  # lengths
     rcs, mcs = rl / ri, ml / mi  # cell sizes
     # Coarsening ratio
-    assert mcs / rcs > 0.501  # same or coarser allowed, protect from float err
+    if mcs / rcs < 0.501:  # same or coarser allowed, protect from float err
+        raise BFException(
+            None, f"Destination MESHes should be coarser than source: {mcs} > {rcs}"
+        )
     n = round(mcs / rcs)
     # Set ref cell count multiple of n
     # to allow full cover of coarse cells by ref cells
