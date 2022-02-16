@@ -122,6 +122,8 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
                 return {"CANCELLED"}
             # Set source element
             source_element.bf_mesh_ijk = rijk
+            if source_element.data.users > 1:
+                source_element.data = bpy.data.meshes.new(source_element.data.name)
             lang.OP_XB.xbs_to_ob(
                 context=context,
                 ob=source_element,
@@ -130,8 +132,8 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
             )
             # Set destination element
             de.bf_mesh_ijk = mijk
-            if de.data == source_element.data:
-                de.data = bpy.data.meshes.new(de.data.name)  # detach
+            if de.data.users > 1:
+                de.data = bpy.data.meshes.new(de.data.name)
             lang.OP_XB.xbs_to_ob(
                 context=context,
                 ob=de,
