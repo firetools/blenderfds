@@ -65,6 +65,9 @@ class BFNamelist(BFParam):
             return self.bf_params[self._bf_param_other_idx]
 
     def get_exported(self, context):
+        """!
+        Return True if self is exported to FDS.
+        """
         if self.bpy_export:
             return bool(getattr(self.element, self.bpy_export))
         return True
