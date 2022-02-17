@@ -128,6 +128,11 @@ class MP_ID(BFParam):
     def copy_to(self, dest_element):
         pass
 
+    def draw(self, context, layout):
+        row = layout.row(align=True)
+        row.prop(self.element, "name", text="ID")
+        row.prop(self.element, "use_fake_user", text="")  # force export
+
 
 class MP_FYI(BFParamFYI):
     bpy_type = Material
