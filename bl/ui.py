@@ -108,10 +108,10 @@ class PROPERTIES_PT_navigation_bar_bf(Panel):
 
         col = layout.column(align=True)
         col.prop_enum(view, "context", "SCENE", text="", icon="SCENE_DATA")
-        # FIXME bug, when there is no collection, only scene collection
-        # col.prop_enum(
-        #    view, "context", "COLLECTION", text="", icon="OUTLINER_COLLECTION"
-        # )
+        if context.collection and context.collection != context.scene.collection:
+            col.prop_enum(
+                view, "context", "COLLECTION", text="", icon="OUTLINER_COLLECTION"
+            )
 
         col = layout.column(align=True)
         if ob:

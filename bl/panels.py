@@ -162,6 +162,25 @@ class SCENE_PT_bf_config_sizes(Panel, _SCENE_PT_bf_namelist):
     bl_options = {"DEFAULT_CLOSED"}
 
 
+class COLLECTION_PT_bf_config(Panel):
+    """!
+    FDS Collection Config
+    """
+
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = "collection"
+    bl_label = "FDS Collection Config"
+
+    def draw(self, context):
+        co = context.collection
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False  # No animation.
+        row = layout.row(align=True)  # general operators
+        row.prop(co, "name")
+
+
 class OBJECT_PT_bf_namelist(Panel):
     """!
     FDS geometric namelist
@@ -426,6 +445,7 @@ bl_classes = [
     SCENE_PT_bf_namelist_DUMP,
     SCENE_PT_bf_namelist_CATF,
     SCENE_PT_bf_config_sizes,
+    COLLECTION_PT_bf_config,
     OBJECT_PT_bf_namelist,
     MATERIAL_PT_bf_namelist,
     VIEW3D_PT_bf_ob_namelist_tools,
