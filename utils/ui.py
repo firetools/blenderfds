@@ -38,3 +38,22 @@ def get_text_in_editor(context, text=None, name=None):
     space.margin_column = 130
     space.show_syntax_highlight = True
     return text
+
+
+def view_all(context):
+    """!
+    Run view3d.view_all operator.
+    """
+    for area in context.screen.areas:
+        if area.type == "VIEW_3D":
+            for region in area.regions:
+                if region.type == "WINDOW":
+                    override = {
+                        "area": area,
+                        "region": region,
+                        "edit_object": context.edit_object,
+                    }
+                    bpy.ops.view3d.view_all(override)
+            for space in area.spaces:
+                if space.type == "VIEW_3D":
+                    space.clip_end = 1e6

@@ -57,7 +57,7 @@ class ImportFDSToScene(Operator, ImportHelper):
         # Import
         for filepath in filepaths:
             if self.new_scene:
-                sc = bpy.data.scenes.new("tmp_name")
+                sc = bpy.data.scenes.new("Imported")
             else:
                 sc = context.scene
             try:
@@ -67,24 +67,8 @@ class ImportFDSToScene(Operator, ImportHelper):
                 self.report({"ERROR"}, f"Import: {str(err)}")
                 return {"CANCELLED"}
 
-        # View all  # TODO move to utils? or bl?
-        for area in context.screen.areas:
-            if area.type == "VIEW_3D":
-                for region in area.regions:
-                    if region.type == "WINDOW":
-                        override = {
-                            "area": area,
-                            "region": region,
-                            "edit_object": context.edit_object,
-                        }
-                        bpy.ops.view3d.view_all(override)
-                for space in area.spaces:
-                    if space.type == "VIEW_3D":
-                        space.clip_end = (
-                            1e6  # TODO right? why not at start? rm tool panel?
-                        )
-
         # Close
+        utils.ui.view_all(context=context)
         w.cursor_modal_restore()
         self.report({"INFO"}, f"{len(filepaths)} imported")
         return {"FINISHED"}
