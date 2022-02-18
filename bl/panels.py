@@ -339,7 +339,7 @@ class VIEW3D_PT_bf_remesh(Panel):
         layout.use_property_split = True
         layout.use_property_decorate = False
         row = layout.row()
-        mesh = context.active_object.data  # FIXME ?
+        mesh = context.mesh
         row.prop(mesh, "remesh_mode", text="Mode", expand=True)
         col = layout.column()
         if mesh.remesh_mode == "VOXEL":

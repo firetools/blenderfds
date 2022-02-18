@@ -91,7 +91,7 @@ def get_fds_trisurface(context, ob, check=True, check_open=True, world=True):
     return fds_verts, fds_faces, fds_surfs, fds_faces_surfs
 
 
-def get_boundary_condition_ids(context, ob):  # FIXME used?
+def get_boundary_condition_ids(context, ob):  # used by GEOM
     ids = list()
     material_slots = ob.material_slots
     for ms in material_slots:

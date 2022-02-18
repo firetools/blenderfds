@@ -12,7 +12,7 @@ class SP_HEAD_CHID(BFParam):
     bpy_type = Scene
     bpy_idname = "name"
 
-    def copy_to(self, dest_element):
+    def copy_to(self, context, dest_element):
         pass
 
 

@@ -91,14 +91,14 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
         bpy.ops.object.mode_set(mode="OBJECT")
         # Get source and destination objects
         source_element = context.active_object
-        destination_elements = set(
+        dest_elements = set(
             ob
             for ob in context.selected_objects
             if ob.type == "MESH"
             and ob != source_element
             and ob.bf_namelist_cls == "ON_MESH"
         )
-        if not destination_elements:
+        if not dest_elements:
             self.report({"WARNING"}, "No destination Object")
             return {"CANCELLED"}
         if not source_element:
@@ -107,7 +107,7 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
         # Align
         rijk = source_element.bf_mesh_ijk  # ref ijk
         rxb = utils.geometry.get_bbox_xb(context, ob=source_element, world=True)
-        for de in destination_elements:
+        for de in dest_elements:
             mijk = de.bf_mesh_ijk
             mxb = utils.geometry.get_bbox_xb(context, ob=de, world=True)
             try:

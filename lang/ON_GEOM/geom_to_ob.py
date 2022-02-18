@@ -199,4 +199,4 @@ def geom_poly_to_ob(context, ob, ps, extrude) -> None:
     bm.to_mesh(ob.data)
     bm.free()
     # Extrude
-    # FIXME to be completed
+    # TODO to be completed

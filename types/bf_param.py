@@ -321,7 +321,7 @@ class BFParam:
         self.set_value(context, value)
         self.set_exported(context, True)
 
-    def copy_to(self, dest_element):  # FIXME add context
+    def copy_to(self, context, dest_element):
         """!
         Copy self values to destination element.
         @param dest_element: element of the same type of self.element.
@@ -575,7 +575,7 @@ class BFParamOther(BFParam):
                 )
             )
 
-    def copy_to(self, dest_element):
+    def copy_to(self, context, dest_element):
         log.debug(f"  Copying <{self}> to <{dest_element.name}>")
         if self.bpy_export:
             value = getattr(self.element, self.bpy_export)

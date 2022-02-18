@@ -23,7 +23,7 @@ def _bf_props_copy(context, source_element, dest_elements):
     # Copy them
     for bf_namelist in bf_namelists:
         for dest_element in dest_elements:
-            bf_namelist.copy_to(dest_element)
+            bf_namelist.copy_to(context=context, dest_element=dest_element)
 
 
 class SCENE_OT_bf_copy_props_to_scene(Operator):
@@ -36,32 +36,26 @@ class SCENE_OT_bf_copy_props_to_scene(Operator):
     bl_description = "Copy all current scene FDS parameters to another Scene"
     bl_options = {"REGISTER", "UNDO"}
 
-    bf_destination_element: StringProperty(name="Destination Scene")
+    bf_dest_element: StringProperty(name="Destination Scene")
 
     def draw(self, context):
         layout = self.layout
         row = layout.row()
-        row.prop_search(
-            self, "bf_destination_element", bpy.data, "scenes", text="Scene"
-        )
+        row.prop_search(self, "bf_dest_element", bpy.data, "scenes", text="Scene")
 
     def execute(self, context):
-        # Get source and destination scenes
+        # Get source and dest scenes
         source_element = context.scene
-        destination_elements = (
-            bpy.data.scenes.get(self.bf_destination_element, None),
-        )  # a tuple!
-        if not destination_elements[0]:
+        dest_elements = (bpy.data.scenes.get(self.bf_dest_element, None),)  # a tuple!
+        if not dest_elements[0]:
             self.report({"WARNING"}, "No destination Scene")
             return {"CANCELLED"}
         if not source_element:
             self.report({"WARNING"}, "No source Scene")
             return {"CANCELLED"}
         # Copy
-        _bf_props_copy(context, source_element, destination_elements)
-        self.report(
-            {"INFO"}, f"Copied to destination Scene <{destination_elements[0].name}>"
-        )
+        _bf_props_copy(context, source_element, dest_elements)
+        self.report({"INFO"}, f"Copied to destination Scene <{dest_elements[0].name}>")
         return {"FINISHED"}
 
     def invoke(self, context, event):
@@ -93,22 +87,22 @@ class OBJECT_OT_bf_copy_FDS_properties_to_sel_obs(Operator):
         bpy.ops.object.mode_set(mode="OBJECT")
         # Get source and destination objects
         source_element = context.active_object
-        destination_elements = set(
+        dest_elements = set(
             ob
             for ob in context.selected_objects
             if ob.type == "MESH" and ob != source_element
         )
-        if not destination_elements:
+        if not dest_elements:
             self.report({"WARNING"}, "No destination Object")
             return {"CANCELLED"}
         if not source_element:
             self.report({"WARNING"}, "No source Object")
             return {"CANCELLED"}
         # Copy
-        _bf_props_copy(context, source_element, destination_elements)
+        _bf_props_copy(context, source_element, dest_elements)
         self.report(
             {"INFO"},
-            f"Copied to {len(destination_elements)} selected Object(s)",
+            f"Copied to {len(dest_elements)} selected Object(s)",
         )
         return {"FINISHED"}
 
@@ -139,12 +133,12 @@ class MATERIAL_OT_bf_assign_BC_to_sel_obs(Operator):
         # Get source and destination materials
         source_element = context.active_object
         active_material = source_element.active_material
-        destination_elements = set(
+        dest_elements = set(
             ob
             for ob in context.selected_objects
             if ob.type == "MESH" and ob != source_element
         )
-        if not destination_elements:
+        if not dest_elements:
             self.report({"WARNING"}, "No destination Object")
             return {"CANCELLED"}
         if not source_element:
@@ -154,7 +148,7 @@ class MATERIAL_OT_bf_assign_BC_to_sel_obs(Operator):
             self.report({"WARNING"}, "No boundary condition to assign")
             return {"CANCELLED"}
         # Loop on objects
-        for ob in destination_elements:
+        for ob in dest_elements:
             ob.active_material = active_material
             log.debug(f"Assign Material <{active_material.name}> -> <{ob.name}>")
         # Set myself as exported
@@ -162,7 +156,7 @@ class MATERIAL_OT_bf_assign_BC_to_sel_obs(Operator):
         # Return
         self.report(
             {"INFO"},
-            f"Assigned Material <{active_material.name}> to {len(destination_elements)} selected Object(s)",
+            f"Assigned Material <{active_material.name}> to {len(dest_elements)} selected Object(s)",
         )
         return {"FINISHED"}
 

@@ -124,7 +124,7 @@ class OP_ID(BFParam):
     bpy_prop = None  # to avoid creation
     bpy_idname = "name"
 
-    def copy_to(self, dest_element):
+    def copy_to(self, context, dest_element):
         pass
 
 

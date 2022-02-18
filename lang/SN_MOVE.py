@@ -180,7 +180,6 @@ class OP_MOVE_ID(BFParam):
             m = context.scene["bf_move_coll"][value]
         except KeyError as err:
             raise BFNotImported(self, f"Missing MOVE ID={value}")
-        # FIXME force_othogonal=True?
         utils.geometry.transform_ob(ob=self.element, m=m, force_othogonal=False)
 
     def draw(self, context, layout):

@@ -183,7 +183,7 @@ class BFNamelist(BFParam):
         self.set_exported(context, True)
         self.set_appearance(context)
 
-    def copy_to(self, dest_element):  # FIXME add context
+    def copy_to(self, context, dest_element):
         """!
         Copy self values to destination element.
         @param dest_element: element of the same type of self.element.
@@ -194,7 +194,7 @@ class BFNamelist(BFParam):
             value = getattr(self.element, self.bpy_export)
             setattr(dest_element, self.bpy_export, value)
         for p in self.bf_params:
-            p.copy_to(dest_element)
+            p.copy_to(context=context, dest_element=dest_element)
 
 
 class BFNamelistSc(BFNamelist):

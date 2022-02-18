@@ -22,7 +22,7 @@ class OP_SURF_ID(BFParam):
         if value is None:
             self.element.active_material = None
         else:
-            try:  # FIXME use utils
+            try:  # TODO use utils
                 ma = bpy.data.materials.get(value)
             except IndexError:
                 raise BFException(self, f"Blender Material <{value}> does not exists")
