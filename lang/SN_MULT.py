@@ -226,13 +226,19 @@ class OP_MULT_ID(BFParam):
         obs_new = list((ob,))  # original
         co = ob.users_collection[0]
         for i in range(len(xbs) - 1):  # copies
-            ob_new = ob.copy()  # FIXME FIXME FIXME understand better!
+            ob_new = ob.copy()
+            ob_new.data = ob.data.copy()
             co.objects.link(ob_new)
             obs_new.append(ob_new)
         for i, ob_new in enumerate(obs_new):
             ob_new.name = hids[i]
-            ob_new.data = bpy.data.meshes.new(name=ob.data.name)
-            xbs_to_ob(context, ob=ob_new, xbs=xbs[i : i + 1], bf_xb="BBOX")
+            xbs_to_ob(
+                context,
+                ob=ob_new,
+                xbs=xbs[i : i + 1],
+                bf_xb="BBOX",
+                set_origin=True,
+            )
 
     def draw(self, context, layout):
         pass
