@@ -71,7 +71,7 @@ class SP_DUMP_NFRAMES(BFParam):
     bpy_prop = IntProperty
     bpy_other = {"min": 1}
     bpy_export = "bf_dump_nframes_export"
-    bpy_export_default = True
+    bpy_export_default = False
 
     def get_exported(self, context):
         return (
@@ -112,7 +112,7 @@ class SP_DUMP_DT_RESTART(BFParam):
     bpy_prop = FloatProperty
     bpy_other = {"min": 1.0, "precision": 1}
     bpy_export = "bf_dump_dt_restart_export"
-    bpy_export_default = True
+    bpy_export_default = False
 
 
 class SP_DUMP_other(BFParamOther):
