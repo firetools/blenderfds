@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 
 class FDSNamelist:
     """!
-    List of BFParam instances representing an FDS namelist.
+    Datastructure representing an FDS namelist.
     """
 
     ## max number of columns of formatted output
@@ -127,7 +127,7 @@ class FDSNamelist:
                     if not p.fds_label:
                         continue
                     label = p.fds_label
-                    vs = p._get_formatted_values()  # list of str
+                    vs = p.get_fds_values()  # list of str
                     if not vs:  # no formatted values
                         if not newline and len(line) + 1 + len(label) <= self.MAXLEN:
                             # Parameter to the same line
@@ -203,12 +203,27 @@ class FDSNamelist:
             fds_param.from_fds(f90=f90_value)
             self.fds_params.append(fds_param)
 
-class FDSMulti(list):
-    def __init__(self, *args, msgs=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.msgs = msgs or list()
-
 class FDSMany(list):
+    """!
+    List of FDSMany, FDSMulti, FDSParam, FDSNamelist instances or None.
+    """
     def __init__(self, *args, msgs=None, **kwargs):
+        """!
+        Class constructor.
+        @param msgs: list of comment message strings.
+        """
         super().__init__(*args, **kwargs)
-        self.msgs = msgs or list()
+        ## list of comment message strings
+        self.msgs = msgs and list(msgs) or list()
+
+class FDSMulti(list):
+    """!
+    List of FDSMany instances.
+    """
+    def __init__(self, *args, msgs=None, **kwargs):
+        """!
+        Class constructor.
+        @param msgs: list of comment message strings.
+        """
+        super().__init__(*args, **kwargs)
+        self.msgs = msgs and list(msgs) or list()

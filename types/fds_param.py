@@ -66,30 +66,6 @@ class FDSParam:
             msgs=self.msgs[:],
         )
 
-    def _get_formatted_values(self) -> tuple:
-        """!
-        Return a tuple of FDS formatted values or an empty tuple, eg. "'Test1'","'Test2'".
-        """
-        values = self.get_values()
-        if not values:
-            return tuple()
-        match values[0]:
-            case float():
-                if self.exponential:
-                    return tuple(f"{v:.{self.precision}E}" for v in values)
-                else:
-                    return tuple(
-                        f"{round(v,self.precision):.{self.precision}f}" for v in values
-                    )
-            case str():
-                return tuple("'" in v and f'"{v}"' or f"'{v}'" for v in values)
-            case bool():  # always before int
-                return tuple(v and "T" or "F" for v in values)
-            case int():
-                return tuple(str(v) for v in values)
-            case _:
-                raise ValueError(f"Unknown value type <{values}>")
-
     def get_value(self, context=None):
         """!
         Return self.value.
@@ -120,13 +96,37 @@ class FDSParam:
         """
         return self._values
 
+    def get_fds_values(self) -> tuple:
+        """!
+        Return a tuple of FDS formatted values or an empty tuple, eg. "'Test1'","'Test2'".
+        """
+        values = self.get_values()
+        if not values:
+            return tuple()
+        match values[0]:
+            case float():
+                if self.exponential:
+                    return tuple(f"{v:.{self.precision}E}" for v in values)
+                else:
+                    return tuple(
+                        f"{round(v,self.precision):.{self.precision}f}" for v in values
+                    )
+            case str():
+                return tuple("'" in v and f'"{v}"' or f"'{v}'" for v in values)
+            case bool():  # always before int
+                return tuple(v and "T" or "F" for v in values)
+            case int():
+                return tuple(str(v) for v in values)
+            case _:
+                raise ValueError(f"Unknown value type <{values}>")
+
     def to_fds(self, context=None) -> str:
         """!
         Return the FDS formatted string.
         @param context: the Blender context.
         @return FDS formatted string (eg. "&OBST ID='Test' /"), or None.
         """
-        v = ",".join(self._get_formatted_values())
+        v = ",".join(self.get_fds_values())
         if self.fds_label:
             if v:  # "ABC=1,2,3"
                 return f"{self.fds_label}={v}"

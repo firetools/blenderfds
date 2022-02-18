@@ -3,7 +3,6 @@ BlenderFDS, Blender interfaces to FDS namelists.
 """
 
 import logging
-import bpy
 from bpy.types import Object, Scene, Material
 from .. import config
 from .fds_namelist import FDSNamelist
