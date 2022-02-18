@@ -46,7 +46,6 @@ def get_object_bmesh(
     return bm
 
 
-# FIXME
 # def get_new_object(context, sc=None, ob=None, name="New", set_tmp=False):
 #     if not sc:
 #         sc = context.scene

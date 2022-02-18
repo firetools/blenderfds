@@ -85,10 +85,8 @@ class FDSParam:
                 self._values = list()
             case int()|float()|str():
                 self._values = list((value,))
-            case v if is_iterable(v):  # FIXME faster check?
-                self._values = list(value)
             case _:
-                raise Exception("Unhandled value type: {value}")
+                self._values = list(value)
 
     def get_values(self, context=None) -> list:
         """!

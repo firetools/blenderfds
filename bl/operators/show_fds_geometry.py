@@ -10,7 +10,7 @@ from ... import utils, lang
 
 log = logging.getLogger(__name__)
 
-# FIXME reuse for setting bbox geometry? or other?
+# TODO reuse for setting bbox geometry? or other?
 
 
 class OBJECT_OT_bf_show_fds_geometry(Operator):

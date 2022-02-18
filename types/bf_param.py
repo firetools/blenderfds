@@ -212,8 +212,9 @@ class BFParam:
         # Check if identical to FDS default
         d = self.fds_default
         if d is not None:
-            if isinstance(value, float):  # FIXME floats comparison
-                return value > d + 1e-6 or value < d - 1e-6
+            if isinstance(value, float):
+                epsilon = 1e-6
+                return value > d + epsilon or value < d - epsilon
             elif value == d:  # other comparison
                 return False
         # Check if bpy_export is True

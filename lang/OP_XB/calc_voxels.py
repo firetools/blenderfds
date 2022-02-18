@@ -14,12 +14,11 @@ log = logging.getLogger(__name__)
 # one and only origin of axes)
 
 
-def get_voxels(context, ob, world=True):  # FIXME world
+def get_voxels(context, ob):
     """!
     Get voxels from object in xbs format.
     @param context: the Blender context.
     @param ob: the Blender object.
-    @param world: True to return in world coordinates.
     @return the voxels in xbs format.
     """
     # log.debug(f"Get voxels in Object <{ob.name}>")
@@ -168,16 +167,14 @@ def _get_voxel_size(context, ob):
 # temporary object, we can align the voxelization to FDS world origin
 
 
-def _align_remesh_bbox(context, ob, voxel_size, centered=False):  # FIXME world
+def _align_remesh_bbox(context, ob, voxel_size, centered=False):
     """!
     Modify object mesh for remesh voxel safe alignment to world origin or to ob center by inserting 8 vertices.
     @param context: the Blender context.
     @param ob: the Blender object.
     @param voxel_size: the voxel size of the object.
     """
-    xb = utils.geometry.get_bbox_xb(
-        context, ob, blender_units=True, world=True
-    )  # in world coo
+    xb = utils.geometry.get_bbox_xb(context, ob, blender_units=True, world=True)
     # Calc new xbox (in Blender units)
     #           +----+ xb1, pv1
     #           |    |

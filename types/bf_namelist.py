@@ -231,7 +231,6 @@ class BFNamelistOb(BFNamelist):
         # Mods
         match self.bf_other.get("appearance"):
             case "BBOX":
-                # FIXME make bbox?
                 display_type, show_name = "WIRE", True
             case "WIRE":
                 display_type = "WIRE"

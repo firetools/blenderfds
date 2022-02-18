@@ -42,13 +42,16 @@ def _ob_to_xyzs_center(context, ob, world):
     @return the xyzs notation and any error message: ((x0,y0,z0,), ...), 'Msg'.
     """
     scale_length = context.scene.unit_settings.scale_length
-    xyzs = [  # FIXME world
-        (
-            ob.location[0] * scale_length,
-            ob.location[1] * scale_length,
-            ob.location[2] * scale_length,
+    if world:
+        xyzs = list(
+            (
+                ob.location[0] * scale_length,
+                ob.location[1] * scale_length,
+                ob.location[2] * scale_length,
+            )
         )
-    ]
+    else:
+        xyzs = list(((0.0, 0.0, 0.0),))
     msgs = list()
     return xyzs, msgs
 

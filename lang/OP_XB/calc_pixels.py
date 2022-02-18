@@ -10,12 +10,11 @@ from .calc_voxels import _get_voxel_size, get_voxels
 log = logging.getLogger(__name__)
 
 
-def get_pixels(context, ob, world=True):  # FIXME world
+def get_pixels(context, ob):
     """!
     Get pixels from flat object in xbs format.
     @param context: the Blender context.
     @param ob: the Blender object.
-    @param world: True to return in world coordinates.
     @return the xbs and the voxel size.
     """
     # log.debug(f"Get pixels in Object <{ob.name}>")

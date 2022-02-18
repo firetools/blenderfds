@@ -19,7 +19,7 @@ def _ob_to_pbs_planes(context, ob, world):
     """
     pbs = list()
     xbs, _ = _ob_to_xbs_faces(context, ob, world)
-    epsilon = 1e-5  # FIXME unified epsilon
+    epsilon = 1e-5
     # For each face build a plane...
     for xb in xbs:
         if abs(xb[1] - xb[0]) < epsilon:
