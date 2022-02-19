@@ -289,7 +289,7 @@ class BFParam:
 
     def to_fds_param(self, context):
         """!
-        Return the FDSParam representation of element instance.
+        Return the FDSParam, FDSMany, FDSMulti or None representation of element instance.
         @param context: the Blender context.
         @return None, FDSParam, FDSNamelist, FDSMany or FDSMulti.
         """
@@ -309,9 +309,6 @@ class BFParam:
         @param ob_tmp: the tmp Object that receives the geometry.
         """
         return
-
-    # No to_fds, because to_fds_param can be None, many or multi
-    # and it makes no sense
 
     def from_fds(self, context, value):
         """!
@@ -564,7 +561,7 @@ class BFParamOther(BFParam):
             f"{op_idname}_slot_mv", icon="TRIA_DOWN", text=""
         ).direction = "DOWN"
 
-    def to_fds_param(self, context):
+    def to_fds_param(self, context):  # FIXME to_fds()
         self.check(context)
         coll = getattr(self.element, self.bpy_idname)
         if coll:

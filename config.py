@@ -17,7 +17,7 @@ default_mas = {  # name: diffuse_color
     "PERIODIC": ((1.0, 0.0, 1.0, 0.2),),
 }
 
-
+# FIXME check on doc
 ## Frequently used output QUANTITYs (FDS User's guide, table 16.3)
 quantities = (  # name, description, units, qtype, subject
     ("ACTUATED SPRINKLERS", "Number of activated sprinklers", "", "D", "Det"),
