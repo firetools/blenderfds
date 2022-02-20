@@ -22,9 +22,7 @@ def xyzs_vertices_to_mesh(context, me, xyzs, matrix=None, add=False) -> None:
         bm.from_mesh(me)
     scale_length = context.scene.unit_settings.scale_length
     for xyz in xyzs:
-        bm.verts.new(
-            (xyz[0] / scale_length, xyz[1] / scale_length, xyz[2] / scale_length)
-        )
+        bm.verts.new(c / scale_length for c in xyz)
     if matrix:
         bm.transform(matrix)
     bm.to_mesh(me)

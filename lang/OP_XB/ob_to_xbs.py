@@ -11,8 +11,8 @@ from .calc_pixels import get_pixels
 
 log = logging.getLogger(__name__)
 
-
-def _ob_to_xbs_voxels(context, ob, world):  # TODO world is not used
+# TODO world not used
+def _ob_to_xbs_voxels(context, ob, world) -> tuple((list, list)):
     """!
     Transform Object solid geometry to xbs notation (voxelization).
     @param context: the Blender context.
@@ -20,12 +20,13 @@ def _ob_to_xbs_voxels(context, ob, world):  # TODO world is not used
     @param world: True to return the object in world coordinates.
     @return xbs notation and any error message: ((x0,x1,y0,y1,z0,z1,), ...), 'Msg'.
     """
-    xbs, voxel_size = get_voxels(context, ob)
+    xbs, voxel_size = get_voxels(context=context, ob=ob)
     msgs = list((f"XB Voxels: {len(xbs)} | Resolution: {voxel_size:.3f} m",))
     return xbs, msgs
 
 
-def _ob_to_xbs_pixels(context, ob, world):  # TODO world is not used
+# TODO world not used
+def _ob_to_xbs_pixels(context, ob, world) -> tuple((list, list)):
     """!
     Transform Object flat geometry to xbs notation (flat voxelization).
     @param context: the Blender context.
@@ -33,14 +34,14 @@ def _ob_to_xbs_pixels(context, ob, world):  # TODO world is not used
     @param world: True to return the object in world coordinates.
     @return xbs notation (flat voxelization) and any error message: ((x0,x1,y0,y1,z0,z1,), ...), 'Msg'.
     """
-    xbs, voxel_size = get_pixels(context, ob)
+    xbs, voxel_size = get_pixels(context=context, ob=ob)
     scale_length = context.scene.unit_settings.scale_length
     res = voxel_size * scale_length
     msgs = list((f"XB Pixels: {len(xbs)} | Resolution: {res:.3f} m",))
     return xbs, msgs
 
 
-def _ob_to_xbs_bbox(context, ob, world):
+def _ob_to_xbs_bbox(context, ob, world) -> tuple((list, list)):
     """!
     Transform Object solid geometry to xbs notation (bounding box).
     @param context: the Blender context.
@@ -53,7 +54,7 @@ def _ob_to_xbs_bbox(context, ob, world):
     return xbs, msgs
 
 
-def _ob_to_xbs_faces(context, ob, world):
+def _ob_to_xbs_faces(context, ob, world) -> tuple((list, list)):
     """!
     Transform Object flat faces to xbs notation (faces).
     @param context: the Blender context.
@@ -77,16 +78,7 @@ def _ob_to_xbs_faces(context, ob, world):
             y1 = y0 = (y0 + y1) / 2.0
         if deltas[0][1] == 0:
             z1 = z0 = (z0 + z1) / 2.0
-        xbs.append(
-            (
-                x0 * scale_length,
-                x1 * scale_length,
-                y0 * scale_length,
-                y1 * scale_length,
-                z0 * scale_length,
-                z1 * scale_length,
-            )
-        )
+        xbs.append(tuple(c * scale_length for c in (x0, x1, y0, y1, z0, z1)))
     bm.free()
     xbs.sort()
     if not xbs:
@@ -95,7 +87,7 @@ def _ob_to_xbs_faces(context, ob, world):
     return xbs, msgs
 
 
-def _ob_to_xbs_edges(context, ob, world):
+def _ob_to_xbs_edges(context, ob, world) -> tuple((list, list)):
     """!
     Transform Object edges in xbs notation (edges).
     @param context: the Blender context.
@@ -108,18 +100,9 @@ def _ob_to_xbs_edges(context, ob, world):
     bm.edges.ensure_lookup_table()
     scale_length = context.scene.unit_settings.scale_length
     for edge in bm.edges:
-        pt0x, pt0y, pt0z = edge.verts[0].co
-        pt1x, pt1y, pt1z = edge.verts[1].co
-        xbs.append(
-            (
-                pt0x * scale_length,
-                pt1x * scale_length,
-                pt0y * scale_length,
-                pt1y * scale_length,
-                pt0z * scale_length,
-                pt1z * scale_length,
-            )
-        )
+        x0, y0, z0 = edge.verts[0].co
+        x1, y1, z1 = edge.verts[1].co
+        xbs.append(tuple(c * scale_length for c in (x0, x1, y0, y1, z0, z1)))
     bm.free()
     xbs.sort()
     if not xbs:
@@ -137,7 +120,7 @@ _choice_to_xbs = {
 }
 
 
-def ob_to_xbs(context, ob, bf_xb, world=True):
+def ob_to_xbs(context, ob, bf_xb, world=True) -> tuple((list, list)):
     """!
     Transform Object geometry according to bf_xb to FDS notation.
     @param context: the Blender context.

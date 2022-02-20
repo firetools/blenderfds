@@ -9,7 +9,7 @@ from ... import utils
 log = logging.getLogger(__name__)
 
 
-def _ob_to_xyzs_vertices(context, ob, world):
+def _ob_to_xyzs_vertices(context, ob, world) -> tuple((list, list)):
     """!
     Transform Object vertices to xyzs notation.
     @param context: the Blender context.
@@ -17,14 +17,10 @@ def _ob_to_xyzs_vertices(context, ob, world):
     @param world: True to return the object in world coordinates.
     @return the xyzs notation and any error message: ((x0,y0,z0,), ...), 'Msg'.
     """
-    xyzs = list()
     bm = utils.geometry.get_object_bmesh(context, ob, world=world)
-    # For each vertex...
     bm.verts.ensure_lookup_table()
     scale_length = context.scene.unit_settings.scale_length
-    for v in bm.verts:
-        pt0x, pt0y, pt0z = v.co
-        xyzs.append((pt0x * scale_length, pt0y * scale_length, pt0z * scale_length))
+    xyzs = list(tuple(c * scale_length for c in v.co) for v in bm.verts)
     bm.free()
     xyzs.sort()
     if not xyzs:
@@ -33,7 +29,7 @@ def _ob_to_xyzs_vertices(context, ob, world):
     return xyzs, msgs
 
 
-def _ob_to_xyzs_center(context, ob, world):
+def _ob_to_xyzs_center(context, ob, world) -> tuple((list, list)):
     """!
     Transform Object center to xyzs notation.
     @param context: the Blender context.
@@ -43,13 +39,7 @@ def _ob_to_xyzs_center(context, ob, world):
     """
     scale_length = context.scene.unit_settings.scale_length
     if world:
-        xyzs = list(
-            (
-                ob.location[0] * scale_length,
-                ob.location[1] * scale_length,
-                ob.location[2] * scale_length,
-            )
-        )
+        xyzs = list((tuple(l * scale_length for l in ob.location),))
     else:
         xyzs = list(((0.0, 0.0, 0.0),))
     msgs = list()
@@ -59,7 +49,7 @@ def _ob_to_xyzs_center(context, ob, world):
 _choice_to_xyzs = {"CENTER": _ob_to_xyzs_center, "VERTICES": _ob_to_xyzs_vertices}
 
 
-def ob_to_xyzs(context, ob, bf_xyz, world=True):
+def ob_to_xyzs(context, ob, bf_xyz, world=True) -> tuple((list, list)):
     """!
     Transform Object geometry according to bf_xyz to xyzs notation.
     @param context: the Blender context.
