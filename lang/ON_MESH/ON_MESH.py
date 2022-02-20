@@ -5,7 +5,7 @@ MESH namelist definition
 import logging
 from bpy.types import Object
 from bpy.props import IntVectorProperty
-from ...types import BFParam, BFNamelistOb, FDSParam, FDSMulti, FDSMany, BFException
+from ...types import BFParam, BFNamelistOb, FDSParam, FDSMulti, FDSList, BFException
 from ... import utils
 from ..bf_object import OP_ID, OP_FYI, OP_other
 from ..OP_XB import OP_XB_BBOX
@@ -74,7 +74,7 @@ class OP_MESH_XB(OP_XB_BBOX):
         ob, ids, ijks, xbs, msgs = self._get_geometry(context)
         return FDSMulti(
             (
-                FDSMany(
+                FDSList(
                     (
                         FDSParam(fds_label="ID", value=hid),
                         FDSParam(fds_label="IJK", value=ijk),

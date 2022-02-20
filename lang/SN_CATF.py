@@ -8,7 +8,7 @@ from ..types import (
     BFNamelistSc,
     FDSParam,
     FDSMulti,
-    FDSMany,
+    FDSList,
     BFException,
     BFNotImported,
 )
@@ -55,7 +55,7 @@ class SP_CATF_files(BFParamOther):
             # Append result
             result.append(FDSParam(fds_label="OTHER_FILES", value=filepath_rfds))
         # Make multi
-        result = FDSMulti(FDSMany((r,)) for r in result)
+        result = FDSMulti(FDSList((r,)) for r in result)
         return result
 
     def from_fds(self, context, value):

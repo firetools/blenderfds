@@ -1,20 +1,20 @@
 import time, sys, logging, bpy, os
 from bpy.types import Scene, Object, Material
 from bpy.props import IntVectorProperty
-from ..types import BFNamelist, FDSCase, BFException, BFNotImported
+from ..types import BFNamelist, FDSList, BFException, BFNotImported
 from .. import utils
 
 log = logging.getLogger(__name__)
 
 
-def _import(context, sc, fds_case, fds_label=None) -> str:
+def _import(context, sc, fds_list, fds_label=None) -> str:
     """!
-    Import all namelists with label fds_label from fds_case into scene.
+    Import all namelists with label fds_label from fds_list into scene.
     """
     texts = list()
     while True:
         # Init
-        fds_namelist = fds_case.get_fds_namelist(fds_label=fds_label, remove=True)
+        fds_namelist = fds_list.get_fds_label(fds_label=fds_label, remove=True)
         if not fds_namelist:
             break
         is_imported = False
@@ -50,7 +50,7 @@ def _import(context, sc, fds_case, fds_label=None) -> str:
 
         # Last resort, import to Free Text
         if not is_imported:
-            texts.append(fds_namelist.to_fds(context))
+            texts.append(fds_namelist.to_string(context))
 
     # Finally, write free text
     sc.bf_config_text.write("\n".join(texts))
@@ -98,15 +98,13 @@ class BFScene:
                 )
             )
 
-        # Scene namelists
+        # Scene namelists  # FIXME work with FDSList, instead of text
         name, vl_name = self.name, context.view_layer.name
-        sc_txt = FDSCase(
-            fds_namelists=(
-                bf_namelist.to_fds_namelist(context)
-                for bf_namelist in self.bf_namelists
-                if bf_namelist
-            )
-        ).to_fds(context=context)
+        sc_txt = FDSList(
+            bf_namelist.to_fds_namelist(context)
+            for bf_namelist in self.bf_namelists
+            if bf_namelist
+        ).to_string(context=context)
         lines.append(
             f"! --- Case from Blender Scene <{name}> and View Layer <{vl_name}>"
         )
@@ -158,7 +156,7 @@ class BFScene:
 
     def from_fds(self, context, filepath=None, f90=None):
         """!
-        Set self.bf_namelists from FDSCase, on error raise BFException.
+        Set self.bf_namelists from FDSList, on error raise BFException.
         @param context: the Blender context.
         @param filepath: filepath of FDS case to be imported.
         @param f90: FDS formatted string of namelists, eg. "&OBST ID='Test' /\n&TAIL /".
@@ -169,17 +167,16 @@ class BFScene:
         context.window.scene = self
 
         # Init
-        fds_case = FDSCase()
+        fds_list = FDSList()
 
-        # Set filepath
+        # Set filepath, instead of f90
         if filepath:
             filepath = utils.io.transform_rbl_to_abs(filepath)
-            # Set imported fds case dir, because others rely on it
+            f90 = utils.io.read_txt_file(filepath=filepath)
+            # and set imported fds case dir, because others rely on it
             # it is emptied later
             self.bf_config_directory = os.path.dirname(filepath)
-            fds_case.from_fds(filepath=filepath)
-        else:
-            fds_case.from_fds(f90=f90)
+        fds_list.from_fds(f90=f90)
 
         # Prepare free text for unmanaged namelists
         if not self.bf_config_text:
@@ -194,7 +191,7 @@ class BFScene:
         _import(
             context=context,
             sc=self,
-            fds_case=fds_case,
+            fds_list=fds_list,
             fds_label="SURF",
         )
 
@@ -202,13 +199,13 @@ class BFScene:
         _import(
             context=context,
             sc=self,
-            fds_case=fds_case,
+            fds_list=fds_list,
             fds_label="MOVE",
         )
         _import(
             context=context,
             sc=self,
-            fds_case=fds_case,
+            fds_list=fds_list,
             fds_label="MULT",
         )
 
@@ -216,7 +213,7 @@ class BFScene:
         _import(
             context=context,
             sc=self,
-            fds_case=fds_case,
+            fds_list=fds_list,
             fds_label="OBST",
         )
 
@@ -224,7 +221,7 @@ class BFScene:
         _import(
             context=context,
             sc=self,
-            fds_case=fds_case,
+            fds_list=fds_list,
             fds_label=None,
         )
 

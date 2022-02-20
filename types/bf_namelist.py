@@ -5,7 +5,7 @@ BlenderFDS, Blender interfaces to FDS namelists.
 import logging
 from bpy.types import Object, Scene, Material
 from .. import config
-from .fds_namelist import FDSNamelist
+from .fds_list import FDSNamelist
 from .bf_exception import BFException, BFNotImported, BFWarning
 from .bf_param import BFParam, BFParamOther
 
@@ -105,7 +105,7 @@ class BFNamelist(BFParam):
         """
         pass  # Set appearance of self.element in subclasses
 
-    def to_fds_namelist(self, context):
+    def to_fds_namelist(self, context):  # FIXME to_fds_list
         """!
         Return the FDSNamelist representation of element instance.
         @param context: the Blender context.
@@ -117,12 +117,12 @@ class BFNamelist(BFParam):
         self.check(context)
         # Assemble from bf_params, protect from None
         return FDSNamelist(
-            fds_label=self.fds_label,
-            fds_params=list(
+            (
                 bf_param.to_fds_param(context)
                 for bf_param in self.bf_params
                 if bf_param
             ),
+            fds_label=self.fds_label,
         )
         
     def to_fds(self, context):  # FIXME remove
@@ -134,9 +134,9 @@ class BFNamelist(BFParam):
         fds_namelist = self.to_fds_namelist(context)
         if fds_namelist:
             if isinstance(fds_namelist, FDSNamelist):
-                return fds_namelist.to_fds(context)
+                return fds_namelist.to_string(context)
             else:
-                return "\n".join(line.to_fds(context) for line in fds_namelist if line)
+                return "\n".join(line.to_string(context) for line in fds_namelist if line)
 
     def from_fds(self, context, fds_namelist, fds_label=None):
         """!
@@ -145,8 +145,8 @@ class BFNamelist(BFParam):
         @param fds_namelist: instance of type FDSNamelist.
         @param fds_label: if set, import only self.bf_params with fds_label
         """
-        while True:  # consume fds_namelist.fds_params
-            fds_param = fds_namelist.get_fds_param(fds_label=fds_label, remove=True)
+        while True:  # consume fds_namelist
+            fds_param = fds_namelist.get_fds_label(fds_label=fds_label, remove=True)
             if not fds_param:
                 break
             is_imported = False
@@ -168,7 +168,7 @@ class BFNamelist(BFParam):
             if not is_imported and bf_param_other:
                 try:
                     bf_param_other.set_value(
-                        context, value=fds_param.to_fds(context)
+                        context, value=fds_param.to_string(context)
                     )
                 except BFNotImported as err:
                     context.scene.bf_config_text.write(err.to_fds())

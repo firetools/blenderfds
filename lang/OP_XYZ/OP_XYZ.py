@@ -1,7 +1,7 @@
 import logging
 from bpy.types import Object
 from bpy.props import EnumProperty, BoolProperty, FloatProperty
-from ...types import BFParam, FDSParam, FDSMany, FDSMulti
+from ...types import BFParam, FDSParam, FDSList, FDSMulti
 from ... import utils
 from .ob_to_xyzs import ob_to_xyzs
 from .xyzs_to_ob import xyzs_to_ob
@@ -83,7 +83,7 @@ class OP_XYZ(BFParam):
                 raise AssertionError(f"Unknown suffix <{self.element.bf_id_suffix}>")
         return FDSMulti(
             (
-                FDSMany(
+                FDSList(
                     (
                         FDSParam(fds_label="ID", value=hid),
                         FDSParam(fds_label="XYZ", value=xyz, precision=6),

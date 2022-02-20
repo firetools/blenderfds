@@ -9,7 +9,7 @@ from ..types import (
     BFParam,
     FDSNamelist,
     FDSParam,
-    FDSMany,
+    FDSList,
     BFNotImported,
 )
 
@@ -114,7 +114,7 @@ class SN_MOVE(BFNamelistSc):
             "DZ": 0.0,
         }
         for fds_label in ps:
-            fds_param = fds_namelist.get_fds_param(fds_label=fds_label, remove=True)
+            fds_param = fds_namelist.get_fds_label(fds_label=fds_label, remove=True)
             if fds_param:
                 ps[fds_label] = fds_param.get_value(context)  # assign value
         # Check ID
@@ -162,15 +162,15 @@ class OP_MOVE_ID(BFParam):
         if self.get_exported(context):
             ob = self.element
             t34 = bl_matrix_to_t34(m=ob.matrix_world)
-            return FDSMany(
+            return FDSList(
                 (
                     FDSParam(fds_label="MOVE_ID", value=f"{ob.name}_move"),
                     FDSNamelist(
-                        fds_label="MOVE",
-                        fds_params=(
+                        (
                             FDSParam(fds_label="ID", value=f"{ob.name}_move"),
                             FDSParam(fds_label="T34", value=t34, precision=6),
                         ),
+                        fds_label="MOVE",
                     ),
                 )
             )

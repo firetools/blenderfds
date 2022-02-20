@@ -2,8 +2,6 @@
 BlenderFDS, translate Blender object geometry to FDS GEOM notation.
 """
 
-from time import time
-from math import floor, ceil
 import bpy, bmesh, mathutils, logging
 from ... import utils
 from ...types import BFException

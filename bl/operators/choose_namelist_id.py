@@ -6,7 +6,7 @@ BlenderFDS, operators to choose IDs for MATL_ID, PROP_ID in free text and CATF f
 import logging
 from bpy.types import Operator
 from bpy.props import EnumProperty
-from ...types import FDSCase
+from ...types import FDSList
 from ... import utils, config
 
 log = logging.getLogger(__name__)
@@ -16,11 +16,11 @@ def _get_namelist_items(self, context, fds_label):
     """!
     Get fds_label namelist IDs available in Free Text and CATF files.
     """
-    fds_case = FDSCase()
+    fds_list = FDSList()
     sc = context.scene
     # Get namelists from Free Text
     if sc.bf_config_text:
-        fds_case.from_fds(f90=sc.bf_config_text.as_string())
+        fds_list.from_fds(f90=sc.bf_config_text.as_string())
     # Get namelists from available CATF files
     if sc.bf_catf_export:
         for item in sc.bf_catf_files:
@@ -32,14 +32,14 @@ def _get_namelist_items(self, context, fds_label):
             except IOError:
                 pass
             else:
-                fds_case.from_fds(f90=f90)
+                fds_list.from_fds(f90=f90)
     # Prepare list of IDs
     items = list()
     while True:
-        fds_namelist = fds_case.get_fds_namelist(fds_label=fds_label, remove=True)
+        fds_namelist = fds_list.get_fds_label(fds_label=fds_label, remove=True)
         if not fds_namelist:
             break
-        fds_param = fds_namelist.get_fds_param(fds_label="ID", remove=True)
+        fds_param = fds_namelist.get_fds_label(fds_label="ID", remove=True)
         if fds_param:
             hid = fds_param.get_value(context)
             items.append((hid, hid, ""))

@@ -1,7 +1,7 @@
 import logging
 from bpy.types import Object
 from bpy.props import EnumProperty, BoolProperty
-from ...types import BFParam, FDSParam, FDSMany, FDSMulti
+from ...types import BFParam, FDSParam, FDSList, FDSMulti
 from ... import utils
 from .ob_to_pbs import ob_to_pbs
 from .pbs_to_ob import pbs_to_ob
@@ -76,7 +76,7 @@ class OP_PB(BFParam):
                 )
         return FDSMulti(
             (
-                FDSMany(
+                FDSList(
                     (
                         FDSParam(fds_label="ID", value=hid),
                         FDSParam(fds_label=label, value=pb, precision=6),

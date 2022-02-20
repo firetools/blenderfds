@@ -9,7 +9,7 @@ from ..OP_XB.ob_to_xbs import _ob_to_xbs_faces
 log = logging.getLogger(__name__)
 
 
-def _ob_to_pbs_planes(context, ob, world):
+def _ob_to_pbs_planes(context, ob, world) -> tuple((list, list)):
     """!
     Transform Object faces to pbs notation.
     @param context: the Blender context.
@@ -39,7 +39,7 @@ def _ob_to_pbs_planes(context, ob, world):
     return pbs, msgs
 
 
-def ob_to_pbs(context, ob, bf_pb, world=True):
+def ob_to_pbs(context, ob, bf_pb, world=True) -> tuple((list, list)):
     """!
     Transform Object geometry according to bf_pb to pbs notation.
     @param context: the Blender context.
