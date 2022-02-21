@@ -1,16 +1,8 @@
 import logging
 from bpy.types import Scene
 from bpy.props import BoolProperty, FloatProperty
-from ..types import (
-    BFParam,
-    BFParamOther,
-    BFNamelistSc,
-    FDSParam,
-)
-from ..bl.ui_lists import (
-    WM_PG_bf_other,
-    WM_UL_bf_other_items,
-)
+from ..types import BFParam, BFParamOther, BFNamelistSc, FDSParam, FDSList
+from ..bl.ui_lists import WM_PG_bf_other, WM_UL_bf_other_items
 
 log = logging.getLogger(__name__)
 
@@ -23,7 +15,7 @@ class SP_TIME_setup_only(BFParam):
     bpy_prop = BoolProperty
     bpy_default = False
 
-    def to_fds_param(self, context):
+    def to_fds_list(self, context) -> FDSList:
         if self.element.bf_time_setup_only:
             return FDSParam(
                 fds_label="T_END",
@@ -31,6 +23,7 @@ class SP_TIME_setup_only(BFParam):
                 msg="Smokeview setup only",
                 precision=1,
             )
+        return FDSList()
 
 
 class SP_TIME_T_BEGIN(BFParam):

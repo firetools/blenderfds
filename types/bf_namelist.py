@@ -3,10 +3,12 @@ BlenderFDS, Blender interfaces to FDS namelists.
 """
 
 import logging
+
+from numpy import iterable
 from bpy.types import Object, Scene, Material
 from .. import config
-from .fds_list import FDSNamelist
-from .bf_exception import BFException, BFNotImported, BFWarning
+from .fds_list import FDSList, FDSNamelist
+from .bf_exception import BFException, BFNotImported
 from .bf_param import BFParam, BFParamOther
 
 log = logging.getLogger(__name__)
@@ -105,38 +107,23 @@ class BFNamelist(BFParam):
         """
         pass  # Set appearance of self.element in subclasses
 
-    def to_fds_namelist(self, context):  # FIXME to_fds_list
+    def to_fds_list(self, context) -> FDSList:
         """!
-        Return the FDSNamelist representation of element instance.
-        @param context: the Blender context.
-        @return None, FDSNamelist, or (FDSNamelist, ...) instances.
+        Return the FDSList instance from self, never None.
         """
-        # Get if exported and check
-        if not self.get_exported(context) or not self.fds_label:
-            return
+        if not self.get_exported(context):
+            return FDSList()
         self.check(context)
-        # Assemble from bf_params, protect from None
-        return FDSNamelist(
-            (
-                bf_param.to_fds_param(context)
-                for bf_param in self.bf_params
-                if bf_param
-            ),
-            fds_label=self.fds_label,
-        )
-        
-    def to_fds(self, context):  # FIXME remove
-        """!
-        Return the FDS formatted string.
-        @param context: the Blender context.
-        @return FDS formatted string (eg. "&OBST ID='Test' /"), or None.
-        """
-        fds_namelist = self.to_fds_namelist(context)
-        if fds_namelist:
-            if isinstance(fds_namelist, FDSNamelist):
-                return fds_namelist.to_string(context)
-            else:
-                return "\n".join(line.to_string(context) for line in fds_namelist if line)
+        if self.fds_label:
+            return FDSNamelist(
+                iterable=(
+                    bf_param.to_fds_list(context)
+                    for bf_param in self.bf_params
+                    if bf_param
+                ),
+                fds_label=self.fds_label,
+            )
+        return FDSList()
 
     def from_fds(self, context, fds_namelist, fds_label=None):
         """!
@@ -159,7 +146,7 @@ class BFNamelist(BFParam):
                         context=context, value=fds_param.get_value(context)
                     )
                 except BFNotImported as err:
-                    context.scene.bf_config_text.write(err.to_fds())
+                    context.scene.bf_config_text.write(str(err))
                 else:
                     is_imported = True
 
@@ -171,7 +158,7 @@ class BFNamelist(BFParam):
                         context, value=fds_param.to_string(context)
                     )
                 except BFNotImported as err:
-                    context.scene.bf_config_text.write(err.to_fds())
+                    context.scene.bf_config_text.write(str(err))
                 else:
                     is_imported = True
 

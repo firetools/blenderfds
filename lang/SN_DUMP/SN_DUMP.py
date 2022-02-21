@@ -2,17 +2,8 @@ import logging, io
 from bpy.types import Scene
 from bpy.props import BoolProperty, FloatProperty, IntProperty
 from ... import utils
-from ...types import (
-    BFParam,
-    BFParamOther,
-    BFParamFYI,
-    BFNamelistSc,
-    FDSParam,
-)
-from ...bl.ui_lists import (
-    WM_PG_bf_other,
-    WM_UL_bf_other_items,
-)
+from ...types import BFParam, BFParamOther, BFParamFYI, BFNamelistSc, FDSParam, FDSList
+from ...bl.ui_lists import WM_PG_bf_other, WM_UL_bf_other_items
 from .sc_to_ge1 import scene_to_ge1
 
 log = logging.getLogger(__name__)
@@ -32,20 +23,18 @@ class SP_DUMP_render_file(BFParam):
     bpy_prop = BoolProperty
     fds_default = False
 
-    def to_fds_param(self, context):
-        if self.get_exported(context):
-            # Get filepaths
-            filepath, filepath_rfds = utils.io.transform_rbl_to_abs_and_rfds(
-                context,
-                filepath_rbl=context.scene.bf_config_directory,
-                name=self.element.name,
-                extension=".ge1",
-            )
-            # Save .ge1 file
-            ge1_text = scene_to_ge1(context, self)
-            utils.io.write_txt_file(filepath, ge1_text)
-            # Return
-            return FDSParam(fds_label="RENDER_FILE", value=filepath_rfds)
+    def to_fds_list(self, context) -> FDSList:
+        if not self.get_exported(context):
+            return FDSList()
+        filepath, filepath_rfds = utils.io.transform_rbl_to_abs_and_rfds(
+            context=context,
+            filepath_rbl=context.scene.bf_config_directory,
+            name=self.element.name,
+            extension=".ge1",
+        )
+        ge1_text = scene_to_ge1(context, self)
+        utils.io.write_txt_file(filepath, ge1_text)
+        return FDSParam(fds_label="RENDER_FILE", value=filepath_rfds)
 
     def set_value(self, context, value=None):
         self.element.bf_dump_render_file = bool(value)
@@ -91,15 +80,16 @@ class SP_DUMP_frames_freq(BFParam):
     bpy_export = "bf_dump_frames_freq_export"
     bpy_export_default = False
 
-    def to_fds_param(self, context):
-        if self.get_exported(context):
-            nframes = int(
-                (self.element.bf_time_t_end - self.element.bf_time_t_begin)
-                // self.element.bf_dump_frames_freq
-            )
-            if nframes < 1:
-                nframes = 1
-            return FDSParam(fds_label="NFRAMES", value=nframes)
+    def to_fds_list(self, context) -> FDSList:
+        if not self.get_exported(context):
+            return FDSList()
+        nframes = int(
+            (self.element.bf_time_t_end - self.element.bf_time_t_begin)
+            // self.element.bf_dump_frames_freq
+        )
+        if nframes < 1:
+            nframes = 1
+        return FDSParam(fds_label="NFRAMES", value=nframes)
 
 
 class SP_DUMP_DT_RESTART(BFParam):

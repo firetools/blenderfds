@@ -1,6 +1,6 @@
 import logging
 from bpy.types import Scene
-from ..types import BFParam, BFParamFYI, BFNamelistSc
+from ..types import BFParam, BFParamFYI, BFNamelistSc, FDSList
 
 log = logging.getLogger(__name__)
 
@@ -35,14 +35,14 @@ class SN_HEAD(BFNamelistSc):
     bf_params = SP_HEAD_CHID, SP_HEAD_TITLE
 
 
-class SN_TAIL(BFNamelistSc):
+class SN_TAIL(BFNamelistSc):  # importing only, prevent free_text
     label = "TAIL"
     description = "Case closing"
-    enum_id = 3010
+    enum_id = 3010  # FIXME needed?
     fds_label = "TAIL"
 
-    def to_fds_namelist(self, context):
-        pass
+    def get_exported(self, context):
+        return False
 
     def from_fds(self, context, fds_namelist):
         pass

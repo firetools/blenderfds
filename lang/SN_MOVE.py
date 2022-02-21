@@ -5,7 +5,6 @@ from bpy.types import Object
 from .. import utils
 from ..types import (
     BFNamelistSc,
-    BFNamelistOb,
     BFParam,
     FDSNamelist,
     FDSParam,
@@ -92,8 +91,8 @@ class SN_MOVE(BFNamelistSc):
     enum_id = False  # no bf_namelist_cls menu, no automatic export
     fds_label = "MOVE"
 
-    def to_fds_namelist(self, context):
-        pass
+    def get_exported(self, context):
+        return False
 
     def from_fds(self, context, fds_namelist):
         # Read fds_params
@@ -158,22 +157,23 @@ class OP_MOVE_ID(BFParam):
     fds_label = "MOVE_ID"
     bpy_type = Object
 
-    def to_fds_param(self, context):
-        if self.get_exported(context):
-            ob = self.element
-            t34 = bl_matrix_to_t34(m=ob.matrix_world)
-            return FDSList(
-                (
-                    FDSParam(fds_label="MOVE_ID", value=f"{ob.name}_move"),
-                    FDSNamelist(
-                        (
-                            FDSParam(fds_label="ID", value=f"{ob.name}_move"),
-                            FDSParam(fds_label="T34", value=t34, precision=6),
-                        ),
-                        fds_label="MOVE",
+    def to_fds_list(self, context) -> FDSList:
+        if not self.get_exported(context):
+            return FDSList()
+        ob = self.element
+        t34 = bl_matrix_to_t34(m=ob.matrix_world)
+        return FDSList(
+            iterable=(
+                FDSParam(fds_label="MOVE_ID", value=f"{ob.name}_move"),
+                FDSNamelist(
+                    iterable=(
+                        FDSParam(fds_label="ID", value=f"{ob.name}_move"),
+                        FDSParam(fds_label="T34", value=t34, precision=6),
                     ),
-                )
+                    fds_label="MOVE",
+                ),
             )
+        )
 
     def from_fds(self, context, value):
         try:

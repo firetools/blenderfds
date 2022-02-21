@@ -8,6 +8,15 @@ from ..types import BFException, BFNotImported
 
 log = logging.getLogger(__name__)
 
+
+def shorten(string, max_len=80, start_part=0.1):
+    """Shorten string to max_len length."""
+    current_len = len(string)
+    if current_len > max_len:
+        return f"{string[:int(max_len*start_part)]}···{string[-int(max_len*(1-start_part)-3):]}"
+    return string
+
+
 # Read/write txt files
 # no need to catch exceptions
 

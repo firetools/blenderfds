@@ -1,13 +1,7 @@
 import logging
 from bpy.types import Scene
 from bpy.props import BoolProperty, FloatProperty, StringProperty, IntProperty
-from ..types import (
-    BFParam,
-    BFParamOther,
-    BFParamFYI,
-    BFNamelistSc,
-    FDSParam,
-)
+from ..types import BFParam, BFParamOther, BFParamFYI, BFNamelistSc, FDSParam, FDSList
 from ..bl.ui_lists import (
     WM_PG_bf_other,
     WM_UL_bf_other_items,
@@ -89,9 +83,10 @@ class SP_origin_geoname(BFParam):
                 text=f"UTM {sc['bf_origin_utm_zn']}{sc['bf_origin_utm_ne'] and 'N' or 'S'} {int(sc['bf_origin_utm_easting'])}m E {int(sc['bf_origin_utm_northing'])}m N (WGS84)"
             )
 
-    def to_fds_param(self, context):
+    def to_fds_list(self, context) -> FDSList:
         if self.element.bf_origin_export and self.element.bf_origin_geoname:
             return FDSParam(msg=f"Origin at: <{self.element.bf_origin_geoname}>")
+        return FDSList()
 
 
 class SP_ORIGIN_LON(BFParam):

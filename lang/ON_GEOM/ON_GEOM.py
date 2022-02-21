@@ -7,17 +7,13 @@ from ...types import (
     FDSParam,
     BFException,
     BFNotImported,
+    FDSList,
 )
 from ... import utils
 from ..bf_object import OP_ID, OP_FYI, OP_other
 from ..SN_MOVE import OP_MOVE_ID
 from .ob_to_geom import ob_to_geom, get_boundary_condition_ids
-from .geom_to_ob import (
-    geom_to_ob,
-    geom_to_mesh,
-    geom_sphere_to_ob,
-    geom_cylinder_to_ob,
-)
+from .geom_to_ob import geom_to_ob, geom_to_mesh, geom_sphere_to_ob, geom_cylinder_to_ob
 from ..OP_XB.xbs_to_ob import xbs_bbox_to_mesh
 
 
@@ -58,8 +54,8 @@ class OP_GEOM_SURF_IDS(OP_GEOM_SURF_ID):  # importing only
     fds_label = "SURF_IDS"
     bpy_type = Object
 
-    def to_fds_param(self, context):
-        pass
+    def get_exported(self, context):
+        return False
 
     def draw(self, context, layout):
         pass
@@ -70,8 +66,8 @@ class OP_GEOM_SURF_ID6(OP_GEOM_SURF_ID):  # importing only
     fds_label = "SURF_ID6"
     bpy_type = Object
 
-    def to_fds_param(self, context):
-        pass
+    def get_exported(self, context):
+        return False
 
     def draw(self, context, layout):
         pass
@@ -91,7 +87,7 @@ class OP_GEOM_BINARY_FILE(BFParam):
         elif me:
             layout.template_ID(space, "pin_id", text=self.label)
 
-    def to_fds_param(self, context):
+    def to_fds_list(self, context) -> FDSList:
         ob = self.element
         # Write bingeom file
         filepath, filepath_rfds = utils.io.transform_rbl_to_abs_and_rfds(

@@ -26,8 +26,8 @@ class SP_CATF_check_files(BFParam):
     bpy_prop = BoolProperty
     bpy_default = False
 
-    def to_fds_param(self, context):
-        pass
+    def get_exported(self, context):
+        return False
 
 
 class SP_CATF_files(BFParamOther):
@@ -39,7 +39,7 @@ class SP_CATF_files(BFParamOther):
     bpy_pg = WM_PG_bf_filepaths
     bpy_ul = WM_UL_bf_filepaths_items
 
-    def to_fds_param(self, context):
+    def to_fds_list(self, context) -> FDSList:
         coll = getattr(self.element, self.bpy_idname)
         result = list()
         for p in coll:
@@ -54,9 +54,7 @@ class SP_CATF_files(BFParamOther):
                 raise BFException(self, f"File does not exist: <{filepath}>")
             # Append result
             result.append(FDSParam(fds_label="OTHER_FILES", value=filepath_rfds))
-        # Make multi
-        result = FDSMulti(FDSList((r,)) for r in result)
-        return result
+        return FDSMulti(FDSList((r,)) for r in result)
 
     def from_fds(self, context, value):
         if not value:

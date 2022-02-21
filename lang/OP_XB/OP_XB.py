@@ -33,10 +33,10 @@ class OP_XB_custom_voxel(BFParam):
     bpy_other = {"update": update_bf_xb}
 
     def draw(self, context, layout):
-        return
-
-    def to_fds_param(self, context):
         pass
+
+    def get_exported(self, context):
+        return False
 
 
 class OP_XB_voxel_size(BFParam):
@@ -61,8 +61,8 @@ class OP_XB_voxel_size(BFParam):
         if ob.bf_xb_export and ob.bf_xb in ("VOXELS", "PIXELS"):
             super().draw(context, layout)
 
-    def to_fds_param(self, context):
-        pass
+    def get_exported(self, context):
+        return False
 
 
 class OP_XB_center_voxels(BFParam):
@@ -79,8 +79,8 @@ class OP_XB_center_voxels(BFParam):
         if ob.bf_xb_export and ob.bf_xb in ("VOXELS", "PIXELS"):
             super().draw(context, layout)
 
-    def to_fds_param(self, context):
-        pass
+    def get_exported(self, context):
+        return False
 
 
 class OP_XB_export(BFParam):
@@ -117,11 +117,11 @@ class OP_XB(BFParam):
             xbs, msgs = ob_to_xbs(context=context, ob=ob, bf_xb=ob.bf_xb)
         return ob, xbs, msgs
 
-    def to_fds_param(self, context):
+    def to_fds_list(self, context) -> FDSList:
         ob, xbs, msgs = self._get_geometry(context)
         match len(xbs):
             case 0:
-                return
+                return FDSList()
             case 1:
                 return FDSParam(fds_label="XB", value=xbs[0], precision=6)
         # Multi
@@ -146,9 +146,9 @@ class OP_XB(BFParam):
             case _:
                 raise AssertionError(f"Unknown suffix <{self.element.bf_id_suffix}>")
         return FDSMulti(
-            (
+            iterable=(
                 FDSList(
-                    (
+                    iterable=(
                         FDSParam(fds_label="ID", value=hid),
                         FDSParam(fds_label="XB", value=xb, precision=6),
                     )
@@ -182,9 +182,8 @@ class OP_XB_BBOX(OP_XB):
     bpy_idname = None
     bpy_export = None
 
-    def to_fds_param(self, context):
-        ob = self.element
-        xbs, _ = ob_to_xbs(context, ob, "BBOX")
+    def to_fds_list(self, context) -> FDSList:
+        xbs, _ = ob_to_xbs(context=context, ob=self.element, bf_xb="BBOX")
         return FDSParam(fds_label="XB", value=xbs[0], precision=6)
 
     def from_fds(self, context, value):

@@ -1,10 +1,6 @@
-import logging, bpy
+import logging
 from bpy.types import Object
-from ..types import (
-    BFNamelistSc,
-    BFParam,
-    BFNotImported,
-)
+from ..types import BFNamelistSc, BFParam, BFNotImported, FDSList
 from .. import utils
 from .OP_XB.xbs_to_ob import xbs_to_ob
 
@@ -124,8 +120,8 @@ class SN_MULT(BFNamelistSc):
     enum_id = False  # no bf_namelist_cls menu, no automatic export
     fds_label = "MULT"
 
-    def to_fds_namelist(self, context):
-        pass
+    def get_exported(self, context):
+        return False
 
     def from_fds(self, context, fds_namelist):
         # Read fds_params
@@ -181,11 +177,6 @@ class OP_MULT_ID(BFParam):
     description = "Reference to geometric transformation"
     fds_label = "MULT_ID"
     bpy_type = Object
-
-    # Not used, MULT never exported
-    # def to_fds_param(self, context):
-    #     if self.get_exported(context):
-    #         return FDSParam(fds_label="MULT_ID", value=f"{self.element.name}_mult")
 
     def from_fds(self, context, value):
         try:

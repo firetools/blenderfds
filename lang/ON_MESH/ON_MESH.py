@@ -70,12 +70,12 @@ class OP_MESH_XB(OP_XB_BBOX):
         msgs.extend(_get_mesh_msgs(context, ob))
         return ob, ids, ijks, xbs, msgs
 
-    def to_fds_param(self, context):
+    def to_fds_list(self, context) -> FDSList:
         ob, ids, ijks, xbs, msgs = self._get_geometry(context)
         return FDSMulti(
-            (
+            iterable=(
                 FDSList(
-                    (
+                    iterable=(
                         FDSParam(fds_label="ID", value=hid),
                         FDSParam(fds_label="IJK", value=ijk),
                         FDSParam(fds_label="XB", value=xb, precision=6),

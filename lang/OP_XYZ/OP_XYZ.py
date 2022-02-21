@@ -53,11 +53,11 @@ class OP_XYZ(BFParam):
             xyzs, msgs = ob_to_xyzs(context=context, ob=ob, bf_xyz=ob.bf_xyz)
         return ob, xyzs, msgs
 
-    def to_fds_param(self, context):
+    def to_fds_list(self, context) -> FDSList:
         ob, xyzs, msgs = self._get_geometry(context)
         match len(xyzs):
             case 0:
-                return
+                return FDSList()
             case 1:
                 return FDSParam(fds_label="XYZ", value=xyzs[0], precision=6)
         # Multi
@@ -82,9 +82,9 @@ class OP_XYZ(BFParam):
             case _:
                 raise AssertionError(f"Unknown suffix <{self.element.bf_id_suffix}>")
         return FDSMulti(
-            (
+            iterable=(
                 FDSList(
-                    (
+                    iterable=(
                         FDSParam(fds_label="ID", value=hid),
                         FDSParam(fds_label="XYZ", value=xyz, precision=6),
                     )

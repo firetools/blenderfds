@@ -2,11 +2,12 @@
 BlenderFDS, Blender interfaces to FDS parameters.
 """
 
+import collections
 import logging, bpy
 from bpy.types import Operator, Mesh
 from bpy.props import IntProperty, CollectionProperty, BoolProperty, StringProperty
 from .fds_list import FDSList, FDSParam
-from .bf_exception import BFException, BFNotImported, BFWarning
+from .bf_exception import BFException, BFNotImported
 
 log = logging.getLogger(__name__)
 
@@ -20,6 +21,8 @@ class BFParam:
     label = "No Label"
     ## Object description
     description = None
+    ## Default collection
+    collection = None
     ## Unique integer id for EnumProperty
     enum_id = None
     ## Other BlenderFDS parameters, eg: {'draw_type': 'WIRE', ...}
@@ -286,20 +289,20 @@ class BFParam:
         self.draw_operators(context, row)  # along the properties
         return col
 
-    def to_fds_param(self, context):
+    def to_fds_list(self, context) -> FDSList:
         """!
-        Return the FDSParam, FDSList, FDSMulti or None representation of element instance.
-        @param context: the Blender context.
-        @return None, FDSParam, FDSNamelist, FDSList or FDSMulti.
+        Return the FDSList instance from self, never None.
         """
-        if self.get_exported(context):
-            self.check(context)
-            if self.fds_label:
-                return FDSParam(
-                    fds_label=self.fds_label,
-                    value=self.get_value(context=context),
-                    precision=self.bpy_other.get("precision", 3),
-                )
+        if not self.get_exported(context):
+            return FDSList()
+        self.check(context)
+        if self.fds_label:
+            return FDSParam(
+                fds_label=self.fds_label,
+                value=self.get_value(context=context),
+                precision=self.bpy_other.get("precision", 3),
+            )
+        return FDSList()
 
     def show_fds_geometry(self, context, ob_tmp):
         """!
@@ -560,17 +563,18 @@ class BFParamOther(BFParam):
             f"{op_idname}_slot_mv", icon="TRIA_DOWN", text=""
         ).direction = "DOWN"
 
-    def to_fds_param(self, context):  # FIXME to_fds()
+    def to_fds_list(self, context) -> FDSList:
         self.check(context)
         coll = getattr(self.element, self.bpy_idname)
         if coll:
             return FDSList(
-                (
-                    FDSParam(fds_label=item.name)
+                iterable=(
+                    FDSParam(fds_label=item.name)  # label only
                     for item in coll
                     if item.bf_export and item.name
                 )
             )
+        return FDSList()
 
     def copy_to(self, context, dest_element):
         log.debug(f"  Copying <{self}> to <{dest_element.name}>")

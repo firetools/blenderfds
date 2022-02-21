@@ -4,6 +4,7 @@ BlenderFDS, Blender list of FDS namelists or parameters.
 
 import re, logging
 from .bf_exception import BFException
+from ..config import MAXLEN, INDENT
 
 log = logging.getLogger(__name__)
 
@@ -13,21 +14,25 @@ class FDSList(list):
     List of FDSParam, FDSNamelist, FDSList instances.
     """
 
-    def __init__(self, iterable=(), fds_label=None, msgs=()) -> None:
+    def __init__(self, iterable=(), fds_label=None, msgs=(), msg=None) -> None:
         """!
         Class constructor.
+        @param iterable: iterable content of any type.
         @param fds_label: fds label of group (eg. namelist or param).
         @param msgs: list of comment message strings.
+        @param msg: comment message string.
         """
         super().__init__(iterable)
         ## fds label of group (eg. namelist or param).
         self.fds_label = fds_label
         ## list of comment message strings.
         self.msgs = list(msgs)
+        if msg:
+            self.msgs.append(msg)
 
-    # def __repr__(self) -> str:  # FIXME
-    #     items = ", ".join(f"{k}={v!r}" for k, v in self.__dict__.items())
-    #     return f"<{self.__class__.__name__}({self.__iterable__}, {items})>"
+    def __repr__(self) -> str:
+        iterable = ",".join(str(item) for item in self)
+        return f"{self.__class__.__name__}(fds_label={self.fds_label}, msgs={self.msgs}, iterable={iterable})"
 
     def __contains__(self, fds_label) -> bool:
         return bool(self.get_fds_label(fds_label=fds_label, remove=False))
@@ -91,8 +96,8 @@ class FDSList(list):
         return inv_ps, multi_ps, add_ns
 
     def to_string(self, context) -> str:
-        lines = list(f"! {msg}" for msg in self.msgs if msg)
-        lines.extend(item.to_string(context) for item in self if item)
+        lines = self.msgs
+        lines.extend(item.to_string(context) for item in self)
         return "\n".join(l for l in lines if l)
 
     _RE_SCAN_F90_NAMELISTS = re.compile(
@@ -122,11 +127,10 @@ class FDSList(list):
             self.append(fds_namelist)
 
 
-class FDSMulti(FDSList):  # FIXME check list of lists
+class FDSMulti(FDSList):
     """!
-    List of FDSList instances.  # FIXME not true
+    FDSList of only FDSList instances.
     """
-
     pass
 
 
@@ -134,27 +138,6 @@ class FDSNamelist(FDSList):
     """!
     List representing an FDS namelist.
     """
-
-    ## max number of columns of formatted output
-    MAXLEN = 80 
-    ## number of columns for second line indent
-    INDENT = 6
-
-    def __init__(self, *args, msg=None, **kwargs) -> None:
-        """!
-        Class constructor.
-        @param iterable: iterable of FDSParam, FDSNamelist, FDSList instances (inherited from List).
-        @param fds_label: namelist parameter label.
-        @param msgs: list of comment message strings.
-        @param msg: comment message string.
-        """
-        super().__init__(*args, **kwargs)
-        # Check fds_label
-        if not self.fds_label:
-            raise Exception(f"No fds_label in: {self}")
-        # Append comment message string
-        if msg:
-            self.msgs.append(msg)
 
     # def _classify_items() inherited,
     # used recursively
@@ -191,18 +174,18 @@ class FDSNamelist(FDSList):
         """!
         Append word to the last of lines, generate newline and ident if needed.
         """
-        if not force_break and len(lines[-1]) + len(separator) + len(word) <= self.MAXLEN:
+        if not force_break and len(lines[-1]) + len(separator) + len(word) <= MAXLEN:
             lines[-1] += separator + word  # current line
         else:
-            lines.append(" " * self.INDENT + word)  # new line w indent, wo separator
+            lines.append(" " * INDENT + word)  # new line w indent, wo separator
         return lines
 
     def _to_string(self, inv_ps):
         """!
         Format self, a namelist that generates only one namelist.
         """
-        lines = list(f"! {m}" for m in self.msgs if m)  # self msgs
-        lines.extend(f"! {m}" for p in self if p for m in p.msgs if m)  # self params msgs
+        lines = self.msgs
+        lines.extend(m for p in self if p for m in p.msgs)  # self params msgs
         lines.append(f"&{self.fds_label}")  # start namelist, eg. "&OBST"
         for p in inv_ps:  # add params, use inv_ps because it is flattened
             if p is None:
@@ -212,7 +195,7 @@ class FDSNamelist(FDSList):
                 lines = self._append_word(lines, word=fds_label)
             else:  # fds_label and its values provided
                 word = f"{fds_label}={','.join(fds_values)}"
-                if len(word) <= self.MAXLEN - self.INDENT or len(fds_values) == 1:
+                if len(word) <= MAXLEN - INDENT or len(fds_values) == 1:
                     # short param, keep together
                     lines = self._append_word(lines, word=word)
                 else:
@@ -224,7 +207,7 @@ class FDSNamelist(FDSList):
         lines[-1] += " /"  # close
         return "\n".join(lines)
 
-    def to_string(self, context) -> str:
+    def to_string(self, context) -> str:  # FIXME simplify
         inv_ps, multi_ps, add_ns  = self._classify_items()
         # Many namelists to be generated? recurse
         if multi_ps or add_ns:
@@ -275,16 +258,16 @@ class FDSParam(FDSList):
     List representing an FDS parameter.
     """
 
-    def __init__(self, *args, value=None, precision=3, exponential=False, msg=None, **kwargs) -> None:
+    def __init__(self, *args, value=None, precision=3, exponential=False, **kwargs) -> None:
         """!
         Class constructor.
         @param iterable: iterable of values of any type (inherited from List).
         @param fds_label: namelist parameter label.
         @param msgs: list of comment message strings.
+        @param msg: comment message string.
         @param value: parameter value of any type.
         @param precision: float precision, number of decimal digits.
         @param exponential: if True sets exponential representation of floats.
-        @param msg: comment message string.
         """
         super().__init__(*args, **kwargs)
         ## float precision, number of decimal digits
@@ -297,13 +280,6 @@ class FDSParam(FDSList):
         # Set parameter value
         if value is not None:
             self.set_value(value=value)
-        # Append comment message string
-        if msg:
-            self.msgs.append(msg)
-
-    def __repr__(self) -> str:
-        items = ", ".join(f'{k}={v!r}' for k, v in self.__dict__.items())
-        return f"<{self.__class__.__name__}({items})>"
 
     def get_value(self, context=None):  # FIXME why context, why None?
         """!

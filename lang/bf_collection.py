@@ -1,5 +1,6 @@
 import logging
 from bpy.types import Collection
+from ..types import FDSList
 
 log = logging.getLogger(__name__)
 
@@ -26,23 +27,20 @@ class BFCollection:
             if found:
                 return found
 
-    def to_fds(self, context):
+    def to_fds_list(self, context) -> FDSList:
         """!
-        Return the FDS formatted string.
-        @param context: the Blender context.
-        @return FDS formatted string, eg. "&OBST ID='Test' /".
+        Return the FDSList instance from self, never None.
         """
         layer_collection = self.get_layer_collection(context)
         if self.hide_render or layer_collection.exclude:
-            return  # exclude from exporting
+            return FDSList()  # exclude from exporting
         obs = list(self.objects)
         obs.sort(key=lambda k: k.name)  # alphabetic by name
-        lines = list(ob.to_fds(context) for ob in obs)
-        lines.extend(child.to_fds(context) for child in self.children)
-        if lines and self != context.scene.collection:
-            header = f"\n! --- {self.name}"
-            lines.insert(0, header)
-        return "\n".join(l for l in lines if l)
+        fds_list = FDSList(ob.to_fds_list(context=context) for ob in obs)
+        fds_list.extend(child.to_fds_list(context=context) for child in self.children)
+        if fds_list and self != context.scene.collection:
+            fds_list.msgs = list((f"\n--- {self.name}",))
+        return fds_list
 
     @classmethod
     def register(cls):
@@ -50,7 +48,7 @@ class BFCollection:
         Register related Blender properties.
         @param cls: class to be registered.
         """
-        Collection.to_fds = cls.to_fds
+        Collection.to_fds_list = cls.to_fds_list
         Collection.get_layer_collection = cls.get_layer_collection
 
     @classmethod
@@ -59,5 +57,5 @@ class BFCollection:
         Unregister related Blender properties.
         @param cls: class to be unregistered.
         """
-        del Collection.to_fds
         del Collection.get_layer_collection
+        del Collection.to_fds_list

@@ -1,17 +1,9 @@
 import logging
 from bpy.types import Object
 from bpy.props import EnumProperty, BoolProperty
-from ..types import (
-    BFParam,
-    BFParamOther,
-    BFParamFYI,
-    BFNamelist,
-)
+from ..types import BFParam, BFParamOther, BFParamFYI, BFNamelist, FDSList
 from .. import utils
-from ..bl.ui_lists import (
-    WM_PG_bf_other,
-    WM_UL_bf_other_items,
-)
+from ..bl.ui_lists import WM_PG_bf_other, WM_UL_bf_other_items
 
 log = logging.getLogger(__name__)
 
@@ -28,15 +20,13 @@ class BFObject:
         """
         return BFNamelist.get_subclass(cls_name=self.bf_namelist_cls)(element=self)
 
-    def to_fds(self, context):
+    def to_fds_list(self, context) -> FDSList:
         """!
-        Return the FDS formatted string.
-        @param context: the Blender context.
-        @return FDS formatted string (eg. "&OBST ID='Test' /"), or None.
+        Return the FDSList instance from self, never None.
         """
-        if self.hide_render or self.bf_is_tmp or not self.type == "MESH":
-            return
-        return self.bf_namelist.to_fds(context)
+        if self.hide_render or self.bf_is_tmp or self.type != "MESH":
+            return FDSList()
+        return self.bf_namelist.to_fds_list(context)
 
     def from_fds(self, context, fds_namelist):
         """!
@@ -59,7 +49,7 @@ class BFObject:
         @param cls: class to be registered.
         """
         Object.bf_namelist = cls.bf_namelist
-        Object.to_fds = cls.to_fds
+        Object.to_fds_list = cls.to_fds_list
         Object.from_fds = cls.from_fds
         Object.bf_is_tmp = BoolProperty(
             name="Is Tmp", description="Set if this Object is tmp", default=False
@@ -79,7 +69,7 @@ class BFObject:
         del Object.bf_has_tmp
         del Object.bf_is_tmp
         del Object.from_fds
-        del Object.to_fds
+        del Object.to_fds_list
         del Object.bf_namelist
 
 

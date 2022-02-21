@@ -10,22 +10,10 @@ from ..types import (
     FDSParam,
     FDSList,
 )
-from ..bl.ui_lists import (
-    WM_PG_bf_other,
-    WM_UL_bf_other_items,
-)
+from ..bl.ui_lists import WM_PG_bf_other, WM_UL_bf_other_items
 from .. import config
 
 log = logging.getLogger(__name__)
-
-# bf_namelist: bf_params -> fds_param
-# material: bf_namelist or None -> fds_namelist or None -> line
-# object: bf_namelist or None -> fds_namelist or None -> line
-# collection: object -> line
-# scene:
-#   bf_namelist or None -> fds_namelist or None -> line
-#   material or None -> fds_namelist or None -> line
-#   collection -> fds_namelist or None -> line
 
 
 class BFMaterial:
@@ -40,13 +28,11 @@ class BFMaterial:
         """
         return BFNamelist.get_subclass(cls_name=self.bf_namelist_cls)(element=self)
 
-    def to_fds(self, context):
+    def to_fds_list(self, context) -> FDSList:
         """!
-        Return the FDS formatted string.
-        @param context: the Blender context.
-        @return None or FDS formatted string, eg. "&OBST ID='Test' /".
+        Return the FDSList instance from self, never None.
         """
-        return self.bf_namelist.to_fds(context)
+        return self.bf_namelist.to_fds_list(context)
 
     def from_fds(self, context, fds_namelist):
         """!
@@ -68,7 +54,7 @@ class BFMaterial:
         @param cls: class to be registered.
         """
         Material.bf_namelist = cls.bf_namelist
-        Material.to_fds = cls.to_fds
+        Material.to_fds_list = cls.to_fds_list
         Material.from_fds = cls.from_fds
 
     @classmethod
@@ -78,7 +64,7 @@ class BFMaterial:
         @param cls: class to be unregistered.
         """
         del Material.from_fds
-        del Material.to_fds
+        del Material.to_fds_list
         del Material.bf_namelist
 
 
@@ -151,7 +137,7 @@ class MP_RGB(BFParam):
         c = self.element.diffuse_color
         c[0], c[1], c[2] = value[0] / 255.0, value[1] / 255.0, value[2] / 255.0
 
-    def to_fds_param(self, context):
+    def to_fds_list(self, context) -> FDSList:
         c = self.element.diffuse_color
         rgb = (int(c[0] * 255), int(c[1] * 255), int(c[2] * 255))
         if c[3] == 1.0:  # do not send TRANSPARENCY if it is 1
@@ -182,8 +168,8 @@ class MP_COLOR(BFParam):
             raise BFException(self, f"Unknown color <{value}>")
         c[0], c[1], c[2] = rgb[0] / 255.0, rgb[1] / 255.0, rgb[2] / 255.0
 
-    def to_fds_param(self, context):
-        pass
+    def get_exported(self, context):
+        return False
 
 
 class MP_TRANSPARENCY(BFParam):
@@ -197,8 +183,8 @@ class MP_TRANSPARENCY(BFParam):
         c = self.element.diffuse_color
         c[3] = value
 
-    def to_fds_param(self, context):
-        pass
+    def get_exported(self, context):
+        return False
 
 
 class MP_other(BFParamOther):
