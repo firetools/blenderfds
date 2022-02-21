@@ -107,7 +107,7 @@ class OBJECT_OT_bf_show_fds_code(_show_fds_code, Operator):
         return context.active_object
 
     def _get_lines(self, context):
-        return context.active_object.to_fds(context)
+        return context.active_object.to_fds_list(context).to_string(context)
 
 
 class MATERIAL_OT_bf_show_fds_code(_show_fds_code, Operator):
@@ -124,7 +124,7 @@ class MATERIAL_OT_bf_show_fds_code(_show_fds_code, Operator):
         return context.active_object and context.active_object.active_material
 
     def _get_lines(self, context):
-        return context.active_object.active_material.to_fds(context)
+        return context.active_object.active_material.to_fds_list(context).to_string(context)
 
 
 class SCENE_OT_bf_show_fds_code(_show_fds_code, Operator):
@@ -141,7 +141,7 @@ class SCENE_OT_bf_show_fds_code(_show_fds_code, Operator):
         return context.scene
 
     def _get_lines(self, context):
-        return context.scene.to_fds(context)
+        return context.scene.to_fds_list(context).to_string(context)
 
 
 class SCENE_OT_bf_show_text(Operator):
