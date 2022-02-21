@@ -40,6 +40,7 @@ class OP_MESH_IJK(BFParam):
 class OP_MESH_nsplits(BFParam):
     label = "Splits"
     description = "Split this MESH along each axis in an array of MESHes of similar cell number, conserving cell size"
+    collection = "Domain"
     bpy_type = Object
     bpy_idname = "bf_mesh_nsplits"
     bpy_prop = IntVectorProperty

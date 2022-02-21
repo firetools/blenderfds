@@ -210,6 +210,7 @@ class OP_GEOM_EXTEND_TERRAIN(BFParam):  # This is a Mesh property
 class ON_GEOM(BFNamelistOb):
     label = "GEOM"
     description = "Geometry"
+    collection = "Obstacles"
     enum_id = 1021
     fds_label = "GEOM"
     bf_params = (

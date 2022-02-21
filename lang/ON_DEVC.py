@@ -70,6 +70,7 @@ class OP_DEVC_PROP_ID(BFParam):
 class ON_DEVC(BFNamelistOb):
     label = "DEVC"
     description = "Device"
+    collection = "Output"
     enum_id = 1011
     fds_label = "DEVC"
     bf_params = (

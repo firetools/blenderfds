@@ -9,6 +9,7 @@ log = logging.getLogger(__name__)
 class ON_HVAC(BFNamelistOb):
     label = "HVAC"
     description = "HVAC system definition"
+    collection = "HVAC"
     enum_id = 1017
     fds_label = "HVAC"
     bf_params = OP_ID, OP_FYI, OP_XYZ, OP_ID_suffix, OP_other

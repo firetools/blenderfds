@@ -9,6 +9,7 @@ log = logging.getLogger(__name__)
 class ON_ZONE(BFNamelistOb):
     label = "ZONE"
     description = "Pressure zone"
+    collection = "Domain"
     enum_id = 1016
     fds_label = "ZONE"
     bf_params = OP_ID, OP_FYI, OP_XYZ, OP_other

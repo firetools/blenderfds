@@ -10,6 +10,7 @@ log = logging.getLogger(__name__)
 class ON_PROF(BFNamelistOb):
     label = "PROF"
     description = "Wall profile output"
+    collection = "Output"
     enum_id = 1013
     fds_label = "PROF"
     bf_params = OP_ID, OP_FYI, OP_DEVC_QUANTITY, OP_XYZ, OP_ID_suffix, OP_other

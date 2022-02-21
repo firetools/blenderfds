@@ -11,6 +11,7 @@ log = logging.getLogger(__name__)
 class ON_OBST(BFNamelistOb):
     label = "OBST"
     description = "Obstruction"
+    collection = "Obstacles"
     enum_id = 1000
     fds_label = "OBST"
     bf_params = (

@@ -39,6 +39,7 @@ class OP_VENT_OBST_ID(BFParam):
 class ON_VENT(BFNamelistOb):
     label = "VENT"
     description = "Boundary condition patch"
+    collection = "Obstacles"
     enum_id = 1010
     fds_label = "VENT"
     bf_params = (

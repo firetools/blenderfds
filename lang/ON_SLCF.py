@@ -33,6 +33,7 @@ class OP_SLCF_CELL_CENTERED(BFParam):
 class ON_SLCF(BFNamelistOb):
     label = "SLCF"
     description = "Slice file"
+    collection = "Output"
     enum_id = 1012
     fds_label = "SLCF"
     bf_params = (
