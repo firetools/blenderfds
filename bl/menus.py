@@ -31,6 +31,12 @@ class ImportFDSToScene(Operator, ImportHelper):
         description="Import selected case into a new Scene.",
     )
 
+    set_collection: BoolProperty(
+        name="Set Default Collection",
+        default=True,
+        description="Link imported namelists into default Collections.",
+    )
+
     all_cases: BoolProperty(
         name="Import All",
         default=False,
@@ -57,11 +63,15 @@ class ImportFDSToScene(Operator, ImportHelper):
         # Import
         for filepath in filepaths:
             if self.new_scene:
-                sc = bpy.data.scenes.new("Imported")
+                sc = bpy.data.scenes.new("New case")
             else:
                 sc = context.scene
             try:
-                sc.from_fds(context, filepath=filepath)
+                sc.from_fds(
+                    context,
+                    filepath=filepath,
+                    set_collection=self.set_collection,
+                )
             except BFException as err:
                 w.cursor_modal_restore()
                 self.report({"ERROR"}, f"Import: {str(err)}")

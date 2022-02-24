@@ -1,16 +1,28 @@
-# FIXME docstrings
-
 import time, sys, logging, bpy, os
 from bpy.types import Scene, Object, Material
 from bpy.props import IntVectorProperty
 from ..config import MAXLEN
-from ..types import BFNamelist, FDSList, FDSNamelist, BFException, BFNotImported
+from ..types import BFNamelist, FDSList, BFNotImported
 from .. import utils
 
 log = logging.getLogger(__name__)
 
 
-def _import(context, sc, fds_list, fds_label=None) -> str:
+def _get_collection(context, name=None):
+    if name:
+        co = bpy.data.collections.get(name)
+        if co and not context.scene.user_of_id(co):
+            co.name = f"{name}.001"  # rename existing
+            co = None  # not the right one
+        if not co:
+            co = bpy.data.collections.new(name=name)
+            context.scene.collection.children.link(co)
+    else:
+        co = context.scene.collection
+    return co
+
+
+def _import(context, sc, fds_list, fds_label=None, set_collection=True) -> str:
     """!
     Import all namelists with label fds_label from fds_list into scene.
     """
@@ -39,7 +51,13 @@ def _import(context, sc, fds_list, fds_label=None) -> str:
             elif bf_namelist.bpy_type == Object:
                 me = bpy.data.meshes.new(hid)  # new Mesh
                 ob = bpy.data.objects.new(hid, object_data=me)  # new Object
-                sc.collection.objects.link(ob)  # link it to Scene Collection
+                co_name = (
+                    set_collection  # user requests
+                    and f"New {bf_namelist.collection}"
+                    or None
+                )
+                co = _get_collection(context, name=co_name)
+                co.objects.link(ob)  # link to collection
                 try:
                     ob.from_fds(context, fds_namelist=fds_namelist)
                     is_imported = True
@@ -178,12 +196,13 @@ class BFScene:
             utils.io.write_txt_file(filepath, text)
         return text
 
-    def from_fds(self, context, filepath=None, f90=None):
+    def from_fds(self, context, filepath=None, f90=None, set_collection=True):
         """!
         Set self.bf_namelists from FDSList, on error raise BFException.
         @param context: the Blender context.
         @param filepath: filepath of FDS case to be imported.
         @param f90: FDS formatted string of namelists, eg. "&OBST ID='Test' /\n&TAIL /".
+        @param set_collection: set default collection for imported geometric namelists.
         """
         # Set mysef as the right Scene instance in the context
         # this is used by context.scene calls elsewhere
@@ -200,54 +219,30 @@ class BFScene:
             # and set imported fds case dir, because others rely on it
             # it is emptied later
             self.bf_config_directory = os.path.dirname(filepath)
+
+        # Load fds case
         fds_list.from_fds(f90=f90)
 
         # Prepare free text for unmanaged namelists
         if not self.bf_config_text:
             self.bf_config_text = utils.ui.get_text_in_editor(
-                context, text=None, name="Imported Text"
+                context=context,
+                text=None,
+                name="New Text",
             )
         else:
-            # Rewind to first line
-            self.bf_config_text.current_line_index = 0
+            self.bf_config_text.current_line_index = 0  # rewind
 
-        # Import SURFs first to new materials
-        _import(
-            context=context,
-            sc=self,
-            fds_list=fds_list,
-            fds_label="SURF",
-        )
-
-        # Import MOVEs and MULTs before geometries
-        _import(
-            context=context,
-            sc=self,
-            fds_list=fds_list,
-            fds_label="MOVE",
-        )
-        _import(
-            context=context,
-            sc=self,
-            fds_list=fds_list,
-            fds_label="MULT",
-        )
-
-        # Import OBSTs before VENTs
-        _import(
-            context=context,
-            sc=self,
-            fds_list=fds_list,
-            fds_label="OBST",
-        )
-
-        # Import all other namelists to Object or Scene
-        _import(
-            context=context,
-            sc=self,
-            fds_list=fds_list,
-            fds_label=None,
-        )
+        # Import by fds_label
+        fds_labels = "HEAD", "SURF", "MOVE", "MULT", "MESH", "OBST", "GEOM", None
+        for fds_label in fds_labels:
+            _import(
+                context=context,
+                sc=self,
+                fds_list=fds_list,
+                fds_label=fds_label,
+                set_collection=set_collection,
+            )
 
         # Unlink from fds case dir, to avoid overwriting imported case
         if filepath:

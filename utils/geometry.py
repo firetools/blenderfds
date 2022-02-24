@@ -4,9 +4,35 @@ BlenderFDS, geometric utilities.
 
 # TODO change file name
 
+from matplotlib.style import context
 import bpy, bmesh
 from mathutils import Matrix
 from ..types import BFException
+
+# Working on Blender collections
+
+
+def get_collection(context, name=None):
+    """
+    Get existing Collection or create a new Collection.
+    If no name is set, return Scene Collection.
+    """
+    if name:
+        co = bpy.data.collections.get(name)
+        if not co:
+            co = bpy.data.collections.new(name=name)
+            context.scene.collection.children.link(co)
+    else:
+        co = context.scene.collection
+    return co
+
+
+def get_sc_collections(context, sc):
+    """
+    Get all Collection from Scene.
+    """
+    return tuple(c for c in bpy.data.collections if sc.user_of_id(c))
+
 
 # Working on Blender objects
 
