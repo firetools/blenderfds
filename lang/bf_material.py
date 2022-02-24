@@ -154,7 +154,7 @@ class MP_RGB(BFParam):
             )
 
 
-class MP_COLOR(BFParam):
+class MP_COLOR(BFParam):  # only import
     label = "COLOR"
     description = "Color"
     fds_label = "COLOR"
@@ -172,7 +172,7 @@ class MP_COLOR(BFParam):
         return False
 
 
-class MP_TRANSPARENCY(BFParam):
+class MP_TRANSPARENCY(BFParam):  # only import
     label = "TRANSPARENCY"
     description = "Red, green, blue components of color and transparency"
     fds_label = "TRANSPARENCY"
