@@ -1,6 +1,12 @@
 import logging, os, bpy
 from bpy.types import Scene
-from bpy.props import BoolProperty, FloatProperty, StringProperty, PointerProperty
+from bpy.props import (
+    BoolProperty,
+    FloatProperty,
+    StringProperty,
+    PointerProperty,
+    EnumProperty,
+)
 from ..types import BFParam, BFNamelistSc, BFException
 
 log = logging.getLogger(__name__)
@@ -43,8 +49,41 @@ class SP_config_text(BFParam):
     bpy_prop = PointerProperty
     bpy_other = {"type": bpy.types.Text}
 
-    def draw_operators(self, context, layout):
-        layout.operator("scene.bf_show_text", text="", icon="GREASEPENCIL")
+    def draw(self, context, layout):
+        col = layout.column(align=True)
+        row = col.row(align=True)
+        row.prop(self.element, "bf_config_text", text="Free Text")
+        row.operator("scene.bf_show_text", text="", icon="GREASEPENCIL")
+        col.prop(self.element, "bf_config_text_position", text=" ")
+        return col
+
+
+class SP_config_text_position(BFParam):
+    label = "Free Text Position"
+    description = "Set Free Text postion in the exported file"
+    bpy_type = Scene
+    bpy_idname = "bf_config_text_position"
+    bpy_prop = EnumProperty
+    bpy_other = {
+        "items": (
+            (
+                "START",
+                "Insert At Start",
+                "Insert at the start of the exported file",
+                100,
+            ),
+            (
+                "SURF",
+                "Insert After SURFs",
+                "Insert after SURFs boundary conditions",
+                200,
+            ),
+            ("END", "Insert At End", "Insert at the end of the exported file", 500),
+        ),
+    }
+
+    def draw(self, context, layout):
+        pass
 
 
 class SN_config(BFNamelistSc):
@@ -53,6 +92,7 @@ class SN_config(BFNamelistSc):
         SP_config_case_name,
         SP_config_directory,
         SP_config_text,
+        SP_config_text_position,
     )
 
 
