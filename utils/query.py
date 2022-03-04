@@ -37,7 +37,7 @@ def get_referenced_ids(context, sc, fds_label="SURF_ID"):  # TODO unused
     for fds_namelist in fds_list:
         fds_param = fds_namelist.get_fds_label(fds_label=fds_label)
         if fds_param:
-            hid = fds_param.get_value(context)
+            hid = fds_param.get_value()
             items.append(hid)
     items.sort(key=lambda k: k[0])
     return items
@@ -72,7 +72,7 @@ def _get_namelist_items(self, context, fds_label):  # TODO unused
             break
         fds_param = fds_namelist.get_fds_label(fds_label="ID", remove=True)
         if fds_param:
-            hid = fds_param.get_value(context)
+            hid = fds_param.get_value()
             items.append((hid, hid, ""))
     items.sort(key=lambda k: k[0])
     return items

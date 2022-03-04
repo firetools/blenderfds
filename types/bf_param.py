@@ -208,7 +208,7 @@ class BFParam:
         Return True if self is exported to FDS.
         """
         # Check if empty
-        value = self.get_value(context)
+        value = self.get_value(context=context)
         if value is None or value == "":
             return False
         # Check if identical to FDS default

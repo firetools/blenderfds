@@ -143,7 +143,7 @@ class BFNamelist(BFParam):
             if not is_imported and bf_param:
                 try:
                     bf_param.from_fds(
-                        context=context, value=fds_param.get_value(context)
+                        context=context, value=fds_param.get_value()
                     )
                 except BFNotImported as err:
                     context.scene.bf_config_text.write(str(err))
@@ -155,7 +155,7 @@ class BFNamelist(BFParam):
             if not is_imported and bf_param_other:
                 try:
                     bf_param_other.set_value(
-                        context, value=fds_param.to_string(context)
+                        context, value=fds_param.to_string()
                     )
                 except BFNotImported as err:
                     context.scene.bf_config_text.write(str(err))

@@ -260,7 +260,7 @@ class ON_GEOM(BFNamelistOb):
         for fds_label in ps:
             fds_param = fds_namelist.get_fds_label(fds_label=fds_label, remove=True)
             if fds_param:
-                ps[fds_label] = fds_param.get_value(context)  # assign value
+                ps[fds_label] = fds_param.get_value()  # assign value
         # Read SURF_ID params, to prepare Material slots
         super().from_fds(context, fds_namelist=fds_namelist, fds_label="SURF_ID")
         super().from_fds(context, fds_namelist=fds_namelist, fds_label="SURF_IDS")

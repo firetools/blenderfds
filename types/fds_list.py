@@ -95,9 +95,9 @@ class FDSList(list):
                     raise ValueError(f"Unrecognized type of <{item!r}> in <{self!r}>")
         return inv_ps, multi_ps, add_ns
 
-    def to_string(self, context) -> str:
+    def to_string(self) -> str:
         lines = self.msgs
-        lines.extend(item.to_string(context) for item in self)
+        lines.extend(item.to_string() for item in self)
         return "\n".join(l for l in lines if l)
 
     _RE_SCAN_F90_NAMELISTS = re.compile(
@@ -139,6 +139,9 @@ class FDSNamelist(FDSList):
     List representing an FDS namelist.
     """
 
+    def __bool__(self):
+        return bool(self.fds_label or self.msgs)
+
     # def _classify_items() inherited,
     # used recursively
 
@@ -153,6 +156,9 @@ class FDSNamelist(FDSList):
         return inv_ps
 
     def _generate_many_fds_namelists(self, inv_ps, multi_ps, add_ns):
+        """!
+        Generate many fds namelists, if needed.
+        """
         fds_list = FDSList()
         if multi_ps:
             fds_list.msgs.extend(self.msgs)
@@ -207,13 +213,13 @@ class FDSNamelist(FDSList):
         lines[-1] += " /"  # close
         return "\n".join(lines)
 
-    def to_string(self, context) -> str:  # FIXME simplify
+    def to_string(self) -> str:
         inv_ps, multi_ps, add_ns  = self._classify_items()
         # Many namelists to be generated? recurse
         if multi_ps or add_ns:
             inv_ps = self._remove_duplicated_ps_from_inv_ps(inv_ps=inv_ps, multi_ps=multi_ps)
             fds_list = self._generate_many_fds_namelists(inv_ps=inv_ps, multi_ps=multi_ps, add_ns=add_ns)
-            return fds_list.to_string(context=context)
+            return fds_list.to_string()
         # Otherwise format self
         return self._to_string(inv_ps=inv_ps)
 
@@ -281,7 +287,7 @@ class FDSParam(FDSList):
         if value is not None:
             self.set_value(value=value)
 
-    def get_value(self, context=None):  # FIXME why context, why None?
+    def get_value(self):
         """!
         Return self value.
         """
@@ -291,7 +297,7 @@ class FDSParam(FDSList):
             return self[0]
         return tuple(self)
 
-    def set_value(self, context=None, value=None) -> None:
+    def set_value(self, value=None) -> None:
         """!
         Set self value.
         """
@@ -305,11 +311,11 @@ class FDSParam(FDSList):
                 self.extend(value)
 
 
-    def to_strings(self, context=None) -> tuple:
+    def to_strings(self) -> tuple:
         """!
         Return a tuple of FDS formatted values or an empty tuple, eg. "'Test1'","'Test2'".
         """
-        if not self:
+        if not len(self):  # no content
             return tuple()
         match self[0]:
             case float():
@@ -328,14 +334,12 @@ class FDSParam(FDSList):
             case _:
                 raise ValueError(f"Unknown value type <{self[0]}> in {self}")
 
-    def to_string(self, context=None) -> str:
+    def to_string(self) -> str:
         """!
         Return the FDS formatted string.
-        @param context: the Blender context.
-        @return FDS formatted string (eg. "&OBST ID='Test' /"), or None.
         """
-        v = ",".join(self.to_strings())
         if self.fds_label:
+            v = ",".join(self.to_strings())
             if v:  # "ABC=1,2,3"
                 return f"{self.fds_label}={v}"
             else:  # "ABC"
