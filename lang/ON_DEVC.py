@@ -5,7 +5,6 @@ from ..types import BFParam, BFNamelistOb, BFException
 from .bf_object import OP_ID, OP_FYI, OP_ID_suffix, OP_other
 from .OP_XB import OP_XB
 from .OP_XYZ import OP_XYZ
-from .OP_PB import OP_PB, OP_PBX, OP_PBY, OP_PBZ
 
 log = logging.getLogger(__name__)
 
@@ -83,10 +82,6 @@ class ON_DEVC(BFNamelistOb):
         OP_DEVC_PROP_ID,
         OP_XB,
         OP_XYZ,
-        OP_PB,  # TODO used?
-        OP_PBX,
-        OP_PBY,
-        OP_PBZ,
         OP_ID_suffix,
         OP_other,
     )
