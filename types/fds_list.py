@@ -14,13 +14,14 @@ class FDSList(list):
     List of FDSParam, FDSNamelist, FDSList instances.
     """
 
-    def __init__(self, iterable=(), fds_label=None, msgs=(), msg=None) -> None:
+    def __init__(self, iterable=(), fds_label=None, msgs=(), msg=None, header=None) -> None:
         """!
         Class constructor.
         @param iterable: iterable content of any type.
         @param fds_label: fds label of group (eg. namelist or param).
         @param msgs: list of comment message strings.
         @param msg: comment message string.
+        @param header: header string.
         """
         super().__init__(iterable)
         ## fds label of group (eg. namelist or param).
@@ -29,10 +30,12 @@ class FDSList(list):
         self.msgs = list(msgs)
         if msg:
             self.msgs.append(msg)
+        ## header string
+        self.header = header
 
     def __repr__(self) -> str:
         iterable = ",".join(str(item) for item in self)
-        return f"{self.__class__.__name__}(fds_label={self.fds_label}, msgs={self.msgs}, iterable={iterable})"
+        return f"{self.__class__.__name__}(fds_label={self.fds_label}, msgs={self.msgs}, header={self.header}, iterable={iterable})"
 
     def __contains__(self, fds_label) -> bool:
         return bool(self.get_fds_label(fds_label=fds_label, remove=False))
@@ -98,7 +101,10 @@ class FDSList(list):
     def to_string(self) -> str:
         lines = self.msgs
         lines.extend(item.to_string() for item in self)
-        return "\n".join(l for l in lines if l)
+        string = "\n".join(l for l in lines if l)
+        if string and self.header:
+            string = f"{self.header}\n{string}"
+        return string
 
     _RE_SCAN_F90_NAMELISTS = re.compile(
         r"""
@@ -186,7 +192,7 @@ class FDSNamelist(FDSList):
             lines.append(" " * INDENT + word)  # new line w indent, wo separator
         return lines
 
-    def _to_string(self, inv_ps):
+    def _to_one_string(self, inv_ps):
         """!
         Format self, a namelist that generates only one namelist.
         """
@@ -221,7 +227,7 @@ class FDSNamelist(FDSList):
             fds_list = self._generate_many_fds_namelists(inv_ps=inv_ps, multi_ps=multi_ps, add_ns=add_ns)
             return fds_list.to_string()
         # Otherwise format self
-        return self._to_string(inv_ps=inv_ps)
+        return self._to_one_string(inv_ps=inv_ps)
 
     _RE_SCAN_F90_PARAMS = re.compile(
         r"""

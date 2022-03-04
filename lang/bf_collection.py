@@ -1,4 +1,6 @@
 import logging
+
+from numpy import iterable
 from bpy.types import Collection
 from ..types import FDSList
 
@@ -36,10 +38,10 @@ class BFCollection:
             return FDSList()  # exclude from exporting
         obs = list(self.objects)
         obs.sort(key=lambda k: k.name)  # alphabetic by name
-        fds_list = FDSList(ob.to_fds_list(context=context) for ob in obs)
+        header = self != context.scene.collection and f"\n--- {self.name}"
+        iterable = (ob.to_fds_list(context=context) for ob in obs)
+        fds_list = FDSList(header=header, iterable=iterable)
         fds_list.extend(child.to_fds_list(context=context) for child in self.children)
-        if fds_list and self != context.scene.collection:
-            fds_list.msgs = list((f"\n--- {self.name}",))
         return fds_list
 
     @classmethod

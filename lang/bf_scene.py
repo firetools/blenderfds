@@ -40,11 +40,11 @@ def _sc_to_fds_list(context, sc, fds_list):
         for bf_namelist in sc.bf_namelists
         if bf_namelist
     )
-    fds_list.append(FDSList(msg=msg, iterable=iterable))
+    fds_list.append(FDSList(iterable=iterable, msg=msg))
 
 
 def _mas_to_fds_list(context, sc, fds_list):
-    msg = "\n--- Boundary conditions from Blender Materials"  # FIXME header?
+    header = "\n--- Boundary conditions from Blender Materials"
     mas = list(
         set(  # related to Scene + use_fake_user
             ms.material for ob in sc.objects for ms in ob.material_slots if ms.material
@@ -52,13 +52,13 @@ def _mas_to_fds_list(context, sc, fds_list):
     )
     mas.sort(key=lambda k: k.name)  # alphabetic sorting by name
     iterable = (ma.to_fds_list(context=context) for ma in mas)
-    fds_list.append(FDSList(msg=msg, iterable=iterable))
+    fds_list.append(FDSList(header=header, iterable=iterable))
 
 
 def _cos_to_fds_list(context, sc, fds_list):
     fds_list.append(
         FDSList(
-            msg="\n--- Geometric namelists from Blender Collections",
+            header="\n--- Geometric namelists from Blender Collections",
             iterable=sc.collection.to_fds_list(context),
         )
     )
