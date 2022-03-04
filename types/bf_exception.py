@@ -22,11 +22,11 @@ class BFException(Exception):
     def __str__(self):
         sender = self.sender
         if sender:
-            element = getattr(sender, element)
+            element = getattr(sender, "element", None)
             if element:
                 name = f"{element.name}: {sender.fds_label or sender.label or sender.__class__.__name__}"
             else:
-                name = getattr(sender, "name") or sender.__class__.__name__
+                name = getattr(sender, "name", None) or sender.__class__.__name__
             return f"ERR: {name}: {self.msg}"
         else:
             return self.msg
