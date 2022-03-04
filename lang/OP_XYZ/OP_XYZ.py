@@ -105,6 +105,7 @@ class OP_XYZ(BFParam):
             ob=self.element,
             xyzs=(value,),
             set_origin=True,
+            add=True,
         )
         self.element.bf_xyz = bf_xyz
         self.element.bf_xyz_export = True

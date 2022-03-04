@@ -14,7 +14,7 @@ from ..bf_object import OP_ID, OP_FYI, OP_other
 from ..SN_MOVE import OP_MOVE_ID
 from .ob_to_geom import ob_to_geom, get_boundary_condition_ids
 from .geom_to_ob import geom_to_ob, geom_to_mesh, geom_sphere_to_ob, geom_cylinder_to_ob
-from ..OP_XB.xbs_to_ob import xbs_bbox_to_mesh
+from ..OP_XB.xbs_to_ob import set_materials, xbs_to_ob
 
 
 log = logging.getLogger(__name__)
@@ -277,14 +277,8 @@ class ON_GEOM(BFNamelistOb):
             xbs = (ps["XB"],)  # xbs, not xb
             if len(xbs[0]) != 6:
                 raise BFNotImported(self, f"Unsupported XB value: <{ps['XB']}>")
-            ob = self.element
-            me = ob.data
-            xbs_bbox_to_mesh(
-                context=context,
-                me=me,
-                xbs=xbs,
-                set_materials=True,
-            )
+            xbs_to_ob(context=context, ob=self.element, xbs=xbs, bf_xb="BBOX")
+            set_materials(self.element)  # FIXME protect from wrong SURF_ID
         elif ps["SPHERE_ORIGIN"] is not None:
             geom_sphere_to_ob(
                 context=context,

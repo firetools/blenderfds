@@ -92,7 +92,7 @@ class OP_PB(BFParam):
         ob_tmp.active_material = ob.active_material
 
     def from_fds(self, context, value):
-        bf_pb = pbs_to_ob(context=context, ob=self.element, pbs=((self.axis, value),), set_origin=True)
+        bf_pb = pbs_to_ob(context=context, ob=self.element, pbs=((self.axis, value),), set_origin=True, add=True,)
         self.element.bf_pb = bf_pb
         self.element.bf_pb_export = True
 

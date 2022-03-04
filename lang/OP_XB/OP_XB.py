@@ -169,6 +169,7 @@ class OP_XB(BFParam):
             ob=self.element,
             xbs=(value,),
             set_origin=True,
+            add=True,
         )
         self.element.bf_xb = bf_xb
         self.element.bf_xb_export = True
@@ -192,6 +193,7 @@ class OP_XB_BBOX(OP_XB):
             ob=self.element,
             xbs=(value,),
             set_origin=True,
+            add=True,
         )
 
     def draw(self, context, layout):
