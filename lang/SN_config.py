@@ -40,6 +40,9 @@ class SP_config_directory(BFParam):
             if not os.path.exists(bpy.path.abspath(value)):
                 raise BFException(self, f"Case directory <{value}> not existing")
 
+    def copy_to(self, context, dest_element):
+        pass
+
 
 class SP_config_text(BFParam):
     label = "Free Text"

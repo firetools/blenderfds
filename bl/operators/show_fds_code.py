@@ -84,7 +84,10 @@ class _show_fds_code:
         try:
             self.lines = self._get_lines(context)  # get FDS code
         except BFException as err:
-            self.report({"ERROR"}, f"Show: {err}")
+            self.report({"ERROR"}, str(err))
+            return {"CANCELLED"}
+        except Exception as err:
+            self.report({"ERROR"}, f"Unexpected error: {err}")
             return {"CANCELLED"}
         else:
             wm = context.window_manager

@@ -161,7 +161,9 @@ class OP_GEOM_binary_directory(BFParam):  # This is a Mesh property
 
     def check(self, context):
         d = self.element.bf_geom_binary_directory
-        if d and not os.path.exists(utils.io.transform_rbl_to_abs(filepath_rbl=d)):
+        if d and not os.path.exists(
+            utils.io.transform_rbl_to_abs(context=context, filepath_rbl=d)
+        ):
             raise BFException(self, f"Binary directory not existing: <{d}>")
 
 

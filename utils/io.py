@@ -79,6 +79,7 @@ def transform_rbl_to_abs_and_rfds(context, filepath_rbl, name="", extension=""):
     Transform filepath relative to blender file to absolute and relative to fds case file.
     """
     filepath = transform_rbl_to_abs(
+        context=context,
         filepath_rbl=filepath_rbl or get_abs_fds_path(context.scene),
         name=name,
         extension=extension,
@@ -92,7 +93,7 @@ def transform_rbl_to_abs_and_rfds(context, filepath_rbl, name="", extension=""):
     return filepath, filepath_rfds
 
 
-def transform_rbl_to_abs(filepath_rbl, name="", extension="") -> str:
+def transform_rbl_to_abs(context, filepath_rbl, name="", extension="") -> str:
     """!
     Transform filepath relative to blender file to absolute.
     """
@@ -164,6 +165,7 @@ def get_abs_fds_path(sc) -> str:
     @return: absolute fds path.
     """
     fds_path = bpy.path.abspath(sc.bf_config_directory)
+    print(f"fds_path: {fds_path}")
     if not is_abs(fds_path):
         raise BFException(None, f"Unresolved relative path, save the Blender file")
     return fds_path

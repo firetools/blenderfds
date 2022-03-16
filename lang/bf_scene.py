@@ -225,6 +225,7 @@ class BFScene:
         text = self.to_fds_list(context=context, full=full).to_string()
         if save:
             filepath = utils.io.transform_rbl_to_abs(
+                context=context,
                 filepath_rbl=self.bf_config_directory,
                 name=self.name,
                 extension=".fds",
@@ -250,7 +251,9 @@ class BFScene:
 
         # Set filepath, instead of f90
         if filepath:
-            filepath = utils.io.transform_rbl_to_abs(filepath)
+            filepath = utils.io.transform_rbl_to_abs(
+                context=context, filepath_rbl=filepath
+            )
             f90 = utils.io.read_txt_file(filepath=filepath)
             # and set imported fds case dir, because others rely on it
             # it is emptied later

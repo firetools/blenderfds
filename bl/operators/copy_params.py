@@ -47,11 +47,14 @@ class SCENE_OT_bf_copy_props_to_scene(Operator):
         # Get source and dest scenes
         source_element = context.scene
         dest_elements = (bpy.data.scenes.get(self.bf_dest_element, None),)  # a tuple!
+        if source_element in dest_elements:
+            self.report({"WARNING"}, "Destination same as source Scene")
+            return {"CANCELLED"}
         if not dest_elements[0]:
-            self.report({"WARNING"}, "No destination Scene")
+            self.report({"ERROR"}, "No destination Scene")
             return {"CANCELLED"}
         if not source_element:
-            self.report({"WARNING"}, "No source Scene")
+            self.report({"ERROR"}, "No source Scene")
             return {"CANCELLED"}
         # Copy
         _bf_props_copy(context, source_element, dest_elements)
@@ -93,10 +96,10 @@ class OBJECT_OT_bf_copy_FDS_properties_to_sel_obs(Operator):
             if ob.type == "MESH" and ob != source_element
         )
         if not dest_elements:
-            self.report({"WARNING"}, "No destination Object")
+            self.report({"ERROR"}, "No destination Object")
             return {"CANCELLED"}
         if not source_element:
-            self.report({"WARNING"}, "No source Object")
+            self.report({"ERROR"}, "No source Object")
             return {"CANCELLED"}
         # Copy
         _bf_props_copy(context, source_element, dest_elements)
@@ -139,10 +142,10 @@ class MATERIAL_OT_bf_assign_BC_to_sel_obs(Operator):
             if ob.type == "MESH" and ob != source_element
         )
         if not dest_elements:
-            self.report({"WARNING"}, "No destination Object")
+            self.report({"ERROR"}, "No destination Object")
             return {"CANCELLED"}
         if not source_element:
-            self.report({"WARNING"}, "No source Object")
+            self.report({"ERROR"}, "No source Object")
             return {"CANCELLED"}
         if not active_material:
             self.report({"WARNING"}, "No boundary condition to assign")

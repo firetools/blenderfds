@@ -71,9 +71,11 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
             for bf_param in bf_namelist.bf_params:
                 bf_param.show_fds_geometry(context=context, ob_tmp=ob_tmp)
         except BFException as err:
+            utils.geometry.rm_tmp_objects()
             self.report({"ERROR"}, str(err))
             return {"CANCELLED"}
         except Exception as err:
+            utils.geometry.rm_tmp_objects()
             self.report({"ERROR"}, f"Unexpected error: {err}")
             return {"CANCELLED"}
         else:

@@ -26,7 +26,7 @@ class SP_DUMP_render_file(BFParam):
     def to_fds_list(self, context) -> FDSList:
         if not self.get_exported(context):
             return FDSList()
-        filepath, filepath_rfds = utils.io.transform_rbl_to_abs_and_rfds(
+        filepath = utils.io.transform_rbl_to_abs(
             context=context,
             filepath_rbl=context.scene.bf_config_directory,
             name=self.element.name,
@@ -34,7 +34,7 @@ class SP_DUMP_render_file(BFParam):
         )
         ge1_text = scene_to_ge1(context, self)
         utils.io.write_txt_file(filepath, ge1_text)
-        return FDSParam(fds_label="RENDER_FILE", value=filepath_rfds)
+        return FDSParam(fds_label="RENDER_FILE", value=f"{self.element.name}.ge1")
 
     def set_value(self, context, value=None):
         self.element.bf_dump_render_file = bool(value)
