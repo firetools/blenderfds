@@ -159,7 +159,8 @@ def _check_bm_sanity(context, ob, bm, protect, check_open=True):
     _check_bm_degenerate_faces(context, ob, bm, epsilon_len, epsilon_area, protect)
     _check_bm_loose_vertices(context, ob, bm, epsilon_len, epsilon_area, protect)
     _check_bm_duplicate_vertices(context, ob, bm, epsilon_len, epsilon_area, protect)
-    _check_bm_normals(context, ob, bm, epsilon_len, epsilon_area, protect)
+    _check_bm_inconsistent_normals(context, ob, bm, epsilon_len, epsilon_area, protect)
+    _check_bm_inverted_normals(context, ob, bm, epsilon_len, epsilon_area, protect)
 
 
 def _check_bm_manifold_verts(context, ob, bm, epsilon_len, epsilon_area, protect):
@@ -202,7 +203,7 @@ def _check_bm_manifold_edges(context, ob, bm, epsilon_len, epsilon_area, protect
         _raise_bad_geometry(context, ob, bm, msg, protect, bad_edges=bad_edges)
 
 
-def _check_bm_normals(context, ob, bm, epsilon_len, epsilon_area, protect):
+def _check_bm_inconsistent_normals(context, ob, bm, epsilon_len, epsilon_area, protect):
     """!
     Check normals, adjoining faces should have normals in the same directions.
     @param context: the Blender context.
@@ -214,15 +215,34 @@ def _check_bm_normals(context, ob, bm, epsilon_len, epsilon_area, protect):
     """
     bad_edges = list()
     for edge in bm.edges:
-        if (
-            edge.is_manifold and not edge.is_contiguous
-        ):  # manifold because open boundaries are not contiguous
+        if edge.is_manifold and not edge.is_contiguous:
+            # manifold because open boundaries are not contiguous
             bad_edges.append(edge)
     if bad_edges:
         msg = f"Bad geometry: Inconsistent face normals detected ({len(bad_edges)} edges)."
         _raise_bad_geometry(context, ob, bm, msg, protect, bad_edges=bad_edges)
-    if not protect:
-        bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+
+
+def _check_bm_inverted_normals(context, ob, bm, epsilon_len, epsilon_area, protect):
+    """!
+    Check inverted normals, inside/outside.
+    @param context: the Blender context.
+    @param ob: the Blender object.
+    @param bm: the object's bmesh.
+    @param epsilon_len: the minimum edges length.
+    @param epsilon_area: the minimum faces area.
+    @param protect: if True raise BFException without context modifications.
+    """
+    bm.faces.ensure_lookup_table()
+    bm_tmp = bm.copy()
+    bmesh.ops.recalc_face_normals(bm_tmp, faces=bm_tmp.faces)
+    if (
+        bm.faces
+        and bm.faces[0].normal.normalized().dot(bm_tmp.faces[0].normal.normalized())
+        < -0.9  # anti parallel!
+    ):
+        msg = f"Bad geometry: Inverted face normals detected."
+        _raise_bad_geometry(context, ob, bm, msg, protect)
 
 
 def _check_bm_degenerate_edges(context, ob, bm, epsilon_len, epsilon_area, protect):
