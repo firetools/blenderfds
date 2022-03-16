@@ -70,7 +70,7 @@ def _cos_to_fds_list(context, sc, fds_list):
 def _get_co(sc, name=None):
     if name:
         co = bpy.data.collections.get(name)
-        if co and not sc.user_of_id(co):
+        if co and not sc.user_of_id(co):  # not in current scene?
             co.name = f"{name}.001"  # rename existing
             co = None  # not the right one
         if not co:
@@ -252,28 +252,38 @@ class BFScene:
         # Set filepath, instead of f90
         if filepath:
             filepath = utils.io.transform_rbl_to_abs(
-                context=context, filepath_rbl=filepath
+                context=context,
+                filepath_rbl=filepath,
             )
             f90 = utils.io.read_txt_file(filepath=filepath)
             # and set imported fds case dir, because others rely on it
-            # it is emptied later
+            # it is restored later
+            bf_config_directory = self.bf_config_directory
             self.bf_config_directory = os.path.dirname(filepath)
 
         # Load fds case
         fds_list.from_fds(f90=f90)
 
-        # Prepare free text for unmanaged namelists
+        # Prepare free text for unmanaged namelists, no rewind
         if not self.bf_config_text:
             self.bf_config_text = utils.ui.get_text_in_editor(
                 context=context,
                 text=None,
                 name="New Text",
             )
-        else:
-            self.bf_config_text.current_line_index = 0  # rewind
 
         # Import by fds_label
-        fds_labels = "HEAD", "SURF", "MOVE", "MULT", "MESH", "OBST", "GEOM", None
+        fds_labels = (
+            "HEAD",
+            "CATF",
+            "SURF",
+            "MOVE",
+            "MULT",
+            "MESH",
+            "OBST",
+            "GEOM",
+            None,
+        )
         for fds_label in fds_labels:
             _import(
                 context=context,
@@ -283,9 +293,9 @@ class BFScene:
                 set_collection=set_collection,
             )
 
-        # Unlink from fds case dir, to avoid overwriting imported case
+        # Restore fds case dir, to avoid overwriting imported case
         if filepath:
-            self.bf_config_directory = ""
+            self.bf_config_directory = bf_config_directory
 
     @classmethod
     def register(cls):

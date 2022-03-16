@@ -142,16 +142,6 @@ class SCENE_PT_bf_namelist_DUMP(Panel, _SCENE_PT_bf_namelist):
     bl_options = {"DEFAULT_CLOSED"}
 
 
-class SCENE_PT_bf_namelist_CATF(Panel, _SCENE_PT_bf_namelist):
-    """!
-    FDS CATF
-    """
-
-    bf_namelist_cls = "SN_CATF"
-    bl_label = "FDS CATF"
-    bl_options = {"DEFAULT_CLOSED"}
-
-
 class SCENE_PT_bf_config_sizes(Panel, _SCENE_PT_bf_namelist):
     """!
     FDS Default Sizes and Thresholds
@@ -443,7 +433,6 @@ bl_classes = [
     SCENE_PT_bf_namelist_RADI,
     SCENE_PT_bf_namelist_PRES,
     SCENE_PT_bf_namelist_DUMP,
-    SCENE_PT_bf_namelist_CATF,
     SCENE_PT_bf_config_sizes,
     COLLECTION_PT_bf_config,
     OBJECT_PT_bf_namelist,

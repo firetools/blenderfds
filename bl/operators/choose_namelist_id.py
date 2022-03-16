@@ -1,6 +1,6 @@
 #
 """!
-BlenderFDS, operators to choose IDs for MATL_ID, PROP_ID in free text and CATF files.
+BlenderFDS, operators to choose IDs for MATL_ID, PROP_ID in free text.
 """
 
 import logging
@@ -14,25 +14,14 @@ log = logging.getLogger(__name__)
 
 def _get_namelist_items(self, context, fds_label):
     """!
-    Get fds_label namelist IDs available in Free Text and CATF files.
+    Get fds_label namelist IDs available in Free Text.
     """
     fds_list = FDSList()
     sc = context.scene
     # Get namelists from Free Text
     if sc.bf_config_text:
         fds_list.from_fds(f90=sc.bf_config_text.as_string())
-    # Get namelists from available CATF files
-    if sc.bf_catf_export:
-        for item in sc.bf_catf_files:
-            if not item.bf_export:
-                continue
-            filepath = item.name
-            try:
-                f90 = utils.io.read_txt_file(filepath)
-            except IOError:
-                pass
-            else:
-                fds_list.from_fds(f90=f90)
+
     # Prepare list of IDs
     items = list()
     while True:
@@ -53,12 +42,12 @@ def _get_matl_items(self, context):
 
 class MATERIAL_OT_bf_choose_matl_id(Operator):
     """!
-    Choose MATL_ID from MATLs available in Free Text and CATF files.
+    Choose MATL_ID from MATLs available in Free Text.
     """
 
     bl_label = "Choose MATL_ID"
     bl_idname = "material.bf_choose_matl_id"
-    bl_description = "Choose MATL_ID from MATLs available in Free Text and CATF files"
+    bl_description = "Choose MATL_ID from MATLs available in Free Text"
 
     bf_matl_id: EnumProperty(
         name="MATL_ID",
@@ -99,12 +88,12 @@ def _get_prop_items(self, context):
 
 class OBJECT_OT_bf_choose_devc_prop_id(Operator):
     """!
-    Choose PROP_ID from PROPs available in Free Text and CATF files.
+    Choose PROP_ID from PROPs available in Free Text.
     """
 
     bl_label = "Choose PROP_ID"
     bl_idname = "object.bf_choose_devc_prop_id"
-    bl_description = "Choose PROP_ID from PROPs available in Free Text and CATF files"
+    bl_description = "Choose PROP_ID from PROPs available in Free Text"
 
     bf_devc_prop_id: EnumProperty(
         name="PROP_ID",

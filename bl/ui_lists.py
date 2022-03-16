@@ -5,7 +5,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
-# Prepare for "Other" and "List of filepaths" parameters
+# Prepare for "Other" parameters
 # PropertyGroup and UIList
 # The PG properties should always be: bf_export, name
 
@@ -32,33 +32,9 @@ class WM_UL_bf_other_items(UIList):
         row.prop(item, "name", text="", emboss=False, icon_value=icon)
 
 
-class WM_PG_bf_filepaths(PropertyGroup):
-    """!
-    Blender PropertyGroup for items of 'filepaths' FDS parameters.
-    """
-
-    bf_export: BoolProperty(name="Export", default=False)
-    name: StringProperty(name="Name", subtype="FILE_PATH")
-
-
-class WM_UL_bf_filepaths_items(UIList):
-    """!
-    Blender UIList for items of 'filepaths' FDS parameters.
-    """
-
-    def draw_item(self, context, layout, data, item, icon, active_data):
-        row = layout.row()
-        row.active = item.bf_export
-        row = row.split(factor=0.08)
-        row.prop(item, "bf_export", text="")
-        row.prop(item, "name", text="", emboss=False, icon_value=icon)
-
-
 bl_classes = [
     WM_PG_bf_other,
     WM_UL_bf_other_items,
-    WM_PG_bf_filepaths,
-    WM_UL_bf_filepaths_items,
 ]
 
 
