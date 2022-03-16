@@ -276,8 +276,8 @@ class BFScene:
         # Import by fds_label
         fds_labels = (
             "HEAD",
-            "CATF",
             "SURF",
+            "CATF",
             "MOVE",
             "MULT",
             "MESH",
