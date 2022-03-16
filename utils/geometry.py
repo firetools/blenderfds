@@ -124,24 +124,18 @@ def rm_tmp_objects():
 
 def rm_geometric_cache(ob):
     """!
-    Remove geometric caches for XB, XYZ, PB*, GEOM from object
+    Remove geometric caches for XB from object
     @param ob: Blender Object.
     """
-    # ob["ob_to_geom_cache"] = None
-    ob["ob_to_xbs_cache"] = None  # TODO or del?
-    # ob["ob_to_xyzs_cache"] = None
-    # ob["ob_to_pbs_cache"] = None
+    ob["ob_to_xbs_cache"] = None
 
 
 def rm_geometric_caches():
     """!
-    Remove geometric caches for XB, XYZ, PB*, GEOM from all objects in bpy.data
+    Remove geometric caches for XB from all objects in bpy.data
     """
     for ob in bpy.data.objects:
-        # ob["ob_to_geom_cache"] = None
-        ob["ob_to_xbs_cache"] = None  # TODO or del?
-        # ob["ob_to_xyzs_cache"] = None
-        # ob["ob_to_pbs_cache"] = None
+        ob["ob_to_xbs_cache"] = None
 
 
 def transform_ob(ob, m, force_othogonal=False):
