@@ -10,14 +10,14 @@ from . import bingeom
 log = logging.getLogger(__name__)
 
 
-def ob_to_geom(context, ob, check=True, check_open=True, world=True, filepath=None):
+def ob_to_geom(context, ob, check, is_open, world, filepath=None):
     """!
     Transform Object geometry to FDS notation.
     @param context: the Blender context.
     @param ob: the Blender object.
     @param check: True to check the bmesh sanity.
-    @param check_open: True to check if bmesh is open.
-    @param world: True to return the object in world coordinates.
+    @param is_open: set if bmesh should be open.
+    @param world: set to return the object in world coordinates.
     @param filepath: if set, write to bingeom file.
     @return FDS GEOM notation and messages.
     """
@@ -25,7 +25,7 @@ def ob_to_geom(context, ob, check=True, check_open=True, world=True, filepath=No
         context=context,
         ob=ob,
         check=check,
-        check_open=check_open,
+        is_open=is_open,
         world=world,
     )
     msgs = list((f"GEOM Vertices: {len(fds_verts)} | Faces: {len(fds_faces)}",))
@@ -42,14 +42,14 @@ def ob_to_geom(context, ob, check=True, check_open=True, world=True, filepath=No
     return fds_verts, fds_faces, fds_surfs, fds_faces_surfs, msgs
 
 
-def get_fds_trisurface(context, ob, check=True, check_open=True, world=True):
+def get_fds_trisurface(context, ob, check, is_open, world):
     """!
     Get triangulated surface from object in FDS format.
     @param context: the Blender context.
     @param ob: the Blender object.
-    @param check: True to check the bmesh sanity.
-    @param check_open: True to check if bmesh is open.
-    @param world: True to return the object in world coordinates.
+    @param check: set to check the bmesh sanity.
+    @param is_open: set if bmesh should be open.
+    @param world: set to return the object in world coordinates.
     @return FDS GEOM notation.
     """
     # Get bmesh and check it, if requested
@@ -57,7 +57,7 @@ def get_fds_trisurface(context, ob, check=True, check_open=True, world=True):
         context=context, ob=ob, world=world, triangulate=True, lookup=False
     )
     if check:
-        _check_bm_sanity(context, ob, bm, protect=True, check_open=check_open)
+        _is_bm_sane(context, ob, bm, protect=True, is_open=is_open)
     # Get geometric data from bmesh
     fds_verts, fds_faces, fds_surfs = list(), list(), list()
     fds_faces_surfs = list()
@@ -108,19 +108,19 @@ def get_boundary_condition_ids(context, ob):  # used by GEOM
 # Check sanity
 
 
-def check_geom_sanity(context, ob, protect, check_open=True):
+def check_geom_sanity(context, ob, protect, is_open):
     """!
     Check that Object is a closed orientable manifold, with no degenerate geometry.
     @param context: the Blender context.
     @param ob: the Blender object.
-    @param protect: if True raise BFException without context modifications.
-    @param check_open: True to check if bmesh is open.
+    @param protect: if set raise BFException without modifications.
+    @param is_open: set if the bmesh should be open.
     """
     # log.debug(f"Check geom sanity in Object <{ob.name}>")
     bm = utils.geometry.get_object_bmesh(
         context=context, ob=ob, world=False, triangulate=True, lookup=True
     )
-    _check_bm_sanity(context, ob, bm, protect, check_open=check_open)
+    _is_bm_sane(context, ob, bm, protect, is_open=is_open)
     bm.free()
 
 
@@ -142,35 +142,35 @@ def _get_epsilons(context):
     )  # min_edge_length, min_face_area
 
 
-def _check_bm_sanity(context, ob, bm, protect, check_open=True):
+def _is_bm_sane(context, ob, bm, protect, is_open):
     """!
     Check that bmesh is a closed orientable manifold, with no degenerate geometry.
     @param context: the Blender context.
     @param ob: the Blender object.
     @param bm: the object's bmesh.
     @param protect: if True raise BFException without context modifications.
-    @param check_open: True to check if bmesh is open.
+    @param is_open: True if bmesh should be open.
     """
     epsilon_len, epsilon_area = _get_epsilons(context)
-    _check_bm_manifold_verts(context, ob, bm, epsilon_len, epsilon_area, protect)
-    if check_open:
-        _check_bm_manifold_edges(context, ob, bm, epsilon_len, epsilon_area, protect)
-    _check_bm_degenerate_edges(context, ob, bm, epsilon_len, epsilon_area, protect)
-    _check_bm_degenerate_faces(context, ob, bm, epsilon_len, epsilon_area, protect)
-    _check_bm_loose_vertices(context, ob, bm, epsilon_len, epsilon_area, protect)
-    _check_bm_duplicate_vertices(context, ob, bm, epsilon_len, epsilon_area, protect)
-    _check_bm_inconsistent_normals(context, ob, bm, epsilon_len, epsilon_area, protect)
-    _check_bm_inverted_normals(context, ob, bm, epsilon_len, epsilon_area, protect)
+    _has_manifold_verts(context, ob, bm, protect)
+    if not is_open:
+        _has_manifold_edges(context, ob, bm, protect)
+    _has_no_degenerate_edges(context, ob, bm, protect, epsilon_len=epsilon_len)
+    _has_no_degenerate_faces(context, ob, bm, protect, epsilon_area=epsilon_area)
+    _has_loose_vertices(context, ob, bm, protect)
+    _has_duplicate_vertices(context, ob, bm, protect, epsilon_len=epsilon_len)
+    _has_inconsistent_normals(context, ob, bm, protect)
+    if not is_open:
+        _has_inverted_normals(context, ob, bm, protect)
+    return True
 
 
-def _check_bm_manifold_verts(context, ob, bm, epsilon_len, epsilon_area, protect):
+def _has_manifold_verts(context, ob, bm, protect):
     """!
     Check manifold vertices.
     @param context: the Blender context.
     @param ob: the Blender object.
     @param bm: the object's bmesh.
-    @param epsilon_len: the minimum edges length.
-    @param epsilon_area: the minimum faces area
     @param protect: if True raise BFException without context modifications.
     """
     bad_verts = list()
@@ -184,14 +184,12 @@ def _check_bm_manifold_verts(context, ob, bm, epsilon_len, epsilon_area, protect
         _raise_bad_geometry(context, ob, bm, msg, protect, bad_verts=bad_verts)
 
 
-def _check_bm_manifold_edges(context, ob, bm, epsilon_len, epsilon_area, protect):
+def _has_manifold_edges(context, ob, bm, protect):
     """!
     Check manifold edges, each edge should join two faces, no more no less.
     @param context: the Blender context.
     @param ob: the Blender object.
     @param bm: the object's bmesh.
-    @param epsilon_len: the minimum edges length.
-    @param epsilon_area: the minimum faces area.
     @param protect: if True raise BFException without context modifications.
     """
     bad_edges = list()
@@ -203,14 +201,12 @@ def _check_bm_manifold_edges(context, ob, bm, epsilon_len, epsilon_area, protect
         _raise_bad_geometry(context, ob, bm, msg, protect, bad_edges=bad_edges)
 
 
-def _check_bm_inconsistent_normals(context, ob, bm, epsilon_len, epsilon_area, protect):
+def _has_inconsistent_normals(context, ob, bm, protect):
     """!
     Check normals, adjoining faces should have normals in the same directions.
     @param context: the Blender context.
     @param ob: the Blender object.
     @param bm: the object's bmesh.
-    @param epsilon_len: the minimum edges length.
-    @param epsilon_area: the minimum faces area.
     @param protect: if True raise BFException without context modifications.
     """
     bad_edges = list()
@@ -223,14 +219,12 @@ def _check_bm_inconsistent_normals(context, ob, bm, epsilon_len, epsilon_area, p
         _raise_bad_geometry(context, ob, bm, msg, protect, bad_edges=bad_edges)
 
 
-def _check_bm_inverted_normals(context, ob, bm, epsilon_len, epsilon_area, protect):
+def _has_inverted_normals(context, ob, bm, protect):
     """!
     Check inverted normals, inside/outside.
     @param context: the Blender context.
     @param ob: the Blender object.
     @param bm: the object's bmesh.
-    @param epsilon_len: the minimum edges length.
-    @param epsilon_area: the minimum faces area.
     @param protect: if True raise BFException without context modifications.
     """
     bm.faces.ensure_lookup_table()
@@ -245,15 +239,9 @@ def _check_bm_inverted_normals(context, ob, bm, epsilon_len, epsilon_area, prote
         _raise_bad_geometry(context, ob, bm, msg, protect)
 
 
-def _check_bm_degenerate_edges(context, ob, bm, epsilon_len, epsilon_area, protect):
+def _has_no_degenerate_edges(context, ob, bm, protect, epsilon_len):
     """!
     Check no degenerate edges, zero lenght edges.
-    @param context: the Blender context.
-    @param ob: the Blender object.
-    @param bm: the object's bmesh.
-    @param epsilon_len: the minimum edges length.
-    @param epsilon_area: the minimum faces area.
-    @param protect: if True raise BFException without context modifications.
     """
     bad_edges = list()
     for edge in bm.edges:
@@ -264,17 +252,9 @@ def _check_bm_degenerate_edges(context, ob, bm, epsilon_len, epsilon_area, prote
         _raise_bad_geometry(context, ob, bm, msg, protect, bad_edges=bad_edges)
 
 
-def _check_bm_degenerate_faces(
-    context, ob, bm, epsilon_len, epsilon_area, protect=True
-):
+def _has_no_degenerate_faces(context, ob, bm, protect, epsilon_area):
     """!
     Check degenerate faces, zero area faces.
-    @param context: the Blender context.
-    @param ob: the Blender object.
-    @param bm: the object's bmesh.
-    @param epsilon_len: the minimum edges length.
-    @param epsilon_area: the minimum faces area.
-    @param protect: if True raise BFException without context modifications.
     """
     bad_faces = list()
     for face in bm.faces:
@@ -285,15 +265,9 @@ def _check_bm_degenerate_faces(
         _raise_bad_geometry(context, ob, bm, msg, protect, bad_faces=bad_faces)
 
 
-def _check_bm_loose_vertices(context, ob, bm, epsilon_len, epsilon_area, protect):
+def _has_loose_vertices(context, ob, bm, protect):
     """!
     Check loose vertices, vertices that have no connectivity.
-    @param context: the Blender context.
-    @param ob: the Blender object.
-    @param bm: the object's bmesh.
-    @param epsilon_len: the minimum edges length.
-    @param epsilon_area: the minimum faces area.
-    @param protect: if True raise BFException without context modifications.
     """
     bad_verts = list()
     for vert in bm.verts:
@@ -304,15 +278,9 @@ def _check_bm_loose_vertices(context, ob, bm, epsilon_len, epsilon_area, protect
         _raise_bad_geometry(context, ob, bm, msg, protect, bad_verts=bad_verts)
 
 
-def _check_bm_duplicate_vertices(context, ob, bm, epsilon_len, epsilon_area, protect):
+def _has_duplicate_vertices(context, ob, bm, protect, epsilon_len):
     """!
     Check duplicate vertices.
-    @param context: the Blender context.
-    @param ob: the Blender object.
-    @param bm: the object's bmesh.
-    @param epsilon_len: the minimum edges length.
-    @param epsilon_area: the minimum faces area.
-    @param protect: if True raise BFException without context modifications.
     """
     bad_verts = list()
     size = len(bm.verts)

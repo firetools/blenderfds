@@ -101,7 +101,7 @@ class OP_GEOM_BINARY_FILE(BFParam):
             context=context,
             ob=ob,
             check=ob.data.bf_geom_check_sanity,
-            check_open=not ob.data.bf_geom_is_terrain,
+            is_open=ob.data.bf_geom_is_terrain,
             world=not has_move_id,
             filepath=filepath,
         )
@@ -117,7 +117,7 @@ class OP_GEOM_BINARY_FILE(BFParam):
             context=context,
             ob=ob,
             check=ob.data.bf_geom_check_sanity,
-            check_open=not ob.data.bf_geom_is_terrain,
+            is_open=ob.data.bf_geom_is_terrain,
             world=True,
             filepath=None,
         )
