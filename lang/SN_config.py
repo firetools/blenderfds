@@ -70,18 +70,23 @@ class SP_config_text_position(BFParam):
     bpy_other = {
         "items": (
             (
-                "START",
-                "Insert At Start",
-                "Insert at the start of the exported file",
+                "BEGIN",
+                "At Beginning",
+                "Insert at the beginning of the exported file",
                 100,
             ),
             (
                 "SURF",
-                "Insert After SURFs",
+                "After SURF Lines",
                 "Insert after SURFs boundary conditions",
                 200,
             ),
-            ("END", "Insert At End", "Insert at the end of the exported file", 500),
+            (
+                "END",
+                "At End",
+                "Insert at the end of the exported file",
+                500,
+            ),
         ),
     }
 

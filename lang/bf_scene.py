@@ -195,7 +195,7 @@ class BFScene:
 
         _sc_to_fds_list(context=context, sc=self, fds_list=fds_list)
 
-        if self.bf_config_text_position == "START":
+        if self.bf_config_text_position == "BEGIN":
             _free_text_to_fds_list(sc=self, fds_list=fds_list)
 
         if full:
