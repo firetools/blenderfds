@@ -165,7 +165,8 @@ def _import(context, sc, fds_list, fds_label=None, set_collection=True) -> str:
         if not is_imported:
             texts.append(fds_namelist.to_string())
     # Finally, write free text
-    sc.bf_config_text.write("\n".join(texts))
+    if texts:
+        sc.bf_config_text.write("\n".join(texts) + "\n")
 
 
 class BFScene:
