@@ -98,9 +98,10 @@ class MP_namelist_cls(BFParam):
     bpy_default = "MN_SURF"
 
     def get_exported(self, context):
-        if self.element.name in config.default_mas:
-            return False
-        return super().get_exported(context)
+        return False
+
+    def draw_operators(self, context, layout):
+        layout.operator("material.bf_surf_to_sel_obs", icon="COPYDOWN", text="")
 
 
 class MP_ID(BFParam):

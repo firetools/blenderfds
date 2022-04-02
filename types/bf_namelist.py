@@ -73,14 +73,19 @@ class BFNamelist(BFParam):
             return bool(getattr(self.element, self.bpy_export))
         return True
 
-    def draw_operators(self, context, layout):
+    def draw_header(self, context, layout, panel):
         """!
-        Draw my operators on Tools panel.
+        Draw my header on layout.
         @param context: the Blender context.
         @param layout: the Blender panel layout.
-        @return used layout.
+        @param panel: the calling panel.
         """
-        layout.label(text="No tool available.")
+        if self.bpy_export:
+            layout.prop(self.element, self.bpy_export, icon_only=True)
+        if self.description:
+            panel.bl_label = f"FDS {self.label} ({self.description})"
+        else:
+            panel.bl_label = self.label
 
     def draw(self, context, layout):
         """!
@@ -194,13 +199,14 @@ class BFNamelistSc(BFNamelist):
     def set_appearance(self, context):
         pass
 
-
 class BFNamelistOb(BFNamelist):
     """!
     Blender representation of an FDS namelist group related to a Blender Object.
     """
 
     bpy_type = Object
+    bpy_export = "hide_render"
+    bpy_export_default = False
 
     def get_exported(self, context):
         return not self.element.hide_render
@@ -230,6 +236,36 @@ class BFNamelistOb(BFNamelist):
         # ob.show_in_front = show_in_front  # unused
         # ob.show_wire = show_wire  # unused 
 
+    def draw_header(self, context, layout, panel):
+        ob = self.element
+        # Manage temporary Object
+        if ob.bf_is_tmp:
+            panel.bl_label = "FDS Temporary Geometry"
+            return
+        # Manage all others
+        if self.bpy_export:
+            layout.prop(self.element, self.bpy_export, icon_only=True, toggle=False, invert_checkbox=True)
+        if self.description:
+            panel.bl_label = f"FDS {self.label} ({self.description})"
+        else:
+            panel.bl_label = self.label
+
+    def draw(self, context, layout):
+        ob = self.element
+        # Manage temporary Object
+        if ob.bf_is_tmp:
+            layout.operator("scene.bf_hide_fds_geometry", icon="HIDE_ON")
+            return
+        # Manage all others
+        row = layout.row()
+        if ob.bf_has_tmp:
+            row.operator("scene.bf_hide_fds_geometry", icon="HIDE_ON")
+        else:
+            row.operator("object.bf_show_fds_geometry", icon="HIDE_OFF")
+        row.operator("object.bf_show_fds_code", icon="HIDE_OFF")    
+        return super().draw(context, layout)
+
+
 class BFNamelistMa(BFNamelist):
     """!
     Blender representation of an FDS namelist group related to a Blender Material.
@@ -246,3 +282,23 @@ class BFNamelistMa(BFNamelist):
 
     def set_appearance(self, context):
         pass
+            
+    def draw_header(self, context, layout, panel):
+        ma = self.element
+        if self.bpy_export and ma.name not in config.default_mas:
+            layout.prop(self.element, self.bpy_export, icon_only=True)
+        if self.description:
+            panel.bl_label = f"FDS {self.label} ({self.description})"
+        else:
+            panel.bl_label = self.label
+
+    def draw(self, context, layout):
+        ma = self.element
+        layout.operator("material.bf_show_fds_code", icon="HIDE_OFF")
+        # Manage default Materials
+        if ma.name in config.default_mas:
+            layout.label(text=f"Predefined {self.element.name} boundary condition")
+            layout.prop(ma, "diffuse_color", text="RGB")
+            return
+        # Manage all others
+        return super().draw(context, layout)
