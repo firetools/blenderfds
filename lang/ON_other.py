@@ -2,7 +2,7 @@ import logging, re
 from bpy.types import Object
 from bpy.props import StringProperty
 from ..types import BFParam, BFNamelistOb, BFException
-from .bf_object import OP_ID, OP_FYI, OP_ID_suffix, OP_other
+from .bf_object import OP_namelist_cls,OP_ID, OP_FYI, OP_ID_suffix, OP_other
 from .OP_SURF_ID import OP_SURF_ID
 from .OP_XB import OP_XB, OP_XB_custom_voxel, OP_XB_voxel_size, OP_XB_center_voxels
 from .OP_XYZ import OP_XYZ
@@ -33,6 +33,7 @@ class ON_other(BFNamelistOb):
     description = "Other namelist"
     enum_id = 1007
     bf_params = (
+        OP_namelist_cls,
         OP_other_namelist,
         OP_ID,
         OP_FYI,

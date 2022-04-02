@@ -105,6 +105,12 @@ class OP_namelist_cls(BFParam):
         "update": update_OP_namelist_cls,
     }
 
+    def get_exported(self, context):
+        return False
+
+    def draw_operators(self, context, layout):
+        layout.operator("object.bf_props_to_sel_obs", icon="COPYDOWN", text="")
+
 
 class OP_ID(BFParam):
     label = "ID"
@@ -120,32 +126,22 @@ class OP_ID(BFParam):
 
 class OP_ID_suffix(BFParam):
     label = "IDs Suffix"
-    description = "Append suffix to multiple IDs"
+    description = "Suffix for IDs in case of multiple geometry (eg. voxels, faces, ...)"
     bpy_type = Object
     bpy_idname = "bf_id_suffix"
     bpy_prop = EnumProperty
     bpy_other = {
         "items": (
-            ("IDI", "Index", "Append index number to multiple IDs", 100),
-            ("IDX", "x", "Append x coordinate to multiple IDs", 200),
-            ("IDY", "y", "Append y coordinate to multiple IDs", 300),
-            ("IDZ", "z", "Append z coordinate to multiple IDs", 400),
-            ("IDXY", "xy", "Append x,y coordinates to multiple IDs", 500),
-            ("IDXZ", "xz", "Append x,z coordinates to multiple IDs", 600),
-            ("IDYZ", "yz", "Append y,z coordinates to multiple IDs", 700),
-            ("IDXYZ", "xyz", "Append x,y,z coordinates to multiple IDs", 800),
+            ("IDI", "Index", "Append an index", 100),
+            ("IDX", "x", "Append the x coordinate", 200),
+            ("IDY", "y", "Append the y coordinate", 300),
+            ("IDZ", "z", "Append the z coordinate", 400),
+            ("IDXY", "xy", "Append the x,y coordinates", 500),
+            ("IDXZ", "xz", "Append the x,z coordinates", 600),
+            ("IDYZ", "yz", "Append the y,z coordinates", 700),
+            ("IDXYZ", "xyz", "Append the x,y,z coordinates", 800),
         )
     }
-
-    def draw(self, context, layout):
-        ob = self.element
-        if (
-            (ob.bf_xb_export and ob.bf_xb != "BBOX")
-            or (ob.bf_xyz_export and ob.bf_xyz == "VERTICES")
-            or ob.bf_pb_export
-        ):
-            layout.prop(ob, "bf_id_suffix")
-        return layout
 
 
 class OP_FYI(BFParamFYI):

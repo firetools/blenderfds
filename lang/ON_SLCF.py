@@ -2,7 +2,7 @@ import logging, re
 from bpy.types import Object
 from bpy.props import BoolProperty
 from ..types import BFParam, BFNamelistOb, BFException
-from .bf_object import OP_ID, OP_FYI, OP_ID_suffix, OP_other
+from .bf_object import OP_namelist_cls,OP_ID, OP_FYI, OP_ID_suffix, OP_other
 from .ON_DEVC import OP_DEVC_QUANTITY
 from .OP_XB import OP_XB
 from .OP_PB import OP_PB, OP_PBX, OP_PBY, OP_PBZ
@@ -37,6 +37,7 @@ class ON_SLCF(BFNamelistOb):
     enum_id = 1012
     fds_label = "SLCF"
     bf_params = (
+        OP_namelist_cls,
         OP_ID,
         OP_FYI,
         OP_DEVC_QUANTITY,

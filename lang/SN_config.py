@@ -21,6 +21,9 @@ class SP_config_case_name(BFParam):
     def copy_to(self, context, dest_element):
         pass
 
+    def draw_operators(self, context, layout):
+        layout.operator("scene.bf_props_to_scene", icon="COPYDOWN", text="")
+
 
 class SP_config_directory(BFParam):
     label = "Directory"
@@ -52,13 +55,8 @@ class SP_config_text(BFParam):
     bpy_prop = PointerProperty
     bpy_other = {"type": bpy.types.Text}
 
-    def draw(self, context, layout):
-        col = layout.column(align=True)
-        row = col.row(align=True)
-        row.prop(self.element, "bf_config_text", text="Free Text")
-        row.operator("scene.bf_show_text", text="", icon="GREASEPENCIL")
-        col.prop(self.element, "bf_config_text_position", text=" ")
-        return col
+    def draw_operators(self, context, layout):
+        layout.operator("scene.bf_show_text", text="", icon="GREASEPENCIL")
 
 
 class SP_config_text_position(BFParam):
@@ -90,9 +88,6 @@ class SP_config_text_position(BFParam):
         ),
     }
 
-    def draw(self, context, layout):
-        pass
-
 
 class SN_config(BFNamelistSc):
     label = "FDS Case Config"
@@ -102,6 +97,11 @@ class SN_config(BFNamelistSc):
         SP_config_text,
         SP_config_text_position,
     )
+
+    def draw(self, context, layout):
+        row = layout.column(align=True)
+        row.operator("scene.bf_show_fds_code", icon="HIDE_OFF")
+        return super().draw(context, layout)
 
 
 class SP_config_min_edge_length_export(BFParam):

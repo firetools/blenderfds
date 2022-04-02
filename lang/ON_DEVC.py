@@ -1,8 +1,8 @@
-import logging, re
+import logging
 from bpy.types import Object
 from bpy.props import FloatProperty, BoolProperty, StringProperty
-from ..types import BFParam, BFNamelistOb, BFException
-from .bf_object import OP_ID, OP_FYI, OP_ID_suffix, OP_other
+from ..types import BFParam, BFNamelistOb
+from .bf_object import OP_namelist_cls, OP_ID, OP_FYI, OP_ID_suffix, OP_other
 from .OP_XB import OP_XB
 from .OP_XYZ import OP_XYZ
 
@@ -73,6 +73,7 @@ class ON_DEVC(BFNamelistOb):
     enum_id = 1011
     fds_label = "DEVC"
     bf_params = (
+        OP_namelist_cls,
         OP_ID,
         OP_FYI,
         OP_DEVC_QUANTITY,

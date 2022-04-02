@@ -2,12 +2,12 @@ import logging, bpy
 from bpy.types import Object
 from bpy.props import PointerProperty
 from ..types import BFParam, BFNamelistOb, BFException
-from .bf_object import OP_ID, OP_FYI, OP_ID_suffix, OP_other
+from .bf_object import OP_namelist_cls,OP_ID, OP_FYI, OP_ID_suffix, OP_other
 from .OP_SURF_ID import OP_SURF_ID
 from .OP_XB import OP_XB
 from .OP_XYZ import OP_XYZ
 from .OP_PB import OP_PB, OP_PBX, OP_PBY, OP_PBZ
-from .SN_MULT import OP_MULT_ID
+from .ON_MULT import OP_other_MULT_ID
 
 log = logging.getLogger(__name__)
 
@@ -43,6 +43,7 @@ class ON_VENT(BFNamelistOb):
     enum_id = 1010
     fds_label = "VENT"
     bf_params = (
+        OP_namelist_cls,
         OP_ID,
         OP_FYI,
         OP_SURF_ID,
@@ -54,6 +55,6 @@ class ON_VENT(BFNamelistOb):
         OP_PBY,
         OP_PBZ,
         OP_ID_suffix,
-        OP_MULT_ID,
+        OP_other_MULT_ID,
         OP_other,
     )

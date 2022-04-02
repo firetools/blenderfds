@@ -10,8 +10,8 @@ from ...types import (
     FDSList,
 )
 from ... import utils
-from ..bf_object import OP_ID, OP_FYI, OP_other
-from ..SN_MOVE import OP_MOVE_ID
+from ..bf_object import OP_namelist_cls, OP_ID, OP_FYI, OP_other
+from ..SN_MOVE import OP_other_MOVE_ID
 from .ob_to_geom import ob_to_geom, get_boundary_condition_ids
 from .geom_to_ob import geom_to_ob, geom_to_mesh, geom_sphere_to_ob, geom_cylinder_to_ob
 from ..OP_XB.xbs_to_ob import set_materials, xbs_to_ob
@@ -82,6 +82,9 @@ class OP_GEOM_BINARY_FILE(BFParam):
 
     def draw(self, context, layout):
         ob, me, space = self.element, self.element.data, context.space_data
+        row = layout.row()
+        row.operator("object.bf_geom_check_sanity")
+        row.operator("object.bf_geom_check_intersections")
         if ob:  # mesh name, from properties_data_mesh.py
             layout.template_ID(ob, "data", text=self.label)
         elif me:
@@ -142,7 +145,7 @@ class OP_GEOM_BINARY_FILE(BFParam):
         self.element.data.bf_geom_binary_directory = ""  # unlink from original path_rbl
 
 
-class OP_GEOM_MOVE_ID(OP_MOVE_ID):
+class OP_GEOM_MOVE_ID(OP_other_MOVE_ID):
     def get_exported(self, context):
         return self.element.data.users > 1  # shared bingeom
 
@@ -216,6 +219,7 @@ class ON_GEOM(BFNamelistOb):
     enum_id = 1021
     fds_label = "GEOM"
     bf_params = (
+        OP_namelist_cls,
         OP_ID,
         OP_FYI,
         OP_GEOM_SURF_ID,  # before bingeom
@@ -307,8 +311,3 @@ class ON_GEOM(BFNamelistOb):
         # Read all other remaining params (eg. BINARY_FILE, MOVE_ID)
         super().from_fds(context, fds_namelist=fds_namelist)
 
-    def draw_operators(self, context, layout):
-        ob = context.object
-        col = layout.column()
-        col.operator("object.bf_geom_check_sanity")
-        col.operator("object.bf_geom_check_intersections")
