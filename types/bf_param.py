@@ -26,7 +26,7 @@ class BFParam:
     ## Unique integer id for EnumProperty
     enum_id = None
     ## Other BlenderFDS parameters, eg: {'draw_type': 'WIRE', ...}
-    bf_other = {}
+    bf_other = None
     ## My sub params, tuple of classes of type BFParam
     bf_params = tuple()
     ## FDS label, eg. "OBST", "ID", ...
@@ -42,7 +42,7 @@ class BFParam:
     ## Blender property default
     bpy_default = None
     ## Other optional Blender property parameters, eg. {"min": 3., ...}
-    bpy_other = {}
+    bpy_other = None
     ## idname of export toggle Blender property
     bpy_export = None
     ## default value for export toggle Blender property
@@ -102,67 +102,90 @@ class BFParam:
         Register related Blender properties.
         @param cls: class to be registered.
         """
-        # log.debug(f"Registering <{cls.label}>")
+        log.debug(f"{cls.__name__}: registering...")
+
+        # Init bf_other and bpy_other
+        if cls.bf_other is None:
+            cls.bf_other = dict()
+        if cls.bpy_other is None:
+            cls.bpy_other = dict()
+
+        # Check bpy_type
         if not cls.bpy_type:
-            # log.debug(f"No bpy_type in class <{cls}>")
+            log.debug(f"{cls.__name__}: no bpy_type.")
             return
-        # Insert fds_default
+
+        # Check label and description
+        if not cls.label:
+            raise AssertionError(f"{cls.__name__}: no label.")
+        if not cls.description:
+            cls.description = ""
+
+        # Insert fds_default in description and, if empty, bpy_default
         if cls.fds_default is not None:
-            # ...in description
             cls.description += f"\n(FDS default: {cls.fds_default})"
-            # ...in bpy_default if not present
             if cls.bpy_default is None:
                 cls.bpy_default = cls.fds_default
+        if cls.bpy_default is not None:
+            cls.bpy_other["default"] = cls.bpy_default
+
+        # bpy_other = cls.bpy_other.copy()  # FIXME why copy?
+        # FIXME FIXME FIXME
+        # FIXME verify copy and remove separated _export when needed
+        # only for the update function
+        # FIXME MOVE and split as MULT rm tmp
+
         # Create bpy_idname
-        if cls.bpy_prop and cls.bpy_idname:
-            # Check label and description
-            if not cls.label or not cls.description:
-                raise AssertionError(f"No label or description in <{cls}>")
-            if hasattr(cls.bpy_type, cls.bpy_idname):
-                # Already existing bpy_type.bpy_idname
-                # log.debug(f"Using existing <{cls.bpy_idname}> Blender property")
-                if cls.bpy_other or cls.bpy_default:
-                    raise AssertionError(f"Unused bpy_other or bpy_default in <{cls}>")
-            else:
-                # New bpy_type.bpy_idname
-                # log.debug(f"Setting <{cls.bpy_idname}> Blender property")
-                bpy_other = cls.bpy_other.copy()
-                if cls.bpy_default is not None:
-                    bpy_other["default"] = cls.bpy_default
+        if cls.bpy_idname:
+            if cls.bpy_prop:
+                # Create new bpy_type.bpy_idname
+                log.debug(f"{cls.__name__}: setting <{cls.bpy_idname}>.")
+                print(
+                    f"cls.bpy_default: {cls.bpy_default} bpy_other: {cls.bpy_other}"
+                )  # FIXME
                 setattr(
                     cls.bpy_type,
                     cls.bpy_idname,
                     cls.bpy_prop(
-                        name=cls.label, description=cls.description, **bpy_other
+                        name=cls.label, description=cls.description, **cls.bpy_other
                     ),
                 )
                 cls._registered_bpy_idnames.append(cls.bpy_idname)
-        # elif cls.bpy_prop or cls.bpy_idname:
-        #     log.debug(f"Unused bpy_prop or bpy_idname in <{cls}>")
-        # else:
-        #     log.debug(f"No bpy_prop and bpy_idname in <{cls}>")
+            else:
+                # Already existing
+                log.debug(f"{cls.__name__}: using existing <{cls.bpy_idname}>.")
+                # Check unused info
+                if cls.bpy_other or cls.bpy_default:
+                    log.debug(f"{cls.__name__}: unused bpy_other or bpy_default.")
+        else:
+            log.debug(f"{cls.__name__}: no bpy_idname.")
+
         # Create bpy_export
         if cls.bpy_export:
-            if hasattr(cls.bpy_type, cls.bpy_export):
-                # Already existing bpy_type.bpy_export
-                # log.debug(f"Using <{cls.bpy_export}> Blender property as export ref")
-                if cls.bpy_export_default is not None:
-                    raise AssertionError(f"Unused bpy_export_default in <{cls}>")
-            else:
-                # New bpy_type.bpy_export
-                # log.debug(f"Setting <{cls.bpy_export}> Blender property")
-                if cls.bpy_export_default is None:
-                    raise AssertionError(f"Undefined bpy_export_default in <{cls}>")
+            # Create new bpy_type.bpy_export
+            log.debug(f"{cls.__name__}: setting export toggle <{cls.bpy_export}>.")
+            if cls.bpy_export_default is None:
+                log.debug(f"{cls.__name__}: undefined bpy_export_default.")
+            try:  # FIXME make def
                 setattr(
                     cls.bpy_type,
                     cls.bpy_export,
                     BoolProperty(
-                        name=f"Export {cls.label}",
-                        description=f"Set if {cls.label} shall be exported to FDS",
-                        default=cls.bpy_export_default,
+                        name=f"Export {cls.__name__}",
+                        description=f"Set if {cls.__name__} shall be exported to FDS",
+                        default=cls.bpy_export_default or False,  # protect from None
+                        update=cls.bpy_other.get("update", None),  # same update
                     ),
                 )
                 cls._registered_bpy_idnames.append(cls.bpy_export)
+            except ValueError:
+                # Already existing
+                log.debug(f"{cls.__name__}: using existing <{cls.bpy_export}>")
+                # Check unused info
+                if cls.bpy_export_default is not None:
+                    log.debug(f"{cls.__name__}: unused bpy_export_default.")
+        else:
+            log.debug(f"{cls.__name__}: no bpy_export.")
 
     @classmethod
     def unregister(cls):
@@ -214,10 +237,10 @@ class BFParam:
         # Check if identical to FDS default
         d = self.fds_default
         if d is not None:
-            if isinstance(value, float):
-                epsilon = 1e-6
-                return value > d + epsilon or value < d - epsilon
-            elif value == d:  # other comparison
+            if isinstance(d, tuple):
+                # transform bpy to py types
+                value = value[:]
+            if d == value:  # FIXME check float comparison
                 return False
         # Check if bpy_export is True
         if self.bpy_export:
@@ -462,9 +485,9 @@ class BFParamOther(BFParam):
 
     @classmethod
     def register(cls):
-        # log.debug(f"Registering <{cls.label}>")
+        log.debug(f"{cls.__name__}: registering Other...")
         if not cls.bpy_type:
-            # log.debug(f"No bpy_type in class <{cls}>")
+            log.debug(f"{cls.__name__}: no bpy_type.")
             return
         # Register index bpy_idx_idname
         bpy_idx_idname = f"{cls.bpy_idname}_idx"
@@ -514,7 +537,7 @@ class BFParamOther(BFParam):
 
     @classmethod
     def unregister(cls):
-        # log.debug(f"Unregistering <{cls.label}>")
+        # log.debug(f"Unregistering <{cls.__name__}>")
         if not cls.bpy_type:
             # log.debug(f"No bpy_type in class <{cls}>")
             return
