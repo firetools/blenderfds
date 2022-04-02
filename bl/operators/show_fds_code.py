@@ -101,7 +101,7 @@ class OBJECT_OT_bf_show_fds_code(_show_fds_code, Operator):
     Show FDS code exported from current Object.
     """
 
-    bl_label = "FDS Code"
+    bl_label = "Show FDS Code"
     bl_idname = "object.bf_show_fds_code"
     bl_description = "Show FDS code exported from current Object"
 
@@ -113,12 +113,29 @@ class OBJECT_OT_bf_show_fds_code(_show_fds_code, Operator):
         return context.active_object.to_fds_list(context).to_string()
 
 
+class COLLECTION_OT_bf_show_fds_code(_show_fds_code, Operator):
+    """!
+    Show FDS code exported from current Object.
+    """
+
+    bl_label = "Show FDS Code"
+    bl_idname = "collection.bf_show_fds_code"
+    bl_description = "Show FDS code exported from current Collection"
+
+    @classmethod
+    def poll(cls, context):
+        return context.collection
+
+    def _get_lines(self, context):
+        return context.collection.to_fds_list(context).to_string()
+
+
 class MATERIAL_OT_bf_show_fds_code(_show_fds_code, Operator):
     """!
     Show FDS code exported from current Material.
     """
 
-    bl_label = "FDS Code"
+    bl_label = "Show FDS Code"
     bl_idname = "material.bf_show_fds_code"
     bl_description = "Show FDS code exported from current Material"
 
@@ -135,7 +152,7 @@ class SCENE_OT_bf_show_fds_code(_show_fds_code, Operator):
     Show FDS code exported from Scene.
     """
 
-    bl_label = "FDS Code"
+    bl_label = "Show FDS Code"
     bl_idname = "scene.bf_show_fds_code"
     bl_description = "Show FDS code exported from Scene"
 
@@ -171,6 +188,7 @@ class SCENE_OT_bf_show_text(Operator):
 bl_classes = [
     WM_OT_bf_dialog,
     OBJECT_OT_bf_show_fds_code,
+    COLLECTION_OT_bf_show_fds_code,
     MATERIAL_OT_bf_show_fds_code,
     SCENE_OT_bf_show_fds_code,
     SCENE_OT_bf_show_text,

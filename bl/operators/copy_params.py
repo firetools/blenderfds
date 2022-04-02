@@ -28,12 +28,12 @@ def _bf_props_copy(context, source_element, dest_elements):
 
 class SCENE_OT_bf_copy_props_to_scene(Operator):
     """!
-    Copy all current scene FDS parameters to another Scene.
+    Copy current FDS case parameters to another Scene.
     """
 
     bl_label = "Copy To"
     bl_idname = "scene.bf_props_to_scene"
-    bl_description = "Copy all current scene FDS parameters to another Scene"
+    bl_description = "Copy current FDS case parameters to another Scene"
     bl_options = {"REGISTER", "UNDO"}
 
     bf_dest_element: StringProperty(name="Destination Scene")
@@ -69,12 +69,12 @@ class SCENE_OT_bf_copy_props_to_scene(Operator):
 
 class OBJECT_OT_bf_copy_FDS_properties_to_sel_obs(Operator):
     """!
-    Copy current object FDS parameters to selected Objects.
+    Copy current namelist parameters to selected Objects.
     """
 
     bl_label = "Copy To"
     bl_idname = "object.bf_props_to_sel_obs"
-    bl_description = "Copy current object FDS parameters to selected Objects"
+    bl_description = "Copy current namelist parameters to selected Objects"
     bl_options = {"REGISTER", "UNDO"}
 
     @classmethod

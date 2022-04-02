@@ -35,10 +35,12 @@ def get_nsplit(ob):
         return 1, ijk[0] * ijk[1] * ijk[2]
 
 
-def split_mesh(hid, ijk, nsplits, xb):
+def split_mesh(hid, ijk, export, nsplits, xb):
     """!
     Split ijk cells along the axis in nsplits, calc new ids, ijks and xbs
     """
+    if not export:
+        return (hid,), (ijk,), (xb,)
     ijks, xbs = list(), list()
     # Split cells along axis
     icells = split_cells(ijk[0], nsplits[0])
@@ -78,20 +80,20 @@ def split_mesh(hid, ijk, nsplits, xb):
         )
     # Prepare ids
     if len(xbs) > 1:
-        ids = (f"{hid}_{i}" for i in range(len(xbs)))
+        hids = (f"{hid}_s{i}" for i in range(len(xbs)))
     else:
-        ids = (hid,)
-    return ids, ijks, xbs
+        hids = (hid,)
+    return hids, ijks, xbs
 
 
 def test():
-    ids, ijks, xbs = split_mesh(
+    hids, ijks, xbs = split_mesh(
         hid="H",
         ijk=(10, 10, 10),
         nsplits=(2, 3, 1),
         xb=(0.0, 10.0, 0.0, 10.0, 0.0, 10.0),
     )
-    assert tuple(ids) == (
+    assert tuple(hids) == (
         "H_0",
         "H_1",
         "H_2",
