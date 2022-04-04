@@ -150,8 +150,10 @@ class SN_MOVE(BFNamelistSc):
 # This namelist is called by other BFNamelistOb
 # When called the Blender Mesh should already be available
 
+# FIXME move to ON_MOVE.py
 
-class OP_MOVE_ID(BFParam):
+
+class OP_other_MOVE_ID(BFParam):
     label = "MOVE_ID"
     description = "Reference to geometric transformation"
     fds_label = "MOVE_ID"
