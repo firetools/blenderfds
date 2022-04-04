@@ -14,75 +14,7 @@ from ..types import (
 
 log = logging.getLogger(__name__)
 
-
-# As a reminder:
-# context.object.matrix_world =
-#     Matrix(((1.0, 0.0, 0.0, 1.0),
-#             (0.0, 1.0, 0.0, 2.0),
-#             (0.0, 0.0, 1.0, 3.0),
-#             (0.0, 0.0, 0.0, 1.0)))
-# context.object.matrix_world[1][3] = 2.
-# t34 = 1.0, 0.0, 0.0,   0.0, 1.0, 0.0,   0.0, 0.0, 1.0,   1.0, 2.0, 3.0
-
-# m = mathutils.Matrix.Rotation(0.7, 4, "Z")
-# bpy.data.objects["Cube"].matrix_world @= m  # apply rotation
-# bpy.data.objects["Cube"].matrix_world @= m.copy().invert() # apply inverse rotation
-
-
-# Export functions
-
-
-def bl_matrix_to_t34(m) -> tuple:
-    """!
-    Transform the Blender transformation matrix in the FDS MOVE T34 notation.
-    """
-    return tuple(m[i][j] for j in range(4) for i in range(3))
-
-
-# Import functions
-
-
-def fds_move_to_bl_matrix(
-    t34=None,
-    dx=0.0,
-    dy=0.0,
-    dz=0.0,
-    scale=None,
-    scalex=1.0,
-    scaley=1.0,
-    scalez=1.0,
-    x0=0.0,
-    y0=0.0,
-    z0=0.0,
-    rotation_angle=0.0,
-    axis=(0.0, 0.0, 1.0),
-) -> Matrix:
-    """!
-    Transform the FDS MOVE notation in a Blender 4x4 transformation matrix.
-    """
-    if t34:
-        m = list(tuple(t34[j * 3 + i] for j in range(4)) for i in range(3))
-        m.append((0.0, 0.0, 0.0, 1.0))  # add last row
-        m = Matrix(m)
-    else:
-        if scale:
-            scalex = scaley = scalez = scale
-        m = (
-            Matrix().Translation((dx, dy, dz))  # last applied
-            @ Matrix().Scale(scalex, 4, (1, 0, 0))
-            @ Matrix().Scale(scaley, 4, (0, 1, 0))
-            @ Matrix().Scale(scalez, 4, (0, 0, 1))
-            @ Matrix().Translation((x0, y0, z0))
-            @ Matrix().Rotation(radians(rotation_angle), 4, Vector(axis))
-            @ Matrix().Translation((-x0, -y0, -z0))  # first applied
-        )
-    return m
-
-
-# Classes
-
-
-class SN_MOVE(BFNamelistSc):
+class SN_MOVE(BFNamelistSc):  # FIXME FIXME FIXME
     # This namelist is not displayed in the bf_namelist_cls menu,
     # and has no panel. Used for importing only, it translates
     # FDS MOVE transformations in Blender matrix of a scene dict
@@ -153,36 +85,3 @@ class SN_MOVE(BFNamelistSc):
 # FIXME move to ON_MOVE.py
 
 
-class OP_other_MOVE_ID(BFParam):
-    label = "MOVE_ID"
-    description = "Reference to geometric transformation"
-    fds_label = "MOVE_ID"
-    bpy_type = Object
-
-    def to_fds_list(self, context) -> FDSList:
-        if not self.get_exported(context):
-            return FDSList()
-        ob = self.element
-        t34 = bl_matrix_to_t34(m=ob.matrix_world)
-        return FDSList(
-            iterable=(
-                FDSParam(fds_label="MOVE_ID", value=f"{ob.name}_move"),
-                FDSNamelist(
-                    iterable=(
-                        FDSParam(fds_label="ID", value=f"{ob.name}_move"),
-                        FDSParam(fds_label="T34", value=t34, precision=6),
-                    ),
-                    fds_label="MOVE",
-                ),
-            )
-        )
-
-    def from_fds(self, context, value):
-        try:
-            m = context.scene["bf_move_coll"][value]
-        except KeyError as err:
-            raise BFNotImported(self, f"Missing MOVE ID={value}")
-        utils.geometry.transform_ob(ob=self.element, m=m, force_othogonal=False)
-
-    def draw(self, context, layout):
-        pass
