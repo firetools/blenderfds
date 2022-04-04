@@ -5,6 +5,26 @@ BlenderFDS, Blender user interface utilities.
 import bpy
 
 
+def get_screen_area(context, area_type="PROPERTIES"):
+    """!
+    Get existing ui area or create one
+    """
+    selected_area = None
+    for w in context.window_manager.windows:
+        for area in w.screen.areas:
+            if area.type == area_type:
+                selected_area = area
+                break
+    if not selected_area:
+        # Call user prefs window
+        bpy.ops.screen.userpref_show("INVOKE_DEFAULT")
+        # Change area type
+        area = context.window_manager.windows[-1].screen.areas[0]
+        area.type = area_type
+        selected_area = area
+    return selected_area
+
+
 def get_text_in_editor(context, text=None, name=None):
     """!
     Show text in Blender Text Editor.
@@ -15,19 +35,7 @@ def get_text_in_editor(context, text=None, name=None):
     # Rewind to first line
     text.current_line_index = 0
     # Search existing ui area or create one
-    selected_area = None
-    for w in context.window_manager.windows:
-        for area in w.screen.areas:
-            if area.type == "TEXT_EDITOR":
-                selected_area = area
-                break
-    if not selected_area:
-        # Call user prefs window
-        bpy.ops.screen.userpref_show("INVOKE_DEFAULT")
-        # Change area type
-        area = context.window_manager.windows[-1].screen.areas[0]
-        area.type = "TEXT_EDITOR"
-        selected_area = area
+    selected_area = get_screen_area(context, area_type="TEXT_EDITOR")
     # Set highlighting
     space = selected_area.spaces[0]
     space.text = text
@@ -37,7 +45,15 @@ def get_text_in_editor(context, text=None, name=None):
     space.show_margin = True
     space.margin_column = 130
     space.show_syntax_highlight = True
-    return text
+    return
+
+
+def show_property_panel(context, space_context="MATERIAL"):
+    """!
+    Show Material Panel.
+    """
+    selected_area = get_screen_area(context, area_type="PROPERTIES")
+    selected_area.spaces[0].context = space_context
 
 
 def view_all(context):
