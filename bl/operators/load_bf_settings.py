@@ -25,7 +25,7 @@ class WM_OT_bf_load_blenderfds_settings(Operator):
     def execute(self, context):
         # Set default startup.blend
         filepath = os.path.join(
-            os.path.dirname(sys.modules[__package__].__file__), "../startup.blend"
+            os.path.dirname(sys.modules[__package__].__file__), "../../startup.blend"
         )
         bpy.ops.wm.open_mainfile(filepath=filepath, load_ui=True, use_scripts=True)
         bpy.ops.wm.save_homefile()

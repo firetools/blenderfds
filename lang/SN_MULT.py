@@ -29,6 +29,5 @@ class SN_MULT(BFNamelistSc):
             context.scene["bf_mult_coll"] = dict()
         bf_mult_coll = context.scene["bf_mult_coll"]
         # Set Scene dict by ID, eg. {"ob_mult": "A=3 B=4 C=5"}
-        # FIXME mv to class
-        f90 = " ".join((item.to_string() for item in fds_namelist))
-        bf_mult_coll[fds_param.get_value()] = f90
+        f90_params = " ".join((item.to_string() for item in fds_namelist))
+        bf_mult_coll[fds_param.get_value()] = f90_params

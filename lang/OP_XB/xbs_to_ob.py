@@ -143,4 +143,4 @@ def set_materials(ob) -> None:
             for iface, face in enumerate(me.polygons):
                 face.material_index = iface % 6
         case _:
-            raise AssertionError(f"Wrong number of Materials in Object {ob.name}")
+            raise BFException(ob, f"Wrong number of Material Slots")

@@ -38,7 +38,7 @@ class SN_HEAD(BFNamelistSc):
 class SN_TAIL(BFNamelistSc):  # importing only, prevent free_text
     label = "TAIL"
     description = "Case closing"
-    enum_id = 3010  # FIXME needed?
+    enum_id = 3010  # to avoid TAIL import into free_text
     fds_label = "TAIL"
 
     def get_exported(self, context):

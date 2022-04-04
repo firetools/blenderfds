@@ -44,9 +44,13 @@ class OP_GEOM_SURF_ID(BFParam):
                 raise BFException(self, f"Unknown SURF_ID <{name}>")
             ob.data.materials.append(ma)
 
-    def draw(self, context, layout):
-        ma_names = ", ".join(self.get_value(context)) or "None"
-        layout.label(text=f"SURF_ID: {ma_names}")
+    def draw(self, context, layout):  # only label
+        row = layout.split(factor=0.4)
+        row.alignment = "RIGHT"
+        row.label(text=f"SURF_ID")
+        row.alignment = "EXPAND"
+        text = ", ".join(self.get_value(context)) or "None"
+        row.label(text=text, icon="MATERIAL_DATA")
 
 
 class OP_GEOM_SURF_IDS(OP_GEOM_SURF_ID):  # importing only
@@ -284,7 +288,7 @@ class ON_GEOM(BFNamelistOb):
             if len(xbs[0]) != 6:
                 raise BFNotImported(self, f"Unsupported XB value: <{ps['XB']}>")
             xbs_to_ob(context=context, ob=self.element, xbs=xbs, bf_xb="BBOX")
-            set_materials(self.element)  # FIXME protect from wrong SURF_ID
+            set_materials(self.element)
         elif ps["SPHERE_ORIGIN"] is not None:
             geom_sphere_to_ob(
                 context=context,
@@ -310,4 +314,3 @@ class ON_GEOM(BFNamelistOb):
             raise BFNotImported(self, "ZVALS not implemented")
         # Read all other remaining params (eg. BINARY_FILE, MOVE_ID)
         super().from_fds(context, fds_namelist=fds_namelist)
-

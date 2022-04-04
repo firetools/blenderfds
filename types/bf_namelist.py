@@ -206,7 +206,6 @@ class BFNamelistOb(BFNamelist):
 
     bpy_type = Object
     bpy_export = "hide_render"
-    bpy_export_default = False
 
     def get_exported(self, context):
         return not self.element.hide_render

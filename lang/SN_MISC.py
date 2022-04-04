@@ -79,9 +79,11 @@ class SP_origin_geoname(BFParam):
             col.prop(sc, "bf_origin_north_bearing")
             row = col.row()
             row.alignment = "RIGHT"
-            row.label(
-                text=f"UTM {sc['bf_origin_utm_zn']}{sc['bf_origin_utm_ne'] and 'N' or 'S'} {int(sc['bf_origin_utm_easting'])}m E {int(sc['bf_origin_utm_northing'])}m N (WGS84)"
+            text = (
+                f"UTM {sc.bf_origin_utm_zn}{sc.bf_origin_utm_ne and 'N' or 'S'} "
+                f"{int(sc.bf_origin_utm_easting)}m E {int(sc.bf_origin_utm_northing)}m N (WGS84)"
             )
+            row.label(text=text)
 
     def to_fds_list(self, context) -> FDSList:
         if self.element.bf_origin_export and self.element.bf_origin_geoname:
@@ -128,6 +130,12 @@ class SP_origin_utm_zn(BFParam):
     bpy_default = 32
     bpy_other = {"min": 1, "max": 60}
 
+    def get_exported(self, context):
+        return False
+
+    def draw(self, context, layout):
+        pass
+
 
 class SP_origin_utm_ne(BFParam):
     label = "Origin UTM Northern Emisphere"
@@ -136,6 +144,12 @@ class SP_origin_utm_ne(BFParam):
     bpy_idname = "bf_origin_utm_ne"
     bpy_prop = BoolProperty
     bpy_default = True
+
+    def get_exported(self, context):
+        return False
+
+    def draw(self, context, layout):
+        pass
 
 
 class SP_origin_utm_easting(BFParam):
@@ -147,6 +161,12 @@ class SP_origin_utm_easting(BFParam):
     bpy_default = 500000.0
     bpy_other = {"unit": "LENGTH", "min": 0, "max": 1000000}
 
+    def get_exported(self, context):
+        return False
+
+    def draw(self, context, layout):
+        pass
+
 
 class SP_origin_utm_northing(BFParam):
     label = "Origin UTM Northing"
@@ -156,6 +176,12 @@ class SP_origin_utm_northing(BFParam):
     bpy_prop = FloatProperty
     bpy_default = 5000000.0
     bpy_other = {"unit": "LENGTH", "min": 0, "max": 10000000}
+
+    def get_exported(self, context):
+        return False
+
+    def draw(self, context, layout):
+        pass
 
 
 class SP_ORIGIN_NORTH_BEARING(BFParam):
@@ -199,5 +225,9 @@ class SN_MISC(BFNamelistSc):
         SP_ORIGIN_LON,
         SP_ORIGIN_LAT,
         SP_ORIGIN_NORTH_BEARING,
+        SP_origin_utm_zn,
+        SP_origin_utm_ne,
+        SP_origin_utm_easting,
+        SP_origin_utm_northing,
         SP_MISC_other,
     )

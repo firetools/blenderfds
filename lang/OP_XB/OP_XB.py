@@ -198,6 +198,9 @@ class OP_XB_BBOX(OP_XB):
             add=True,
         )
 
-    def draw(self, context, layout):
-        layout.label(text=f"XB: Bounding Box")
-        
+    def draw(self, context, layout):  # only label 
+        row = layout.split(factor=.4)
+        row.alignment = "RIGHT"
+        row.label(text=f"XB")
+        row.alignment = "EXPAND"
+        row.label(text=f"Bounding Box")

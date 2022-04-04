@@ -7,9 +7,10 @@ from . import (
     mesh_tools,
     show_fds_code,
     show_fds_geometry,
+    show_ui,
 )
 
-mods = (
+ms_to_register = (
     check_geom,
     choose_namelist_id,
     copy_params,
@@ -18,14 +19,15 @@ mods = (
     mesh_tools,
     show_fds_code,
     show_fds_geometry,
+    show_ui,
 )
 
 
 def register():
-    for m in mods:
+    for m in ms_to_register:
         m.register()
 
 
 def unregister():
-    for m in reversed(mods):
+    for m in reversed(ms_to_register):
         m.unregister()

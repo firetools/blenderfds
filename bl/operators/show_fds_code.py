@@ -2,7 +2,7 @@
 BlenderFDS, operators to show generated FDS code.
 """
 
-import logging, bpy
+import logging
 from bpy.types import Operator
 from bpy.props import StringProperty, EnumProperty
 from ...types import BFException
@@ -191,7 +191,6 @@ bl_classes = [
     COLLECTION_OT_bf_show_fds_code,
     MATERIAL_OT_bf_show_fds_code,
     SCENE_OT_bf_show_fds_code,
-    SCENE_OT_bf_show_text,
 ]
 
 
