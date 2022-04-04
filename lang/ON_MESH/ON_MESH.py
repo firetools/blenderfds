@@ -7,22 +7,18 @@ from bpy.types import Object
 from bpy.props import IntVectorProperty
 from ...types import BFParam, BFNamelistOb, FDSParam, FDSMulti, FDSList, BFException
 from ... import utils
-from ..bf_object import OP_ID, OP_FYI, OP_other
-from ..OP_XB import OP_XB_BBOX
-from .split import split_mesh, get_nsplit
-from .align import get_n_for_poisson
-
-from ..OP_XB.ob_to_xbs import ob_to_xbs
-from ..OP_XB.xbs_to_ob import xbs_to_ob
-
-from ..SN_MULT import OP_MULT_ID
+from ..bf_object import OP_namelist_cls, OP_ID, OP_FYI, OP_other
+from ..OP_XB import OP_XB_BBOX, ob_to_xbs, xbs_to_ob
+from ..ON_MULT import OP_other_MULT_ID, multiply_xbs, get_nmult
+from .split_mesh import split_mesh, get_nsplit
+from .align_meshes import get_n_for_poisson
 
 log = logging.getLogger(__name__)
 
 
 class OP_MESH_IJK(BFParam):
     label = "IJK"
-    description = "Cell number in x, y, and z direction"
+    description = "Cell numbers along axis"
     fds_label = "IJK"
     bpy_type = Object
     bpy_idname = "bf_mesh_ijk"
@@ -34,12 +30,25 @@ class OP_MESH_IJK(BFParam):
         ob = context.object
         for msg in _get_mesh_msgs(context, ob):
             layout.label(text=msg)
-        super().draw(context, layout)
+        # Operators
+        row = layout.row()
+        row.operator("object.bf_set_mesh_cell_size")
+        row.operator("object.bf_align_selected_meshes")
+        # Integrate IJK and Split IJK panel
+        # super().draw(context, layout)
+        col = layout.row(align=True)
+        row = col.row(align=True)
+        if ob.bf_mesh_nsplits_export:
+            row.prop(ob, "bf_mesh_ijk", text=self.label + ", Splits")
+            row.prop(ob, "bf_mesh_nsplits", text="")
+        else:
+            row.prop(ob, "bf_mesh_ijk", text=self.label)
+        layout.prop(ob, "bf_mesh_nsplits_export", text="Split IJK")
 
 
 class OP_MESH_nsplits(BFParam):
-    label = "Splits"
-    description = "Split this MESH along each axis in an array of MESHes of similar cell number, conserving cell size"
+    label = "Split IJK"
+    description = "Evenly split IJK along each axis generating an array\nof MESH namelists, conserving the cell size"
     bpy_type = Object
     bpy_idname = "bf_mesh_nsplits"
     bpy_prop = IntVectorProperty
@@ -56,14 +65,21 @@ class OP_MESH_nsplits(BFParam):
         if ob.bf_mesh_nsplits_export and requested_nsplit != nsplit:
             raise BFException(self, "Too many splits requested for current IJK")
 
+    def draw(self, context, layout):
+        # Split IJK panel is integrated with IJK
+        pass
 
-class OP_MESH_XB(OP_XB_BBOX):
+
+class OP_MESH_XB_BBOX(OP_XB_BBOX):
+    # This class implements OP_XB_BBOX
+    # with MESH split and IJK calculations
     def _get_geometry(self, context):
         ob = self.element
         xbs, msgs = ob_to_xbs(context=context, ob=ob, bf_xb="BBOX")
         ids, ijks, xbs = split_mesh(
             hid=ob.name,
             ijk=ob.bf_mesh_ijk,
+            export=ob.bf_mesh_nsplits_export,
             nsplits=ob.bf_mesh_nsplits,
             xb=xbs[0],
         )
@@ -71,7 +87,7 @@ class OP_MESH_XB(OP_XB_BBOX):
         return ob, ids, ijks, xbs, msgs
 
     def to_fds_list(self, context) -> FDSList:
-        ob, ids, ijks, xbs, msgs = self._get_geometry(context)
+        _, ids, ijks, xbs, msgs = self._get_geometry(context)
         return FDSMulti(
             iterable=(
                 FDSList(
@@ -87,8 +103,11 @@ class OP_MESH_XB(OP_XB_BBOX):
         )
 
     def show_fds_geometry(self, context, ob_tmp):
-        _, _, _, xbs, _ = self._get_geometry(context)
+        ob, _, _, xbs, _ = self._get_geometry(context)
+        xbs, _ = multiply_xbs(xbs, hids=None, ob=ob)
         xbs_to_ob(context=context, ob=ob_tmp, xbs=xbs, bf_xb="BBOX", add=True)
+
+    # def from_fds() inherited
 
 
 class ON_MESH(BFNamelistOb):
@@ -98,20 +117,19 @@ class ON_MESH(BFNamelistOb):
     enum_id = 1014
     fds_label = "MESH"
     bf_params = (
+        OP_namelist_cls,
         OP_ID,
         OP_FYI,
         OP_MESH_IJK,
         OP_MESH_nsplits,
-        OP_MESH_XB,
-        OP_MULT_ID,
+        OP_MESH_XB_BBOX,
+        OP_other_MULT_ID,
         OP_other,
     )
     bf_other = {"appearance": "BBOX"}
 
-    def draw_operators(self, context, layout):
-        col = layout.column()
-        col.operator("object.bf_set_mesh_cell_size")
-        col.operator("object.bf_align_selected_meshes")
+
+# Helper functions
 
 
 def get_cell_sizes(context, ob):
@@ -159,16 +177,23 @@ def get_ijk_from_desired_cs(context, ob, desired_cs, poisson):
 
 def _get_mesh_msgs(context, ob):
     """!Get message for MESHes."""
+    # Calc
     ijk = ob.bf_mesh_ijk
     cs = get_cell_sizes(context, ob)
     has_good_ijk = tuple(ijk) == get_poisson_ijk(ijk) and "Yes" or "No"
     aspect = get_cell_aspect(cs)
     nsplit, qty = get_nsplit(ob)
-    if nsplit > 1:
-        split = f"Cell Qty: {qty} · {nsplit} splits"
+    nmult = get_nmult(ob)
+    nmesh = nsplit * nmult
+    qty_tot = ijk[0] * ijk[1] * ijk[2] * nmult
+    # Prepare msgs
+    if nmesh > 1:
+        return (
+            f"MESH: {nmesh} | Cell Qty: {qty} ({qty_tot} tot) | Splits: {nsplit} | Multiples: {nmult}",
+            f"Size: {cs[0]:.3f}m · {cs[1]:.3f}m · {cs[2]:.3f}m | Aspect: {aspect:.1f} | Poisson: {has_good_ijk}",
+        )
     else:
-        split = f"Cell Qty: {qty}"
-    return (
-        f"MESH {split}",
-        f"Cell Size: {cs[0]:.3f}m · {cs[1]:.3f}m · {cs[2]:.3f}m | Aspect: {aspect:.1f} | Poisson: {has_good_ijk}",
-    )
+        return (
+            f"Cell Qty: {qty}",
+            f"Size: {cs[0]:.3f}m · {cs[1]:.3f}m · {cs[2]:.3f}m | Aspect: {aspect:.1f} | Poisson: {has_good_ijk}",
+        )
