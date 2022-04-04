@@ -120,16 +120,16 @@ class FDSList(list):
         re.VERBOSE | re.DOTALL | re.IGNORECASE | re.MULTILINE,
     )  # MULTILINE, so that ^ is the beginning of each line
 
-    def from_fds(self, f90) -> None:  # TODO add comments to msgs
+    def from_fds(self, f90_namelists) -> None:  # TODO add comments to msgs
         """!
         Fill self from FDS file or text, on error raise BFException.
-        @param f90: FDS formatted string of namelists or params, eg. "&OBST ID='Test' /\n&TAIL /".
+        @param f90_namelists: FDS formatted string of namelists, eg. "&OBST ID='Test' /\n&TAIL /".
         """
         self.clear()
-        for match in re.finditer(self._RE_SCAN_F90_NAMELISTS, f90):
+        for match in re.finditer(self._RE_SCAN_F90_NAMELISTS, f90_namelists):
             label, f90_params = match.groups()
             fds_namelist = FDSNamelist(fds_label=label)
-            fds_namelist.from_fds(f90=f90_params)
+            fds_namelist.from_fds(f90_params=f90_params)
             self.append(fds_namelist)
 
 
@@ -252,17 +252,17 @@ class FDSNamelist(FDSList):
         re.VERBOSE | re.DOTALL | re.IGNORECASE,
     )  # no MULTILINE, so that $ is the end of the file
 
-    def from_fds(self, f90) -> None:
+    def from_fds(self, f90_params) -> None:
         """!
         Fill self from FDS formatted string of parameters, on error raise BFException.
-        @param f90: FDS formatted string of parameters, eg. "ID='Test' PROP=2.34, 1.23, 3.44".
+        @param f90_params: FDS formatted string of parameters, eg. "ID='Test' PROP=2.34, 1.23, 3.44".
         """
         self.clear()
-        f90 = " ".join(f90.strip().splitlines()) # rm trailing spaces and newlines
-        for match in re.finditer(self._RE_SCAN_F90_PARAMS, f90):
+        f90_params = " ".join(f90_params.strip().splitlines()) # rm trailing spaces and newlines
+        for match in re.finditer(self._RE_SCAN_F90_PARAMS, f90_params):
             label, f90_value = match.groups()
             fds_param = FDSParam(fds_label=label)
-            fds_param.from_fds(f90=f90_value)
+            fds_param.from_fds(f90_value=f90_value)
             self.append(fds_param)
 
 class FDSParam(FDSList):
@@ -365,15 +365,15 @@ class FDSParam(FDSList):
         r"""'.*?'|".*?"|[^,\s\t]+""", re.VERBOSE | re.DOTALL | re.IGNORECASE
     )
 
-    def from_fds(self, f90) -> None:
+    def from_fds(self, f90_value) -> None:
         """!
         Import from FDS formatted string, on error raise BFException.
-        @param f90: FDS formatted string containing value, eg. "2.34, 1.23, 3.44" or ".TRUE.,.FALSE.".
+        @param f90_value: FDS formatted string containing value, eg. "2.34, 1.23, 3.44" or ".TRUE.,.FALSE.".
         """
         self.clear()
         # Remove trailing spaces and newlines, then scan values
-        f90c = " ".join(f90.strip().splitlines())
-        values = re.findall(self._RE_SCAN_VALUES, f90c)
+        f90_value = " ".join(f90_value.strip().splitlines())
+        values = re.findall(self._RE_SCAN_VALUES, f90_value)
         # Eval values
         for i, v in enumerate(values):
             if v in (".TRUE.", "T"):
@@ -384,15 +384,15 @@ class FDSParam(FDSList):
                 try:
                     values[i] = eval(v)
                 except Exception as err:
-                    msg = f"Error parsing value <{v}> in <{self.fds_label}={f90c}>:\n<{err}>"
+                    msg = f"Error parsing value <{v}> in <{self.fds_label}={f90_value}>:\n<{err}>"
                     raise BFException(self, msg)
         # Post treatment of float
         if isinstance(values[0], float):  # first value is a float
             # Get precision
-            match = re.findall(self._RE_DECIMAL_POS, f90c)
+            match = re.findall(self._RE_DECIMAL_POS, f90_value)
             self.precision = match and max(len(m) for m in match) or 1
             # Get exponential
-            match = re.findall(self._RE_INTEGER, f90c)
+            match = re.findall(self._RE_INTEGER, f90_value)
             if match:
                 self.exponential = True
                 self.precision += max(len(m) for m in match) - 1

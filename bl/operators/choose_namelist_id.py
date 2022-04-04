@@ -20,8 +20,7 @@ def _get_namelist_items(self, context, fds_label):
     sc = context.scene
     # Get namelists from Free Text
     if sc.bf_config_text:
-        fds_list.from_fds(f90=sc.bf_config_text.as_string())
-
+        fds_list.from_fds(f90_namelists=sc.bf_config_text.as_string())
     # Prepare list of IDs
     items = list()
     while True:

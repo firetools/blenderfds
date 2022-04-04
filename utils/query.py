@@ -19,7 +19,7 @@ def get_referenced_ids(context, sc, fds_label="SURF_ID"):  # TODO unused
     sc = context.scene
     # Get namelists from Free Text
     if sc.bf_config_text:
-        fds_list.from_fds(f90=sc.bf_config_text.as_string())
+        fds_list.from_fds(f90_namelists=sc.bf_config_text.as_string())
     # Get namelists from available CATF files
     if sc.bf_catf_export:
         for item in sc.bf_catf_files:
@@ -27,11 +27,11 @@ def get_referenced_ids(context, sc, fds_label="SURF_ID"):  # TODO unused
                 continue
             filepath = item.name
             try:
-                f90 = utils.io.read_txt_file(filepath)
+                f90_namelists = utils.io.read_txt_file(filepath)
             except IOError:
                 pass
             else:
-                fds_list.from_fds(f90=f90)
+                fds_list.from_fds(f90_namelists=f90_namelists)
     # Prepare list of IDs
     items = list()
     for fds_namelist in fds_list:
@@ -51,7 +51,7 @@ def _get_namelist_items(self, context, fds_label):  # TODO unused
     sc = context.scene
     # Get namelists from Free Text
     if sc.bf_config_text:
-        fds_list.from_fds(f90=sc.bf_config_text.as_string())
+        fds_list.from_fds(f90_namelists=sc.bf_config_text.as_string())
     # Get namelists from available CATF files
     if sc.bf_catf_export:
         for item in sc.bf_catf_files:
@@ -59,11 +59,11 @@ def _get_namelist_items(self, context, fds_label):  # TODO unused
                 continue
             filepath = item.name
             try:
-                f90 = utils.io.read_txt_file(filepath)
+                f90_namelists = utils.io.read_txt_file(filepath)
             except IOError:
                 pass
             else:
-                fds_list.from_fds(f90=f90)
+                fds_list.from_fds(f90_namelists=f90_namelists)
     # Prepare list of IDs
     items = list()
     while True:

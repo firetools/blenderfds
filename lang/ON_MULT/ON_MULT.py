@@ -479,11 +479,11 @@ class OP_other_MULT_ID(BFParam):
     def from_fds(self, context, value):
         # Get required MULT parameters from dict created by SN_MULT
         try:
-            f90 = context.scene["bf_mult_coll"][value]
+            f90_params = context.scene["bf_mult_coll"][value]
         except KeyError as err:
             raise BFNotImported(self, f"Missing MULT ID='{value}'")
         fds_namelist = FDSNamelist()
-        fds_namelist.from_fds(f90=f90)  # FIXME one step only
+        fds_namelist.from_fds(f90_params=f90_params)
         ON_MULT(element=self.element).from_fds(
             context=context, fds_namelist=fds_namelist
         )

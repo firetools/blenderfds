@@ -234,12 +234,12 @@ class BFScene:
             utils.io.write_txt_file(filepath, text)
         return text
 
-    def from_fds(self, context, filepath=None, f90=None, set_collection=True):
+    def from_fds(self, context, filepath=None, f90_namelists=None, set_collection=True):
         """!
         Set self.bf_namelists from FDSList, on error raise BFException.
         @param context: the Blender context.
         @param filepath: filepath of FDS case to be imported.
-        @param f90: FDS formatted string of namelists, eg. "&OBST ID='Test' /\n&TAIL /".
+        @param f90_namelists: FDS formatted string of namelists, eg. "&OBST ID='Test' /\n&TAIL /".
         @param set_collection: set default collection for imported geometric namelists.
         """
         # Set mysef as the right Scene instance in the context
@@ -250,20 +250,20 @@ class BFScene:
         # Init
         fds_list = FDSList()
 
-        # Set filepath, instead of f90
+        # Set filepath, instead of f90_namelists
         if filepath:
             filepath = utils.io.transform_rbl_to_abs(
                 context=context,
                 filepath_rbl=filepath,
             )
-            f90 = utils.io.read_txt_file(filepath=filepath)
+            f90_namelists = utils.io.read_txt_file(filepath=filepath)
             # and set imported fds case dir, because others rely on it
             # it is restored later
             bf_config_directory = self.bf_config_directory
             self.bf_config_directory = os.path.dirname(filepath)
 
         # Load fds case
-        fds_list.from_fds(f90=f90)
+        fds_list.from_fds(f90_namelists=f90_namelists)
 
         # Prepare free text for unmanaged namelists, no rewind
         if not self.bf_config_text:
