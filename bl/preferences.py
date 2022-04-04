@@ -34,7 +34,7 @@ class BFPreferences(AddonPreferences):
         update=update_bf_pref_simplify_ui,
     )
 
-    min_edge_length: FloatProperty(
+    min_edge_length: FloatProperty(  # FIXME remove
         name="Min Edge Length",
         description="Min allowed edge length",
         default=1e-05,

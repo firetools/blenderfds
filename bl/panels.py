@@ -231,7 +231,7 @@ class OBJECT_PT_MULT(Panel):
             and ob.bf_namelist_cls
             in tuple(
                 ("ON_HOLE", "ON_INIT", "ON_OBST", "ON_VENT", "ON_MESH")
-            )  # FIXME improve, and FIXME also show_geometry!
+            )  # FIXME improve, also show_geometry!
             and ob.bf_mult_export
         )
 
@@ -363,7 +363,7 @@ class VIEW3D_PT_bf_mesh_clean_up(Panel):
         col.menu("VIEW3D_MT_edit_mesh_clean")
 
 
-class VIEW3D_PT_bf_geolocation(Panel):  # FIXME to draw_op?
+class VIEW3D_PT_bf_geolocation(Panel):
     """!
     Geolocation panel
     """
