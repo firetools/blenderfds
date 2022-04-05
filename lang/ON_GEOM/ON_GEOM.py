@@ -11,7 +11,7 @@ from ...types import (
 )
 from ... import utils
 from ..bf_object import OP_namelist_cls, OP_ID, OP_FYI, OP_other
-from ..SN_MOVE import OP_other_MOVE_ID
+from ..ON_MOVE import OP_other_MOVE_ID
 from .ob_to_geom import ob_to_geom, get_boundary_condition_ids
 from .geom_to_ob import geom_to_ob, geom_to_mesh, geom_sphere_to_ob, geom_cylinder_to_ob
 from ..OP_XB.xbs_to_ob import set_materials, xbs_to_ob
@@ -47,7 +47,7 @@ class OP_GEOM_SURF_ID(BFParam):
     def draw(self, context, layout):  # only label
         row = layout.split(factor=0.4)
         row.alignment = "RIGHT"
-        row.label(text=f"SURF_ID")
+        row.label(text=self.label)
         row.alignment = "EXPAND"
         text = ", ".join(self.get_value(context)) or "None"
         row.label(text=text, icon="MATERIAL_DATA")
@@ -103,7 +103,9 @@ class OP_GEOM_BINARY_FILE(BFParam):
             name=ob.data.name,
             extension=".bingeom",
         )
-        has_move_id = ob.data.users > 1  # shared bingeom
+        # Check if shared bingeom
+        has_move_id = OP_GEOM_MOVE_ID(self.element).get_exported(context)
+        # Write
         _, _, _, _, msgs = ob_to_geom(
             context=context,
             ob=ob,
@@ -113,7 +115,7 @@ class OP_GEOM_BINARY_FILE(BFParam):
             filepath=filepath,
         )
         if has_move_id:
-            msgs.append("BINARY_FILE is shared")
+            msgs.append("Shared BINARY_FILE")
         return FDSParam(fds_label=self.fds_label, value=filepath_rfds, msgs=msgs)
 
     def show_fds_geometry(self, context, ob_tmp):
@@ -151,7 +153,8 @@ class OP_GEOM_BINARY_FILE(BFParam):
 
 class OP_GEOM_MOVE_ID(OP_other_MOVE_ID):
     def get_exported(self, context):
-        return self.element.data.users > 1  # shared bingeom
+        # Check if shared bingeom
+        return self.element.data.users > 1
 
 
 class OP_GEOM_binary_directory(BFParam):  # This is a Mesh property
@@ -229,7 +232,7 @@ class ON_GEOM(BFNamelistOb):
         OP_GEOM_SURF_ID,  # before bingeom
         OP_GEOM_SURF_IDS,
         OP_GEOM_SURF_ID6,
-        OP_GEOM_BINARY_FILE,  # after SURF_ID
+        OP_GEOM_BINARY_FILE,  # after SURF_ID*
         OP_GEOM_binary_directory,
         OP_GEOM_check_sanity,
         OP_GEOM_protect,

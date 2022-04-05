@@ -16,7 +16,7 @@ def update_bf_mult(ob, context):
 
 class OP_MULT_ID(BFParam):
     label = "ID"
-    description = "Geometric transformation name"
+    description = "Multiplier transformation name"
     fds_label = "ID"
     bpy_type = Object
 
@@ -348,9 +348,9 @@ class OP_MULT_N_UPPER(BFParam):
     bpy_other = {"update": update_bf_mult}
 
 
-class ON_MULT(BFNamelist):
+class ON_MULT(BFNamelist):  # not in namelist menu
     label = "MULT"
-    description = "Geometric Transformation"
+    description = "Multiplier Transformation"
     bpy_type = Object
     enum_id = None
     fds_label = "MULT"
@@ -387,24 +387,33 @@ class ON_MULT(BFNamelist):
     def draw(self, context, layout):
         ob = self.element
 
-        col = layout.column(align=True)
+        row = layout.row(align=True)  # X,Y,Z
 
-        row = col.row(align=True)
-        row.label(text="DX, DY, DZ")
-        row.prop(ob, "bf_mult_dx", text="")
-        row.prop(ob, "bf_mult_dy", text="")
-        row.prop(ob, "bf_mult_dz", text="")
+        col = row.column(align=True)
+        col.alignment = "RIGHT"
+        col.label(text=" ")
+        col.label(text="X")
+        col.label(text="Y")
+        col.label(text="Z")
 
-        row = col.row(align=True)
-        row.label(text="DX0, DY0, DZ0")
-        row.prop(ob, "bf_mult_dx0", text="")
-        row.prop(ob, "bf_mult_dy0", text="")
-        row.prop(ob, "bf_mult_dz0", text="")
+        col = row.column(align=True)
+        col.label(text="DX, DY, DZ")
+        col.prop(ob, "bf_mult_dx", text="")
+        col.prop(ob, "bf_mult_dy", text="")
+        col.prop(ob, "bf_mult_dz", text="")
 
-        row = layout.row(align=True)
+        col = row.column(align=True)
+        col.label(text="DX0, DY0, DZ0")
+        col.prop(ob, "bf_mult_dx0", text="")
+        col.prop(ob, "bf_mult_dy0", text="")
+        col.prop(ob, "bf_mult_dz0", text="")
+
+        row = layout.row(align=True)  # DXB
 
         row.label(text="DXB")
         row.prop(ob, "bf_mult_dxb", text="")
+
+        row.separator()
 
         row = layout.row(align=True)  # I,J,K,N
 
@@ -453,11 +462,12 @@ class ON_MULT(BFNamelist):
 # Called by other namelists
 # that support a MULT_ID
 # and the relative MULT namelist
+# (See also: ON_MOVE)
 
 
 class OP_other_MULT_ID(BFParam):
     label = "MULT_ID"
-    description = "Reference to geometric transformation"
+    description = "Reference to multiplier transformation"
     fds_label = "MULT_ID"
     bpy_type = Object
     bpy_idname = "bf_mult_export"  # should already exist
@@ -487,3 +497,13 @@ class OP_other_MULT_ID(BFParam):
         ON_MULT(element=self.element).from_fds(
             context=context, fds_namelist=fds_namelist
         )
+
+    def draw(self, context, layout):
+        # Set active and alert
+        active = self.element.bf_mult_export
+        # Set layout
+        col = layout.column(align=False, heading=self.label)
+        row = col.row(align=True)
+        row.active = active
+        row.prop(self.element, self.bpy_idname, text="")
+        row.label(text=self.get_value(context))

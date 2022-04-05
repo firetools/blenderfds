@@ -6,7 +6,7 @@ log = logging.getLogger(__name__)
 # This namelist is not displayed in the bf_namelist_cls menu,
 # and has no panel.
 # Used for importing only, it translates
-# FDS MULT transformations in a scene dict
+# FDS MULT transformations to a Scene dict
 # It is used in conjuction with ON_MULT
 
 

@@ -167,8 +167,8 @@ class BFParam:
             cls._create_bpy_idname(
                 bpy_idname=cls.bpy_export,
                 bpy_prop=BoolProperty,
-                label=f"Export {cls.__name__}",
-                description=f"Set if {cls.__name__} shall be exported",
+                label=f"Export {cls.label}",
+                description=f"Set if {cls.label} shall be exported",
                 default=cls.bpy_export_default,
                 bpy_other={"update": cls.bpy_other.get("update")},
             )
@@ -182,10 +182,16 @@ class BFParam:
         if cls.bpy_type:
             if cls.bpy_idname and cls.bpy_prop:
                 log.debug(f"Unregistering <{cls.bpy_idname}>")
-                delattr(cls.bpy_type, cls.bpy_idname)
+                try:
+                    delattr(cls.bpy_type, cls.bpy_idname)
+                except AttributeError:  # already deleted
+                    pass
             if cls.bpy_export and cls.bpy_export_default is not None:
                 log.debug(f"Unregistering <{cls.bpy_export}>")
-                delattr(cls.bpy_type, cls.bpy_export)
+                try:
+                    delattr(cls.bpy_type, cls.bpy_export)
+                except AttributeError:  # already deleted
+                    pass
 
     def get_value(self, context):
         """!
