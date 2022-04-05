@@ -170,10 +170,10 @@ class FDSNamelist(FDSList):
             fds_list.msgs.extend(self.msgs)
             fds_list.msgs.extend(multi_ps.msgs)
             for mp in multi_ps:
+                # Add its multi params (ID comes always first)
+                fds_namelist = FDSNamelist(mp, fds_label=self.fds_label)
                 # Add invariant params and no msg
-                fds_namelist = FDSNamelist(inv_ps, fds_label=self.fds_label)
-                # Add its multi params
-                fds_namelist.extend(mp)
+                fds_namelist.extend(inv_ps)
                 # Append one of multi (eg. an OBST voxel) to the list
                 fds_list.append(fds_namelist)  
         else:
