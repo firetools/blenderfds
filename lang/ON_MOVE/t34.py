@@ -1,16 +1,6 @@
 import logging
 from math import radians
 from mathutils import Matrix, Vector
-from bpy.types import Object
-from .. import utils
-from ..types import (
-    BFNamelistSc,
-    BFParam,
-    FDSNamelist,
-    FDSParam,
-    FDSList,
-    BFNotImported,
-)
 
 log = logging.getLogger(__name__)
 
@@ -29,20 +19,14 @@ log = logging.getLogger(__name__)
 # bpy.data.objects["Cube"].matrix_world @= m.copy().invert() # apply inverse rotation
 
 
-# Export functions
-
-
-def bl_matrix_to_t34(m) -> tuple:
+def calc_t34(m) -> tuple:
     """!
-    Transform the Blender transformation matrix in the FDS MOVE T34 notation.
+    Transform the Blender transformation matrix into the FDS MOVE T34 notation.
     """
     return tuple(m[i][j] for j in range(4) for i in range(3))
 
 
-# Import functions
-
-
-def fds_move_to_bl_matrix(  # FIXME FIXME FIXME
+def calc_bl_matrix(
     t34=None,
     dx=0.0,
     dy=0.0,
@@ -58,7 +42,7 @@ def fds_move_to_bl_matrix(  # FIXME FIXME FIXME
     axis=(0.0, 0.0, 1.0),
 ) -> Matrix:
     """!
-    Transform the FDS MOVE notation in a Blender 4x4 transformation matrix.
+    Transform the FDS MOVE notation into a Blender 4x4 transformation matrix.
     """
     if t34:
         m = list(tuple(t34[j * 3 + i] for j in range(4)) for i in range(3))
