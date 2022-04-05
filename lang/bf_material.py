@@ -127,32 +127,20 @@ class MP_FYI(BFParamFYI):
 
 
 class MP_RGB(BFParam):
-    label = "RGB"
-    description = "Red, green, blue components of color"
+    label = "RGB, TRANSPARENCY"
+    description = "Set color and transparency of the boundary condition"
     fds_label = "RGB"
     bpy_type = Material
     bpy_prop = None  # Do not register
     bpy_idname = "diffuse_color"
 
-    def set_value(self, context, value):
-        c = self.element.diffuse_color
-        c[0], c[1], c[2] = value[0] / 255.0, value[1] / 255.0, value[2] / 255.0
+    def get_value(self, context):
+        c = getattr(self.element, self.bpy_idname)
+        return (int(c[0] * 255), int(c[1] * 255), int(c[2] * 255))
 
-    def to_fds_list(self, context) -> FDSList:
-        c = self.element.diffuse_color
-        rgb = (int(c[0] * 255), int(c[1] * 255), int(c[2] * 255))
-        if c[3] == 1.0:  # do not send TRANSPARENCY if it is 1
-            return FDSParam(
-                fds_label="RGB",
-                value=rgb,
-            )
-        else:
-            return FDSList(
-                (
-                    FDSParam(fds_label="RGB", value=rgb),
-                    FDSParam(fds_label="TRANSPARENCY", value=c[3], precision=2),
-                )
-            )
+    def set_value(self, context, value):
+        c = getattr(self.element, self.bpy_idname)
+        c[0], c[1], c[2] = value[0] / 255.0, value[1] / 255.0, value[2] / 255.0
 
 
 class MP_COLOR(BFParam):  # only import
@@ -161,31 +149,41 @@ class MP_COLOR(BFParam):  # only import
     fds_label = "COLOR"
     bpy_type = Material
     bpy_prop = None  # Do not register
+    bpy_idname = "diffuse_color"
+
+    def get_exported(self, context):
+        return False
 
     def set_value(self, context, value):
-        c = self.element.diffuse_color
+        c = getattr(self.element, self.bpy_idname)
         rgb = config.fds_colors.get(value)
         if not rgb:
             raise BFException(self, f"Unknown color <{value}>")
         c[0], c[1], c[2] = rgb[0] / 255.0, rgb[1] / 255.0, rgb[2] / 255.0
 
-    def get_exported(self, context):
-        return False
+    def draw(self, context, layout):
+        pass
 
 
-class MP_TRANSPARENCY(BFParam):  # only import
+class MP_TRANSPARENCY(BFParam):  # no draw
     label = "TRANSPARENCY"
-    description = "Red, green, blue components of color and transparency"
+    description = "Transparency"
     fds_label = "TRANSPARENCY"
+    fds_default = 1.0
     bpy_type = Material
     bpy_prop = None  # Do not register
+    bpy_idname = "diffuse_color"
+
+    def get_value(self, context):
+        c = getattr(self.element, self.bpy_idname)
+        return c[3]
 
     def set_value(self, context, value):
-        c = self.element.diffuse_color
+        c = getattr(self.element, self.bpy_idname)
         c[3] = value
 
-    def get_exported(self, context):
-        return False
+    def draw(self, context, layout):
+        pass
 
 
 class MP_other(BFParamOther):

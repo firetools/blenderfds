@@ -1,6 +1,14 @@
 import logging
 from ..types import BFNamelistOb
-from .bf_object import OP_namelist_cls, OP_ID, OP_FYI, OP_other
+from .bf_object import (
+    OP_namelist_cls,
+    OP_ID,
+    OP_FYI,
+    OP_other,
+    OP_RGB,
+    OP_COLOR,
+    OP_TRANSPARENCY,
+)
 from .OP_XB import OP_XB
 from .ON_MULT import OP_other_MULT_ID
 
@@ -13,5 +21,15 @@ class ON_HOLE(BFNamelistOb):
     collection = "Obstacles"
     enum_id = 1009
     fds_label = "HOLE"
-    bf_params = OP_namelist_cls, OP_ID, OP_FYI, OP_XB, OP_other_MULT_ID, OP_other
+    bf_params = (
+        OP_namelist_cls,
+        OP_ID,
+        OP_FYI,
+        OP_XB,
+        OP_other_MULT_ID,
+        OP_RGB,
+        OP_COLOR,
+        OP_TRANSPARENCY,
+        OP_other,
+    )
     bf_other = {"appearance": "WIRE"}

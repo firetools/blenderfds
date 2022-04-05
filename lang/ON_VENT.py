@@ -2,7 +2,16 @@ import logging, bpy
 from bpy.types import Object
 from bpy.props import PointerProperty
 from ..types import BFParam, BFNamelistOb, BFException
-from .bf_object import OP_namelist_cls,OP_ID, OP_FYI, OP_ID_suffix, OP_other
+from .bf_object import (
+    OP_namelist_cls,
+    OP_ID,
+    OP_FYI,
+    OP_ID_suffix,
+    OP_other,
+    OP_RGB,
+    OP_COLOR,
+    OP_TRANSPARENCY,
+)
 from .OP_SURF_ID import OP_SURF_ID
 from .OP_XB import OP_XB
 from .OP_XYZ import OP_XYZ
@@ -56,5 +65,8 @@ class ON_VENT(BFNamelistOb):
         OP_PBZ,
         OP_ID_suffix,
         OP_other_MULT_ID,
+        OP_RGB,
+        OP_COLOR,
+        OP_TRANSPARENCY,
         OP_other,
     )

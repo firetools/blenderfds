@@ -7,7 +7,7 @@ from bpy.types import Object
 from bpy.props import IntVectorProperty
 from ...types import BFParam, BFNamelistOb, FDSParam, FDSMulti, FDSList, BFException
 from ... import utils
-from ..bf_object import OP_namelist_cls, OP_ID, OP_FYI, OP_other
+from ..bf_object import OP_namelist_cls, OP_ID, OP_FYI, OP_other, OP_RGB, OP_COLOR
 from ..OP_XB import OP_XB_BBOX, ob_to_xbs, xbs_to_ob
 from ..ON_MULT import OP_other_MULT_ID, multiply_xbs, get_nmult
 from .split_mesh import split_mesh, get_nsplit
@@ -124,6 +124,8 @@ class ON_MESH(BFNamelistOb):
         OP_MESH_nsplits,
         OP_MESH_XB_BBOX,
         OP_other_MULT_ID,
+        OP_RGB,
+        OP_COLOR,
         OP_other,
     )
     bf_other = {"appearance": "BBOX"}

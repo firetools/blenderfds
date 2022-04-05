@@ -1,6 +1,15 @@
 import logging
 from ..types import BFNamelistOb
-from .bf_object import OP_namelist_cls, OP_ID, OP_FYI, OP_ID_suffix, OP_other
+from .bf_object import (
+    OP_namelist_cls,
+    OP_ID,
+    OP_FYI,
+    OP_ID_suffix,
+    OP_other,
+    OP_RGB,
+    OP_COLOR,
+    OP_TRANSPARENCY,
+)
 from .OP_SURF_ID import OP_SURF_ID
 from .OP_XB import OP_XB, OP_XB_custom_voxel, OP_XB_voxel_size, OP_XB_center_voxels
 from .ON_MULT import OP_other_MULT_ID
@@ -25,5 +34,8 @@ class ON_OBST(BFNamelistOb):
         OP_XB_center_voxels,
         OP_ID_suffix,
         OP_other_MULT_ID,
+        OP_RGB,
+        OP_COLOR,
+        OP_TRANSPARENCY,
         OP_other,
     )

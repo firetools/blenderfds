@@ -2,11 +2,21 @@ import logging, re
 from bpy.types import Object
 from bpy.props import StringProperty
 from ..types import BFParam, BFNamelistOb, BFException
-from .bf_object import OP_namelist_cls,OP_ID, OP_FYI, OP_ID_suffix, OP_other
+from .bf_object import (
+    OP_namelist_cls,
+    OP_ID,
+    OP_FYI,
+    OP_ID_suffix,
+    OP_other,
+    OP_RGB,
+    OP_COLOR,
+    OP_TRANSPARENCY,
+)
 from .OP_SURF_ID import OP_SURF_ID
 from .OP_XB import OP_XB, OP_XB_custom_voxel, OP_XB_voxel_size, OP_XB_center_voxels
 from .OP_XYZ import OP_XYZ
 from .OP_PB import OP_PB, OP_PBX, OP_PBY, OP_PBZ
+from .ON_MULT import OP_other_MULT_ID
 
 log = logging.getLogger(__name__)
 
@@ -48,6 +58,10 @@ class ON_other(BFNamelistOb):
         OP_PBY,
         OP_PBZ,
         OP_ID_suffix,
+        OP_other_MULT_ID,
+        OP_RGB,
+        OP_COLOR,
+        OP_TRANSPARENCY,
         OP_other,
     )
 

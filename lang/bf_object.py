@@ -1,6 +1,7 @@
 import logging
 from bpy.types import Object
 from bpy.props import EnumProperty, BoolProperty
+from .bf_material import MP_RGB, MP_COLOR, MP_TRANSPARENCY
 from ..types import BFParam, BFParamOther, BFParamFYI, BFNamelist, FDSList
 from .. import utils
 from ..bl.ui_lists import WM_PG_bf_other, WM_UL_bf_other_items
@@ -154,3 +155,27 @@ class OP_other(BFParamOther):
     bpy_idname = "bf_other"
     bpy_pg = WM_PG_bf_other
     bpy_ul = WM_UL_bf_other_items
+
+
+# Taken from Material
+# Used by ON_MESH, ON_OBST, ON_HOLE
+
+
+class OP_RGB(MP_RGB):
+    label = "Override RGB"
+    description = "Override color and transparency from boundary conditions"
+    bpy_type = Object
+    bpy_idname = "color"
+    bpy_export = "bf_rgb_export"
+    bpy_export_default = False
+
+
+class OP_COLOR(MP_COLOR):  # only import
+    bpy_type = Object
+    bpy_idname = "color"
+
+
+class OP_TRANSPARENCY(MP_TRANSPARENCY):  # no draw
+    bpy_type = Object
+    bpy_idname = "color"
+    bpy_export = "bf_rgb_export"  # already existing
