@@ -94,7 +94,7 @@ class BFParam:
             return cls._subclasses_by_fds_label.get(fds_label, default)
 
     @classmethod
-    def _create_bpy_idname(
+    def _register_bpy_prop(
         cls,
         bpy_idname,
         bpy_prop,
@@ -153,7 +153,7 @@ class BFParam:
 
         # Create bpy_idname
         if cls.bpy_idname and cls.bpy_prop:
-            cls._create_bpy_idname(
+            cls._register_bpy_prop(
                 bpy_idname=cls.bpy_idname,
                 bpy_prop=cls.bpy_prop,
                 label=cls.label,
@@ -164,7 +164,7 @@ class BFParam:
 
         # Create bpy_export
         if cls.bpy_export and cls.bpy_export_default is not None:
-            cls._create_bpy_idname(
+            cls._register_bpy_prop(
                 bpy_idname=cls.bpy_export,
                 bpy_prop=BoolProperty,
                 label=f"Export {cls.label}",
