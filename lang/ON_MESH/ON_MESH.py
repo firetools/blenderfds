@@ -16,6 +16,16 @@ from .align_meshes import get_n_for_poisson
 log = logging.getLogger(__name__)
 
 
+# class OP_MESH_MPI_PROCESS(BFParam):  # FIXME FIXME FIXME
+#     label = "MPI_PROCESS"
+#     description = "Assigned MPI process"
+#     fds_label = "MPI_PROCESS"
+#     bpy_type = Object
+#     bpy_prop = IntProperty
+#     bpy_default = 0
+#     bpy_other = {"min": 0}
+
+
 class OP_MESH_IJK(BFParam):
     label = "IJK"
     description = "Cell numbers along axis"

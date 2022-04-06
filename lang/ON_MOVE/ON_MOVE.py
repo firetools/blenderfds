@@ -17,7 +17,7 @@ class OP_MOVE_ID(BFParam):
     def get_value(self, context):
         return f"{self.element.name}_move"
 
-    def set_value(self, context, value=None):  # FIXME needed? see OP_MULT_ID
+    def set_value(self, context, value=None):
         pass
 
 

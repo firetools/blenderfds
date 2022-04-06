@@ -23,6 +23,9 @@ class OP_MULT_ID(BFParam):
     def get_value(self, context):
         return f"{self.element.name}_mult"
 
+    def set_value(self, context, value=None):
+        pass
+
 
 class OP_MULT_DX(BFParam):
     label = "DX"
