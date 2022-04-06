@@ -11,9 +11,7 @@ from ..lang.SN_REAC import SN_REAC
 from ..lang.SN_RADI import SN_RADI
 from ..lang.SN_PRES import SN_PRES
 from ..lang.SN_DUMP import SN_DUMP
-from ..lang.ON_MULT import ON_MULT
-
-from .. import config
+from ..lang.ON_MULT import ON_MULT, OP_other_MULT_ID
 
 # Property panels
 
@@ -228,10 +226,7 @@ class OBJECT_PT_MULT(Panel):
             ob
             and ob.type == "MESH"
             and not ob.bf_is_tmp
-            and ob.bf_namelist_cls
-            in tuple(
-                ("ON_HOLE", "ON_INIT", "ON_OBST", "ON_VENT", "ON_MESH")
-            )  # FIXME improve, also show_geometry!
+            and ob.bf_namelist.has_bf_param(OP_other_MULT_ID)
             and ob.bf_mult_export
         )
 

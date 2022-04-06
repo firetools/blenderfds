@@ -47,6 +47,14 @@ class BFNamelist(BFParam):
             elif issubclass(p, BFParamOther):
                 cls._bf_param_other_idx = i
 
+    @classmethod
+    def has_bf_param(cls, bf_param):
+        """!
+        Check if bf_param (class) is in cls.bf_params.
+        @param bf_param: parameter to be tested.
+        @return True or False.        
+        """
+        return bf_param in cls.bf_params
 
     def get_bf_param(self, fds_label):
         """!

@@ -3,7 +3,7 @@ from bpy.types import Object
 from bpy.props import EnumProperty, BoolProperty, FloatProperty
 from ...types import BFParam, FDSParam, FDSList, FDSMulti
 from ... import utils
-from ..ON_MULT import multiply_xbs
+from ..ON_MULT import OP_other_MULT_ID, multiply_xbs
 from .ob_to_xbs import ob_to_xbs
 from .xbs_to_ob import xbs_to_ob
 
@@ -161,7 +161,8 @@ class OP_XB(BFParam):
 
     def show_fds_geometry(self, context, ob_tmp):
         ob, xbs, _ = self._get_geometry(context)
-        xbs, _ = multiply_xbs(xbs, hids=None, ob=ob)
+        if ob.bf_namelist.has_bf_param(OP_other_MULT_ID):
+            xbs, _ = multiply_xbs(xbs, hids=None, ob=ob)
         xbs_to_ob(context=context, ob=ob_tmp, xbs=xbs, bf_xb=ob.bf_xb, add=True)
         ob_tmp.active_material = ob.active_material
 
