@@ -67,24 +67,22 @@ class OP_PB(BFParam):
         n = ob.name
         match ob.bf_id_suffix:
             case "IDI":
-                ids = (f"{n}_{i}" for i, _ in enumerate(pbs))
+                hids = (f"{n}_{i}" for i, _ in enumerate(pbs))
             case _:
-                ids = (
+                hids = (
                     (f"{n}_x{pb:+.3f}", f"{n}_y{pb:+.3f}", f"{n}_z{pb:+.3f}")[axis]
                     for axis, pb in pbs
                 )
-        return FDSMulti(
-            iterable=(
-                FDSList(
-                    iterable=(
-                        FDSParam(fds_label="ID", value=hid),
-                        FDSParam(fds_label=label, value=pb, precision=6),
-                    )
+        iterable = FDSList(
+            FDSList(
+                (
+                    FDSParam(fds_label="ID", value=hid),
+                    FDSParam(fds_label=label, value=pb, precision=6),
                 )
-                for hid, label, (_, pb) in zip(ids, labels, pbs)
-            ),
-            msgs=msgs,
+                for hid, label, (_, pb) in zip(hids, labels, pbs)
+            )
         )
+        return FDSMulti(iterable=FDSList(iterable), msgs=msgs)
 
     def show_fds_geometry(self, context, ob_tmp):
         ob, pbs, _ = self._get_geometry(context)

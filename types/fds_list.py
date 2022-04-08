@@ -21,7 +21,7 @@ class FDSList(list):
         @param fds_label: fds label of group (eg. namelist or param).
         @param msgs: list of comment message strings.
         @param msg: comment message string.
-        @param header: header string.
+        @param header: header msg string.
         """
         super().__init__(iterable)
         ## fds label of group (eg. namelist or param).
@@ -295,7 +295,7 @@ class FDSParam(FDSList):
 
     def get_value(self):
         """!
-        Return self value.
+        Return value from self.values.
         """
         if not self:
             return None
@@ -305,7 +305,7 @@ class FDSParam(FDSList):
 
     def set_value(self, value=None) -> None:
         """!
-        Set self value.
+        Set self.values from value.
         """
         self.clear()
         match value:

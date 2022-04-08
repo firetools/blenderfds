@@ -129,21 +129,21 @@ class OP_XB(BFParam):
         n = ob.name
         match ob.bf_id_suffix:
             case "IDI":
-                ids = (f"{n}_{i}" for i, _ in enumerate(xbs))
+                hids = (f"{n}_{i}" for i, _ in enumerate(xbs))
             case "IDX":
-                ids = (f"{n}_x{xb[0]:+.3f}" for xb in xbs)
+                hids = (f"{n}_x{xb[0]:+.3f}" for xb in xbs)
             case "IDY":
-                ids = (f"{n}_y{xb[2]:+.3f}" for xb in xbs)
+                hids = (f"{n}_y{xb[2]:+.3f}" for xb in xbs)
             case "IDZ":
-                ids = (f"{n}_z{xb[4]:+.3f}" for xb in xbs)
+                hids = (f"{n}_z{xb[4]:+.3f}" for xb in xbs)
             case "IDXY":
-                ids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}" for xb in xbs)
+                hids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}" for xb in xbs)
             case "IDXZ":
-                ids = (f"{n}_x{xb[0]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
+                hids = (f"{n}_x{xb[0]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
             case "IDYZ":
-                ids = (f"{n}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
+                hids = (f"{n}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
             case "IDXYZ":
-                ids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
+                hids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
             case _:
                 raise AssertionError(f"Unknown suffix <{self.element.bf_id_suffix}>")
         return FDSMulti(
@@ -154,7 +154,7 @@ class OP_XB(BFParam):
                         FDSParam(fds_label="XB", value=xb, precision=6),
                     )
                 )
-                for hid, xb in zip(ids, xbs)
+                for hid, xb in zip(hids, xbs)
             ),
             msgs=msgs
         )

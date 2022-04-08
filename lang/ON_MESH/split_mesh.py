@@ -21,7 +21,7 @@ def split_cells(ncell, nsplit):
 
 def split_mesh(hid, ijk, export, nsplits, xb):
     """!
-    Split ijk cells along the axis in nsplits, calc new ids, ijks and xbs
+    Split ijk cells along the axis in nsplits, calc new hids, ijks and xbs
     """
     # Init
     ijks, xbs = list(), list()
@@ -64,7 +64,7 @@ def split_mesh(hid, ijk, export, nsplits, xb):
                 xb[4] + (corigin[2] + ijks[i][2]) * cs[2],
             )
         )
-    # Prepare ids
+    # Prepare hids
     if len(xbs) > 1:
         hids = (f"{hid}_s{i}" for i in range(len(xbs)))
     else:
