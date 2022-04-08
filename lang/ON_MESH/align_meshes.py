@@ -5,6 +5,7 @@ Align MESHes correctly according to cells.
 """
 
 from ...types import BFException
+from .calc_meshes import get_n_for_poisson
 
 # Mesh alignment:
 #
@@ -33,33 +34,6 @@ from ...types import BFException
 #  |   |   |   |
 #  ·---·---·---·---·
 #  |       |       |
-
-
-def get_factor(n):
-    """!Generator for prime factors of n (from http://dhananjaynene.com/)."""
-    yield 1
-    i = 2
-    limit = n ** 0.5
-    while i <= limit:
-        if n % i == 0:
-            yield i
-            n = n / i
-            limit = n ** 0.5
-        else:
-            i += 1
-    if n > 1:
-        yield int(n)
-
-
-def get_n_for_poisson(n):
-    """!Get a good number for poisson solver at least bigger than n."""
-    good = set((1, 2, 3, 5))
-    while True:
-        if [i for i in get_factor(n) if i not in good]:
-            n += 1
-        else:
-            break
-    return n
 
 
 def _align_along_axis(ri, rx0, rx1, mi, mx0, mx1, poisson=False, protect_rl=False):

@@ -4,26 +4,27 @@ MESH namelist definition
 
 import logging
 from bpy.types import Object
-from bpy.props import IntVectorProperty
+from bpy.props import IntVectorProperty, IntProperty
 from ...types import BFParam, BFNamelistOb, FDSParam, FDSMulti, FDSList, BFException
 from ... import utils
 from ..bf_object import OP_namelist_cls, OP_ID, OP_FYI, OP_other, OP_RGB, OP_COLOR
-from ..OP_XB import OP_XB_BBOX, ob_to_xbs, xbs_to_ob
-from ..ON_MULT import OP_other_MULT_ID, multiply_xbs, get_nmult
-from .split_mesh import split_mesh, get_nsplit
-from .align_meshes import get_n_for_poisson
+from ..OP_XB import OP_XB_BBOX, xbs_to_ob
+from ..ON_MULT import OP_other_MULT_ID, multiply_xbs
+from .calc_meshes import get_mesh_info, get_mesh_mpis
 
 log = logging.getLogger(__name__)
 
 
-# class OP_MESH_MPI_PROCESS(BFParam):  # FIXME FIXME FIXME
-#     label = "MPI_PROCESS"
-#     description = "Assigned MPI process"
-#     fds_label = "MPI_PROCESS"
-#     bpy_type = Object
-#     bpy_prop = IntProperty
-#     bpy_default = 0
-#     bpy_other = {"min": 0}
+class OP_MESH_MPI_PROCESS_qty(BFParam):  # to_fds_list() in XB_BBOX
+    label = "MPI_PROCESS Qty"
+    description = "Number MPI processes assigned to these MESH instances"
+    bpy_type = Object
+    bpy_idname = "bf_mesh_mpi_process_qty"
+    bpy_prop = IntProperty
+    bpy_default = 1
+    bpy_other = {"min": 1}
+    bpy_export = "bf_mesh_mpi_process_qty_export"
+    bpy_export_default = False
 
 
 class OP_MESH_IJK(BFParam):
@@ -38,7 +39,8 @@ class OP_MESH_IJK(BFParam):
 
     def draw(self, context, layout):
         ob = context.object
-        for msg in _get_mesh_msgs(context, ob):
+        _, _, _, msgs = get_mesh_info(context, ob)
+        for msg in msgs:
             layout.label(text=msg)
         # Operators
         row = layout.row()
@@ -67,14 +69,6 @@ class OP_MESH_nsplits(BFParam):
     bpy_export = "bf_mesh_nsplits_export"
     bpy_export_default = False
 
-    def check(self, context):
-        ob = self.element
-        value = self.get_value(context)
-        requested_nsplit = value[0] * value[1] * value[2]
-        nsplit, _ = get_nsplit(ob)
-        if ob.bf_mesh_nsplits_export and requested_nsplit != nsplit:
-            raise BFException(self, "Too many splits requested for current IJK")
-
     def draw(self, context, layout):
         # Split IJK panel is integrated with IJK
         pass
@@ -82,38 +76,30 @@ class OP_MESH_nsplits(BFParam):
 
 class OP_MESH_XB_BBOX(OP_XB_BBOX):
     # This class implements OP_XB_BBOX
-    # with MESH split and IJK calculations
-    def _get_geometry(self, context):
-        ob = self.element
-        xbs, msgs = ob_to_xbs(context=context, ob=ob, bf_xb="BBOX")
-        ids, ijks, xbs = split_mesh(
-            hid=ob.name,
-            ijk=ob.bf_mesh_ijk,
-            export=ob.bf_mesh_nsplits_export,
-            nsplits=ob.bf_mesh_nsplits,
-            xb=xbs[0],
-        )
-        msgs.extend(_get_mesh_msgs(context, ob))
-        return ob, ids, ijks, xbs, msgs
+    # with MESH split, IJK calculations, and MPI processes
 
     def to_fds_list(self, context) -> FDSList:
-        _, ids, ijks, xbs, msgs = self._get_geometry(context)
-        return FDSMulti(
-            iterable=(
-                FDSList(
-                    iterable=(
-                        FDSParam(fds_label="ID", value=hid),
-                        FDSParam(fds_label="IJK", value=ijk),
-                        FDSParam(fds_label="XB", value=xb, precision=6),
-                    )
+        ob = self.element
+        hids, ijks, xbs, msgs = get_mesh_info(context, ob)
+        mpis = get_mesh_mpis(context, ob, xbs)
+        iterable = (
+            FDSList(
+                (
+                    FDSParam(fds_label="ID", value=hid),
+                    FDSParam(fds_label="IJK", value=ijk),
+                    FDSParam(fds_label="XB", value=xb, precision=6),
                 )
-                for hid, xb, ijk in zip(ids, xbs, ijks)
-            ),
-            msgs=msgs,
+            )
+            for hid, xb, ijk in zip(hids, xbs, ijks)
         )
+        if mpis:
+            fds_params = (FDSParam(fds_label="MPI_PROCESS", value=mpi) for mpi in mpis)
+            iterable = zip(iterable, fds_params)
+        return FDSMulti(iterable=FDSList(iterable), msgs=msgs)
 
     def show_fds_geometry(self, context, ob_tmp):
-        ob, _, _, xbs, _ = self._get_geometry(context)
+        ob = self.element
+        _, _, xbs, _ = get_mesh_info(context, ob)
         xbs, _ = multiply_xbs(xbs, hids=None, ob=ob)
         xbs_to_ob(context=context, ob=ob_tmp, xbs=xbs, bf_xb="BBOX", add=True)
 
@@ -134,78 +120,9 @@ class ON_MESH(BFNamelistOb):
         OP_MESH_nsplits,
         OP_MESH_XB_BBOX,
         OP_other_MULT_ID,
+        OP_MESH_MPI_PROCESS_qty,
         OP_RGB,
         OP_COLOR,
         OP_other,
     )
     bf_other = {"appearance": "BBOX"}
-
-
-# Helper functions
-
-
-def get_cell_sizes(context, ob):
-    """!Get cell sizes by axis."""
-    xb = utils.geometry.get_bbox_xb(context=context, ob=ob, world=True)
-    ijk = ob.bf_mesh_ijk
-    return (
-        (xb[1] - xb[0]) / ijk[0],
-        (xb[3] - xb[2]) / ijk[1],
-        (xb[5] - xb[4]) / ijk[2],
-    )
-
-
-def get_cell_aspect(cell_sizes):
-    """!Get max cell aspect ratio."""
-    cs = sorted(cell_sizes)
-    try:
-        return max(
-            cs[2] / cs[0],
-            cs[2] / cs[1],
-            cs[1] / cs[0],
-        )
-    except ZeroDivisionError:
-        return 999.0
-
-
-def get_poisson_ijk(ijk):
-    """!Get an IJK respecting the Poisson constraint, close to the current one."""
-    return ijk[0], get_n_for_poisson(ijk[1]), get_n_for_poisson(ijk[2])
-
-
-def get_ijk_from_desired_cs(context, ob, desired_cs, poisson):
-    """!Calc MESH IJK from cell sizes."""
-    xb = utils.geometry.get_bbox_xb(context=context, ob=ob, world=True)
-    ijk = (
-        round((xb[1] - xb[0]) / desired_cs[0]) or 1,
-        round((xb[3] - xb[2]) / desired_cs[1]) or 1,
-        round((xb[5] - xb[4]) / desired_cs[2]) or 1,
-    )
-    if poisson:
-        return get_poisson_ijk(ijk)
-    else:
-        return ijk
-
-
-def _get_mesh_msgs(context, ob):
-    """!Get message for MESHes."""
-    # Calc
-    ijk = ob.bf_mesh_ijk
-    cs = get_cell_sizes(context, ob)
-    has_good_ijk = tuple(ijk) == get_poisson_ijk(ijk) and "Yes" or "No"
-    aspect = get_cell_aspect(cs)
-    nsplit, qty = get_nsplit(ob)
-    nmult = get_nmult(ob)
-    nmesh = nsplit * nmult
-    qty_tot = ijk[0] * ijk[1] * ijk[2] * nmult
-    # Prepare msgs
-    if nmesh > 1:
-        return (
-            f"MESH: {nmesh} | Cell Qty: {qty} ({qty_tot} tot) | Splits: {nsplit} | Multiples: {nmult}",
-            f"Size: {cs[0]:.3f}m · {cs[1]:.3f}m · {cs[2]:.3f}m | Aspect: {aspect:.1f} | Poisson: {has_good_ijk}",
-        )
-    else:
-        return (
-            f"Cell Qty: {qty}",
-            f"Size: {cs[0]:.3f}m · {cs[1]:.3f}m · {cs[2]:.3f}m | Aspect: {aspect:.1f} | Poisson: {has_good_ijk}",
-        )

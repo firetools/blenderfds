@@ -19,29 +19,15 @@ def split_cells(ncell, nsplit):
     return ncells
 
 
-def get_nsplit(ob):
-    """!Get the number of exported splitted MESHes."""
-    ijk = ob.bf_mesh_ijk
-    if ob.bf_mesh_nsplits_export:
-        nsplits = ob.bf_mesh_nsplits
-        icells = split_cells(ijk[0], nsplits[0])
-        jcells = split_cells(ijk[1], nsplits[1])
-        kcells = split_cells(ijk[2], nsplits[2])
-        return (
-            len(icells) * len(jcells) * len(kcells),
-            icells[0] * jcells[0] * kcells[0],
-        )
-    else:
-        return 1, ijk[0] * ijk[1] * ijk[2]
-
-
 def split_mesh(hid, ijk, export, nsplits, xb):
     """!
     Split ijk cells along the axis in nsplits, calc new ids, ijks and xbs
     """
-    if not export:
-        return (hid,), (ijk,), (xb,)
+    # Init
     ijks, xbs = list(), list()
+    ncell = ijk[0] * ijk[1] * ijk[2]
+    if not export:
+        nsplits = 1, 1, 1
     # Split cells along axis
     icells = split_cells(ijk[0], nsplits[0])
     jcells = split_cells(ijk[1], nsplits[1])
@@ -83,11 +69,11 @@ def split_mesh(hid, ijk, export, nsplits, xb):
         hids = (f"{hid}_s{i}" for i in range(len(xbs)))
     else:
         hids = (hid,)
-    return hids, ijks, xbs
+    return hids, ijks, xbs, ncell, cs
 
 
 def test():
-    hids, ijks, xbs = split_mesh(
+    hids, ijks, xbs, ncell, cs = split_mesh(
         hid="H",
         ijk=(10, 10, 10),
         nsplits=(2, 3, 1),
