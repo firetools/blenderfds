@@ -129,12 +129,12 @@ class BFNamelist(BFParam):
         self.check(context)
         if self.fds_label:
             return FDSNamelist(
+                fds_label=self.fds_label,
                 iterable=(
                     bf_param.to_fds_list(context)
                     for bf_param in self.bf_params
                     if bf_param
                 ),
-                fds_label=self.fds_label,
             )
         return FDSList()
 

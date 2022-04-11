@@ -147,6 +147,7 @@ def multiply_xb(
     return xbs, hids
 
 
+# TODO generate Objects from MULT
 # Multiply Object:
 #
 #     obs_new = list((ob,))  # add original

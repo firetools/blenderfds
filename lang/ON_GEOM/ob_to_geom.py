@@ -90,7 +90,7 @@ def get_fds_trisurface(context, ob, check, is_open, world):
 
 
 def get_boundary_condition_ids(context, ob):  # used by GEOM
-    ids = list()
+    hids = list()
     material_slots = ob.material_slots
     for ms in material_slots:
         ma = ms.material
@@ -101,8 +101,8 @@ def get_boundary_condition_ids(context, ob):  # used by GEOM
             )
         if not ma.bf_surf_export:
             raise BFException(ob, f"Referenced SURF <{ma.name}> is not exported")
-        ids.append(ma.name)
-    return tuple(ids)
+        hids.append(ma.name)
+    return tuple(hids)
 
 
 # Check sanity
