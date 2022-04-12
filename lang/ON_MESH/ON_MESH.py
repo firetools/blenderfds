@@ -16,6 +16,12 @@ from .calc_meshes import get_mesh_info, get_mesh_mpis
 log = logging.getLogger(__name__)
 
 
+def update_bf_mesh_nsplits(ob, context):
+    # Remove cache and tmp objects
+    ob["ob_to_xbs_cache"] = None
+    utils.geometry.rm_tmp_objects()
+
+
 class OP_MESH_MPI_PROCESS_qty(BFParam):  # to_fds_list() in XB_BBOX
     label = "MPI_PROCESS Qty"
     description = "Number MPI processes assigned to these MESH instances"
@@ -66,7 +72,7 @@ class OP_MESH_nsplits(BFParam):
     bpy_idname = "bf_mesh_nsplits"
     bpy_prop = IntVectorProperty
     bpy_default = (1, 1, 1)
-    bpy_other = {"size": 3, "min": 1}
+    bpy_other = {"size": 3, "min": 1, "update": update_bf_mesh_nsplits}
     bpy_export = "bf_mesh_nsplits_export"
     bpy_export_default = False
 

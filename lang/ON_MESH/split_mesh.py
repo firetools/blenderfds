@@ -25,13 +25,13 @@ def split_mesh(hid, ijk, export, nsplits, xb):
     """
     # Init
     ijks, xbs = list(), list()
-    ncell = ijk[0] * ijk[1] * ijk[2]
     if not export:
         nsplits = 1, 1, 1
     # Split cells along axis
     icells = split_cells(ijk[0], nsplits[0])
     jcells = split_cells(ijk[1], nsplits[1])
     kcells = split_cells(ijk[2], nsplits[2])
+    ncell = icells[0] * jcells[0] * kcells[0]
     # Prepare new mesh ijks and origins (in cell number)
     corigins = list()
     corigin_i, corigin_j, corigin_k = 0, 0, 0
