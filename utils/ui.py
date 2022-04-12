@@ -45,7 +45,7 @@ def get_text_in_editor(context, text=None, name=None):
     space.show_margin = True
     space.margin_column = 130
     space.show_syntax_highlight = True
-    return
+    return text
 
 
 def show_property_panel(context, space_context="MATERIAL"):
