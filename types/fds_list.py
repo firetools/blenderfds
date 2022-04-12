@@ -436,4 +436,3 @@ class FDSParam(FDSList):
                 self.precision += max(len(m) for m in match) - 1
         # Record
         self.extend(values)
-        print(self.fds_label, f90_value, self.precision, self.exponential)  # FIXME
