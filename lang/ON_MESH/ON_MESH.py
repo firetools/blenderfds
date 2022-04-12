@@ -5,6 +5,7 @@ MESH namelist definition
 import logging
 from bpy.types import Object
 from bpy.props import IntVectorProperty, IntProperty
+from ...config import LENGTH_PRECISION
 from ...types import BFParam, BFNamelistOb, FDSParam, FDSMulti, FDSList, BFException
 from ... import utils
 from ..bf_object import OP_namelist_cls, OP_ID, OP_FYI, OP_other, OP_RGB, OP_COLOR
@@ -87,7 +88,7 @@ class OP_MESH_XB_BBOX(OP_XB_BBOX):
                 (
                     FDSParam(fds_label="ID", value=hid),
                     FDSParam(fds_label="IJK", value=ijk),
-                    FDSParam(fds_label="XB", value=xb, precision=6),
+                    FDSParam(fds_label="XB", value=xb, precision=LENGTH_PRECISION),
                 )
             )
             for hid, xb, ijk in zip(hids, xbs, ijks)

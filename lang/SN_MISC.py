@@ -1,6 +1,7 @@
 import logging
 from bpy.types import Scene
 from bpy.props import BoolProperty, FloatProperty, StringProperty, IntProperty
+from ..config import GEOLOC_PRECISION
 from ..types import BFParam, BFParamOther, BFParamFYI, BFNamelistSc, FDSParam, FDSList
 from ..bl.ui_lists import (
     WM_PG_bf_other,
@@ -100,7 +101,7 @@ class SP_ORIGIN_LON(BFParam):
     bpy_prop = FloatProperty
     bpy_export = "bf_origin_export"
     bpy_default = 9.16889  # Portofino mountain
-    bpy_other = {"min": -180.0, "max": 180.0, "precision": 6, "update": update_lonlat}
+    bpy_other = {"min": -180.0, "max": 180.0, "precision": GEOLOC_PRECISION, "update": update_lonlat}
 
     def draw(self, context, layout):
         pass
@@ -115,7 +116,7 @@ class SP_ORIGIN_LAT(BFParam):
     bpy_prop = FloatProperty
     bpy_export = "bf_origin_export"
     bpy_default = 44.32676  # Portofino mountain
-    bpy_other = {"min": -80.0, "max": 84.0, "precision": 6, "update": update_lonlat}
+    bpy_other = {"min": -80.0, "max": 84.0, "precision": GEOLOC_PRECISION, "update": update_lonlat}
 
     def draw(self, context, layout):
         pass

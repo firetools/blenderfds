@@ -67,7 +67,6 @@ def get_cell_sizes(context, ob):  # used by: mesh_tools.py
 def get_mesh_info(context, ob):
     """!Get info on generated MESH instances."""
     ijk = ob.bf_mesh_ijk
-    ncell_tot = ijk[0] * ijk[1] * ijk[2]
     hids, ijks, xbs, ncell, cs = split_mesh(
         hid=ob.name,
         ijk=ijk,
@@ -77,6 +76,7 @@ def get_mesh_info(context, ob):
     )
     nsplit = len(xbs)
     nmult = get_nmult(ob)
+    ncell_tot = ijk[0] * ijk[1] * ijk[2] * nmult
     nmesh = nmult * nsplit
     has_good_ijk = tuple(ijk) == get_poisson_ijk(ijk) and "Yes" or "No"
     aspect = get_cell_aspect(cs)

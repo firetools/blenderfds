@@ -5,6 +5,7 @@ BlenderFDS, operators for the MESH tools panel.
 import logging, bpy
 from bpy.types import Operator
 from bpy.props import BoolProperty, FloatVectorProperty
+from ...config import LENGTH_PRECISION
 from ... import utils, lang
 from ...types import BFException
 
@@ -26,7 +27,7 @@ class OBJECT_OT_bf_set_mesh_cell_size(Operator):
         description="Desired MESH cell sizes",
         default=(0.3, 0.3, 0.3),
         min=0.001,
-        precision=3,
+        precision=LENGTH_PRECISION,
         size=3,
     )
     bf_poisson_restriction: BoolProperty(

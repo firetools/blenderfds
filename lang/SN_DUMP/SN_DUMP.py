@@ -1,6 +1,7 @@
 import logging, io
 from bpy.types import Scene
 from bpy.props import BoolProperty, FloatProperty, IntProperty
+from ...config import TIME_PRECISION
 from ... import utils
 from ...types import BFParam, BFParamOther, BFParamFYI, BFNamelistSc, FDSParam, FDSList
 from ...bl.ui_lists import WM_PG_bf_other, WM_UL_bf_other_items
@@ -75,7 +76,7 @@ class SP_DUMP_frames_freq(BFParam):
     bpy_type = Scene
     bpy_idname = "bf_dump_frames_freq"
     bpy_prop = FloatProperty
-    bpy_other = {"min": 0.01, "precision": 2}
+    bpy_other = {"min": 0.01, "precision": TIME_PRECISION}
     bpy_default = 1.0
     bpy_export = "bf_dump_frames_freq_export"
     bpy_export_default = False
@@ -100,7 +101,7 @@ class SP_DUMP_DT_RESTART(BFParam):
     bpy_type = Scene
     bpy_idname = "bf_dump_dt_restart"
     bpy_prop = FloatProperty
-    bpy_other = {"min": 1.0, "precision": 1}
+    bpy_other = {"min": 1.0, "precision": TIME_PRECISION}
     bpy_export = "bf_dump_dt_restart_export"
     bpy_export_default = False
 

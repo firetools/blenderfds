@@ -1,6 +1,7 @@
 import logging
 from bpy.types import Object
 from bpy.props import EnumProperty, BoolProperty, FloatProperty
+from ...config import LENGTH_PRECISION
 from ...types import BFParam, FDSParam, FDSList, FDSMulti
 from ... import utils
 from ..ON_MULT import OP_other_MULT_ID, multiply_xbs
@@ -49,7 +50,7 @@ class OP_XB_voxel_size(BFParam):
     bpy_default = 0.1
     bpy_other = {
         "step": 1.0,
-        "precision": 3,
+        "precision": LENGTH_PRECISION,
         "min": 0.001,
         "max": 20.0,
         "unit": "LENGTH",
@@ -124,7 +125,7 @@ class OP_XB(BFParam):
             case 0:
                 return FDSList()
             case 1:
-                return FDSParam(fds_label="XB", value=xbs[0], precision=6)
+                return FDSParam(fds_label="XB", value=xbs[0], precision=LENGTH_PRECISION)
         # Multi
         n = ob.name
         match ob.bf_id_suffix:
@@ -151,7 +152,7 @@ class OP_XB(BFParam):
                 FDSList(
                     iterable=(
                         FDSParam(fds_label="ID", value=hid),
-                        FDSParam(fds_label="XB", value=xb, precision=6),
+                        FDSParam(fds_label="XB", value=xb, precision=LENGTH_PRECISION),
                     )
                 )
                 for hid, xb in zip(hids, xbs)
@@ -188,7 +189,7 @@ class OP_XB_BBOX(OP_XB):
 
     def to_fds_list(self, context) -> FDSList:
         xbs, _ = ob_to_xbs(context=context, ob=self.element, bf_xb="BBOX")
-        return FDSParam(fds_label="XB", value=xbs[0], precision=6)
+        return FDSParam(fds_label="XB", value=xbs[0], precision=LENGTH_PRECISION)
 
     def from_fds(self, context, value):
         xbs_to_ob(

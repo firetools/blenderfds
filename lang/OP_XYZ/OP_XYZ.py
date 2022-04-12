@@ -1,6 +1,7 @@
 import logging
 from bpy.types import Object
 from bpy.props import EnumProperty, BoolProperty, FloatProperty
+from ...config import LENGTH_PRECISION
 from ...types import BFParam, FDSParam, FDSList, FDSMulti
 from ... import utils
 from .ob_to_xyzs import ob_to_xyzs
@@ -59,7 +60,7 @@ class OP_XYZ(BFParam):
             case 0:
                 return FDSList()
             case 1:
-                return FDSParam(fds_label="XYZ", value=xyzs[0], precision=6)
+                return FDSParam(fds_label="XYZ", value=xyzs[0], precision=LENGTH_PRECISION)
         # Multi
         n = ob.name
         match self.element.bf_id_suffix:
@@ -86,7 +87,7 @@ class OP_XYZ(BFParam):
                 FDSList(
                     iterable=(
                         FDSParam(fds_label="ID", value=hid),
-                        FDSParam(fds_label="XYZ", value=xyz, precision=6),
+                        FDSParam(fds_label="XYZ", value=xyz, precision=LENGTH_PRECISION),
                     )
                 )
                 for hid, xyz in zip(hids, xyzs)

@@ -1,6 +1,7 @@
 import logging
 from bpy.types import Scene
 from bpy.props import BoolProperty, FloatProperty
+from ..config import TIME_PRECISION
 from ..types import BFParam, BFParamOther, BFNamelistSc, FDSParam, FDSList
 from ..bl.ui_lists import WM_PG_bf_other, WM_UL_bf_other_items
 
@@ -15,16 +16,6 @@ class SP_TIME_setup_only(BFParam):
     bpy_prop = BoolProperty
     bpy_default = False
 
-    def to_fds_list(self, context) -> FDSList:
-        if self.element.bf_time_setup_only:
-            return FDSParam(
-                fds_label="T_END",
-                value=0.0,
-                msg="Smokeview setup only",
-                precision=1,
-            )
-        return FDSList()
-
 
 class SP_TIME_T_BEGIN(BFParam):
     label = "T_BEGIN [s]"
@@ -34,10 +25,19 @@ class SP_TIME_T_BEGIN(BFParam):
     bpy_type = Scene
     bpy_idname = "bf_time_t_begin"
     bpy_prop = FloatProperty
-    bpy_other = {"step": 100.0, "precision": 1}  # "unit": "TIME", not working
+    bpy_other = {
+        "step": 100.0,
+        "precision": TIME_PRECISION,
+    }  # "unit": "TIME", not working
 
     def get_exported(self, context):
         return super().get_exported(context) and not self.element.bf_time_setup_only
+
+    def draw(self, context, layout):
+        active = not self.element.bf_time_setup_only
+        row = layout.row(align=True)
+        row.active = active
+        row.prop(self.element, self.bpy_idname, text=self.label)
 
 
 class SP_TIME_T_END(BFParam):
@@ -48,10 +48,26 @@ class SP_TIME_T_END(BFParam):
     bpy_idname = "bf_time_t_end"
     bpy_prop = FloatProperty
     bpy_default = 1.0
-    bpy_other = {"step": 100.0, "precision": 1}  # "unit": "TIME", not working
+    bpy_other = {
+        "step": 100.0,
+        "precision": TIME_PRECISION,
+    }  # "unit": "TIME", not working
 
-    def get_exported(self, context):
-        return super().get_exported(context) and not self.element.bf_time_setup_only
+    def to_fds_list(self, context) -> FDSList:
+        if self.element.bf_time_setup_only:
+            return FDSParam(
+                fds_label="T_END",
+                value=0.0,
+                msg="Smokeview setup only",
+                precision=1,
+            )
+        return super().to_fds_list(context)
+
+    def draw(self, context, layout):
+        active = not self.element.bf_time_setup_only
+        row = layout.row(align=True)
+        row.active = active
+        row.prop(self.element, self.bpy_idname, text=self.label)
 
 
 class SP_TIME_other(BFParamOther):

@@ -5,6 +5,14 @@
 # mod = addon_utils.addons_fake_modules.get(PKG)
 # mod.bl_info['show_expanded'] = True
 
+## length precision
+LENGTH_PRECISION = 4
+## geographic location precision
+GEOLOC_PRECISION = 9
+## time precision
+TIME_PRECISION = 1
+
+
 ## max number of columns of formatted output
 MAXLEN = 80
 ## number of columns for second line indent

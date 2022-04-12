@@ -7,6 +7,7 @@ from bpy.props import (
     PointerProperty,
     EnumProperty,
 )
+from ..config import LENGTH_PRECISION
 from ..types import BFParam, BFNamelistSc, BFException
 
 log = logging.getLogger(__name__)
@@ -151,7 +152,7 @@ class SP_config_default_voxel_size(BFParam):
     bpy_idname = "bf_default_voxel_size"
     bpy_prop = FloatProperty
     bpy_default = 0.1
-    bpy_other = {"unit": "LENGTH", "step": 1.0, "precision": 3}
+    bpy_other = {"unit": "LENGTH", "step": 1.0, "precision": LENGTH_PRECISION}
 
 
 class SN_config_sizes(BFNamelistSc):

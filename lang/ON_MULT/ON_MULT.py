@@ -1,6 +1,7 @@
 import logging
 from bpy.types import Object
 from bpy.props import FloatProperty, IntProperty, FloatVectorProperty
+from ...config import LENGTH_PRECISION
 from ...types import BFNamelist, BFParam, BFNotImported, FDSList, FDSNamelist
 from ... import utils
 
@@ -37,7 +38,7 @@ class OP_MULT_DX(BFParam):
     bpy_prop = FloatProperty
     bpy_other = {
         "step": 1.0,
-        "precision": 3,
+        "precision": LENGTH_PRECISION,
         "unit": "LENGTH",
         "update": update_bf_mult,
     }
@@ -53,7 +54,7 @@ class OP_MULT_DY(BFParam):
     bpy_prop = FloatProperty
     bpy_other = {
         "step": 1.0,
-        "precision": 3,
+        "precision": LENGTH_PRECISION,
         "unit": "LENGTH",
         "update": update_bf_mult,
     }
@@ -69,7 +70,7 @@ class OP_MULT_DZ(BFParam):
     bpy_prop = FloatProperty
     bpy_other = {
         "step": 1.0,
-        "precision": 3,
+        "precision": LENGTH_PRECISION,
         "unit": "LENGTH",
         "update": update_bf_mult,
     }
@@ -85,7 +86,7 @@ class OP_MULT_DX0(BFParam):
     bpy_prop = FloatProperty
     bpy_other = {
         "step": 1.0,
-        "precision": 3,
+        "precision": LENGTH_PRECISION,
         "unit": "LENGTH",
         "update": update_bf_mult,
     }
@@ -101,7 +102,7 @@ class OP_MULT_DY0(BFParam):
     bpy_prop = FloatProperty
     bpy_other = {
         "step": 1.0,
-        "precision": 3,
+        "precision": LENGTH_PRECISION,
         "unit": "LENGTH",
         "update": update_bf_mult,
     }
@@ -117,7 +118,7 @@ class OP_MULT_DZ0(BFParam):
     bpy_prop = FloatProperty
     bpy_other = {
         "step": 1.0,
-        "precision": 3,
+        "precision": LENGTH_PRECISION,
         "unit": "LENGTH",
         "update": update_bf_mult,
     }
@@ -292,7 +293,7 @@ class OP_MULT_DXB(BFParam):
     bpy_prop = FloatVectorProperty
     bpy_other = {
         "step": 1.0,
-        "precision": 3,
+        "precision": LENGTH_PRECISION,
         "unit": "LENGTH",
         "size": 6,
         "update": update_bf_mult,
@@ -495,10 +496,9 @@ class OP_other_MULT_ID(BFParam):
             f90_params = context.scene["bf_mult_coll"][value]
         except KeyError as err:
             raise BFNotImported(self, f"Missing MULT ID='{value}'")
-        fds_namelist = FDSNamelist()
-        fds_namelist.from_fds(f90_params=f90_params)
         ON_MULT(element=self.element).from_fds(
-            context=context, fds_namelist=fds_namelist
+            context=context,
+            fds_namelist=FDSNamelist(fds_label="MULT", f90_params=f90_params),
         )
 
     def draw(self, context, layout):
