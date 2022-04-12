@@ -248,9 +248,6 @@ class BFScene:
         # Also for visibility
         context.window.scene = self
 
-        # Init
-        fds_list = FDSList()
-
         # Set filepath, instead of f90_namelists
         if filepath:
             filepath = utils.io.transform_rbl_to_abs(
@@ -264,7 +261,7 @@ class BFScene:
             self.bf_config_directory = os.path.dirname(filepath)
 
         # Load fds case
-        fds_list.from_fds(f90_namelists=f90_namelists)
+        fds_list = FDSList(f90_namelists=f90_namelists)
 
         # Prepare free text for unmanaged namelists, no rewind
         if not self.bf_config_text:

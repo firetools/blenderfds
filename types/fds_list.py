@@ -3,8 +3,8 @@ BlenderFDS, Blender list of FDS namelists or parameters.
 """
 
 import re, logging
-from .bf_exception import BFException
 from ..config import MAXLEN, INDENT
+from .bf_exception import BFException
 
 log = logging.getLogger(__name__)
 
@@ -14,31 +14,55 @@ class FDSList(list):
     List of FDSParam, FDSNamelist, FDSList instances.
     """
 
-    def __init__(self, iterable=(), fds_label=None, msgs=(), msg=None, header=None) -> None:
+    def __init__(self, iterable=(), msgs=(), msg=None, header=None) -> None:
         """!
         Class constructor.
         @param iterable: iterable content of any type.
-        @param fds_label: fds label of group (eg. namelist or param).
         @param msgs: list of comment message strings.
         @param msg: comment message string.
-        @param header: header msg string.
         """
         super().__init__(iterable)
-        ## fds label of group (eg. namelist or param).
-        self.fds_label = fds_label
         ## list of comment message strings.
         self.msgs = list(msgs)
         if msg:
             self.msgs.append(msg)
-        ## header string
+        ## header string, that appears only if self is not empty
         self.header = header
 
     def __repr__(self) -> str:
         iterable = ",".join(str(item) for item in self)
-        return f"{self.__class__.__name__}(fds_label={self.fds_label}, msgs={self.msgs}, header={self.header}, iterable={iterable})"
+        return f"{self.__class__.__name__}({iterable})"
 
     def __contains__(self, fds_label) -> bool:
+        """!Check if fds_label is in iterable."""
         return bool(self.get_fds_label(fds_label=fds_label, remove=False))
+
+    def _classify_items(self, inv_ps=None, multi_ps=None, add_ns=None):
+        """!
+        Classify self items in params msgs, invariant params,
+        multi params, additional namelists.
+        """
+        if inv_ps is None:  # first run
+            # init invariant params, multi params, additional namelists
+            inv_ps, multi_ps, add_ns = FDSList(), None, FDSList()
+        for item in self:
+            match item:
+                case None:
+                    continue
+                case FDSParam():  # invariant params
+                    inv_ps.append(item)
+                case FDSMulti():  # multi param (one only)
+                    if multi_ps:
+                        raise Exception(f"One only FDSMulti allowed in: {self!r}")
+                    multi_ps = item
+                case FDSNamelist():  # additional namelists
+                    add_ns.append(item)
+                case FDSList():  # recurse
+                    inv_ps, multi_ps, add_ns = item._classify_items(
+                        inv_ps=inv_ps, multi_ps=multi_ps, add_ns=add_ns)
+                case _:
+                    raise ValueError(f"Unrecognized type of <{item!r}> in <{self!r}>")
+        return inv_ps, multi_ps, add_ns
 
     def get_fds_label(self, fds_label=None, remove=False):
         """!
@@ -71,34 +95,10 @@ class FDSList(list):
                         self.pop(i)
                     return item
 
-    def _classify_items(self, inv_ps=None, multi_ps=None, add_ns=None):
-        """!
-        Classify self items in params msgs, invariant params,
-        multi params, additional namelists.
-        """
-        if inv_ps is None:  # first run
-            # init invariant params, multi params, additional namelists
-            inv_ps, multi_ps, add_ns = FDSList(), None, FDSList()
-        for item in self:
-            match item:
-                case None:
-                    continue
-                case FDSParam():  # invariant params
-                    inv_ps.append(item)
-                case FDSMulti():  # multi param (one only)
-                    if multi_ps:
-                        raise Exception(f"One only FDSMulti allowed in: {self!r}")
-                    multi_ps = item
-                case FDSNamelist():  # additional namelists
-                    add_ns.append(item)
-                case FDSList():  # recurse
-                    inv_ps, multi_ps, add_ns = item._classify_items(
-                        inv_ps=inv_ps, multi_ps=multi_ps, add_ns=add_ns)
-                case _:
-                    raise ValueError(f"Unrecognized type of <{item!r}> in <{self!r}>")
-        return inv_ps, multi_ps, add_ns
-
     def to_string(self) -> str:
+        """!
+        Return the FDS formatted string.
+        """
         lines = self.msgs
         lines.extend(item.to_string() for item in self)
         string = "\n".join(l for l in lines if l)
@@ -106,7 +106,7 @@ class FDSList(list):
             string = f"{self.header}\n{string}"
         return string
 
-    _RE_SCAN_F90_NAMELISTS = re.compile(
+    _RE_SCAN = re.compile(  # scan f90_namelists
         r"""
         ^&                    # & at the beginning of the line
         ([A-Z]+[A-Z0-9]*)     # namelist label (group 0)
@@ -126,7 +126,7 @@ class FDSList(list):
         @param f90_namelists: FDS formatted string of namelists, eg. "&OBST ID='Test' /\n&TAIL /".
         """
         self.clear()
-        for match in re.finditer(self._RE_SCAN_F90_NAMELISTS, f90_namelists):
+        for match in re.finditer(self._RE_SCAN, f90_namelists):
             label, f90_params = match.groups()
             fds_namelist = FDSNamelist(fds_label=label)
             fds_namelist.from_fds(f90_params=f90_params)
@@ -135,28 +135,45 @@ class FDSList(list):
 
 class FDSMulti(FDSList):
     """!
-    FDSList of only FDSList instances.
+    FDSList of FDSList instances.
     """
-    pass
 
+    pass
 
 class FDSNamelist(FDSList):
     """!
     List representing an FDS namelist.
     """
 
+    def __init__(self, fds_label, iterable=(), f90_params=None, msgs=(), msg=None) -> None:
+        """!
+        Class constructor.
+        @param fds_label: fds label of group (eg. namelist or param).
+        @param iterable: iterable content of any type.
+        @param f90_param: init from f90 param string.
+        @param msgs: list of comment message strings.
+        @param msg: comment message string.
+        """
+        super().__init__(iterable=iterable, msgs=msgs, msg=msg)
+        ## fds label of group (eg. namelist or param).
+        self.fds_label = fds_label
+        ## set iterable from f90_params
+        if f90_params:
+            self.from_fds(f90_params=f90_params)
+
+    def __repr__(self) -> str:
+        iterable = ",".join(str(item) for item in self)
+        return f"{self.__class__.__name__}({self.fds_label}, {iterable})"
+
     def __bool__(self):
         return bool(self.fds_label or self.msgs)
-
-    # def _classify_items() inherited,
-    # used recursively
 
     def _remove_duplicated_ps_from_inv_ps(self, inv_ps, multi_ps):
         """!
         Remove params from inv_ps that are duplicated in multi_ps
         (eg. ID, IJK, XB, ...)
         """
-        if multi_ps: # protect from empty
+        if multi_ps:  # protect from empty
             for p in multi_ps[0]:
                 inv_ps.get_fds_label(fds_label=p.fds_label, remove=True)
         return inv_ps
@@ -171,13 +188,15 @@ class FDSNamelist(FDSList):
             fds_list.msgs.extend(multi_ps.msgs)
             for mp in multi_ps:
                 # Add its multi params (ID comes always first)
-                fds_namelist = FDSNamelist(mp, fds_label=self.fds_label)
+                fds_namelist = FDSNamelist(fds_label=self.fds_label, iterable=mp)
                 # Add invariant params and no msg
                 fds_namelist.extend(inv_ps)
                 # Append one of multi (eg. an OBST voxel) to the list
-                fds_list.append(fds_namelist)  
+                fds_list.append(fds_namelist)
         else:
-            fds_namelist = FDSNamelist(inv_ps, fds_label=self.fds_label, msgs=self.msgs)
+            fds_namelist = FDSNamelist(
+                fds_label=self.fds_label, iterable=inv_ps, msgs=self.msgs
+            )
             fds_list.append(fds_namelist)  # append self
         fds_list.extend(add_ns)  # append additional namelists (eg. MOVE)
         return fds_list
@@ -212,24 +231,32 @@ class FDSNamelist(FDSList):
                     lines = self._append_word(lines, word=word)
                 else:
                     # long param, split in lines
-                    lines = self._append_word(lines, word=f"{fds_label}={fds_values[0]},")  # first
+                    lines = self._append_word(
+                        lines, word=f"{fds_label}={fds_values[0]},"
+                    )  # first
                     for v in fds_values[1:-1]:
                         lines = self._append_word(lines, word=f"{v},", separator="")
-                    lines = self._append_word(lines, word=f"{fds_values[-1]}", separator="")  # last
+                    lines = self._append_word(
+                        lines, word=f"{fds_values[-1]}", separator=""
+                    )  # last
         lines[-1] += " /"  # close
         return "\n".join(lines)
 
     def to_string(self) -> str:
-        inv_ps, multi_ps, add_ns  = self._classify_items()
+        inv_ps, multi_ps, add_ns = self._classify_items()
         # Many namelists to be generated? recurse
         if multi_ps or add_ns:
-            inv_ps = self._remove_duplicated_ps_from_inv_ps(inv_ps=inv_ps, multi_ps=multi_ps)
-            fds_list = self._generate_many_fds_namelists(inv_ps=inv_ps, multi_ps=multi_ps, add_ns=add_ns)
+            inv_ps = self._remove_duplicated_ps_from_inv_ps(
+                inv_ps=inv_ps, multi_ps=multi_ps
+            )
+            fds_list = self._generate_many_fds_namelists(
+                inv_ps=inv_ps, multi_ps=multi_ps, add_ns=add_ns
+            )
             return fds_list.to_string()
         # Otherwise format self
         return self._to_one_string(inv_ps=inv_ps)
 
-    _RE_SCAN_F90_PARAMS = re.compile(
+    _RE_SCAN = re.compile(  # scan f90_params
         r"""
         ([A-Z][A-Z0-9_\(\):,]*?)  # label (group 0)
         [,\s\t]*                  # 0+ separators
@@ -258,40 +285,48 @@ class FDSNamelist(FDSList):
         @param f90_params: FDS formatted string of parameters, eg. "ID='Test' PROP=2.34, 1.23, 3.44".
         """
         self.clear()
-        f90_params = " ".join(f90_params.strip().splitlines()) # rm trailing spaces and newlines
-        for match in re.finditer(self._RE_SCAN_F90_PARAMS, f90_params):
+        f90_params = " ".join(
+            f90_params.strip().splitlines()
+        )  # rm trailing spaces and newlines
+        for match in re.finditer(self._RE_SCAN, f90_params):
             label, f90_value = match.groups()
-            fds_param = FDSParam(fds_label=label)
-            fds_param.from_fds(f90_value=f90_value)
-            self.append(fds_param)
+            self.append(FDSParam(fds_label=label, f90_value=f90_value))
+
 
 class FDSParam(FDSList):
     """!
     List representing an FDS parameter.
     """
 
-    def __init__(self, *args, value=None, precision=3, exponential=False, **kwargs) -> None:
+    def __init__(self, fds_label, iterable=(), value=None, f90_value=None, precision=3, exponential=False, msgs=(), msg=None) -> None:
         """!
         Class constructor.
-        @param iterable: iterable of values of any type (inherited from List).
         @param fds_label: namelist parameter label.
-        @param msgs: list of comment message strings.
-        @param msg: comment message string.
+        @param iterable: iterable of values of any type (inherited from List).
         @param value: parameter value of any type.
+        @param f90_value: init from f90 value string.
         @param precision: float precision, number of decimal digits.
         @param exponential: if True sets exponential representation of floats.
+        @param msgs: list of comment message strings.
+        @param msg: comment message string.
         """
-        super().__init__(*args, **kwargs)
+        super().__init__(iterable=iterable, msgs=msgs, msg=msg)
+        ## fds label of group (eg. namelist or param).
+        self.fds_label = fds_label
+        # Set parameter value from f90_value
+        if f90_value:
+            self.from_fds(f90_value=f90_value)
+        else:
+            self.set_value(value=value)
         ## float precision, number of decimal digits
         self.precision = precision
         ## if True sets exponential representation of floats
         self.exponential = exponential
-        # Check fds_label
-        if not self.fds_label:
-            raise Exception(f"No fds_label in: {self}")
-        # Set parameter value
-        if value is not None:
-            self.set_value(value=value)
+
+    def __repr__(self) -> str:
+        iterable = ",".join(str(item) for item in self)
+        return f"{self.__class__.__name__}({self.fds_label}, {iterable})"
+
 
     def get_value(self):
         """!
@@ -315,7 +350,6 @@ class FDSParam(FDSList):
                 self.append(value)
             case _:
                 self.extend(value)
-
 
     def to_strings(self) -> tuple:
         """!

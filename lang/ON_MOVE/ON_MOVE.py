@@ -134,10 +134,9 @@ class OP_other_MOVE_ID(BFParam):
             f90_params = context.scene["bf_move_coll"][value]
         except KeyError as err:
             raise BFNotImported(self, f"Missing MOVE ID='{value}'")
-        fds_namelist = FDSNamelist()
-        fds_namelist.from_fds(f90_params=f90_params)
         ON_MOVE(element=self.element).from_fds(
-            context=context, fds_namelist=fds_namelist
+            context=context,
+            fds_namelist=FDSNamelist(fds_label="MOVE", f90_params=f90_params),
         )
 
     def draw(self, context, layout):  # only label
