@@ -59,7 +59,7 @@ class SP_TIME_T_END(BFParam):
                 fds_label="T_END",
                 value=0.0,
                 msg="Smokeview setup only",
-                precision=1,
+                precision=TIME_PRECISION,
             )
         return super().to_fds_list(context)
 

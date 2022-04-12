@@ -152,7 +152,13 @@ class SP_config_default_voxel_size(BFParam):
     bpy_idname = "bf_default_voxel_size"
     bpy_prop = FloatProperty
     bpy_default = 0.1
-    bpy_other = {"unit": "LENGTH", "step": 1.0, "precision": LENGTH_PRECISION}
+    bpy_other = {
+        "step": 1.0,
+        "precision": LENGTH_PRECISION,
+        "min": 0.001,
+        "max": 20.0,
+        "unit": "LENGTH",
+    }
 
 
 class SN_config_sizes(BFNamelistSc):

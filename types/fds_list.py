@@ -14,7 +14,7 @@ class FDSList(list):
     List of FDSParam, FDSNamelist, FDSList instances.
     """
 
-    def __init__(self, iterable=(), msgs=(), msg=None, header=None) -> None:
+    def __init__(self, iterable=(), f90_namelists=None, msgs=(), msg=None, header=None) -> None:
         """!
         Class constructor.
         @param iterable: iterable content of any type.
@@ -28,6 +28,10 @@ class FDSList(list):
             self.msgs.append(msg)
         ## header string, that appears only if self is not empty
         self.header = header
+        ## set iterable from f90_namelists
+        if f90_namelists:
+            self.from_fds(f90_namelists=f90_namelists)
+
 
     def __repr__(self) -> str:
         iterable = ",".join(str(item) for item in self)
@@ -313,15 +317,15 @@ class FDSParam(FDSList):
         super().__init__(iterable=iterable, msgs=msgs, msg=msg)
         ## fds label of group (eg. namelist or param).
         self.fds_label = fds_label
+        ## float precision, number of decimal digits
+        self.precision = precision
+        ## if True sets exponential representation of floats
+        self.exponential = exponential
         # Set parameter value from f90_value
         if f90_value:
             self.from_fds(f90_value=f90_value)
         else:
             self.set_value(value=value)
-        ## float precision, number of decimal digits
-        self.precision = precision
-        ## if True sets exponential representation of floats
-        self.exponential = exponential
 
     def __repr__(self) -> str:
         iterable = ",".join(str(item) for item in self)
@@ -432,3 +436,4 @@ class FDSParam(FDSList):
                 self.precision += max(len(m) for m in match) - 1
         # Record
         self.extend(values)
+        print(self.fds_label, f90_value, self.precision, self.exponential)  # FIXME
