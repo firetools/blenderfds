@@ -23,7 +23,7 @@ class SP_CATF_files(BFParam):
             context.scene.from_fds(
                 context=context,
                 filepath=filepath,
-                set_collection=True,
+                co_description=v,  # collection description
             )
 
 

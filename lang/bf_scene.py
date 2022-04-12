@@ -91,13 +91,11 @@ def _import_sc(context, sc, bf_namelist, fds_namelist, texts):
     return is_imported
 
 
-def _import_ob(context, sc, bf_namelist, fds_namelist, hid, set_collection, texts):
+def _import_ob(context, sc, bf_namelist, fds_namelist, hid, texts, co_description=""):
     is_imported = False
     me = bpy.data.meshes.new(hid)  # new Mesh
     ob = bpy.data.objects.new(hid, object_data=me)  # new Object
-    co_name = (
-        set_collection and f"New {bf_namelist.collection}" or None  # user requests
-    )
+    co_name = " ".join((f"New {bf_namelist.collection}", co_description))
     co = _get_co(sc=sc, name=co_name)
     co.objects.link(ob)  # link to collection
     try:
@@ -119,7 +117,7 @@ def _import_ma(context, sc, fds_namelist, hid, texts):
     return is_imported
 
 
-def _import(context, sc, fds_list, fds_label=None, set_collection=True) -> str:
+def _import(context, sc, fds_list, fds_label=None, co_description="") -> str:
     """!
     Import all namelists with label fds_label from fds_list into scene.
     """
@@ -148,8 +146,8 @@ def _import(context, sc, fds_list, fds_label=None, set_collection=True) -> str:
                     bf_namelist=bf_namelist,
                     fds_namelist=fds_namelist,
                     hid=hid,
-                    set_collection=set_collection,
                     texts=texts,
+                    co_description=co_description,
                 )
             elif bf_namelist.bpy_type == Material:
                 is_imported = _import_ma(
@@ -237,13 +235,13 @@ class BFScene:
             utils.io.write_txt_file(filepath, text)
         return text
 
-    def from_fds(self, context, filepath=None, f90_namelists=None, set_collection=True):
+    def from_fds(self, context, filepath=None, f90_namelists=None, co_description=""):
         """!
         Set self.bf_namelists from FDSList, on error raise BFException.
         @param context: the Blender context.
         @param filepath: filepath of FDS case to be imported.
         @param f90_namelists: FDS formatted string of namelists, eg. "&OBST ID='Test' /\n&TAIL /".
-        @param set_collection: set default collection for imported geometric namelists.
+        @param co_description: Collection description string.
         """
         # Set mysef as the right Scene instance in the context
         # this is used by context.scene calls elsewhere
@@ -279,11 +277,11 @@ class BFScene:
         # Import by fds_label
         fds_labels = (
             "HEAD",
-            "SURF",
-            "CATF",
-            "MOVE",
+            "MOVE",  # pre-load moves and multiplicity
             "MULT",
-            "MESH",
+            "MESH",  # create domain collection
+            "SURF",  # load SURFs
+            "CATF",  # load additional SURFs
             "OBST",
             "GEOM",
             None,
@@ -294,7 +292,7 @@ class BFScene:
                 sc=self,
                 fds_list=fds_list,
                 fds_label=fds_label,
-                set_collection=set_collection,
+                co_description=co_description,
             )
 
         # Restore fds case dir, to avoid overwriting imported case
