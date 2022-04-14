@@ -12,9 +12,9 @@ log = logging.getLogger(__name__)
 
 
 def update_bf_xb(ob, context):
-    # Remove cache and tmp objects
-    ob["ob_to_xbs_cache"] = None
-    utils.geometry.rm_tmp_objects()
+    utils.geometry.rm_geometric_cache(ob=ob)
+    if ob.bf_has_tmp:
+        utils.geometry.rm_tmp_objects()
     # Prevent double multiparam
     if ob.bf_xb in ("VOXELS", "FACES", "PIXELS", "EDGES") and ob.bf_xb_export:
         if ob.bf_xyz == "VERTICES":
