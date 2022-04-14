@@ -1,4 +1,6 @@
 from . import (
+    import_scene,
+    export_scene,
     check_geom,
     choose_namelist_id,
     copy_params,
@@ -11,6 +13,8 @@ from . import (
 )
 
 ms_to_register = (
+    import_scene,
+    export_scene,
     check_geom,
     choose_namelist_id,
     copy_params,
