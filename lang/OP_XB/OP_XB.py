@@ -11,7 +11,6 @@ from .xbs_to_ob import xbs_to_ob
 log = logging.getLogger(__name__)
 
 
-
 def update_bf_xb(ob, context):
     # Remove cache and tmp objects
     ob["ob_to_xbs_cache"] = None
@@ -94,7 +93,8 @@ class OP_XB_export(BFParam):
     bpy_default = True
     bpy_other = {"update": update_bf_xb}
 
-class OP_XB(BFParam):  
+
+class OP_XB(BFParam):
     label = "XB"
     description = "Export as volumes/faces"
     fds_label = "XB"
@@ -114,54 +114,33 @@ class OP_XB(BFParam):
     bpy_export = "bf_xb_export"
 
     def _get_geometry(self, context):
-        ob, xbs, msgs = self.element, list(), list()
+        ob, hids, xbs, msgs = self.element, tuple(), tuple(), tuple()
         if ob.bf_xb_export:
-            xbs, msgs = ob_to_xbs(context=context, ob=ob, bf_xb=ob.bf_xb)
-        return ob, xbs, msgs
+            hids, xbs, msgs = ob_to_xbs(context=context, ob=ob, bf_xb=ob.bf_xb)
+        return ob, hids, xbs, msgs
 
     def to_fds_list(self, context) -> FDSList:
-        ob, xbs, msgs = self._get_geometry(context)
+        _, hids, xbs, msgs = self._get_geometry(context)
+        # Single
         match len(xbs):
             case 0:
                 return FDSList()
             case 1:
                 return FDSParam(fds_label="XB", value=xbs[0], precision=LENGTH_PRECISION)
         # Multi
-        n = ob.name
-        match ob.bf_id_suffix:
-            case "IDI":
-                hids = (f"{n}_{i}" for i, _ in enumerate(xbs))
-            case "IDX":
-                hids = (f"{n}_x{xb[0]:+.3f}" for xb in xbs)
-            case "IDY":
-                hids = (f"{n}_y{xb[2]:+.3f}" for xb in xbs)
-            case "IDZ":
-                hids = (f"{n}_z{xb[4]:+.3f}" for xb in xbs)
-            case "IDXY":
-                hids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}" for xb in xbs)
-            case "IDXZ":
-                hids = (f"{n}_x{xb[0]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
-            case "IDYZ":
-                hids = (f"{n}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
-            case "IDXYZ":
-                hids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
-            case _:
-                raise AssertionError(f"Unknown suffix <{self.element.bf_id_suffix}>")
         return FDSMulti(
             iterable=(
-                FDSList(
-                    iterable=(
-                        FDSParam(fds_label="ID", value=hid),
-                        FDSParam(fds_label="XB", value=xb, precision=LENGTH_PRECISION),
-                    )
-                )
-                for hid, xb in zip(hids, xbs)
+                (FDSParam(fds_label="ID", value=hid) for hid in hids),
+                (
+                    FDSParam(fds_label="XB", value=xb, precision=LENGTH_PRECISION)
+                    for xb in xbs
+                ),
             ),
-            msgs=msgs
+            msgs=msgs,
         )
 
     def show_fds_geometry(self, context, ob_tmp):
-        ob, xbs, _ = self._get_geometry(context)
+        ob, _, xbs, _ = self._get_geometry(context)
         if ob.bf_namelist.has_bf_param(OP_other_MULT_ID):
             xbs, _ = multiply_xbs(xbs, hids=None, ob=ob)
         xbs_to_ob(context=context, ob=ob_tmp, xbs=xbs, bf_xb=ob.bf_xb, add=True)
@@ -187,9 +166,10 @@ class OP_XB_BBOX(OP_XB):
     bpy_idname = None
     bpy_export = None
 
-    def to_fds_list(self, context) -> FDSList:
-        xbs, _ = ob_to_xbs(context=context, ob=self.element, bf_xb="BBOX")
-        return FDSParam(fds_label="XB", value=xbs[0], precision=LENGTH_PRECISION)
+    def _get_geometry(self, context):
+        ob, = self.element
+        hids, xbs, msgs = ob_to_xbs(context=context, ob=ob, bf_xb=ob.bf_xb)
+        return ob, hids, xbs, msgs
 
     def from_fds(self, context, value):
         xbs_to_ob(
@@ -200,8 +180,8 @@ class OP_XB_BBOX(OP_XB):
             add=True,
         )
 
-    def draw(self, context, layout):  # only label 
-        row = layout.split(factor=.4)
+    def draw(self, context, layout):  # draw label only
+        row = layout.split(factor=0.4)
         row.alignment = "RIGHT"
         row.label(text=f"XB")
         row.alignment = "EXPAND"

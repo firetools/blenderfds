@@ -49,54 +49,33 @@ class OP_XYZ(BFParam):
     bpy_export = "bf_xyz_export"
 
     def _get_geometry(self, context):
-        ob, xyzs, msgs = self.element, list(), list()
+        ob, hids, xyzs, msgs = self.element, tuple(), tuple(), tuple()
         if ob.bf_xyz_export:
-            xyzs, msgs = ob_to_xyzs(context=context, ob=ob, bf_xyz=ob.bf_xyz)
-        return ob, xyzs, msgs
+            hids, xyzs, msgs = ob_to_xyzs(context=context, ob=ob, bf_xyz=ob.bf_xyz)
+        return ob, hids, xyzs, msgs
 
     def to_fds_list(self, context) -> FDSList:
-        ob, xyzs, msgs = self._get_geometry(context)
+        _, hids, xyzs, msgs = self._get_geometry(context)
+        # Single
         match len(xyzs):
             case 0:
                 return FDSList()
             case 1:
                 return FDSParam(fds_label="XYZ", value=xyzs[0], precision=LENGTH_PRECISION)
         # Multi
-        n = ob.name
-        match self.element.bf_id_suffix:
-            case "IDI":
-                hids = (f"{n}_{i}" for i, _ in enumerate(xyzs))
-            case "IDX":
-                hids = (f"{n}_x{xyz[0]:+.3f}" for xyz in xyzs)
-            case "IDY":
-                hids = (f"{n}_y{xyz[1]:+.3f}" for xyz in xyzs)
-            case "IDZ":
-                hids = (f"{n}_z{xyz[2]:+.3f}" for xyz in xyzs)
-            case "IDXY":
-                hids = (f"{n}_x{xyz[0]:+.3f}_y{xyz[1]:+.3f}" for xyz in xyzs)
-            case "IDXZ":
-                hids = (f"{n}_x{xyz[0]:+.3f}_z{xyz[2]:+.3f}" for xyz in xyzs)
-            case "IDYZ":
-                hids = (f"{n}_y{xyz[1]:+.3f}_z{xyz[2]:+.3f}" for xyz in xyzs)
-            case "IDXYZ":
-                hids = (f"{n}_x{xyz[0]:+.3f}_y{xyz[1]:+.3f}_z{xyz[2]:+.3f}" for xyz in xyzs)
-            case _:
-                raise AssertionError(f"Unknown suffix <{self.element.bf_id_suffix}>")
         return FDSMulti(
             iterable=(
-                FDSList(
-                    iterable=(
-                        FDSParam(fds_label="ID", value=hid),
-                        FDSParam(fds_label="XYZ", value=xyz, precision=LENGTH_PRECISION),
-                    )
-                )
-                for hid, xyz in zip(hids, xyzs)
+                (FDSParam(fds_label="ID", value=hid) for hid in hids),
+                (
+                    FDSParam(fds_label="XYZ", value=xyz, precision=LENGTH_PRECISION)
+                    for xyz in xyzs
+                ),
             ),
             msgs=msgs,
         )
 
     def show_fds_geometry(self, context, ob_tmp):
-        ob, xyzs, _ = self._get_geometry(context)
+        ob, _, xyzs, _ = self._get_geometry(context)
         xyzs_to_ob(context=context, ob=ob_tmp, xyzs=xyzs, add=True)
         ob_tmp.active_material = ob.active_material
 

@@ -35,6 +35,7 @@ class OP_PB_export(BFParam):
 class OP_PB(BFParam):
     label = "PBX, PBY, PBZ"
     description = "Export as planes"
+    fds_label = None  # used for importing
     bpy_type = Object
     bpy_idname = "bf_pb"
     bpy_prop = EnumProperty
@@ -46,44 +47,31 @@ class OP_PB(BFParam):
     }
     bpy_export = "bf_pb_export"
 
-    axis = None  # axis for importing
-
     def _get_geometry(self, context):
-        ob, pbs, msgs = self.element, list(), list()
+        ob, hids, pbs, msgs = self.element, tuple(), tuple(), tuple()
         if self.get_exported(context):  # for OP_PBX, OP_PBY, OP_PBZ
-            # pbs is: (0, 3.5), (0, 4.), (2, .5) ...
-            # with 0, 1, 2 perpendicular axis
-            pbs, msgs = ob_to_pbs(context, ob, bf_pb=ob.bf_pb)
-        return ob, pbs, msgs
+            hids, pbs, msgs = ob_to_pbs(context, ob, bf_pb=ob.bf_pb)
+        return ob, hids, pbs, msgs
 
     def to_fds_list(self, context) -> FDSList:
-        ob, pbs, msgs = self._get_geometry(context)
-        labels = tuple(f"PB{('X','Y','Z')[axis]}" for axis, _ in pbs)
+        _, hids, pbs, msgs = self._get_geometry(context)
+        # Single
         match len(pbs):
             case 0:
                 return FDSList()
             case 1:
-                return FDSParam(fds_label=labels[0], value=pbs[0][1], precision=LENGTH_PRECISION)
+                return FDSParam(fds_label=pbs[0][0], value=pbs[0][1], precision=LENGTH_PRECISION)
         # Multi
-        n = ob.name
-        match ob.bf_id_suffix:
-            case "IDI":
-                hids = (f"{n}_{i}" for i, _ in enumerate(pbs))
-            case _:
-                hids = (
-                    (f"{n}_x{pb:+.3f}", f"{n}_y{pb:+.3f}", f"{n}_z{pb:+.3f}")[axis]
-                    for axis, pb in pbs
-                )
-        iterable = FDSList(
-            FDSList(
+        return FDSMulti(
+            iterable=(
+                (FDSParam(fds_label="ID", value=hid) for hid in hids),
                 (
-                    FDSParam(fds_label="ID", value=hid),
-                    FDSParam(fds_label=label, value=pb, precision=LENGTH_PRECISION),
-                )
-                for hid, label, (_, pb) in zip(hids, labels, pbs)
-            )
+                    FDSParam(fds_label=axis, value=pb, precision=LENGTH_PRECISION)
+                    for axis, pb in pbs
+                ),
+            ),
+            msgs=msgs,
         )
-        return FDSMulti(iterable=FDSList(iterable), msgs=msgs)
 
     def show_fds_geometry(self, context, ob_tmp):
         ob, pbs, _ = self._get_geometry(context)
@@ -91,7 +79,13 @@ class OP_PB(BFParam):
         ob_tmp.active_material = ob.active_material
 
     def from_fds(self, context, value):
-        bf_pb = pbs_to_ob(context=context, ob=self.element, pbs=((self.axis, value),), set_origin=True, add=True,)
+        bf_pb = pbs_to_ob(
+            context=context,
+            ob=self.element,
+            pbs=((self.fds_label, value),),
+            set_origin=True,
+            add=True,
+        )
         self.element.bf_pb = bf_pb
         self.element.bf_pb_export = True
 
@@ -99,7 +93,6 @@ class OP_PB(BFParam):
 class OP_PBX(OP_PB):  # only for importing
     fds_label = "PBX"
     bpy_prop = None  # already defined
-    axis = 0  # axis for importing
 
     def draw(self, context, layout):
         pass
@@ -110,9 +103,7 @@ class OP_PBX(OP_PB):  # only for importing
 
 class OP_PBY(OP_PBX):  # only for importing
     fds_label = "PBY"
-    axis = 1  # axis for importing
 
 
 class OP_PBZ(OP_PBX):  # only for importing
     fds_label = "PBZ"
-    axis = 2  # axis for importing

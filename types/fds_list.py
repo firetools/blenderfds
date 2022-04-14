@@ -68,6 +68,7 @@ class FDSList(list):
                     raise ValueError(f"Unrecognized type of <{item!r}> in <{self!r}>")
         return inv_ps, multi_ps, add_ns
 
+
     def get_fds_label(self, fds_label=None, remove=False):
         """!
         Get first occurence of fds_label.
@@ -79,7 +80,7 @@ class FDSList(list):
             if item is None:
                 continue
             try:
-                label = item.fds_label
+                item_fds_label = item.fds_label
             except AttributeError:
                 # item is FDSList, recurse
                 found = item.get_fds_label(fds_label=fds_label, remove=remove)
@@ -88,7 +89,7 @@ class FDSList(list):
             else:
                 # item is FDSParam or FDSNamelist, check
                 if fds_label:
-                    if label == fds_label:
+                    if item_fds_label == fds_label:
                         # first occurrence w fds_label
                         if remove:
                             self.pop(i)
@@ -139,10 +140,17 @@ class FDSList(list):
 
 class FDSMulti(FDSList):
     """!
-    FDSList of FDSList instances.
+    FDSList of iterator instances.
     """
 
-    pass
+    def __init__(self, iterable=(), msgs=(), msg=None) -> None:
+        super().__init__(iterable=iterable, msgs=msgs, msg=msg)
+        # Transform generators to tuple
+        for i, item in enumerate(self):
+            self[i] = tuple(item)
+
+    def from_fds(self, f90_namelists) -> None:
+        raise Exception("Not implemented.")
 
 class FDSNamelist(FDSList):
     """!
@@ -177,9 +185,9 @@ class FDSNamelist(FDSList):
         Remove params from inv_ps that are duplicated in multi_ps
         (eg. ID, IJK, XB, ...)
         """
-        if multi_ps:  # protect from empty
-            for p in multi_ps[0]:
-                inv_ps.get_fds_label(fds_label=p.fds_label, remove=True)
+        for mp in multi_ps or (): # protect from None
+            fds_label = tuple(mp)[0].fds_label
+            inv_ps.get_fds_label(fds_label=fds_label, remove=True)
         return inv_ps
 
     def _generate_many_fds_namelists(self, inv_ps, multi_ps, add_ns):
@@ -190,9 +198,11 @@ class FDSNamelist(FDSList):
         if multi_ps:
             fds_list.msgs.extend(self.msgs)
             fds_list.msgs.extend(multi_ps.msgs)
-            for mp in multi_ps:
+            # Zip it, from ((ID=A,ID=B,ID=C),(XB=1,XB=2,XB=3)) to ((ID=A,XB=1),...)
+            zipped_multi_ps = tuple(zip(*multi_ps))
+            for z in zipped_multi_ps: 
                 # Add its multi params (ID comes always first)
-                fds_namelist = FDSNamelist(fds_label=self.fds_label, iterable=mp)
+                fds_namelist = FDSNamelist(fds_label=self.fds_label, iterable=z)
                 # Add invariant params and no msg
                 fds_namelist.extend(inv_ps)
                 # Append one of multi (eg. an OBST voxel) to the list

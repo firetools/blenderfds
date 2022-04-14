@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 
 def pbs_to_ob(context, ob, pbs, add=False, set_origin=False) -> str():
     """!
-    Import pbs planes ((0,x3,), (0,x7,), (1,y9,), ...) into existing Blender Object.
+    Import pbs planes (("PBX",x3,), ("PBX",x7,), ("PBY",y9,), ...) into existing Blender Object.
     @param context: the Blender context.
     @param ob: the Blender Object.
     @param pbs: the pbs planes.
@@ -24,11 +24,11 @@ def pbs_to_ob(context, ob, pbs, add=False, set_origin=False) -> str():
     xbs, sl = list(), context.scene.unit_settings.scale_length
     for pb in pbs:
         match pb[0]:
-            case 0:
+            case "PBX":
                 xbs.append((pb[1], pb[1], -sl, +sl, -sl, +sl))  # PBX is 0
-            case 1:
+            case "PBY":
                 xbs.append((-sl, +sl, pb[1], pb[1], -sl, +sl))  # PBY is 1
-            case 2:
+            case "PBX":
                 xbs.append((-sl, +sl, -sl, +sl, pb[1], pb[1]))  # PBZ is 2
             case _:
                 raise AssertionError(f"Unrecognized PB* <{pb}>")

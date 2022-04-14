@@ -133,4 +133,25 @@ def ob_to_xbs(context, ob, bf_xb, world=True) -> tuple((list, list)):
         # Not available in cache, recalc
         ob["ob_to_xbs_cache"] = _choice_to_xbs[bf_xb](context, ob, world)
     xbs, msgs = ob["ob_to_xbs_cache"]
-    return list(xbs), list(msgs)
+    # Calc hids
+    n = ob.name
+    match ob.bf_id_suffix:                
+        case "IDI":
+            hids = (f"{n}_{i}" for i, _ in enumerate(xbs))
+        case "IDX":
+            hids = (f"{n}_x{xb[0]:+.3f}" for xb in xbs)
+        case "IDY":
+            hids = (f"{n}_y{xb[2]:+.3f}" for xb in xbs)
+        case "IDZ":
+            hids = (f"{n}_z{xb[4]:+.3f}" for xb in xbs)
+        case "IDXY":
+            hids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}" for xb in xbs)
+        case "IDXZ":
+            hids = (f"{n}_x{xb[0]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
+        case "IDYZ":
+            hids = (f"{n}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
+        case "IDXYZ":
+            hids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
+        case _:
+            raise AssertionError(f"Unknown suffix <{ob.bf_id_suffix}>")
+    return tuple(hids), tuple(xbs), tuple(msgs)
