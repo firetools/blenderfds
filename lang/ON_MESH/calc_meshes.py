@@ -64,8 +64,8 @@ def get_cell_sizes(context, ob):  # used by: mesh_tools.py
     )
 
 
-def get_mesh_info(context, ob):
-    """!Get info on generated MESH instances."""
+def get_mesh_geometry(context, ob):
+    """!Get geometry and info on generated MESH instances."""
     ijk = ob.bf_mesh_ijk
     hids, ijks, xbs, ncell, cs = split_mesh(
         hid=ob.name,

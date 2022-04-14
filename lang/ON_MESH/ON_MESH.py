@@ -11,7 +11,7 @@ from ... import utils
 from ..bf_object import OP_namelist_cls, OP_ID, OP_FYI, OP_other, OP_RGB, OP_COLOR
 from ..OP_XB import OP_XB_BBOX, xbs_to_ob
 from ..ON_MULT import OP_other_MULT_ID, multiply_xbs
-from .calc_meshes import get_mesh_info, get_mesh_mpis
+from .calc_meshes import get_mesh_geometry, get_mesh_mpis
 
 log = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class OP_MESH_IJK(BFParam):
 
     def draw(self, context, layout):
         ob = context.object
-        _, _, _, msgs = get_mesh_info(context, ob)
+        _, _, _, msgs = get_mesh_geometry(context, ob)
         for msg in msgs:
             layout.label(text=msg)
         # Operators
@@ -83,34 +83,34 @@ class OP_MESH_nsplits(BFParam):
 
 class OP_MESH_XB_BBOX(OP_XB_BBOX):
     # This class implements OP_XB_BBOX
-    # with MESH split, IJK calculations, and MPI processes
+    # adding MESH split, IJK calculations, and MPI processes
 
     def to_fds_list(self, context) -> FDSList:
         ob = self.element
-        hids, ijks, xbs, msgs = get_mesh_info(context, ob)
+        hids, ijks, xbs, msgs = get_mesh_geometry(context, ob)
         mpis = get_mesh_mpis(context, ob, xbs)
-        iterable = (
-            FDSList(
+        fds_multi = FDSMulti(
+            iterable=(
+                (FDSParam(fds_label="ID", value=hid) for hid in hids),
+                (FDSParam(fds_label="IJK", value=ijk) for ijk in ijks),
                 (
-                    FDSParam(fds_label="ID", value=hid),
-                    FDSParam(fds_label="IJK", value=ijk),
-                    FDSParam(fds_label="XB", value=xb, precision=LENGTH_PRECISION),
-                )
-            )
-            for hid, xb, ijk in zip(hids, xbs, ijks)
+                    FDSParam(fds_label="XB", value=xb, precision=LENGTH_PRECISION)
+                    for xb in xbs
+                ),
+            ),
+            msgs=msgs,
         )
         if mpis:
-            fds_params = (FDSParam(fds_label="MPI_PROCESS", value=mpi) for mpi in mpis)
-            iterable = zip(iterable, fds_params)
-        return FDSMulti(iterable=FDSList(iterable), msgs=msgs)
+            fds_multi.append(
+                (FDSParam(fds_label="MPI_PROCESS", value=mpi) for mpi in mpis),
+            )
+        return fds_multi
 
     def show_fds_geometry(self, context, ob_tmp):
         ob = self.element
-        _, _, xbs, _ = get_mesh_info(context, ob)
+        _, _, xbs, _ = get_mesh_geometry(context, ob)
         xbs, _ = multiply_xbs(xbs, hids=None, ob=ob)
         xbs_to_ob(context=context, ob=ob_tmp, xbs=xbs, bf_xb="BBOX", add=True)
-
-    # def from_fds() inherited
 
 
 class ON_MESH(BFNamelistOb):

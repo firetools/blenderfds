@@ -181,13 +181,13 @@ class BFParam:
         """
         if cls.bpy_type:
             if cls.bpy_idname and cls.bpy_prop:
-                log.debug(f"Unregistering <{cls.bpy_idname}>")
+                # log.debug(f"Unregistering <{cls.bpy_idname}>")
                 try:
                     delattr(cls.bpy_type, cls.bpy_idname)
                 except AttributeError:  # already deleted
                     pass
             if cls.bpy_export and cls.bpy_export_default is not None:
-                log.debug(f"Unregistering <{cls.bpy_export}>")
+                # log.debug(f"Unregistering <{cls.bpy_export}>")
                 try:
                     delattr(cls.bpy_type, cls.bpy_export)
                 except AttributeError:  # already deleted
