@@ -28,7 +28,7 @@ def pbs_to_ob(context, ob, pbs, add=False, set_origin=False) -> str():
                 xbs.append((pb[1], pb[1], -sl, +sl, -sl, +sl))  # PBX is 0
             case "PBY":
                 xbs.append((-sl, +sl, pb[1], pb[1], -sl, +sl))  # PBY is 1
-            case "PBX":
+            case "PBZ":
                 xbs.append((-sl, +sl, -sl, +sl, pb[1], pb[1]))  # PBZ is 2
             case _:
                 raise AssertionError(f"Unrecognized PB* <{pb}>")
