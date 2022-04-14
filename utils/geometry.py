@@ -72,40 +72,39 @@ def get_object_bmesh(
     return bm
 
 
-# def get_new_object(context, sc=None, ob=None, name="New", set_tmp=False):
-#     if not sc:
-#         sc = context.scene
-#     me_new = bpy.data.meshes.new(name)
-#     ob_new = bpy.data.objects.new(name, object_data=me_new)
-#     sc.collection.objects.link(ob_new)
-#     if set_tmp:
-#         ob_new.bf_is_tmp = True
-#         if ob:
-#             ob.bf_has_tmp = True
-#             ob.hide_set(True)
-#     return ob_new
-
-
-def get_tmp_object(context, ob, name="tmp"):
+def get_new_object(context, name="New", co=None):
     """!
-    Get a new tmp Object from ob.
+    Create a new Object
     @param context: the Blender context.
-    @param ob: the Blender object.
-    @param name: the new object name.
-    @return the temp object.
+    @param name: the new Object name.
+    @param co: the Blender Collection.
+    @return the created Object.
     """
-    # Create new tmp Object
-    me_tmp = bpy.data.meshes.new(name)
-    ob_tmp = bpy.data.objects.new(name, me_tmp)
-    ob_tmp.show_name = False
-    ob_tmp.show_wire = True
-    ob_tmp.bf_is_tmp = True
-    co = ob.users_collection[0]
-    co.objects.link(ob_tmp)
-    # Set original
+    ob = bpy.data.objects.new(name, object_data=bpy.data.meshes.new(name))
+    if not co:
+        co = context.scene.collection
+    co.objects.link(ob)
+    return ob
+
+
+def set_is_tmp(context, ob) -> None:
+    """!
+    Set an Object that is temporary geometry
+    @param context: the Blender context.
+    @param ob: the Object
+    """
+    ob.bf_is_tmp = True
+    ob.show_wire = True
+
+
+def set_has_tmp(context, ob) -> None:
+    """!
+    Set an Object that has temporary geometry
+    @param context: the Blender context.
+    @param ob: the Object
+    """
     ob.bf_has_tmp = True
     ob.hide_set(True)
-    return ob_tmp
 
 
 def rm_tmp_objects():
@@ -115,9 +114,8 @@ def rm_tmp_objects():
     mes = bpy.data.meshes
     for ob in bpy.data.objects:
         if ob.bf_is_tmp:
-            mes.remove(
-                ob.data, do_unlink=True
-            )  # best way to remove an Object wo mem leaks
+            # best way to remove an Object wo mem leaks
+            mes.remove(ob.data, do_unlink=True)
         elif ob.bf_has_tmp:
             ob.bf_has_tmp = False
             ob.hide_set(False)
