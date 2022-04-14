@@ -97,6 +97,8 @@ def get_tmp_object(context, ob, name="tmp"):
     # Create new tmp Object
     me_tmp = bpy.data.meshes.new(name)
     ob_tmp = bpy.data.objects.new(name, me_tmp)
+    ob_tmp.show_name = False
+    ob_tmp.show_wire = True
     ob_tmp.bf_is_tmp = True
     co = ob.users_collection[0]
     co.objects.link(ob_tmp)

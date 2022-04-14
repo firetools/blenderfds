@@ -42,8 +42,6 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
         # Make tmp Object and set its appearance
         ob_tmp = utils.geometry.get_tmp_object(context, ob, f"{ob.name}_tmp")
         ob_tmp.bf_namelist_cls = ob.bf_namelist_cls
-        ob_tmp.show_name = False
-        ob_tmp.show_wire = True
 
         # Copy materials
         for ms in ob.material_slots:
