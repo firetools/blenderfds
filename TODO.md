@@ -1,9 +1,19 @@
 # TODO
 
-move ON_MOVE and make it similar to ON_MULT
+release notes
 
-fix multiply in show_geometry for all other namelists
-how to check that a namelist has a parameter?
+OK move ON_MOVE and make it similar to ON_MULT
+OK RGB color for MESH, and override for OBST, HOLE, VENT, Other...
+
+OK MPI for MESH (but it should be exported from 0)
+OK Assign number of processes?
+
+test multiply
+test cell_size
+test geolocation
+
+OK fix multiply in show_geometry for all other namelists
+OK how to check that a namelist has a parameter?
 
 rm min edge length and min face area
 

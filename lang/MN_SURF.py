@@ -35,6 +35,3 @@ class MN_SURF(BFNamelistMa):
         if self.element.name in config.default_mas:
             return False
         return super().get_exported(context)
-
-
-# FIXME bc templates op

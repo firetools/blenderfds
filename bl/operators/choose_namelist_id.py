@@ -1,4 +1,3 @@
-#
 """!
 BlenderFDS, operators to choose IDs for MATL_ID, PROP_ID in free text.
 """
