@@ -1,20 +1,20 @@
 from . import (
-    import_scene,
-    export_scene,
     check_geom,
     choose_namelist_id,
     copy_params,
     gis,
     load_bf_settings,
     mesh_tools,
+    scene_export,
+    scene_import,
     show_fds_code,
     show_fds_geometry,
     show_ui,
 )
 
 ms_to_register = (
-    import_scene,
-    export_scene,
+    scene_import,
+    scene_export,
     check_geom,
     choose_namelist_id,
     copy_params,

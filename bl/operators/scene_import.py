@@ -11,7 +11,7 @@ class ImportFDSToScene(Operator, ImportHelper):
     Import FDS case file to a Blender Scene.
     """
 
-    bl_idname = "import_scene.fds"
+    bl_idname = "import_to_current_scene.fds"
     bl_label = "Import from FDS"
     bl_description = "Import FDS case file to a Blender Scene"
     bl_options = {"UNDO"}
