@@ -116,9 +116,9 @@ def get_mesh_mpis(context, ob, xbs):
         # Get first MPI_PROCESS number from counter, if it exists
         first_mpi = context.scene.get("bf_first_mpi_process", 0)
         # Calc mpi process generator
-        ratio_mpi = ob.bf_mesh_mpi_process_qty / nmesh
-        mpis = (int(i * ratio_mpi) + first_mpi for i in range(nmesh))
+        ratio_mpi = nmpi / nmesh
+        mpis = tuple(int(i * ratio_mpi) + first_mpi for i in range(nmesh))
         # Update Scene MPI_PROCESS counter
         # (remember to delete it in Scene and show_fds_code ops!)
-        context.scene["bf_first_mpi_process"] = first_mpi + ob.bf_mesh_mpi_process_qty
+        context.scene["bf_first_mpi_process"] = mpis[-1] + 1
         return mpis
