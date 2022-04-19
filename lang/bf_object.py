@@ -124,6 +124,12 @@ class OP_ID(BFParam):
     def copy_to(self, context, dest_element):
         pass
 
+    def set_value(self, context, value=None):
+        # Change the name of tmp objects
+        if self.element.bf_is_tmp:
+            value += "_tmp"
+        super().set_value(context, value)
+
 
 class OP_ID_suffix(BFParam):
     label = "IDs Suffix"

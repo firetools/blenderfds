@@ -5,12 +5,11 @@ BlenderFDS, operators to show generated FDS geometry.
 
 import logging
 from bpy.types import Operator
+from bpy.props import BoolProperty
 from ...types import BFException
 from ... import utils, lang
 
 log = logging.getLogger(__name__)
-
-# TODO reuse for setting bbox geometry? or other?
 
 
 class OBJECT_OT_bf_show_fds_geometry(Operator):
@@ -22,39 +21,33 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
     bl_idname = "object.bf_show_fds_geometry"
     bl_description = "Show/Hide geometry as exported to FDS"
 
+    bf_set_tmp: BoolProperty(
+        name="Set Temporary",
+        description="Set temporary geometry",
+        default=True,
+    )
+
     @classmethod
     def poll(cls, context):
-        ob = context.object
+        ob = context.active_object  # FIXME object or active?
         return ob and not ob.bf_is_tmp and not ob.bf_has_tmp
 
     def execute(self, context):
+        # Init
         w = context.window_manager.windows[0]
         w.cursor_modal_set("WAIT")
-        ob = context.object
+        sc = context.scene
+        ob = context.active_object
 
-        # Check
-        bf_namelist = ob.bf_namelist
-        if not bf_namelist:
-            w.cursor_modal_restore()
-            self.report({"WARNING"}, "Not exported, no FDS geometry shown")
-            return {"CANCELLED"}
-
-        # Make tmp Object and set its appearance
-        ob_tmp = utils.geometry.get_tmp_object(context, ob, f"{ob.name}_tmp")
-        ob_tmp.bf_namelist_cls = ob.bf_namelist_cls
-
-        # Copy materials
-        for ms in ob.material_slots:
-            ma = ms.material
-            if not ma:
-                raise BFException(self, f"Empty material slot")
-            ob_tmp.data.materials.append(ma)
-
-        # Set tmp geometry
+        # Export and import back as temporary geometry
+        sc["bf_first_mpi_process"] = 0  # FIXME FIXME FIXME
         try:
-            bf_namelist.show_fds_geometry(context=context, ob_tmp=ob_tmp)
-            for bf_param in bf_namelist.bf_params:
-                bf_param.show_fds_geometry(context=context, ob_tmp=ob_tmp)
+            f90_namelists = ob.to_fds_list(context).to_string()
+            sc.from_fds(
+                context=context,
+                f90_namelists=f90_namelists,
+                tmp=self.bf_set_tmp,
+            )
         except BFException as err:
             utils.geometry.rm_tmp_objects()
             self.report({"ERROR"}, str(err))
@@ -64,10 +57,10 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
             self.report({"ERROR"}, f"Unexpected error: {err}")
             return {"CANCELLED"}
         else:
-            if ob_tmp.data.vertices:
-                self.report({"INFO"}, "FDS geometry shown")
-            else:
-                self.report({"WARNING"}, "No FDS geometry to show")
+            # Set calling ob to has_tmp
+            if self.bf_set_tmp:
+                utils.geometry.set_has_tmp(context=context, ob=ob)
+            self.report({"INFO"}, "FDS geometry shown")
             return {"FINISHED"}
         finally:
             w.cursor_modal_restore()

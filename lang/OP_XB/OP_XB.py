@@ -113,38 +113,25 @@ class OP_XB(BFParam):
     }
     bpy_export = "bf_xb_export"
 
-    def _get_geometry(self, context):
-        ob, hids, xbs, msgs = self.element, tuple(), tuple(), tuple()
+    def to_fds_list(self, context) -> FDSList:
+        # Get geometry
+        ob, hids, xbs, msgs, lp = self.element, tuple(), tuple(), tuple(), LENGTH_PRECISION
         if ob.bf_xb_export:
             hids, xbs, msgs = ob_to_xbs(context=context, ob=ob, bf_xb=ob.bf_xb)
-        return ob, hids, xbs, msgs
-
-    def to_fds_list(self, context) -> FDSList:
-        _, hids, xbs, msgs = self._get_geometry(context)
         # Single
         match len(xbs):
             case 0:
                 return FDSList()
             case 1:
-                return FDSParam(fds_label="XB", value=xbs[0], precision=LENGTH_PRECISION)
+                return FDSParam(fds_label="XB", value=xbs[0], precision=lp)
         # Multi
         return FDSMulti(
             iterable=(
                 (FDSParam(fds_label="ID", value=hid) for hid in hids),
-                (
-                    FDSParam(fds_label="XB", value=xb, precision=LENGTH_PRECISION)
-                    for xb in xbs
-                ),
+                (FDSParam(fds_label="XB", value=xb, precision=lp) for xb in xbs),
             ),
             msgs=msgs,
         )
-
-    def show_fds_geometry(self, context, ob_tmp):
-        ob, _, xbs, _ = self._get_geometry(context)
-        if ob.bf_namelist.has_bf_param(OP_other_MULT_ID):
-            xbs, _ = multiply_xbs(xbs, hids=None, ob=ob)
-        xbs_to_ob(context=context, ob=ob_tmp, xbs=xbs, bf_xb=ob.bf_xb, add=True)
-        ob_tmp.active_material = ob.active_material
 
     def from_fds(self, context, value):
         bf_xb = xbs_to_ob(

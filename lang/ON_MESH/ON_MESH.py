@@ -89,14 +89,12 @@ class OP_MESH_XB_BBOX(OP_XB_BBOX):
         ob = self.element
         hids, ijks, xbs, msgs = get_mesh_geometry(context, ob)
         mpis = get_mesh_mpis(context, ob, xbs)
+        lp = LENGTH_PRECISION
         fds_multi = FDSMulti(
             iterable=(
                 (FDSParam(fds_label="ID", value=hid) for hid in hids),
                 (FDSParam(fds_label="IJK", value=ijk) for ijk in ijks),
-                (
-                    FDSParam(fds_label="XB", value=xb, precision=LENGTH_PRECISION)
-                    for xb in xbs
-                ),
+                (FDSParam(fds_label="XB", value=xb, precision=lp) for xb in xbs),
             ),
             msgs=msgs,
         )
@@ -105,12 +103,6 @@ class OP_MESH_XB_BBOX(OP_XB_BBOX):
                 (FDSParam(fds_label="MPI_PROCESS", value=mpi) for mpi in mpis),
             )
         return fds_multi
-
-    def show_fds_geometry(self, context, ob_tmp):
-        ob = self.element
-        _, _, xbs, _ = get_mesh_geometry(context, ob)
-        xbs, _ = multiply_xbs(xbs, hids=None, ob=ob)
-        xbs_to_ob(context=context, ob=ob_tmp, xbs=xbs, bf_xb="BBOX", add=True)
 
 
 class ON_MESH(BFNamelistOb):

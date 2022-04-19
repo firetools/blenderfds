@@ -59,6 +59,9 @@ class FDSList(list):
                     if multi_ps:
                         raise Exception(f"One only FDSMulti allowed in: {self!r}")
                     multi_ps = item
+                    # Replace generators with tuples
+                    for i, ps in enumerate(multi_ps):
+                        multi_ps[i] = tuple(ps)  
                 case FDSNamelist():  # additional namelists
                     add_ns.append(item)
                 case FDSList():  # recurse
@@ -142,12 +145,6 @@ class FDSMulti(FDSList):
     """!
     FDSList of iterator instances.
     """
-
-    def __init__(self, iterable=(), msgs=(), msg=None) -> None:
-        super().__init__(iterable=iterable, msgs=msgs, msg=msg)
-        # Transform generators to tuple
-        for i, item in enumerate(self):
-            self[i] = tuple(item)
 
     def from_fds(self, f90_namelists) -> None:
         raise Exception("Not implemented.")

@@ -49,36 +49,25 @@ class OP_XYZ(BFParam):
     }
     bpy_export = "bf_xyz_export"
 
-    def _get_geometry(self, context):
-        ob, hids, xyzs, msgs = self.element, tuple(), tuple(), tuple()
+    def to_fds_list(self, context) -> FDSList:
+        # Get geometry
+        ob, hids, xyzs, msgs, lp = self.element, tuple(), tuple(), tuple(), LENGTH_PRECISION
         if ob.bf_xyz_export:
             hids, xyzs, msgs = ob_to_xyzs(context=context, ob=ob, bf_xyz=ob.bf_xyz)
-        return ob, hids, xyzs, msgs
-
-    def to_fds_list(self, context) -> FDSList:
-        _, hids, xyzs, msgs = self._get_geometry(context)
         # Single
         match len(xyzs):
             case 0:
                 return FDSList()
             case 1:
-                return FDSParam(fds_label="XYZ", value=xyzs[0], precision=LENGTH_PRECISION)
+                return FDSParam(fds_label="XYZ", value=xyzs[0], precision=lp)
         # Multi
         return FDSMulti(
             iterable=(
                 (FDSParam(fds_label="ID", value=hid) for hid in hids),
-                (
-                    FDSParam(fds_label="XYZ", value=xyz, precision=LENGTH_PRECISION)
-                    for xyz in xyzs
-                ),
+                (FDSParam(fds_label="XYZ", value=xyz, precision=lp) for xyz in xyzs),
             ),
             msgs=msgs,
         )
-
-    def show_fds_geometry(self, context, ob_tmp):
-        ob, _, xyzs, _ = self._get_geometry(context)
-        xyzs_to_ob(context=context, ob=ob_tmp, xyzs=xyzs, add=True)
-        ob_tmp.active_material = ob.active_material
 
     def from_fds(self, context, value):
         bf_xyz = xyzs_to_ob(

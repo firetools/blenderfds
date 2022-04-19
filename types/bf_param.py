@@ -321,14 +321,6 @@ class BFParam:
             )
         return FDSList()
 
-    def show_fds_geometry(self, context, ob_tmp):
-        """!
-        Append my FDS geometry to the ob_tmp.
-        @param context: the Blender context.
-        @param ob_tmp: the tmp Object that receives the geometry.
-        """
-        return
-
     def from_fds(self, context, value):
         """!
         Set self from py value, on error raise BFException.

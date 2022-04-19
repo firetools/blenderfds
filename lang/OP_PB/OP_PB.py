@@ -48,36 +48,25 @@ class OP_PB(BFParam):
     }
     bpy_export = "bf_pb_export"
 
-    def _get_geometry(self, context):
-        ob, hids, pbs, msgs = self.element, tuple(), tuple(), tuple()
+    def to_fds_list(self, context) -> FDSList:
+        # Get geometry
+        ob, hids, pbs, msgs, lp = self.element, tuple(), tuple(), tuple(), LENGTH_PRECISION
         if self.get_exported(context):  # for OP_PBX, OP_PBY, OP_PBZ
             hids, pbs, msgs = ob_to_pbs(context, ob, bf_pb=ob.bf_pb)
-        return ob, hids, pbs, msgs
-
-    def to_fds_list(self, context) -> FDSList:
-        _, hids, pbs, msgs = self._get_geometry(context)
         # Single
         match len(pbs):
             case 0:
                 return FDSList()
             case 1:
-                return FDSParam(fds_label=pbs[0][0], value=pbs[0][1], precision=LENGTH_PRECISION)
+                return FDSParam(fds_label=pbs[0][0], value=pbs[0][1], precision=lp)
         # Multi
         return FDSMulti(
             iterable=(
                 (FDSParam(fds_label="ID", value=hid) for hid in hids),
-                (
-                    FDSParam(fds_label=axis, value=pb, precision=LENGTH_PRECISION)
-                    for axis, pb in pbs
-                ),
+                (FDSParam(fds_label=axis, value=pb, precision=lp) for axis, pb in pbs),
             ),
             msgs=msgs,
         )
-
-    def show_fds_geometry(self, context, ob_tmp):
-        ob, pbs, _ = self._get_geometry(context)
-        pbs_to_ob(context=context, ob=ob_tmp, pbs=pbs, add=True)
-        ob_tmp.active_material = ob.active_material
 
     def from_fds(self, context, value):
         bf_pb = pbs_to_ob(
