@@ -86,9 +86,6 @@ class OP_GEOM_BINARY_FILE(BFParam):
 
     def draw(self, context, layout):
         ob, me, space = self.element, self.element.data, context.space_data
-        row = layout.row()
-        row.operator("object.bf_geom_check_sanity")
-        row.operator("object.bf_geom_check_intersections")
         if ob:  # mesh name, from properties_data_mesh.py
             layout.template_ID(ob, "data", text=self.label)
         elif me:
@@ -104,7 +101,7 @@ class OP_GEOM_BINARY_FILE(BFParam):
             extension=".bingeom",
         )
         # Check if shared bingeom
-        has_move_id = OP_GEOM_MOVE_ID(self.element).get_exported(context)
+        has_move_id = OP_GEOM_MOVE_ID(self.element).get_active(context)
         # Write
         _, _, _, _, msgs = ob_to_geom(
             context=context,
@@ -129,12 +126,6 @@ class OP_GEOM_BINARY_FILE(BFParam):
         self.element.data.bf_geom_binary_directory = ""  # unlink from original path_rbl
 
 
-class OP_GEOM_MOVE_ID(OP_other_MOVE_ID):
-    def get_exported(self, context):
-        # Check if shared bingeom
-        return self.element.data.users > 1
-
-
 class OP_GEOM_binary_directory(BFParam):  # This is a Mesh property
     # Used in conjuction with OP_GEOM_BINARY_FILE
     # Contains abs path or path relative to saved blend file
@@ -155,6 +146,12 @@ class OP_GEOM_binary_directory(BFParam):  # This is a Mesh property
             raise BFException(self, f"Binary directory not existing: <{d}>")
 
 
+class OP_GEOM_MOVE_ID(OP_other_MOVE_ID):
+    def get_active(self, context):
+        # Check if shared bingeom
+        return self.element.data.users > 1
+
+
 class OP_GEOM_check_sanity(BFParam):  # This is a Mesh property
     label = "Check Sanity While Exporting"
     description = "Check if closed orientable manifold, with no degenerate geometry while exporting"
@@ -171,6 +168,9 @@ class OP_GEOM_protect(BFParam):  # This is a Mesh property
     bpy_idname = "bf_geom_protect"
     bpy_prop = BoolProperty
     bpy_default = True
+
+    def get_active(self, context):
+        return self.element.bf_geom_check_sanity
 
 
 class OP_GEOM_IS_TERRAIN(BFParam):  # This is a Mesh property
@@ -192,9 +192,8 @@ class OP_GEOM_EXTEND_TERRAIN(BFParam):  # This is a Mesh property
     bpy_prop = BoolProperty
     bpy_idname = "bf_geom_extend_terrain"
 
-    def get_exported(self, context):
-        me = self.element
-        return me.bf_geom_is_terrain and me.bf_geom_extend_terrain
+    def get_active(self, context):
+        return self.element.bf_geom_is_terrain
 
 
 class ON_GEOM(BFNamelistOb):
@@ -212,13 +211,18 @@ class ON_GEOM(BFNamelistOb):
         OP_GEOM_SURF_ID6,
         OP_GEOM_BINARY_FILE,  # after SURF_ID*
         OP_GEOM_binary_directory,
+        OP_GEOM_MOVE_ID,
         OP_GEOM_check_sanity,
         OP_GEOM_protect,
         OP_GEOM_IS_TERRAIN,
         OP_GEOM_EXTEND_TERRAIN,
-        OP_GEOM_MOVE_ID,
         OP_other,
     )
+
+    def draw_operators(self, context, layout):
+        col = layout.column(align=True)
+        col.operator("object.bf_geom_check_sanity")
+        col.operator("object.bf_geom_check_intersections")
 
     def from_fds(self, context, fds_namelist):
         # Read fds_params

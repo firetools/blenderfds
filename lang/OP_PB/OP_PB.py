@@ -23,16 +23,6 @@ def update_bf_pb(ob, context):
         return
 
 
-class OP_PB_export(BFParam):
-    label = "Export PBX, PBY, PBZ"
-    description = "Set if PBX, PBY, PBZ shall be exported to FDS"
-    bpy_type = Object
-    bpy_idname = "bf_pb_export"
-    bpy_prop = BoolProperty
-    bpy_default = False
-    bpy_other = {"update": update_bf_pb}
-
-
 class OP_PB(BFParam):
     label = "PBX, PBY, PBZ"
     description = "Export as planes"
@@ -47,6 +37,7 @@ class OP_PB(BFParam):
         ),
     }
     bpy_export = "bf_pb_export"
+    bpy_export_default = False
 
     def to_fds_list(self, context) -> FDSList:
         # Get geometry

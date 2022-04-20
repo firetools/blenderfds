@@ -56,12 +56,13 @@ class FDSList(list):
                 case FDSParam():  # invariant params
                     inv_ps.append(item)
                 case FDSMulti():  # multi param (one only)
+                    if not item:
+                        continue
                     if multi_ps:
                         raise Exception(f"One only FDSMulti allowed in: {self!r}")
-                    multi_ps = item
-                    # Replace generators with tuples
-                    for i, ps in enumerate(multi_ps):
-                        multi_ps[i] = tuple(ps)  
+                    iterable = (tuple(ps) for ps in item)  # rm generators                  
+                    iterable = (ps for ps in iterable if ps)  # rm empty tuples
+                    multi_ps = FDSMulti(iterable=iterable, msgs=item.msgs)
                 case FDSNamelist():  # additional namelists
                     add_ns.append(item)
                 case FDSList():  # recurse
@@ -177,17 +178,17 @@ class FDSNamelist(FDSList):
     def __bool__(self):
         return bool(self.fds_label or self.msgs)
 
-    def _remove_duplicated_ps_from_inv_ps(self, inv_ps, multi_ps):
+    def _rm_dupli_ps_from_inv_ps(self, inv_ps, multi_ps):
         """!
         Remove params from inv_ps that are duplicated in multi_ps
         (eg. ID, IJK, XB, ...)
         """
-        for mp in multi_ps or (): # protect from None
-            fds_label = tuple(mp)[0].fds_label
+        for mp in multi_ps or ():  # protect from None, already cleaned
+            fds_label = mp[0].fds_label
             inv_ps.get_fds_label(fds_label=fds_label, remove=True)
         return inv_ps
 
-    def _generate_many_fds_namelists(self, inv_ps, multi_ps, add_ns):
+    def _to_fds_list(self, inv_ps, multi_ps, add_ns):
         """!
         Generate many fds namelists, if needed.
         """
@@ -196,10 +197,11 @@ class FDSNamelist(FDSList):
             fds_list.msgs.extend(self.msgs)
             fds_list.msgs.extend(multi_ps.msgs)
             # Zip it, from ((ID=A,ID=B,ID=C),(XB=1,XB=2,XB=3)) to ((ID=A,XB=1),...)
-            zipped_multi_ps = tuple(zip(*multi_ps))
-            for z in zipped_multi_ps: 
+            # and remove empty params
+            zipped_multi_ps = tuple(zip(*multi_ps))  # already cleaned
+            for zp in zipped_multi_ps: 
                 # Add its multi params (ID comes always first)
-                fds_namelist = FDSNamelist(fds_label=self.fds_label, iterable=z)
+                fds_namelist = FDSNamelist(fds_label=self.fds_label, iterable=zp)
                 # Add invariant params and no msg
                 fds_namelist.extend(inv_ps)
                 # Append one of multi (eg. an OBST voxel) to the list
@@ -255,14 +257,10 @@ class FDSNamelist(FDSList):
 
     def to_string(self) -> str:
         inv_ps, multi_ps, add_ns = self._classify_items()
+        inv_ps = self._rm_dupli_ps_from_inv_ps(inv_ps=inv_ps, multi_ps=multi_ps)
         # Many namelists to be generated? recurse
         if multi_ps or add_ns:
-            inv_ps = self._remove_duplicated_ps_from_inv_ps(
-                inv_ps=inv_ps, multi_ps=multi_ps
-            )
-            fds_list = self._generate_many_fds_namelists(
-                inv_ps=inv_ps, multi_ps=multi_ps, add_ns=add_ns
-            )
+            fds_list = self._to_fds_list(inv_ps=inv_ps, multi_ps=multi_ps, add_ns=add_ns)
             return fds_list.to_string()
         # Otherwise format self
         return self._to_one_string(inv_ps=inv_ps)

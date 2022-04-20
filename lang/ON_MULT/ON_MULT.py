@@ -1,6 +1,6 @@
 import logging
 from bpy.types import Object
-from bpy.props import FloatProperty, IntProperty, FloatVectorProperty
+from bpy.props import FloatProperty, IntProperty, FloatVectorProperty, BoolProperty
 from ...config import LENGTH_PRECISION
 from ...types import BFNamelist, BFParam, BFNotImported, FDSList, FDSNamelist
 from ... import utils
@@ -26,6 +26,17 @@ class OP_MULT_ID(BFParam):
 
     def set_value(self, context, value=None):
         pass
+
+
+class OP_MULT_generate_multiples(BFParam):
+    label = "Generate Multiples"
+    description = (
+        "Generate multiplicated namelists,\ninstead of adding the MULT namelist"
+    )
+    fds_default = True
+    bpy_type = Object
+    bpy_prop = BoolProperty
+    bpy_idname = "bf_mult_generate_multiples"
 
 
 class OP_MULT_DX(BFParam):
@@ -354,7 +365,7 @@ class OP_MULT_N_UPPER(BFParam):
 
 class ON_MULT(BFNamelist):  # not in namelist menu
     label = "MULT"
-    description = "Multiplier Transformation"
+    description = "Multiplier"
     bpy_type = Object
     enum_id = None
     fds_label = "MULT"
@@ -363,6 +374,7 @@ class ON_MULT(BFNamelist):  # not in namelist menu
     bpy_other = {"update": update_bf_mult}
     bf_params = (
         OP_MULT_ID,
+        OP_MULT_generate_multiples,
         OP_MULT_DX,
         OP_MULT_DY,
         OP_MULT_DZ,
@@ -391,6 +403,10 @@ class ON_MULT(BFNamelist):  # not in namelist menu
     def draw(self, context, layout):
         ob = self.element
 
+        row = layout.row(align=True)
+        row.use_property_split = True  # special
+        row.prop(ob, "bf_mult_generate_multiples")
+
         row = layout.row(align=True)  # X,Y,Z
 
         col = row.column(align=True)
@@ -413,7 +429,6 @@ class ON_MULT(BFNamelist):  # not in namelist menu
         col.prop(ob, "bf_mult_dz0", text="")
 
         row = layout.row(align=True)  # DXB
-
         row.label(text="DXB")
         row.prop(ob, "bf_mult_dxb", text="")
 
@@ -480,11 +495,12 @@ class OP_other_MULT_ID(BFParam):
         return f"{self.element.name}_mult"
 
     def to_fds_list(self, context) -> FDSList:
-        if self.element.bf_mult_export:
+        ob = self.element
+        if ob.bf_mult_export and not ob.bf_mult_generate_multiples:
             return FDSList(
                 iterable=(
                     super().to_fds_list(context),
-                    ON_MULT(element=self.element).to_fds_list(context),
+                    ON_MULT(element=ob).to_fds_list(context),
                 )
             )
         else:
@@ -500,13 +516,3 @@ class OP_other_MULT_ID(BFParam):
             context=context,
             fds_namelist=FDSNamelist(fds_label="MULT", f90_params=f90_params),
         )
-
-    def draw(self, context, layout):
-        # Set active and alert
-        active = self.element.bf_mult_export
-        # Set layout
-        col = layout.column(align=False, heading=self.label)
-        row = col.row(align=True)
-        row.active = active
-        row.prop(self.element, self.bpy_idname, text="")
-        row.label(text=self.get_value(context))

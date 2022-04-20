@@ -2,29 +2,14 @@ from ... import utils
 from ..OP_XB.xbs_to_ob import xbs_to_ob
 
 
-def get_nmult(ob):
-    """!
-    Get number of MULT multiply
-    """
-    if not ob.bf_mult_export:
-        return 1
-    fake_xbs, _ = multiply_xbs(
-        xbs=tuple((tuple((0.0, 0.0, 0.0, 0.0, 0.0, 0.0)),)), hids=tuple(("",)), ob=ob
-    )
-    return len(fake_xbs)
-
-
-def multiply_xbs(xbs, hids, ob):
+def multiply_xbs(context, ob, hids, xbs):
     """!
     Return lists of xb and their hid as multiplied by FDS MULT from ob.
     """
-    # Init
-    if not hids:
-        hids = list(("",)) * len(xbs)
-    export = ob.bf_mult_export
     # Calc, fast track
-    if not export:
-        return xbs, hids
+    if not ob.bf_mult_export:
+        nmult = 1
+        return hids, xbs, nmult
     # Init the rest
     dxb = ob.bf_mult_dxb
     d = (ob.bf_mult_dx, ob.bf_mult_dy, ob.bf_mult_dz)
@@ -69,7 +54,11 @@ def multiply_xbs(xbs, hids, ob):
         )
         multi_xbs.extend(new_xbs)
         multi_hids.extend(new_hids)
-    return multi_xbs, multi_hids
+    nmult = len(new_xbs)
+    if ob.bf_mult_generate_multiples:
+        return multi_hids, multi_xbs, nmult
+    else:
+        return hids, xbs, nmult
 
 
 def multiply_xb(
@@ -145,26 +134,3 @@ def multiply_xb(
                     )
                     hids.append(f"{hid}_i{i}_j{j}_k{k}")
     return xbs, hids
-
-
-# TODO generate Objects from MULT
-# Multiply Object:
-#
-#     obs_new = list((ob,))  # add original
-#     co = ob.users_collection[0]
-#     # Make copies
-#     for i in range(len(xbs) - 1):
-#         ob_new = ob.copy()
-#         ob_new.data = ob.data.copy()
-#         co.objects.link(ob_new)
-#         obs_new.append(ob_new)
-#     # Set their bbox
-#     for i, ob_new in enumerate(obs_new):
-#         ob_new.name = hids[i]
-#         xbs_to_ob(
-#             context,
-#             ob=ob_new,
-#             xbs=xbs[i : i + 1],
-#             bf_xb="BBOX",
-#             set_origin=True,
-#         )

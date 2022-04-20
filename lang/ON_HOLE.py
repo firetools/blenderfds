@@ -5,11 +5,11 @@ from .bf_object import (
     OP_ID,
     OP_FYI,
     OP_other,
-    OP_RGB,
-    OP_COLOR,
-    OP_TRANSPARENCY,
+    OP_RGB_override,
+    OP_COLOR_override,
+    OP_TRANSPARENCY_override,
 )
-from .OP_XB import OP_XB
+from .OP_XB import OP_XB, OP_XB_voxel_size, OP_XB_center_voxels
 from .ON_MULT import OP_other_MULT_ID
 
 log = logging.getLogger(__name__)
@@ -26,10 +26,12 @@ class ON_HOLE(BFNamelistOb):
         OP_ID,
         OP_FYI,
         OP_XB,
+        OP_XB_voxel_size,
+        OP_XB_center_voxels,
         OP_other_MULT_ID,
-        OP_RGB,
-        OP_COLOR,
-        OP_TRANSPARENCY,
+        OP_RGB_override,
+        OP_COLOR_override,
+        OP_TRANSPARENCY_override,
         OP_other,
     )
     bf_other = {"appearance": "WIRE"}

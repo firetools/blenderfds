@@ -30,14 +30,8 @@ class SP_TIME_T_BEGIN(BFParam):
         "precision": TIME_PRECISION,
     }  # "unit": "TIME", not working
 
-    def get_exported(self, context):
-        return super().get_exported(context) and not self.element.bf_time_setup_only
-
-    def draw(self, context, layout):
-        active = not self.element.bf_time_setup_only
-        row = layout.row(align=True)
-        row.active = active
-        row.prop(self.element, self.bpy_idname, text=self.label)
+    def get_active(self, context):
+        return not self.element.bf_time_setup_only
 
 
 class SP_TIME_T_END(BFParam):
@@ -63,11 +57,11 @@ class SP_TIME_T_END(BFParam):
             )
         return super().to_fds_list(context)
 
-    def draw(self, context, layout):
-        active = not self.element.bf_time_setup_only
-        row = layout.row(align=True)
-        row.active = active
-        row.prop(self.element, self.bpy_idname, text=self.label)
+    def get_active(self, context):
+        return not self.element.bf_time_setup_only
+
+    def get_exported(self, context):
+        return True
 
 
 class SP_TIME_other(BFParamOther):

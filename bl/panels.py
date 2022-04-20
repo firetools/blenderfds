@@ -227,7 +227,6 @@ class OBJECT_PT_MULT(Panel):
             and ob.type == "MESH"
             and not ob.bf_is_tmp
             and ob.bf_namelist.has_bf_param(OP_other_MULT_ID)
-            and ob.bf_mult_export
         )
 
     def draw_header(self, context):
@@ -237,6 +236,7 @@ class OBJECT_PT_MULT(Panel):
 
     def draw(self, context):
         layout = self.layout
+        layout.use_property_split = False  # special
         layout.use_property_decorate = False  # no animation
         self.bf_namelist(context.object).draw(context, layout)  # draw namelist
 

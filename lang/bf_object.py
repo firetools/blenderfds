@@ -54,7 +54,7 @@ class BFObject:
         Object.from_fds = cls.from_fds
         Object.bf_is_tmp = BoolProperty(
             name="Is Tmp", description="Set if this Object is tmp", default=False
-        )
+        )  # FIXME make normal, not special
         Object.bf_has_tmp = BoolProperty(
             name="Has Tmp",
             description="Set if this Object has tmp companions",
@@ -106,9 +106,6 @@ class OP_namelist_cls(BFParam):
         "update": update_OP_namelist_cls,
     }
 
-    def get_exported(self, context):
-        return False
-
     def draw_operators(self, context, layout):
         layout.operator("object.bf_props_to_sel_obs", icon="COPYDOWN", text="")
 
@@ -150,6 +147,14 @@ class OP_ID_suffix(BFParam):
         )
     }
 
+    def get_active(self, context):
+        ob = self.element
+        return (
+            (ob.bf_xb_export and ob.bf_xb != "BBOX")
+            or (ob.bf_xyz_export and ob.bf_xyz == "VERTICES")
+            or (ob.bf_pb_export and ob.bf_pb == "PLANES")
+        )
+
 
 class OP_FYI(BFParamFYI):
     bpy_type = Object
@@ -167,7 +172,7 @@ class OP_other(BFParamOther):
 # Used by ON_MESH, ON_OBST, ON_HOLE
 
 
-class OP_RGB(MP_RGB):
+class OP_RGB_override(MP_RGB):
     label = "Override RGB"
     description = "Override color and transparency from boundary conditions"
     bpy_type = Object
@@ -176,12 +181,12 @@ class OP_RGB(MP_RGB):
     bpy_export_default = False
 
 
-class OP_COLOR(MP_COLOR):  # only import
+class OP_COLOR_override(MP_COLOR):  # only import
     bpy_type = Object
     bpy_idname = "color"
 
 
-class OP_TRANSPARENCY(MP_TRANSPARENCY):  # no draw
+class OP_TRANSPARENCY_override(MP_TRANSPARENCY):  # no draw
     bpy_type = Object
     bpy_idname = "color"
     bpy_export = "bf_rgb_export"  # already existing

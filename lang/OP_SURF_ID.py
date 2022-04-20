@@ -31,7 +31,7 @@ class OP_SURF_ID(BFParam):
 
     def get_exported(self, context):
         ob = self.element
-        return ob.bf_surf_id_export and ob.active_material
+        return ob.bf_surf_id_export and bool(ob.active_material)
 
     def check(self, context):
         ob = self.element

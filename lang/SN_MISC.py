@@ -66,29 +66,32 @@ class SP_origin_geoname(BFParam):
 
     def draw(self, context, layout):
         sc = self.element
+        exported = sc.bf_origin_export  # FIXME cleaner
         url = utils.gis.LonLat(lon=sc.bf_origin_lon, lat=sc.bf_origin_lat).to_url()
-        active = self.element.bf_origin_export
         col = layout.column(align=True, heading="Origin Geolocation")
         row = col.row(align=True)
-        row.active = active
-        row.prop(sc, "bf_origin_export", text="")
-        row.prop(sc, "bf_origin_geoname", text="")
-        row.operator("wm.url_open", text="", icon="URL").url = url
-        if active:
-            col.prop(sc, "bf_origin_lon")
-            col.prop(sc, "bf_origin_lat")
-            col.prop(sc, "bf_origin_north_bearing")
-            row = col.row()
-            row.alignment = "RIGHT"
-            text = (
-                f"UTM {sc.bf_origin_utm_zn}{sc.bf_origin_utm_ne and 'N' or 'S'} "
-                f"{int(sc.bf_origin_utm_easting)}m E {int(sc.bf_origin_utm_northing)}m N (WGS84)"
-            )
-            row.label(text=text)
+        sub = row.row(align=True)
+        sub.prop(sc, "bf_origin_export", text="")
+        col2 = sub.column(align=True)
+        col2.active = exported
+        sub = col2.row(align=True)
+        sub.prop(sc, "bf_origin_geoname", text="")
+        sub.operator("wm.url_open", text="", icon="URL").url = url
+        col2.prop(sc, "bf_origin_lon")
+        col2.prop(sc, "bf_origin_lat")
+        col2.prop(sc, "bf_origin_north_bearing")
+        row = col.row()
+        row.active = exported
+        row.alignment = "RIGHT"
+        text = (
+            f"UTM {sc.bf_origin_utm_zn}{sc.bf_origin_utm_ne and 'N' or 'S'} "
+            f"{int(sc.bf_origin_utm_easting)}m E {int(sc.bf_origin_utm_northing)}m N (WGS84)"
+        )
+        row.label(text=text)
 
-    def to_fds_list(self, context) -> FDSList:
+    def to_fds_list(self, context) -> FDSList:  # FIXME msg is not sent!
         if self.element.bf_origin_export and self.element.bf_origin_geoname:
-            return FDSParam(msg=f"Origin at: <{self.element.bf_origin_geoname}>")
+            return FDSList(msg=f"Origin at: <{self.element.bf_origin_geoname}>")
         return FDSList()
 
 
@@ -101,7 +104,12 @@ class SP_ORIGIN_LON(BFParam):
     bpy_prop = FloatProperty
     bpy_export = "bf_origin_export"
     bpy_default = 9.16889  # Portofino mountain
-    bpy_other = {"min": -180.0, "max": 180.0, "precision": GEOLOC_PRECISION, "update": update_lonlat}
+    bpy_other = {
+        "min": -180.0,
+        "max": 180.0,
+        "precision": GEOLOC_PRECISION,
+        "update": update_lonlat,
+    }
 
     def draw(self, context, layout):
         pass
@@ -116,7 +124,12 @@ class SP_ORIGIN_LAT(BFParam):
     bpy_prop = FloatProperty
     bpy_export = "bf_origin_export"
     bpy_default = 44.32676  # Portofino mountain
-    bpy_other = {"min": -80.0, "max": 84.0, "precision": GEOLOC_PRECISION, "update": update_lonlat}
+    bpy_other = {
+        "min": -80.0,
+        "max": 84.0,
+        "precision": GEOLOC_PRECISION,
+        "update": update_lonlat,
+    }
 
     def draw(self, context, layout):
         pass
@@ -131,9 +144,6 @@ class SP_origin_utm_zn(BFParam):
     bpy_default = 32
     bpy_other = {"min": 1, "max": 60}
 
-    def get_exported(self, context):
-        return False
-
     def draw(self, context, layout):
         pass
 
@@ -145,9 +155,6 @@ class SP_origin_utm_ne(BFParam):
     bpy_idname = "bf_origin_utm_ne"
     bpy_prop = BoolProperty
     bpy_default = True
-
-    def get_exported(self, context):
-        return False
 
     def draw(self, context, layout):
         pass
@@ -162,9 +169,6 @@ class SP_origin_utm_easting(BFParam):
     bpy_default = 500000.0
     bpy_other = {"unit": "LENGTH", "min": 0, "max": 1000000}
 
-    def get_exported(self, context):
-        return False
-
     def draw(self, context, layout):
         pass
 
@@ -177,9 +181,6 @@ class SP_origin_utm_northing(BFParam):
     bpy_prop = FloatProperty
     bpy_default = 5000000.0
     bpy_other = {"unit": "LENGTH", "min": 0, "max": 10000000}
-
-    def get_exported(self, context):
-        return False
 
     def draw(self, context, layout):
         pass

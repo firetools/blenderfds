@@ -8,12 +8,12 @@ from .bf_object import (
     OP_FYI,
     OP_ID_suffix,
     OP_other,
-    OP_RGB,
-    OP_COLOR,
-    OP_TRANSPARENCY,
+    OP_RGB_override,
+    OP_COLOR_override,
+    OP_TRANSPARENCY_override,
 )
 from .OP_SURF_ID import OP_SURF_ID
-from .OP_XB import OP_XB, OP_XB_custom_voxel, OP_XB_voxel_size, OP_XB_center_voxels
+from .OP_XB import OP_XB, OP_XB_voxel_size, OP_XB_center_voxels
 from .OP_XYZ import OP_XYZ
 from .OP_PB import OP_PB, OP_PBX, OP_PBY, OP_PBZ
 from .ON_MULT import OP_other_MULT_ID
@@ -46,10 +46,10 @@ class ON_other(BFNamelistOb):
         OP_namelist_cls,
         OP_other_namelist,
         OP_ID,
+        OP_ID_suffix,
         OP_FYI,
         OP_SURF_ID,
         OP_XB,
-        OP_XB_custom_voxel,
         OP_XB_voxel_size,
         OP_XB_center_voxels,
         OP_XYZ,
@@ -57,11 +57,10 @@ class ON_other(BFNamelistOb):
         OP_PBX,
         OP_PBY,
         OP_PBZ,
-        OP_ID_suffix,
         OP_other_MULT_ID,
-        OP_RGB,
-        OP_COLOR,
-        OP_TRANSPARENCY,
+        OP_RGB_override,
+        OP_COLOR_override,
+        OP_TRANSPARENCY_override,
         OP_other,
     )
 

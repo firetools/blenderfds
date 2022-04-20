@@ -65,11 +65,12 @@ def split_mesh(hid, ijk, export, nsplits, xb):
             )
         )
     # Prepare hids
-    if len(xbs) > 1:
-        hids = (f"{hid}_s{i}" for i in range(len(xbs)))
+    nsplit = len(xbs)
+    if nsplit > 1:
+        hids = tuple(f"{hid}_s{i}" for i in range(len(xbs)))
     else:
-        hids = (hid,)
-    return hids, ijks, xbs, ncell, cs
+        hids = tuple((hid,))
+    return hids, ijks, xbs, ncell, cs, nsplit  # FIXME raise error if nsplit unexpected
 
 
 def test():

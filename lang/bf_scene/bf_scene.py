@@ -87,7 +87,7 @@ class BFScene:
         filepath=None,
         f90_namelists=None,
         co_description="",
-        tmp=False,
+        set_tmp=False,
     ):
         """!
         Set self.bf_namelists from FDSList, on error raise BFException.
@@ -95,7 +95,7 @@ class BFScene:
         @param filepath: filepath of FDS case to be imported.
         @param f90_namelists: FDS formatted string of namelists, eg. "&OBST ID='Test' /\n&TAIL /".
         @param co_description: Collection description string.
-        @param tmp: set temporary Objects.
+        @param set_tmp: set temporary Objects.
         """
         # Set mysef as the right Scene instance in the context
         # this is used by context.scene calls elsewhere
@@ -144,7 +144,7 @@ class BFScene:
                 fds_list=fds_list,
                 fds_label=fds_label,
                 co_description=co_description,
-                set_tmp=tmp,
+                set_tmp=set_tmp,  # FIXME or Scene var?
             )
 
         # Restore fds case dir, to avoid overwriting imported case

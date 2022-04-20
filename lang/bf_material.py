@@ -97,9 +97,6 @@ class MP_namelist_cls(BFParam):
     }
     bpy_default = "MN_SURF"
 
-    def get_exported(self, context):
-        return False
-
     def draw_operators(self, context, layout):
         layout.operator("material.bf_surf_to_sel_obs", icon="COPYDOWN", text="")
 
@@ -161,7 +158,7 @@ class MP_COLOR(BFParam):  # only import
             raise BFException(self, f"Unknown color <{value}>")
         c[0], c[1], c[2] = rgb[0] / 255.0, rgb[1] / 255.0, rgb[2] / 255.0
 
-    def draw(self, context, layout):
+    def draw(self, context, layout):  # see MP_RGB
         pass
 
 
@@ -182,7 +179,7 @@ class MP_TRANSPARENCY(BFParam):  # no draw
         c = getattr(self.element, self.bpy_idname)
         c[3] = value
 
-    def draw(self, context, layout):
+    def draw(self, context, layout):  # see MP_RGB
         pass
 
 

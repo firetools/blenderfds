@@ -4,7 +4,7 @@ Calc all MESH parameters.
 
 from ... import utils
 from .split_mesh import split_mesh
-from ..ON_MULT import get_nmult
+from ..ON_MULT import multiply_xbs
 
 
 def get_factor(n):
@@ -64,33 +64,51 @@ def get_cell_sizes(context, ob):  # used by: mesh_tools.py
     )
 
 
+def get_mpis(context, ob, nmesh):
+    mpis, nmpi = list(), 1
+    if ob.bf_mesh_assign_mpi_process_export:  # FIXME FIXME FIXME
+        sc = context.scene
+        first_mpi = sc.get("bf_first_mpi_process", 0)
+        bf_mesh_assign_mpi_process = ob.bf_mesh_assign_mpi_process
+        for imesh in range(nmesh):
+            mpis.append(int(imesh / bf_mesh_assign_mpi_process) + first_mpi)
+        last_mpi = mpis[-1]
+        sc["bf_first_mpi_process"] = last_mpi + 1
+        nmpi = last_mpi - first_mpi + 1
+    return mpis, nmpi
+
+
 def get_mesh_geometry(context, ob):
     """!Get geometry and info on generated MESH instances."""
-    ijk = ob.bf_mesh_ijk
-    hids, ijks, xbs, ncell, cs = split_mesh(
+    # Split
+    hids, ijks, xbs, ncell, cs, nsplit = split_mesh(
         hid=ob.name,
-        ijk=ijk,
+        ijk=ob.bf_mesh_ijk,
         export=ob.bf_mesh_nsplits_export,
         nsplits=ob.bf_mesh_nsplits,
         xb=utils.geometry.get_bbox_xb(context=context, ob=ob, world=True),
     )
-    nsplit = len(xbs)
-    nmult = get_nmult(ob)
-    ncell_tot = ijk[0] * ijk[1] * ijk[2] * nmult
+
+    # Multiply
+    hids, xbs, nmult = multiply_xbs(context=context, ob=ob, hids=hids, xbs=xbs)
+    if nmult > 1:
+        ijks *= nmult
+
+    # Prepare mpis
     nmesh = nmult * nsplit
+    mpis, nmpi = get_mpis(context=context, ob=ob, nmesh=nmesh)
+
+    # Prepare msgs
+    ijk = ob.bf_mesh_ijk
+    ncell_tot = ijk[0] * ijk[1] * ijk[2] * nmult
     has_good_ijk = tuple(ijk) == get_poisson_ijk(ijk) and "Yes" or "No"
     aspect = get_cell_aspect(cs)
-    if nmesh > 1:
-        msgs = (
-            f"MESH: {nmesh} | Cell Qty: {ncell} ({ncell_tot} tot) | Splits: {nsplit} | Multiples: {nmult}",
-            f"Size: {cs[0]:.3f}m · {cs[1]:.3f}m · {cs[2]:.3f}m | Aspect: {aspect:.1f} | Poisson: {has_good_ijk}",
-        )
-    else:
-        msgs = (
-            f"Cell Qty: {ncell}",
-            f"Size: {cs[0]:.3f}m · {cs[1]:.3f}m · {cs[2]:.3f}m | Aspect: {aspect:.1f} | Poisson: {has_good_ijk}",
-        )
-    return hids, ijks, xbs, msgs
+    msgs = (
+        f"MESH: {nmesh} | Splits: {nsplit} | Multiples: {nmult} | Allocated MPI Processes: {nmpi}",
+        f"Cell Qty: {ncell_tot} in total, ~{int(ncell_tot/nmpi)} per process",
+        f"Size: {cs[0]:.3f}m · {cs[1]:.3f}m · {cs[2]:.3f}m | Aspect: {aspect:.1f} | Poisson: {has_good_ijk}",
+    )
+    return hids, ijks, mpis, xbs, msgs
 
 
 def get_cell_aspect(cell_sizes):
@@ -104,21 +122,3 @@ def get_cell_aspect(cell_sizes):
         )
     except ZeroDivisionError:
         return 999.0
-
-
-def get_mesh_mpis(context, ob, xbs):
-    """!Get MPI_PROCESS numbers or None."""
-    if ob.bf_mesh_mpi_process_qty_export:
-        nmesh = len(xbs)
-        nmpi = ob.bf_mesh_mpi_process_qty
-        if nmpi > nmesh:
-            nmpi = nmesh
-        # Get first MPI_PROCESS number from counter, if it exists
-        first_mpi = context.scene.get("bf_first_mpi_process", 0)
-        # Calc mpi process generator
-        ratio_mpi = nmpi / nmesh
-        mpis = tuple(int(i * ratio_mpi) + first_mpi for i in range(nmesh))
-        # Update Scene MPI_PROCESS counter
-        # (remember to delete it in Scene and show_fds_code ops!)
-        context.scene["bf_first_mpi_process"] = mpis[-1] + 1
-        return mpis

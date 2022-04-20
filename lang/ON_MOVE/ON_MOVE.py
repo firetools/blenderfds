@@ -114,8 +114,11 @@ class OP_other_MOVE_ID(BFParam):
     def get_value(self, context):
         return f"{self.element.name}_move"
 
-    def get_exported(self, context):  # set in namelists that use it (eg. ON_GEOM)
+    def get_active(self, context):  # set in namelists that use it (eg. ON_GEOM)
         return False
+
+    def get_exported(self, context):
+        return self.get_active(context)
 
     def to_fds_list(self, context) -> FDSList:
         if self.get_exported(context):
@@ -141,8 +144,9 @@ class OP_other_MOVE_ID(BFParam):
 
     def draw(self, context, layout):  # only label
         row = layout.split(factor=0.4)
-        row.active = self.get_exported(context)
+        active = self.get_active(context)
+        row.active = active
         row.alignment = "RIGHT"
         row.label(text=self.label)
         row.alignment = "EXPAND"
-        row.label(text=self.get_value(context))
+        row.label(icon=active and "LINKED" or "UNLINKED")

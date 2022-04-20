@@ -167,8 +167,8 @@ class BFParam:
             cls._register_bpy_prop(
                 bpy_idname=cls.bpy_export,
                 bpy_prop=BoolProperty,
-                label=f"Export {cls.label}",
-                description=f"Set if {cls.label} shall be exported",
+                label=f"Activate {cls.label}",
+                description=f"Set if {cls.label} shall be activated",
                 default=cls.bpy_export_default,
                 bpy_other={"update": cls.bpy_other.get("update")},
             )
@@ -220,10 +220,19 @@ class BFParam:
                 )
             return
 
+    def get_active(self, context):
+        """!
+        Return True if self is active.
+        """
+        return True
+
     def get_exported(self, context):
         """!
         Return True if self is exported to FDS.
         """
+        # Check if active
+        if not self.get_active(context):
+            return False
         # Check if empty
         value = self.get_value(context=context)
         if value is None or value == "":
@@ -283,28 +292,59 @@ class BFParam:
         if not self.bpy_idname:
             return
         # Set active and alert
-        active, alert = True, False
-        if self.bpy_export:
-            active = bool(getattr(self.element, self.bpy_export))
-        if active:
+        active, exported, alert = (
+            self.get_active(context),
+            self.get_exported(context),
+            False,
+        )
+        if exported:
             try:
                 self.check(context)
             except BFException:
                 alert = True
         # Set layout
-        if self.bpy_export:
+        if self.bpy_export:  # see example in properties_object.py
             col = layout.column(align=False, heading=self.label)
+            col.active, col.alert = active, alert
             row = col.row(align=True)
-            row.active, row.alert = active, alert
-            row.prop(self.element, self.bpy_export, text="")
-            row.prop(self.element, self.bpy_idname, text="")
+            sub = row.row(align=True)
+            sub.prop(self.element, self.bpy_export, text="")
+            sub = sub.row(align=True)
+            sub.active = exported
+            sub.prop(self.element, self.bpy_idname, text="")
         else:
             col = layout.column()
+            col.active, col.alert = active, alert
             row = col.row(align=True)
-            row.active, row.alert = active, alert
             row.prop(self.element, self.bpy_idname, text=self.label)
         self.draw_operators(context, row)  # along the properties
         return col
+
+        # Example of alternative:
+        # col = layout.column(heading="Show")
+        # col.prop(obj, "show_name", text="Name")
+        # col.prop(obj, "show_axis", text="Axis")
+        # col.prop(obj, "color")
+
+        # Example of label only
+        # row = layout.split(factor=0.4)
+        # row.active, row.alert = active, alert
+        # row.alignment = "RIGHT"
+        # row.label(text=self.label)
+        # row.alignment = "EXPAND"
+        # row.label(text=f"Content")
+        # or icon:
+        # row.label(icon=active and "LINKED" or "UNLINKED")
+
+        # Example of label with bpy_export
+        # if self.bpy_export:
+        #     col = layout.column(align=False, heading=self.label)
+        #     row = col.row(align=True)
+        #     sub = row.row(align=True)
+        #     sub.prop(self.element, self.bpy_export, text="")
+        #     sub = sub.row(align=True)
+        #     sub.active, sub.alert = active, alert
+        #     sub.label(text=f"Content")
 
     def to_fds_list(self, context) -> FDSList:
         """!

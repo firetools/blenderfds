@@ -1,6 +1,15 @@
 # TODO
 
+Show tot number of MPI_PROCESS
+
+XB_BBOX multiply
+tool panel
+run fds smokeview
+always visible UI, greyed out when not avail
+
 release notes
+
+rm context,sc from def and take it from context.scene
 
 OK move ON_MOVE and make it similar to ON_MULT
 OK RGB color for MESH, and override for OBST, HOLE, VENT, Other...

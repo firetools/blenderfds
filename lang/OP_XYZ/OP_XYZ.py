@@ -23,16 +23,6 @@ def update_bf_xyz(ob, context):
         return
 
 
-class OP_XYZ_export(BFParam):
-    label = "Export XYZ"
-    description = "Set if XYZ shall be exported to FDS"
-    bpy_type = Object
-    bpy_idname = "bf_xyz_export"
-    bpy_prop = BoolProperty
-    bpy_default = False
-    bpy_other = {"update": update_bf_xyz}
-
-
 class OP_XYZ(BFParam):
     label = "XYZ"
     description = "Export as points"
@@ -48,6 +38,7 @@ class OP_XYZ(BFParam):
         ),
     }
     bpy_export = "bf_xyz_export"
+    bpy_export_default = False
 
     def to_fds_list(self, context) -> FDSList:
         # Get geometry

@@ -86,9 +86,9 @@ class _show_fds_code:
         except BFException as err:
             self.report({"ERROR"}, str(err))
             return {"CANCELLED"}
-        except Exception as err:
-            self.report({"ERROR"}, f"Unexpected error: {err}")
-            return {"CANCELLED"}
+        # except Exception as err:  # FIXME
+        #     self.report({"ERROR"}, f"Unexpected error: {err}")
+        #     return {"CANCELLED"}
         else:
             wm = context.window_manager
             return wm.invoke_props_dialog(self, width=600)

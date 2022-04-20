@@ -35,9 +35,6 @@ class SP_config_directory(BFParam):
     # no bpy_default, user choice when saving
     bpy_other = {"subtype": "DIR_PATH", "maxlen": 1024}
 
-    def get_exported(self, context):
-        return True
-
     def check(self, context):
         if self.get_exported(context):
             value = self.element.bf_config_directory
