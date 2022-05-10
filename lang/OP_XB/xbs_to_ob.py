@@ -2,7 +2,6 @@
 BlenderFDS, translate geometry from FDS XB notation to a Blender mesh.
 """
 
-from matplotlib import scale
 import bmesh, logging
 from mathutils import Matrix, Vector
 from ...types import BFException

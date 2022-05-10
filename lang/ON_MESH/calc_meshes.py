@@ -104,8 +104,8 @@ def get_mesh_geometry(context, ob):
     has_good_ijk = tuple(ijk) == get_poisson_ijk(ijk) and "Yes" or "No"
     aspect = get_cell_aspect(cs)
     msgs = (
-        f"MESH: {nmesh} | Splits: {nsplit} | Multiples: {nmult} | Allocated MPI Processes: {nmpi}",
-        f"Cell Qty: {ncell_tot} in total, ~{int(ncell_tot/nmpi)} per process",
+        f"MESH: {nmesh} | Splits: {nsplit} | Multiples: {nmult} | MPI Processes: {nmpi}",
+        f"Cell Qty: {ncell_tot} in total, {int(ncell_tot/nmpi)} per process",
         f"Size: {cs[0]:.3f}m · {cs[1]:.3f}m · {cs[2]:.3f}m | Aspect: {aspect:.1f} | Poisson: {has_good_ijk}",
     )
     return hids, ijks, mpis, xbs, msgs

@@ -5,6 +5,7 @@ BlenderFDS, translate Blender object geometry to FDS XB notation.
 import logging
 from ...types import BFException
 from ... import utils
+from ..ON_MULT import multiply_xbs
 from .calc_voxels import get_voxels
 from .calc_pixels import get_pixels
 
@@ -120,7 +121,7 @@ _choice_to_xbs = {
 }
 
 
-def ob_to_xbs(context, ob, bf_xb, world=True) -> tuple((list, list)):
+def ob_to_xbs(context, ob, bf_xb, world=True) -> tuple((list, list, list)):
     """!
     Transform Object geometry according to bf_xb to FDS notation.
     @param context: the Blender context.
@@ -129,10 +130,13 @@ def ob_to_xbs(context, ob, bf_xb, world=True) -> tuple((list, list)):
     @param world: True to return the object in world coordinates.
     @return the FDS notation and any error message: ((x0,x1,y0,y1,z0,z1,), ...), 'Msg'.
     """
-    if ob.get("ob_to_xbs_cache") is None:
-        # Not available in cache, recalc
-        ob["ob_to_xbs_cache"] = _choice_to_xbs[bf_xb](context, ob, world)
-    xbs, msgs = ob["ob_to_xbs_cache"]
+    # Calc xbs and msgs
+    xbs, msgs = tuple(), tuple()
+    if ob.bf_xb_export:
+        if ob.get("ob_to_xbs_cache") is None:  # no cache?
+            ob["ob_to_xbs_cache"] = _choice_to_xbs[bf_xb](context, ob, world)
+        xbs, msgs = ob["ob_to_xbs_cache"]
+
     # Calc hids
     n = ob.name
     match ob.bf_id_suffix:                
@@ -154,4 +158,9 @@ def ob_to_xbs(context, ob, bf_xb, world=True) -> tuple((list, list)):
             hids = (f"{n}_x{xb[0]:+.3f}_y{xb[2]:+.3f}_z{xb[4]:+.3f}" for xb in xbs)
         case _:
             raise AssertionError(f"Unknown suffix <{ob.bf_id_suffix}>")
+
+    # Multiply
+    hids, xbs, nmult = multiply_xbs(context=context, ob=ob, hids=hids, xbs=xbs)
+    msgs[0] += f" | Multiples: {nmult}"
+
     return tuple(hids), tuple(xbs), tuple(msgs)

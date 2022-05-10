@@ -75,9 +75,13 @@ class BFObject:
 
 
 def update_OP_namelist_cls(ob, context):
+    # Reset selections
+    ob.bf_mult_export = False
+    # Rm cache and tmp
     utils.geometry.rm_geometric_cache(ob=ob)
     if ob.bf_has_tmp:
         utils.geometry.rm_tmp_objects()
+    # Reset new appearance
     ob.bf_namelist.set_appearance(context)
 
 

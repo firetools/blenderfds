@@ -16,8 +16,8 @@ from ..bf_object import (
     OP_RGB_override,
     OP_COLOR_override,
 )
-from ..OP_XB import OP_XB_BBOX, xbs_to_ob
-from ..ON_MULT import OP_other_MULT_ID, multiply_xbs
+from ..OP_XB import OP_XB_BBOX
+from ..ON_MULT import OP_other_MULT_ID
 from .calc_meshes import get_mesh_geometry
 
 log = logging.getLogger(__name__)

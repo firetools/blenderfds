@@ -72,7 +72,7 @@ class BFNamelist(BFParam):
         """
         if self._bf_param_other_idx is not None:
             return self.bf_params[self._bf_param_other_idx]
-
+# FIXME add get_active
     def get_exported(self, context):
         """!
         Return True if self is exported to FDS.
@@ -94,6 +94,15 @@ class BFNamelist(BFParam):
             panel.bl_label = f"FDS {self.label} ({self.description})"
         else:
             panel.bl_label = self.label
+
+    def draw_operators(self, context, layout):  # FIXME prepare panel
+        """!
+        Draw my operators on layout.
+        @param context: the Blender context.
+        @param layout: the Blender panel layout.
+        @return used layout.
+        """
+        pass
 
     def draw(self, context, layout):
         """!

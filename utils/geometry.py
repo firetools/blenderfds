@@ -4,7 +4,6 @@ BlenderFDS, geometric utilities.
 
 # TODO change file name
 
-from matplotlib.style import context
 import bpy, bmesh
 from mathutils import Matrix
 from ..types import BFException

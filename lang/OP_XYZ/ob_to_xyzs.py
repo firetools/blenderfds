@@ -49,7 +49,7 @@ def _ob_to_xyzs_center(context, ob, world) -> tuple((list, list)):
 _choice_to_xyzs = {"CENTER": _ob_to_xyzs_center, "VERTICES": _ob_to_xyzs_vertices}
 
 
-def ob_to_xyzs(context, ob, bf_xyz, world=True) -> tuple((list, list)):
+def ob_to_xyzs(context, ob, bf_xyz, world=True) -> tuple((list, list, list)):
     """!
     Transform Object geometry according to bf_xyz to xyzs notation.
     @param context: the Blender context.
@@ -58,7 +58,11 @@ def ob_to_xyzs(context, ob, bf_xyz, world=True) -> tuple((list, list)):
     @param world: True to return the object in world coordinates.
     @return the xyzs notation and any error message: ((x0,y0,z0,), ...), 'Msg'.
     """
-    xyzs, msgs = _choice_to_xyzs[bf_xyz](context, ob, world)  # xyzs, msgs
+    # Calc xyzs and msgs
+    xyzs, msgs = tuple(), tuple()
+    if ob.bf_xb_export:
+        xyzs, msgs = _choice_to_xyzs[bf_xyz](context, ob, world)
+
     # Calc hids
     n = ob.name
     match ob.bf_id_suffix:
@@ -80,4 +84,5 @@ def ob_to_xyzs(context, ob, bf_xyz, world=True) -> tuple((list, list)):
             hids = (f"{n}_x{xyz[0]:+.3f}_y{xyz[1]:+.3f}_z{xyz[2]:+.3f}" for xyz in xyzs)
         case _:
             raise AssertionError(f"Unknown suffix <{ob.bf_id_suffix}>")
+
     return tuple(hids), tuple(xyzs), tuple(msgs)

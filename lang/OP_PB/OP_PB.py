@@ -41,16 +41,10 @@ class OP_PB(BFParam):
 
     def to_fds_list(self, context) -> FDSList:
         # Get geometry
-        ob, hids, pbs, msgs, lp = self.element, tuple(), tuple(), tuple(), LENGTH_PRECISION
-        if self.get_exported(context):  # for OP_PBX, OP_PBY, OP_PBZ
-            hids, pbs, msgs = ob_to_pbs(context, ob, bf_pb=ob.bf_pb)
-        # Single
-        match len(pbs):
-            case 0:
-                return FDSList()
-            case 1:
-                return FDSParam(fds_label=pbs[0][0], value=pbs[0][1], precision=lp)
-        # Multi
+        ob, lp = self.element, LENGTH_PRECISION
+        hids, pbs, msgs = ob_to_pbs(context, ob, bf_pb=ob.bf_pb)
+        if len(pbs) == 1:
+            return FDSParam(fds_label=pbs[0][0], value=pbs[0][1], precision=lp)
         return FDSMulti(
             iterable=(
                 (FDSParam(fds_label="ID", value=hid) for hid in hids),

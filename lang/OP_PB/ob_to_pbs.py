@@ -49,8 +49,12 @@ def ob_to_pbs(context, ob, bf_pb, world=True) -> tuple((list, list)):
     @param world: True to return the object in world coordinates.
     @return the pbs notation and messages.
     """
+    # Calc pbs and msgs
     # pbs is: ("PBX", 3.5), ("PBX", 4.), ("PBY", .5) ...
-    pbs, msgs = _ob_to_pbs_planes(context, ob, world=world)
+    pbs, msgs = tuple(), tuple()
+    if ob.bf_pb_export:
+        pbs, msgs = _ob_to_pbs_planes(context, ob, world=world)
+
     # Calc hids
     n = ob.name
     match ob.bf_id_suffix:
@@ -61,4 +65,5 @@ def ob_to_pbs(context, ob, bf_pb, world=True) -> tuple((list, list)):
                 {"PBX": f"{n}_x{pb:+.3f}", "PBY": f"{n}_y{pb:+.3f}", "PBZ": f"{n}_z{pb:+.3f}"}[axis]
                 for axis, pb in pbs
             )
+
     return tuple(hids), tuple(pbs), tuple(msgs)

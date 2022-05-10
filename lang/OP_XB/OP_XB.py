@@ -23,6 +23,7 @@ def update_bf_xb(ob, context):
             ob.bf_pb_export = False
         return
 
+
 class OP_XB_voxel_size(BFParam):
     label = "Voxel/Pixel Size"
     description = "Voxel/pixel size for the current Object"
@@ -44,6 +45,7 @@ class OP_XB_voxel_size(BFParam):
     def get_active(self, context):
         ob = self.element
         return ob.bf_xb_export and ob.bf_xb in ("VOXELS", "PIXELS")
+
 
 class OP_XB_center_voxels(BFParam):
     label = "Center Voxels/Pixels"
@@ -80,17 +82,10 @@ class OP_XB(BFParam):
     bpy_export_default = False
 
     def to_fds_list(self, context) -> FDSList:
-        # Get geometry
-        ob, hids, xbs, msgs, lp = self.element, tuple(), tuple(), tuple(), LENGTH_PRECISION
-        if ob.bf_xb_export:
-            hids, xbs, msgs = ob_to_xbs(context=context, ob=ob, bf_xb=ob.bf_xb)  # FIXME add multiply
-        # Single
-        match len(xbs):
-            case 0:
-                return FDSList()
-            case 1:
-                return FDSParam(fds_label="XB", value=xbs[0], precision=lp)
-        # Multi
+        ob, lp = self.element, LENGTH_PRECISION
+        hids, xbs, msgs = ob_to_xbs(context=context, ob=ob, bf_xb=ob.bf_xb)
+        if len(xbs) == 1:
+            return FDSParam(fds_label="XB", value=xbs[0], precision=lp)
         return FDSMulti(
             iterable=(
                 (FDSParam(fds_label="ID", value=hid) for hid in hids),
@@ -120,7 +115,7 @@ class OP_XB_BBOX(OP_XB):
     bpy_export = None
 
     def _get_geometry(self, context):
-        ob, = self.element
+        (ob,) = self.element
         hids, xbs, msgs = ob_to_xbs(context=context, ob=ob, bf_xb=ob.bf_xb)
         return ob, hids, xbs, msgs
 

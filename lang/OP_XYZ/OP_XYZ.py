@@ -41,17 +41,10 @@ class OP_XYZ(BFParam):
     bpy_export_default = False
 
     def to_fds_list(self, context) -> FDSList:
-        # Get geometry
-        ob, hids, xyzs, msgs, lp = self.element, tuple(), tuple(), tuple(), LENGTH_PRECISION
-        if ob.bf_xyz_export:
-            hids, xyzs, msgs = ob_to_xyzs(context=context, ob=ob, bf_xyz=ob.bf_xyz)
-        # Single
-        match len(xyzs):
-            case 0:
-                return FDSList()
-            case 1:
-                return FDSParam(fds_label="XYZ", value=xyzs[0], precision=lp)
-        # Multi
+        ob, lp = self.element, LENGTH_PRECISION
+        hids, xyzs, msgs = ob_to_xyzs(context=context, ob=ob, bf_xyz=ob.bf_xyz)
+        if len(xyzs) == 1:
+            return FDSParam(fds_label="XYZ", value=xyzs[0], precision=lp)
         return FDSMulti(
             iterable=(
                 (FDSParam(fds_label="ID", value=hid) for hid in hids),
