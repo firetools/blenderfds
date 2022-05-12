@@ -1,7 +1,7 @@
 import logging
 from bpy.types import Object
 from bpy.props import FloatProperty, IntProperty, FloatVectorProperty, BoolProperty
-from ...config import LENGTH_PRECISION
+from ...config import LP
 from ...types import BFNamelist, BFParam, BFNotImported, FDSList, FDSNamelist
 from ... import utils
 
@@ -49,7 +49,7 @@ class OP_MULT_DX(BFParam):
     bpy_prop = FloatProperty
     bpy_other = {
         "step": 1.0,
-        "precision": LENGTH_PRECISION,
+        "precision": LP,
         "unit": "LENGTH",
         "update": update_bf_mult,
     }
@@ -65,7 +65,7 @@ class OP_MULT_DY(BFParam):
     bpy_prop = FloatProperty
     bpy_other = {
         "step": 1.0,
-        "precision": LENGTH_PRECISION,
+        "precision": LP,
         "unit": "LENGTH",
         "update": update_bf_mult,
     }
@@ -81,7 +81,7 @@ class OP_MULT_DZ(BFParam):
     bpy_prop = FloatProperty
     bpy_other = {
         "step": 1.0,
-        "precision": LENGTH_PRECISION,
+        "precision": LP,
         "unit": "LENGTH",
         "update": update_bf_mult,
     }
@@ -97,7 +97,7 @@ class OP_MULT_DX0(BFParam):
     bpy_prop = FloatProperty
     bpy_other = {
         "step": 1.0,
-        "precision": LENGTH_PRECISION,
+        "precision": LP,
         "unit": "LENGTH",
         "update": update_bf_mult,
     }
@@ -113,7 +113,7 @@ class OP_MULT_DY0(BFParam):
     bpy_prop = FloatProperty
     bpy_other = {
         "step": 1.0,
-        "precision": LENGTH_PRECISION,
+        "precision": LP,
         "unit": "LENGTH",
         "update": update_bf_mult,
     }
@@ -129,7 +129,7 @@ class OP_MULT_DZ0(BFParam):
     bpy_prop = FloatProperty
     bpy_other = {
         "step": 1.0,
-        "precision": LENGTH_PRECISION,
+        "precision": LP,
         "unit": "LENGTH",
         "update": update_bf_mult,
     }
@@ -304,7 +304,7 @@ class OP_MULT_DXB(BFParam):
     bpy_prop = FloatVectorProperty
     bpy_other = {
         "step": 1.0,
-        "precision": LENGTH_PRECISION,
+        "precision": LP,
         "unit": "LENGTH",
         "size": 6,
         "update": update_bf_mult,

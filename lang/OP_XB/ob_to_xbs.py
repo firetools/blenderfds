@@ -22,6 +22,8 @@ def _ob_to_xbs_voxels(context, ob, world) -> tuple((list, list)):
     @return xbs notation and any error message: ((x0,x1,y0,y1,z0,z1,), ...), 'Msg'.
     """
     xbs, voxel_size = get_voxels(context=context, ob=ob)
+    if not xbs:
+        raise BFException(ob, "XB: No exported voxels!")
     msgs = list((f"XB Voxels: {len(xbs)} | Resolution: {voxel_size:.3f} m",))
     return xbs, msgs
 
@@ -36,6 +38,8 @@ def _ob_to_xbs_pixels(context, ob, world) -> tuple((list, list)):
     @return xbs notation (flat voxelization) and any error message: ((x0,x1,y0,y1,z0,z1,), ...), 'Msg'.
     """
     xbs, voxel_size = get_pixels(context=context, ob=ob)
+    if not xbs:
+        raise BFException(ob, "XB: No exported pixels!")
     scale_length = context.scene.unit_settings.scale_length
     res = voxel_size * scale_length
     msgs = list((f"XB Pixels: {len(xbs)} | Resolution: {res:.3f} m",))
@@ -139,7 +143,7 @@ def ob_to_xbs(context, ob, bf_xb, world=True) -> tuple((list, list, list)):
 
     # Calc hids
     n = ob.name
-    match ob.bf_id_suffix:                
+    match ob.bf_id_suffix:
         case "IDI":
             hids = (f"{n}_{i}" for i, _ in enumerate(xbs))
         case "IDX":
@@ -160,7 +164,6 @@ def ob_to_xbs(context, ob, bf_xb, world=True) -> tuple((list, list, list)):
             raise AssertionError(f"Unknown suffix <{ob.bf_id_suffix}>")
 
     # Multiply
-    hids, xbs, nmult = multiply_xbs(context=context, ob=ob, hids=hids, xbs=xbs)
-    msgs[0] += f" | Multiples: {nmult}"
+    hids, xbs, msgs, _ = multiply_xbs(context=context, ob=ob, hids=hids, xbs=xbs, msgs=msgs)
 
     return tuple(hids), tuple(xbs), tuple(msgs)

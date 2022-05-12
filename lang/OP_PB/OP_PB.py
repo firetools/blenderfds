@@ -1,7 +1,7 @@
 import logging
 from bpy.types import Object
 from bpy.props import EnumProperty, BoolProperty
-from ...config import LENGTH_PRECISION
+from ...config import LP
 from ...types import BFParam, FDSParam, FDSList, FDSMulti
 from ... import utils
 from .ob_to_pbs import ob_to_pbs
@@ -11,6 +11,7 @@ log = logging.getLogger(__name__)
 
 
 def update_bf_pb(ob, context):
+    # Rm tmp geometry and cache
     utils.geometry.rm_geometric_cache(ob=ob)
     if ob.bf_has_tmp:
         utils.geometry.rm_tmp_objects()
@@ -40,18 +41,19 @@ class OP_PB(BFParam):
     bpy_export_default = False
 
     def to_fds_list(self, context) -> FDSList:
-        # Get geometry
-        ob, lp = self.element, LENGTH_PRECISION
+        ob = self.element
         hids, pbs, msgs = ob_to_pbs(context, ob, bf_pb=ob.bf_pb)
-        if len(pbs) == 1:
-            return FDSParam(fds_label=pbs[0][0], value=pbs[0][1], precision=lp)
-        return FDSMulti(
-            iterable=(
-                (FDSParam(fds_label="ID", value=hid) for hid in hids),
-                (FDSParam(fds_label=axis, value=pb, precision=lp) for axis, pb in pbs),
-            ),
-            msgs=msgs,
-        )
+        match len(pbs):
+            case 0:
+                return FDSList()
+            case 1:
+                return FDSParam(fds_label=pbs[0][0], value=pbs[0][1], precision=LP)
+            case _:
+                iterable=(
+                        (FDSParam(fds_label="ID", value=hid) for hid in hids),
+                        (FDSParam(fds_label=axis, value=pb, precision=LP) for axis, pb in pbs),
+                    )
+                return FDSMulti(iterable=iterable, msgs=msgs)
 
     def from_fds(self, context, value):
         bf_pb = pbs_to_ob(

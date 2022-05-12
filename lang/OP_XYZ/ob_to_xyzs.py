@@ -60,7 +60,7 @@ def ob_to_xyzs(context, ob, bf_xyz, world=True) -> tuple((list, list, list)):
     """
     # Calc xyzs and msgs
     xyzs, msgs = tuple(), tuple()
-    if ob.bf_xb_export:
+    if ob.bf_xyz_export:
         xyzs, msgs = _choice_to_xyzs[bf_xyz](context, ob, world)
 
     # Calc hids

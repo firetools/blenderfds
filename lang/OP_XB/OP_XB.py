@@ -1,7 +1,7 @@
 import logging
 from bpy.types import Object
 from bpy.props import EnumProperty, BoolProperty, FloatProperty
-from ...config import LENGTH_PRECISION
+from ...config import LP
 from ...types import BFParam, FDSParam, FDSList, FDSMulti
 from ... import utils
 from ..ON_MULT import OP_other_MULT_ID, multiply_xbs
@@ -12,6 +12,7 @@ log = logging.getLogger(__name__)
 
 
 def update_bf_xb(ob, context):
+    # Rm tmp geometry and cache
     utils.geometry.rm_geometric_cache(ob=ob)
     if ob.bf_has_tmp:
         utils.geometry.rm_tmp_objects()
@@ -33,7 +34,7 @@ class OP_XB_voxel_size(BFParam):
     bpy_default = 0.1
     bpy_other = {
         "step": 1.0,
-        "precision": LENGTH_PRECISION,
+        "precision": LP,
         "min": 0.001,
         "max": 20.0,
         "unit": "LENGTH",
@@ -82,17 +83,19 @@ class OP_XB(BFParam):
     bpy_export_default = False
 
     def to_fds_list(self, context) -> FDSList:
-        ob, lp = self.element, LENGTH_PRECISION
+        ob = self.element
         hids, xbs, msgs = ob_to_xbs(context=context, ob=ob, bf_xb=ob.bf_xb)
-        if len(xbs) == 1:
-            return FDSParam(fds_label="XB", value=xbs[0], precision=lp)
-        return FDSMulti(
-            iterable=(
-                (FDSParam(fds_label="ID", value=hid) for hid in hids),
-                (FDSParam(fds_label="XB", value=xb, precision=lp) for xb in xbs),
-            ),
-            msgs=msgs,
-        )
+        match len(xbs):
+            case 0:
+                return FDSList()
+            case 1:
+                return FDSParam(fds_label="XB", value=xbs[0], precision=LP)
+            case _:
+                iterable=(
+                    (FDSParam(fds_label="ID", value=hid) for hid in hids),
+                    (FDSParam(fds_label="XB", value=xb, precision=LP) for xb in xbs),
+                )
+                return FDSMulti(iterable=iterable, msgs=msgs)
 
     def from_fds(self, context, value):
         bf_xb = xbs_to_ob(

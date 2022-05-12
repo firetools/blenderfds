@@ -81,7 +81,7 @@ def get_mpis(context, ob, nmesh):
 def get_mesh_geometry(context, ob):
     """!Get geometry and info on generated MESH instances."""
     # Split
-    hids, ijks, xbs, ncell, cs, nsplit = split_mesh(
+    hids, ijks, xbs, ncell, cs, nsplit = split_mesh(  # FIXME use ncell
         hid=ob.name,
         ijk=ob.bf_mesh_ijk,
         export=ob.bf_mesh_nsplits_export,
@@ -90,9 +90,10 @@ def get_mesh_geometry(context, ob):
     )
 
     # Multiply
-    hids, xbs, nmult = multiply_xbs(context=context, ob=ob, hids=hids, xbs=xbs)
-    if nmult > 1:
-        ijks *= nmult
+    hids, xbs, _, nmult = multiply_xbs(
+        context=context, ob=ob, hids=hids, xbs=xbs, msgs=list()
+    )
+    ijks *= nmult
 
     # Prepare mpis
     nmesh = nmult * nsplit

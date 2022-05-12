@@ -2,14 +2,15 @@ from ... import utils
 from ..OP_XB.xbs_to_ob import xbs_to_ob
 
 
-def multiply_xbs(context, ob, hids, xbs):
+def multiply_xbs(context, ob, hids, xbs, msgs):
     """!
     Return lists of xb and their hid as multiplied by FDS MULT from ob.
     """
     # Calc, fast track
     if not ob.bf_mult_export:
         nmult = 1
-        return hids, xbs, nmult
+        return hids, xbs, msgs, nmult
+
     # Init the rest
     dxb = ob.bf_mult_dxb
     d = (ob.bf_mult_dx, ob.bf_mult_dy, ob.bf_mult_dz)
@@ -38,6 +39,7 @@ def multiply_xbs(context, ob, hids, xbs):
         ob.bf_mult_k_upper_skip,
         ob.bf_mult_n_upper_skip,
     )
+
     # Calc, slow track
     multi_xbs, multi_hids = list(), list()
     for xb, hid in zip(xbs, hids):
@@ -55,10 +57,19 @@ def multiply_xbs(context, ob, hids, xbs):
         multi_xbs.extend(new_xbs)
         multi_hids.extend(new_hids)
     nmult = len(new_xbs)
+
+    # Msgs
+    if nmult > 1:
+        if msgs:
+            msgs[0] += f" | Multiples: {nmult}"
+        else:
+            msgs.append(f"Multiples: {nmult}")
+
+    # Generate?
     if ob.bf_mult_generate_multiples:
-        return multi_hids, multi_xbs, nmult
+        return multi_hids, multi_xbs, msgs, nmult
     else:
-        return hids, xbs, nmult
+        return hids, xbs, msgs, nmult
 
 
 def multiply_xb(

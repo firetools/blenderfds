@@ -56,8 +56,6 @@ class FDSList(list):
                 case FDSParam():  # invariant params
                     inv_ps.append(item)
                 case FDSMulti():  # multi param (one only)
-                    if not item:
-                        continue
                     if multi_ps:
                         raise Exception(f"One only FDSMulti allowed in: {self!r}")
                     iterable = (tuple(ps) for ps in item)  # rm generators                  

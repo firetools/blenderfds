@@ -5,7 +5,7 @@ MESH namelist definition
 import logging
 from bpy.types import Object
 from bpy.props import IntVectorProperty, IntProperty
-from ...config import LENGTH_PRECISION
+from ...config import LP
 from ...types import BFParam, BFNamelistOb, FDSParam, FDSMulti, FDSList, BFException
 from ... import utils
 from ..bf_object import (
@@ -71,14 +71,19 @@ class OP_MESH_XB_BBOX(OP_XB_BBOX):
     def to_fds_list(self, context) -> FDSList:
         ob = self.element
         hids, ijks, mpis, xbs, msgs = get_mesh_geometry(context=context, ob=ob)
-        lp = LENGTH_PRECISION
-        iterable = (
-            (FDSParam(fds_label="ID", value=hid) for hid in hids),
-            (FDSParam(fds_label="IJK", value=ijk) for ijk in ijks),
-            (FDSParam(fds_label="XB", value=xb, precision=lp) for xb in xbs),
-            (FDSParam(fds_label="MPI_PROCESS", value=mpi) for mpi in mpis),
-        )
-        return FDSMulti(iterable=iterable, msgs=msgs)
+        match len(xbs):
+            case 0:
+                return FDSList(                )
+            case 1:
+                return FDSParam(fds_label="XB", value=xbs[0], precision=LP)
+            case _:
+                iterable = (
+                    (FDSParam(fds_label="ID", value=hid) for hid in hids),
+                    (FDSParam(fds_label="IJK", value=ijk) for ijk in ijks),
+                    (FDSParam(fds_label="XB", value=xb, precision=LP) for xb in xbs),
+                    (FDSParam(fds_label="MPI_PROCESS", value=mpi) for mpi in mpis),
+                )
+                return FDSMulti(iterable=iterable, msgs=msgs)
 
 
 class ON_MESH(BFNamelistOb):
