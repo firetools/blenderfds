@@ -137,8 +137,9 @@ def _load_original_classes():
         try:
             cls = eval(module_name)
         except:
-            log.debug(f"Unknown original class <{module_name}>...")
-        original_classes.append(cls)
+            log.debug(f"Load: Unknown original class <{module_name}>...")
+        else:
+            original_classes.append(cls)
 
 
 def _set_simple_ui():
@@ -147,7 +148,10 @@ def _set_simple_ui():
         return
     # Set
     for cls in original_classes:
-        unregister_class(cls)
+        try:
+            unregister_class(cls)
+        except:
+            log.debug(f"Unregister: unknown original class <{cls}>...")
     for cls in replacement_classes:
         register_class(cls)
 
@@ -160,7 +164,10 @@ def _set_normal_ui():
     for cls in replacement_classes:
         unregister_class(cls)
     for cls in original_classes:
-        register_class(cls)
+        try:
+            register_class(cls)
+        except:
+            log.debug(f"Register: unknown original class <{cls}>...")
 
 
 def toggle_simple_ui(prefs=None, context=None, force_normal=False):
