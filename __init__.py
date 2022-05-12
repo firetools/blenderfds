@@ -18,7 +18,7 @@ bl_info = {
     "name": "BlenderFDS",
     "author": "Emanuele Gissi",
     "description": "BlenderFDS, an open graphical editor for the NIST Fire Dynamics Simulator",
-    "blender": (3, 0, 0),
+    "blender": (3, 2, 0),
     "version": (6, 0, 0),
     "location": "File > Export > FDS Case (.fds)",
     "warning": "",
@@ -30,6 +30,7 @@ bl_info = {
 
 import logging
 
+# Reading class definitions,
 # bl should be imported before lang,
 # because it imports ui_lists
 from . import bl, lang
@@ -38,6 +39,8 @@ logging.basicConfig(level=logging.DEBUG)  # INFO or DEBUG
 log = logging.getLogger(__name__)
 
 
+# Automatic registering/deregistering
+# of Blender entities
 def register():
     log.debug("Register BlenderFDS...")
     bl.register()
