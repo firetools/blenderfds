@@ -32,7 +32,7 @@ def get_text_in_editor(context, text=None, name=None):
     # If not given, create text
     if not text:
         text = bpy.data.texts.new(name or str())
-    # Rewind to first line
+    # Rewind to the first line
     text.current_line_index = 0
     # Search existing ui area or create one
     selected_area = get_screen_area(context, area_type="TEXT_EDITOR")

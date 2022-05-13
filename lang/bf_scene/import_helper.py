@@ -32,7 +32,7 @@ def _import_ob(
     else:
         co_name = f"New {bf_namelist.collection}"
         if co_description:
-            co_name += f" ({co_description})"  # FIXME test
+            co_name += f" | From: <{co_description}>"
         co = bpy.data.collections.get(co_name)
         if co and not sc.user_of_id(co):  # not in current scene?
             co.name = f"{co_name}.001"  # rename existing
@@ -132,4 +132,15 @@ def import_by_fds_label(
             texts.append(fds_namelist.to_string())
 
     # Finally, write free text
-    sc.bf_config_text.write("\n".join(texts))
+    if texts:
+        body = sc.bf_config_text.as_string()[:-1]  # rm newline
+        # Add separator
+        if body:
+            body += "\n"
+        # Add header
+        if co_description:
+            body += f"\n--- From: <{co_description}>\n"
+        else:
+            body += f"\n--- From: <{sc.name}.fds>\n"  # TODO hardcoded?
+        body += "\n".join(texts)
+        sc.bf_config_text.from_string(body)
