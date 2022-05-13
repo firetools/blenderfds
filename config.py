@@ -263,21 +263,6 @@ FDS_QUANTITIES = (  # name, description, units, qtype, subject
     ("WALL TEMPERATURE", "Surface temperature", "°C", "B,D", "Wall"),
 )
 
-
-def get_quantity_items(qtype):  # FIXME move to where it is needed
-    """!
-    Prepare quantity items for menus.
-    """
-    items = []
-    # Generated like this: (("[Heat] NET HEAT FLUX", "NET HEAT FLUX (kW/m²)", "Description...",) ...)
-    for q in FDS_QUANTITIES:
-        name, desc, units, allowed_qtype, subject = q
-        if qtype in allowed_qtype:
-            items.append((name, f"{subject} - {name} [{units}]", desc))
-    items.sort(key=lambda k: k[1])
-    return items
-
-
 ## Color table from FDS source code (data.f90)
 FDS_COLORS = {
     "INVISIBLE": (255, 255, 255),

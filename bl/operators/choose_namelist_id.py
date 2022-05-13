@@ -6,7 +6,7 @@ import logging
 from bpy.types import Operator
 from bpy.props import EnumProperty
 from ...types import FDSList
-from ... import utils, config
+from ... import config
 
 log = logging.getLogger(__name__)
 
@@ -126,6 +126,17 @@ class OBJECT_OT_bf_choose_devc_prop_id(Operator):
         self.layout.prop(self, "bf_devc_prop_id", text="")
 
 
+def _get_quantity_items(qtype):
+    items = []
+    # Generated like this: (("[Heat] NET HEAT FLUX", "NET HEAT FLUX (kW/m²)", "Description...",) ...)
+    for q in config.FDS_QUANTITIES:
+        name, desc, units, allowed_qtype, subject = q
+        if qtype in allowed_qtype:
+            items.append((name, f"{subject} - {name} [{units}]", desc))
+    items.sort(key=lambda k: k[1])
+    return items
+
+
 class OBJECT_OT_bf_choose_devc_quantity(Operator):
     bl_label = "Choose QUANTITY for DEVC"
     bl_idname = "object.bf_choose_devc_quantity"
@@ -134,7 +145,7 @@ class OBJECT_OT_bf_choose_devc_quantity(Operator):
     bf_quantity: EnumProperty(
         name="QUANTITY",
         description="QUANTITY parameter for DEVC namelist",
-        items=config.get_quantity_items(qtype="D"),
+        items=_get_quantity_items(qtype="D"),
     )
 
     def execute(self, context):
