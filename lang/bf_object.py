@@ -52,14 +52,6 @@ class BFObject:
         Object.bf_namelist = cls.bf_namelist
         Object.to_fds_list = cls.to_fds_list
         Object.from_fds = cls.from_fds
-        Object.bf_is_tmp = BoolProperty(
-            name="Is Tmp", description="Set if this Object is tmp", default=False
-        )  # FIXME make normal, not special
-        Object.bf_has_tmp = BoolProperty(
-            name="Has Tmp",
-            description="Set if this Object has tmp companions",
-            default=False,
-        )
 
     @classmethod
     def unregister(cls):
@@ -67,8 +59,6 @@ class BFObject:
         Unregister related Blender properties.
         @param cls: class to be unregistered.
         """
-        del Object.bf_has_tmp
-        del Object.bf_is_tmp
         del Object.from_fds
         del Object.to_fds_list
         del Object.bf_namelist
@@ -96,6 +86,25 @@ def update_OP_namelist_cls_items():
     items.sort(key=lambda k: k[1])
     OP_namelist_cls.bpy_other["items"] = items
     # log.debug(f"Updated OP_namelist_cls items (before registration): {items}")
+
+
+# This are service parameters for managing tmp geometry
+class OP_is_tmp(BFParam):
+    label = "Temporary Object"
+    description = "Set if it is a temporary Object"
+    bpy_type = Object
+    bpy_prop = BoolProperty
+    bpy_idname = "bf_is_tmp"
+    bpy_default = False
+
+
+class OP_has_tmp(BFParam):
+    label = "Has Temporary Object"
+    description = "Set if it has related temporary Object instances"
+    bpy_type = Object
+    bpy_prop = BoolProperty
+    bpy_idname = "bf_has_tmp"
+    bpy_default = False
 
 
 class OP_namelist_cls(BFParam):
