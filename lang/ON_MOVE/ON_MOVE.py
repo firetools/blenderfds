@@ -71,26 +71,23 @@ class ON_MOVE(BFNamelist):  # not in namelist menu
             fds_param = fds_namelist.get_fds_label(fds_label=fds_label, remove=True)
             if fds_param:
                 ps[fds_label] = fds_param.get_value()  # assign value
-        # Treat T34
-        if ps["T34"]:
-            OP_MOVE_T34.from_fds(context, value=ps["T34"])
-        # Treat other cases
-        else:
-            utils.geometry.transform_ob(
-                ob=self.element,
-                dx=ps["DX"],
-                dy=ps["DY"],
-                dz=ps["DZ"],
-                scale=ps["SCALE"],
-                scalex=ps["SCALEX"],
-                scaley=ps["SCALEY"],
-                scalez=ps["SCALEZ"],
-                x0=ps["X0"],
-                y0=ps["Y0"],
-                z0=ps["Z0"],
-                rotation_angle=ps["ROTATION_ANGLE"],
-                axis=ps["AXIS"],
-            )
+        m = calc_bl_matrix(
+            t34=ps["T34"],
+            dx=ps["DX"],
+            dy=ps["DY"],
+            dz=ps["DZ"],
+            scale=ps["SCALE"],
+            scalex=ps["SCALEX"],
+            scaley=ps["SCALEY"],
+            scalez=ps["SCALEZ"],
+            x0=ps["X0"],
+            y0=ps["Y0"],
+            z0=ps["Z0"],
+            rotation_angle=ps["ROTATION_ANGLE"],
+            axis=ps["AXIS"],
+        )
+        utils.geometry.transform_ob(ob=self.element, m=m, force_othogonal=False)
+
         # Read all other remaining params (eg. any?)
         # super().from_fds(context, fds_namelist, fds_label)
 

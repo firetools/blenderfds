@@ -118,9 +118,6 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
             except BFException as err:
                 self.report({"ERROR"}, str(err))
                 return {"CANCELLED"}
-            # except Exception as err:  # FIXME
-            #     self.report({"ERROR"}, f"Unexpected error: {err}")
-            #     return {"CANCELLED"}
             # Set source element
             source_element.bf_mesh_ijk = rijk
             if source_element.data.users > 1:

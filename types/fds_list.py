@@ -108,10 +108,10 @@ class FDSList(list):
         """
         lines = self.msgs
         lines.extend(item.to_string() for item in self)
-        string = "\n".join(l for l in lines if l)
-        if string and self.header:
-            string = f"{self.header}\n{string}"
-        return string
+        body = "\n".join(l for l in lines if l)
+        if self.header and body:  # only if body!
+            body = "\n".join((self.header, body))
+        return body
 
     _RE_SCAN = re.compile(  # scan f90_namelists
         r"""

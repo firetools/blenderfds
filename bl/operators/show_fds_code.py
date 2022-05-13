@@ -86,9 +86,6 @@ class _show_fds_code:
         except BFException as err:
             self.report({"ERROR"}, str(err))
             return {"CANCELLED"}
-        # except Exception as err:  # FIXME
-        #     self.report({"ERROR"}, f"Unexpected error: {err}")
-        #     return {"CANCELLED"}
         else:
             wm = context.window_manager
             return wm.invoke_props_dialog(self, width=600)
@@ -110,7 +107,7 @@ class OBJECT_OT_bf_show_fds_code(_show_fds_code, Operator):
         return context.active_object
 
     def _get_lines(self, context):
-        context.scene["bf_first_mpi_process"] = 0  # FIXME FIXME FIXME
+        context.scene["bf_first_mpi_process"] = 0  # FIXME bf_first_mpi_process
         return context.active_object.to_fds_list(context).to_string()
 
 
@@ -128,7 +125,7 @@ class COLLECTION_OT_bf_show_fds_code(_show_fds_code, Operator):
         return context.collection
 
     def _get_lines(self, context):
-        context.scene["bf_first_mpi_process"] = 0  # FIXME FIXME FIXME
+        context.scene["bf_first_mpi_process"] = 0  # FIXME
         return context.collection.to_fds_list(context).to_string()
 
 

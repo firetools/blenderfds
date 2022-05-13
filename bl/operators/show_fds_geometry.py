@@ -45,10 +45,6 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
             utils.geometry.rm_tmp_objects()
             self.report({"ERROR"}, str(err))
             return {"CANCELLED"}
-        # except Exception as err: # FIXME
-        #     utils.geometry.rm_tmp_objects()
-        #     self.report({"ERROR"}, f"Unexpected error: {err}")
-        #     return {"CANCELLED"}
         else:
             utils.geometry.set_has_tmp(context=context, ob=ob)
             self.report({"INFO"}, "FDS geometry shown")

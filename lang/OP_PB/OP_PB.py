@@ -41,6 +41,8 @@ class OP_PB(BFParam):
     bpy_export_default = False
 
     def to_fds_list(self, context) -> FDSList:
+        if not self.get_exported(context):
+            return FDSList()
         ob = self.element
         hids, pbs, msgs = ob_to_pbs(context, ob, bf_pb=ob.bf_pb)
         match len(pbs):

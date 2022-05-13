@@ -36,9 +36,9 @@ class BFCollection:
         layer_collection = self.get_layer_collection(context)
         if self.hide_render or layer_collection.exclude:
             return FDSList()  # exclude from exporting
+        header = f"\n--- Blender Collection: <{self.name}>"
         obs = list(self.objects)
         obs.sort(key=lambda k: k.name)  # alphabetic by name
-        header = self != context.scene.collection and f"\n--- {self.name}"
         iterable = (ob.to_fds_list(context=context) for ob in obs)
         fds_list = FDSList(header=header, iterable=iterable)
         fds_list.extend(child.to_fds_list(context=context) for child in self.children)
