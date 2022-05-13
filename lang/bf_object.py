@@ -28,7 +28,8 @@ class BFObject:
         """
         if self.hide_render or self.bf_is_tmp or self.type != "MESH":
             return FDSList()
-        bpy.ops.object.mode_set(mode="OBJECT")
+        if self.mode == "EDIT":  # only in interactive
+            bpy.ops.object.mode_set(mode="OBJECT")
         return self.bf_namelist.to_fds_list(context)
 
     def from_fds(self, context, fds_namelist):
@@ -42,6 +43,7 @@ class BFObject:
         self.bf_namelist_cls = bf_namelist.__name__
         # Prevent default geometry (eg. XB=BBOX)
         self.bf_xb_export, self.bf_xyz_export, self.bf_pb_export = (False, False, False)
+        print(f"bf_namelist.from_fds self.bf_xb_export: {self.bf_xb_export}")  # FIXME
         # Import
         self.bf_namelist.from_fds(context, fds_namelist=fds_namelist)
 

@@ -22,7 +22,7 @@ def _load_post(self):
     # Check file format version
     bf_file_version = tuple(bpy.data.scenes[0].bf_file_version)
 
-    if bf_file_version < config.supported_file_version:
+    if bf_file_version < config.SUPPORTED_FILE_VERSION:
         # Fix old SURF namelist
         context = bpy.context
         for ob in bpy.data.objects:
@@ -55,7 +55,7 @@ def _load_post(self):
             type="ERROR",
         )
 
-    elif bf_file_version > config.supported_file_version:
+    elif bf_file_version > config.SUPPORTED_FILE_VERSION:
         bpy.ops.wm.bf_dialog(
             "INVOKE_DEFAULT",
             msg="Install latest BlenderFDS!",
@@ -68,7 +68,7 @@ def _load_post(self):
     utils.geometry.rm_tmp_objects()
 
     # Init FDS default materials
-    for k, v in config.default_mas.items():
+    for k, v in config.DEFAULT_MAS.items():
         ma = bpy.data.materials.get(k)  # k is ID
         if not ma:
             ma = bpy.data.materials.new(k)
@@ -99,7 +99,7 @@ def _save_pre(self):
     utils.geometry.rm_tmp_objects()
     # Set file format version
     for sc in bpy.data.scenes:
-        sc.bf_file_version = config.supported_file_version
+        sc.bf_file_version = config.SUPPORTED_FILE_VERSION
 
 
 @persistent

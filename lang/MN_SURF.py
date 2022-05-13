@@ -32,6 +32,6 @@ class MN_SURF(BFNamelistMa):
     )
 
     def get_exported(self, context):  # was in MP_namelist_cls
-        if self.element.name in config.default_mas:
+        if self.element.name in config.DEFAULT_MAS:
             return False
         return super().get_exported(context)

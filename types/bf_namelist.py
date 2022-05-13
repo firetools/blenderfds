@@ -290,7 +290,7 @@ class BFNamelistMa(BFNamelist):
     bpy_type = Material
 
     def get_exported(self, context):
-        if self.element.name in config.default_mas:
+        if self.element.name in config.DEFAULT_MAS:
             return False  # default fds material
         elif self.element.bf_surf_export:
             return True  # user requested
@@ -301,7 +301,7 @@ class BFNamelistMa(BFNamelist):
             
     def draw_header(self, context, layout, panel):
         ma = self.element
-        if self.bpy_export and ma.name not in config.default_mas:
+        if self.bpy_export and ma.name not in config.DEFAULT_MAS:
             layout.prop(self.element, self.bpy_export, icon_only=True)
         if self.description:
             panel.bl_label = f"FDS {self.label} ({self.description})"
@@ -312,7 +312,7 @@ class BFNamelistMa(BFNamelist):
         ma = self.element
         layout.operator("material.bf_show_fds_code", icon="HIDE_OFF")
         # Manage default Materials
-        if ma.name in config.default_mas:
+        if ma.name in config.DEFAULT_MAS:
             layout.label(text=f"Predefined {self.element.name} boundary condition")
             layout.prop(ma, "diffuse_color", text="RGB")
             return

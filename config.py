@@ -26,10 +26,10 @@ MIN_FACE_AREA = 1e-08
 MIN_INTERSECTION_LENGTH = 1e-05
 
 ## Supported file version
-supported_file_version = 5, 0, 0
+SUPPORTED_FILE_VERSION = 6, 0, 0
 
-## Default SURFs
-default_mas = {  # name: diffuse_color
+## Default SURF Materials
+DEFAULT_MAS = {  # name: diffuse_color
     "INERT": ((0.8, 0.8, 0.2, 1.0),),
     "HVAC": ((0.2, 0.2, 0.8, 0.5),),
     "MIRROR": ((1.0, 0.0, 1.0, 0.2),),
@@ -39,7 +39,7 @@ default_mas = {  # name: diffuse_color
 
 # FIXME check on doc
 ## Frequently used output QUANTITYs (FDS User's guide, table 16.3)
-quantities = (  # name, description, units, qtype, subject
+FDS_QUANTITIES = (  # name, description, units, qtype, subject
     ("ACTUATED SPRINKLERS", "Number of activated sprinklers", "", "D", "Det"),
     (
         "ADIABATIC SURFACE TEMPERATURE",
@@ -264,13 +264,13 @@ quantities = (  # name, description, units, qtype, subject
 )
 
 
-def get_quantity_items(qtype):
+def get_quantity_items(qtype):  # FIXME move to where it is needed
     """!
     Prepare quantity items for menus.
     """
     items = []
     # Generated like this: (("[Heat] NET HEAT FLUX", "NET HEAT FLUX (kW/m²)", "Description...",) ...)
-    for q in quantities:
+    for q in FDS_QUANTITIES:
         name, desc, units, allowed_qtype, subject = q
         if qtype in allowed_qtype:
             items.append((name, f"{subject} - {name} [{units}]", desc))
@@ -279,7 +279,7 @@ def get_quantity_items(qtype):
 
 
 ## Color table from FDS source code (data.f90)
-fds_colors = {
+FDS_COLORS = {
     "INVISIBLE": (255, 255, 255),
     "ALICE BLUE": (240, 248, 255),
     "ANTIQUE WHITE": (250, 235, 215),

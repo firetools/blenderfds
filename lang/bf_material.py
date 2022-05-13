@@ -153,7 +153,7 @@ class MP_COLOR(BFParam):  # only import
 
     def set_value(self, context, value):
         c = getattr(self.element, self.bpy_idname)
-        rgb = config.fds_colors.get(value)
+        rgb = config.FDS_COLORS.get(value)
         if not rgb:
             raise BFException(self, f"Unknown color <{value}>")
         c[0], c[1], c[2] = rgb[0] / 255.0, rgb[1] / 255.0, rgb[2] / 255.0
