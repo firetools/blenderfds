@@ -24,10 +24,12 @@ class SN_MULT(BFNamelistSc):
         fds_param = fds_namelist.get_fds_label(fds_label="ID", remove=True)
         if not fds_param:
             raise BFNotImported(self, f"Missing ID in: {fds_namelist}")
+
         # Prepare Scene dict
         if "bf_mult_coll" not in context.scene:
             context.scene["bf_mult_coll"] = dict()
         bf_mult_coll = context.scene["bf_mult_coll"]
+        
         # Set Scene dict by ID, eg. {"ob_mult": "A=3 B=4 C=5"}
         f90_params = " ".join((item.to_string() for item in fds_namelist))
         bf_mult_coll[fds_param.get_value()] = f90_params

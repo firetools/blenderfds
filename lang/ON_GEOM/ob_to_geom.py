@@ -97,7 +97,7 @@ def get_boundary_condition_ids(context, ob):  # used by GEOM
         if not ma:
             raise BFException(
                 ob,
-                f"Empty reference to boundary conditions, fill all Material slots",
+                f"Empty reference to boundary condition, fill all Material slots",
             )
         if not ma.bf_surf_export:
             raise BFException(ob, f"Referenced SURF <{ma.name}> is not exported")

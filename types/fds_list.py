@@ -233,7 +233,7 @@ class FDSNamelist(FDSList):
             if p is None:
                 continue
             fds_label, fds_values = p.fds_label, p.to_strings()
-            if not fds_values:  # fds_label only provided, probably preformatted
+            if not fds_values:  # fds_label only provided, probably preformatted (eg. BFParamOther)
                 lines = self._append_word(lines, word=fds_label)
             else:  # fds_label and its values provided
                 word = f"{fds_label}={','.join(fds_values)}"
@@ -381,7 +381,7 @@ class FDSParam(FDSList):
             case _:
                 raise ValueError(f"Unknown value type <{self[0]}> in {self}")
 
-    def to_string(self) -> str:
+    def to_string(self) -> str:  # used by SN_MULT and SN_MOVE when importing 
         """!
         Return the FDS formatted string.
         """
