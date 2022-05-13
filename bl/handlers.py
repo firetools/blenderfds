@@ -129,6 +129,6 @@ def register():
 
 def unregister():
     log.debug("Unregistering handlers...")
-    # depsgraph_update_post.remove(_depsgraph_update_post)  # FIXME why?
+    depsgraph_update_post.remove(_depsgraph_update_post)
     save_pre.remove(_save_pre)
     load_post.remove(_load_post)
