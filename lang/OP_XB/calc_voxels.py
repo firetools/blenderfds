@@ -5,7 +5,7 @@ BlenderFDS, voxelization algorithms.
 import bpy, bmesh, logging
 from math import floor, ceil
 from ...types import BFException
-from ... import utils
+from ... import utils, config
 
 log = logging.getLogger(__name__)
 
@@ -497,16 +497,16 @@ def _get_box_xbs(context, boxes, origin, voxel_size):
     @param voxel_size: the voxel size of the object.
     @return the xbs.
     """
-    epsilon = 1e-5
+    overlap = 10 ** (-config.LP)  # compatible with length precision
     scale_length = context.scene.unit_settings.scale_length
     return (
         (
-            (origin[0] + box[0] * voxel_size - epsilon) * scale_length,
-            (origin[0] + box[1] * voxel_size + epsilon) * scale_length,
-            (origin[1] + box[2] * voxel_size - epsilon) * scale_length,
-            (origin[1] + box[3] * voxel_size + epsilon) * scale_length,
-            (origin[2] + box[4] * voxel_size - epsilon) * scale_length,
-            (origin[2] + box[5] * voxel_size + epsilon) * scale_length,
+            (origin[0] + box[0] * voxel_size) * scale_length - overlap,
+            (origin[0] + box[1] * voxel_size) * scale_length + overlap,
+            (origin[1] + box[2] * voxel_size) * scale_length - overlap,
+            (origin[1] + box[3] * voxel_size) * scale_length + overlap,
+            (origin[2] + box[4] * voxel_size) * scale_length - overlap,
+            (origin[2] + box[5] * voxel_size) * scale_length + overlap,
         )
         for box in boxes
     )
