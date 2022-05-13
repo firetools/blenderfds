@@ -8,6 +8,8 @@ from bpy.types import Object
 from .. import utils
 from .. import config
 
+from ..lang.bf_material import MP_other
+
 log = logging.getLogger(__name__)
 
 
@@ -21,6 +23,31 @@ def _load_post(self):
     bf_file_version = tuple(bpy.data.scenes[0].bf_file_version)
 
     if bf_file_version < config.supported_file_version:
+        # Fix old SURF namelist
+        context = bpy.context
+        for ob in bpy.data.objects:
+            if ob.hide_viewport:
+                ob.hide_render = True
+        for ma in bpy.data.materials:
+            ma.bf_namelist_cls = "MN_SURF"
+            if ma.get("bf_thickness_export") and ma.get("bf_thickness"):
+                MP_other(ma).set_value(context, f"THICKNESS={ma['bf_thickness']:.3f}")
+            if ma.get("bf_hrrpua"):
+                MP_other(ma).set_value(context, f"HRRPUA={ma['bf_hrrpua']:.3f}")
+            if ma.get("bf_tau_q"):
+                MP_other(ma).set_value(context, f"TAU_Q={ma['bf_tau_q']:.1f}")
+            if ma.get("bf_matl_id_export") and ma.get("bf_matl_id"):
+                MP_other(ma).set_value(context, f"MATL_ID='{ma['bf_matl_id']}'")
+            if ma.get("bf_ignition_temperature_export") and ma.get(
+                "bf_ignition_temperature"
+            ):
+                MP_other(ma).set_value(
+                    context, f"IGNITION_TEMPERATURE={ma['bf_ignition_temperature']:.1f}"
+                )
+            if ma.get("bf_backing_export") and ma.get("bf_backing") != "EXPOSED":
+                MP_other(ma).set_value(context, f"BACKING='{ma['bf_backing']}'")
+
+        # Inform
         bpy.ops.wm.bf_dialog(
             "INVOKE_DEFAULT",
             msg="Check your data!",
