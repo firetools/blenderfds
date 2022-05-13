@@ -72,11 +72,21 @@ class BFNamelist(BFParam):
         """
         if self._bf_param_other_idx is not None:
             return self.bf_params[self._bf_param_other_idx]
-# FIXME add get_active
+
+    def get_active(self, context):
+        """!
+        Return True if self is active.
+        """
+        return True
+
     def get_exported(self, context):
         """!
         Return True if self is exported to FDS.
         """
+        # Check if active
+        if not self.get_active(context):
+            return False
+        # Check if bpy_export is True
         if self.bpy_export:
             return bool(getattr(self.element, self.bpy_export))
         return True
