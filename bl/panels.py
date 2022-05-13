@@ -294,29 +294,29 @@ class MATERIAL_PT_bf_namelist(Panel):
 #         SN_config(context.scene).draw_operators(context, layout)
 
 
-# class VIEW3D_PT_bf_ob_tools(Panel):
-#     """!
-#     Object tools
-#     """
+class VIEW3D_PT_bf_ob_tools(Panel):
+    """!
+    Object tools
+    """
 
-#     bl_idname = "VIEW3D_PT_bf_ob_tools"
-#     bl_context = "objectmode"
-#     bl_category = "FDS"
-#     bl_label = "FDS Tools"
-#     bl_space_type = "VIEW_3D"
-#     bl_region_type = "UI"
+    bl_idname = "VIEW3D_PT_bf_ob_tools"
+    bl_context = "objectmode"
+    bl_category = "FDS"
+    bl_label = "FDS Tools"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
 
-#     @classmethod
-#     def poll(cls, context):
-#         ob = context.object
-#         return ob and ob.type == "MESH" and not ob.bf_is_tmp  # TODO other types?
+    @classmethod
+    def poll(cls, context):
+        ob = context.object
+        return ob and ob.type == "MESH" and not ob.bf_is_tmp  # TODO other types?
 
-#     def draw(self, context):
-#         ob = context.object
-#         layout = self.layout
-#         layout.use_property_split = True
-#         layout.use_property_decorate = False
-#         ob.bf_namelist.draw_operators(context, layout)
+    def draw(self, context):
+        ob = context.object
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False
+        ob.bf_namelist.draw_operators(context, layout)
 
 
 class VIEW3D_PT_bf_mesh_clean_up(Panel):
@@ -408,6 +408,7 @@ bl_classes = [
     OBJECT_PT_MULT,
     MATERIAL_PT_bf_namelist,
     VIEW3D_PT_bf_mesh_clean_up,
+    VIEW3D_PT_bf_ob_tools,
     VIEW3D_PT_bf_geolocation,
 ]
 

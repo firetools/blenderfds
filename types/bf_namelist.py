@@ -95,7 +95,7 @@ class BFNamelist(BFParam):
         else:
             panel.bl_label = self.label
 
-    def draw_operators(self, context, layout):  # FIXME prepare panel
+    def draw_operators(self, context, layout):
         """!
         Draw my operators on layout.
         @param context: the Blender context.
