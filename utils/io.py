@@ -165,7 +165,6 @@ def get_abs_fds_path(sc) -> str:
     @return: absolute fds path.
     """
     fds_path = bpy.path.abspath(sc.bf_config_directory)
-    print(f"fds_path: {fds_path}")
     if not is_abs(fds_path):
         raise BFException(None, f"Unresolved relative path, save the Blender file")
     return fds_path

@@ -43,7 +43,6 @@ class BFObject:
         self.bf_namelist_cls = bf_namelist.__name__
         # Prevent default geometry (eg. XB=BBOX)
         self.bf_xb_export, self.bf_xyz_export, self.bf_pb_export = (False, False, False)
-        print(f"bf_namelist.from_fds self.bf_xb_export: {self.bf_xb_export}")  # FIXME
         # Import
         self.bf_namelist.from_fds(context, fds_namelist=fds_namelist)
 

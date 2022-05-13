@@ -110,8 +110,6 @@ class OP_XB(BFParam):
         )
         ob.bf_xb = bf_xb
         ob.bf_xb_export = True
-        print(f"{self.__class__.__name__}.from_fds: {ob.name} {ob.bf_xb_export}")  # FIXME
-
 
 
 class OP_XB_BBOX(OP_XB):  # should always work, even without bf_xb_export and bf_xb
