@@ -5,6 +5,9 @@ Split MESH parameters according to nsplits.
 """
 
 
+from ...types import BFException
+
+
 def split_cells(ncell, nsplit):
     """!
     Split ncell cells in nsplit parts, conserving the total number ncell of cells
@@ -32,6 +35,7 @@ def split_mesh(hid, ijk, export, nsplits, xb):
     jcells = split_cells(ijk[1], nsplits[1])
     kcells = split_cells(ijk[2], nsplits[2])
     ncell = icells[0] * jcells[0] * kcells[0]
+    expected_nsplits = nsplits[0] * nsplits[1] * nsplits[2]
     # Prepare new mesh ijks and origins (in cell number)
     corigins = list()
     corigin_i, corigin_j, corigin_k = 0, 0, 0
@@ -70,7 +74,9 @@ def split_mesh(hid, ijk, export, nsplits, xb):
         hids = tuple(f"{hid}_s{i}" for i in range(len(xbs)))
     else:
         hids = tuple((hid,))
-    return hids, ijks, xbs, ncell, cs, nsplit  # FIXME raise error if nsplit unexpected
+    if nsplit != expected_nsplits:
+        raise BFException(sender=None, msg="Too much splitting, not enough cells.")
+    return hids, ijks, xbs, ncell, cs, nsplit
 
 
 def test():
