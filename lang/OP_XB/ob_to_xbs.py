@@ -164,6 +164,6 @@ def ob_to_xbs(context, ob, bf_xb, world=True) -> tuple((list, list, list)):
             raise AssertionError(f"Unknown suffix <{ob.bf_id_suffix}>")
 
     # Multiply
-    hids, xbs, msgs, _ = multiply_xbs(context=context, ob=ob, hids=hids, xbs=xbs, msgs=msgs)
+    hids, xbs, msgs, _ = multiply_xbs(context=context, ob=ob, hids=hids, xbs=xbs, msgs=list(msgs))
 
     return tuple(hids), tuple(xbs), tuple(msgs)
