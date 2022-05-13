@@ -19,9 +19,9 @@ def update_bf_xb(ob, context):
     # Prevent double multiparam
     if ob.bf_xb in ("VOXELS", "FACES", "PIXELS", "EDGES") and ob.bf_xb_export:
         if ob.bf_xyz == "VERTICES":
-            ob.bf_xyz_export = False
+            ob["bf_xyz_export"] = False  # prevent multiple update
         if ob.bf_pb == "PLANES":
-            ob.bf_pb_export = False
+            ob["bf_pb_export"] = False
         return
 
 
@@ -64,7 +64,7 @@ class OP_XB_center_voxels(BFParam):
 
 class OP_XB(BFParam):
     label = "XB"
-    description = "Export as volumes/faces"
+    description = "Export as volumes/faces/edges"
     fds_label = "XB"
     bpy_type = Object
     bpy_idname = "bf_xb"
@@ -100,18 +100,21 @@ class OP_XB(BFParam):
                 return FDSMulti(iterable=iterable, msgs=msgs)
 
     def from_fds(self, context, value):
+        ob = self.element
         bf_xb = xbs_to_ob(
             context=context,
-            ob=self.element,
+            ob=ob,
             xbs=(value,),
             set_origin=True,
-            add=True,
+            add=True
         )
-        self.element.bf_xb = bf_xb
-        self.element.bf_xb_export = True
+        ob.bf_xb = bf_xb
+        ob.bf_xb_export = True
+        print(f"{self.__class__.__name__}.from_fds: {ob.name} {ob.bf_xb_export}")  # FIXME
 
 
-class OP_XB_BBOX(OP_XB):
+
+class OP_XB_BBOX(OP_XB):  # should always work, even without bf_xb_export and bf_xb
     label = "XB"
     description = "Export as object bounding box (BBOX)"
     fds_label = "XB"
@@ -119,19 +122,19 @@ class OP_XB_BBOX(OP_XB):
     bpy_idname = None
     bpy_export = None
 
-    def _get_geometry(self, context):
-        (ob,) = self.element
-        hids, xbs, msgs = ob_to_xbs(context=context, ob=ob, bf_xb=ob.bf_xb)
-        return ob, hids, xbs, msgs
+    def to_fds_list(self, context) -> FDSList:
+        ob = self.element
+        xb = utils.geometry.get_bbox_xb(context=context, ob=ob, world=True)
+        return FDSParam(fds_label="XB", value=xb, precision=LP)
 
-    def from_fds(self, context, value):
-        xbs_to_ob(
-            context=context,
-            ob=self.element,
-            xbs=(value,),
-            set_origin=True,
-            add=True,
-        )
+    # def from_fds(self, context, value):
+    #     xbs_to_ob(
+    #         context=context,
+    #         ob=self.element,
+    #         xbs=(value,),
+    #         set_origin=True,
+    #         add=True,
+    #     )
 
     def draw(self, context, layout):  # draw label only
         row = layout.split(factor=0.4)

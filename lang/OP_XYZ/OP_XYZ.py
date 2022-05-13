@@ -18,9 +18,9 @@ def update_bf_xyz(ob, context):
     # Prevent double multiparam
     if ob.bf_xyz == "VERTICES" and ob.bf_xyz_export:
         if ob.bf_xb in ("VOXELS", "FACES", "PIXELS", "EDGES"):
-            ob.bf_xb_export = False
+            ob["bf_xb_export"] = False  # prevent multiple update
         if ob.bf_pb == "PLANES":
-            ob.bf_pb_export = False
+            ob["bf_pb_export"] = False
         return
 
 
