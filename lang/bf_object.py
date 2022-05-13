@@ -1,4 +1,5 @@
 import logging
+import bpy
 from bpy.types import Object
 from bpy.props import EnumProperty, BoolProperty
 from .bf_material import MP_RGB, MP_COLOR, MP_TRANSPARENCY
@@ -27,6 +28,7 @@ class BFObject:
         """
         if self.hide_render or self.bf_is_tmp or self.type != "MESH":
             return FDSList()
+        bpy.ops.object.mode_set(mode="OBJECT")
         return self.bf_namelist.to_fds_list(context)
 
     def from_fds(self, context, fds_namelist):
