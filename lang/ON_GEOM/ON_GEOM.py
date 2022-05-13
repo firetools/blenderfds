@@ -26,8 +26,8 @@ class OP_GEOM_SURF_ID(BFParam):
     bpy_type = Object
 
     def get_value(self, context):
-        value = get_boundary_condition_ids(context=context, ob=self.element)
-        return value
+        # When empty send a None, and it is not exported
+        return get_boundary_condition_ids(context=context, ob=self.element) or None
 
     def set_value(self, context, value):
         # A single material is a string
@@ -49,7 +49,8 @@ class OP_GEOM_SURF_ID(BFParam):
         row.alignment = "RIGHT"
         row.label(text=self.label)
         row.alignment = "EXPAND"
-        text = ", ".join(self.get_value(context)) or "None"
+        value = self.get_value(context)
+        text = value and ", ".join(self.get_value(context)) or "None"
         row.label(text=text, icon="MATERIAL_DATA")
 
 
