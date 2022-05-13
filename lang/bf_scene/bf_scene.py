@@ -26,7 +26,7 @@ class BFScene:
         Return the FDSList instance from self, never None.
         """
         # Init MPI_PROCESS counter
-        self["bf_first_mpi_process"] = 0  # FIXME FIXME FIXME
+        self["bf_first_mpi_process"] = 0  # FIXME
 
         # Set mysef as the right Scene instance in the context
         # It is needed, because context.scene is needed elsewhere
@@ -34,7 +34,7 @@ class BFScene:
         fds_list = FDSList()
 
         if full:
-            export_helper.append_header(sc=self, fds_list=fds_list)
+            export_helper.append_header(context=context, sc=self, fds_list=fds_list)
 
         export_helper.append_sc_namelists(context=context, sc=self, fds_list=fds_list)
 
