@@ -29,15 +29,15 @@ def update_bf_mesh_nsplits(ob, context):
         utils.geometry.rm_tmp_objects()
 
 
-class OP_MESH_assign_MPI_PROCESS(BFParam):
-    label = "Assign MPI_PROCESS"
-    description = "Number of MESH instances per MPI processes"
+class OP_MESH_auto_MPI_PROCESS(BFParam):
+    label = "Auto MPI_PROCESS"
+    description = "Number of desired MESH instances for each MPI process"
     bpy_type = Object
-    bpy_idname = "bf_mesh_assign_mpi_process"
+    bpy_idname = "bf_mesh_auto_mpi_process"
     bpy_prop = IntProperty
     bpy_default = 1
     bpy_other = {"min": 1}
-    bpy_export = "bf_mesh_assign_mpi_process_export"
+    bpy_export = "bf_mesh_auto_mpi_process_export"
     bpy_export_default = False
 
 
@@ -73,9 +73,9 @@ class OP_MESH_XB_BBOX(OP_XB_BBOX):
         hids, ijks, mpis, xbs, msgs = get_mesh_geometry(context=context, ob=ob)
         match len(xbs):
             case 0:
-                return FDSList(                )
+                return FDSList()
             case 1:
-                return FDSParam(fds_label="XB", value=xbs[0], precision=LP)
+                return FDSParam(fds_label="XB", value=xbs[0], precision=LP, msgs=msgs)
             case _:
                 iterable = (
                     (FDSParam(fds_label="ID", value=hid) for hid in hids),
@@ -96,7 +96,7 @@ class ON_MESH(BFNamelistOb):
         OP_namelist_cls,
         OP_ID,
         OP_FYI,
-        OP_MESH_assign_MPI_PROCESS,
+        OP_MESH_auto_MPI_PROCESS,
         OP_MESH_IJK,
         OP_MESH_nsplits,
         OP_MESH_XB_BBOX,
