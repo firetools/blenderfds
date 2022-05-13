@@ -33,7 +33,7 @@ def _load_post(self):
             if ma.get("bf_thickness_export") and ma.get("bf_thickness"):
                 MP_other(ma).set_value(context, f"THICKNESS={ma['bf_thickness']:.3f}")
             if ma.get("bf_hrrpua"):
-                MP_other(ma).set_value(context, f"HRRPUA={ma['bf_hrrpua']:.3f}")
+                MP_other(ma).set_value(context, f"HRRPUA={ma['bf_hrrpua']:.1f}")
             if ma.get("bf_tau_q"):
                 MP_other(ma).set_value(context, f"TAU_Q={ma['bf_tau_q']:.1f}")
             if ma.get("bf_matl_id_export") and ma.get("bf_matl_id"):
