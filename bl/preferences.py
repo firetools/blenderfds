@@ -34,20 +34,6 @@ class BFPreferences(AddonPreferences):
         update=update_bf_pref_simplify_ui,
     )
 
-    min_edge_length: FloatProperty(  # FIXME remove
-        name="Min Edge Length",
-        description="Min allowed edge length",
-        default=1e-05,
-        unit="LENGTH",
-    )
-
-    min_face_area: FloatProperty(
-        name="Min Face Area",
-        description="Min allowed face area",
-        default=1e-07,
-        unit="AREA",
-    )
-
     def draw(self, context):
         """!
         Draw UI elements into the panel UI layout.
@@ -62,10 +48,6 @@ class BFPreferences(AddonPreferences):
         box.prop(self, "bf_pref_simplify_ui")
         box.prop(paths, "use_load_ui")
         box.prop(paths, "use_relative_paths")
-        box = layout.box()
-        box.label(text="Default Sizes and Thresholds")
-        box.prop(self, "min_edge_length")
-        box.prop(self, "min_face_area")
         return layout
 
 

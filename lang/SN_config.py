@@ -87,61 +87,6 @@ class SP_config_text_position(BFParam):
     }
 
 
-class SN_config(BFNamelistSc):
-    label = "FDS Case Config"
-    bf_params = (
-        SP_config_case_name,
-        SP_config_directory,
-        SP_config_text,
-        SP_config_text_position,
-    )
-
-    def draw(self, context, layout):
-        row = layout.column(align=True)
-        row.operator("scene.bf_show_fds_code", icon="HIDE_OFF")
-        return super().draw(context, layout)
-
-
-class SP_config_min_edge_length_export(BFParam):
-    label = "Use Custom Min Edge Length"
-    description = "Use custom min allowed edge length for current case"
-    bpy_type = Scene
-    bpy_idname = "bf_config_min_edge_length_export"
-    bpy_prop = BoolProperty
-    bpy_default = False
-
-
-class SP_config_min_edge_length(BFParam):
-    label = "Min Edge Length"
-    description = "Min allowed edge length for current case"
-    bpy_type = Scene
-    bpy_idname = "bf_config_min_edge_length"
-    bpy_prop = FloatProperty
-    bpy_default = 1e-05
-    bpy_other = {"unit": "LENGTH"}
-    bpy_export = "bf_config_min_edge_length_export"
-
-
-class SP_config_min_face_area_export(BFParam):
-    label = "Use Custom Min Face Area"
-    description = "Use custom min allowed face area for current case"
-    bpy_type = Scene
-    bpy_idname = "bf_config_min_face_area_export"
-    bpy_prop = BoolProperty
-    bpy_default = False
-
-
-class SP_config_min_face_area(BFParam):
-    label = "Min Face Area"
-    description = "Min allowed face area for current case"
-    bpy_type = Scene
-    bpy_idname = "bf_config_min_face_area"
-    bpy_prop = FloatProperty
-    bpy_default = 1e-08
-    bpy_other = {"unit": "AREA"}
-    bpy_export = "bf_config_min_face_area_export"
-
-
 class SP_config_default_voxel_size(BFParam):
     label = "Voxel/Pixel Size"
     description = "Default voxel/pixel resolution"
@@ -158,10 +103,17 @@ class SP_config_default_voxel_size(BFParam):
     }
 
 
-class SN_config_sizes(BFNamelistSc):
-    label = "Default Sizes and Thresholds"
+class SN_config(BFNamelistSc):
+    label = "FDS Case Config"
     bf_params = (
-        SP_config_min_edge_length,
-        SP_config_min_face_area,
+        SP_config_case_name,
+        SP_config_directory,
+        SP_config_text,
+        SP_config_text_position,
         SP_config_default_voxel_size,
     )
+
+    def draw(self, context, layout):
+        row = layout.column(align=True)
+        row.operator("scene.bf_show_fds_code", icon="HIDE_OFF")
+        return super().draw(context, layout)

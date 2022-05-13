@@ -3,7 +3,7 @@ BlenderFDS, panel class extensions.
 """
 
 from bpy.types import Panel
-from ..lang.SN_config import SN_config, SN_config_sizes
+from ..lang.SN_config import SN_config
 from ..lang.SN_HEAD import SN_HEAD
 from ..lang.SN_TIME import SN_TIME
 from ..lang.SN_MISC import SN_MISC
@@ -137,16 +137,6 @@ class SCENE_PT_bf_namelist_DUMP(Panel, _SCENE_PT_bf_namelist):
 
     bf_namelist = SN_DUMP
     bl_label = "FDS DUMP"
-    bl_options = {"DEFAULT_CLOSED"}
-
-
-class SCENE_PT_bf_config_sizes(Panel, _SCENE_PT_bf_namelist):
-    """!
-    FDS Default Sizes and Thresholds
-    """
-
-    bf_namelist = SN_config_sizes
-    bl_label = "FDS Default Sizes and Thresholds"
     bl_options = {"DEFAULT_CLOSED"}
 
 
@@ -294,7 +284,7 @@ class MATERIAL_PT_bf_namelist(Panel):
 #         SN_config(context.scene).draw_operators(context, layout)
 
 
-class VIEW3D_PT_bf_ob_tools(Panel):
+class VIEW3D_PT_bf_ob_tools(Panel):  # FIXME add all tools!
     """!
     Object tools
     """
@@ -402,7 +392,6 @@ bl_classes = [
     SCENE_PT_bf_namelist_RADI,
     SCENE_PT_bf_namelist_PRES,
     SCENE_PT_bf_namelist_DUMP,
-    SCENE_PT_bf_config_sizes,
     COLLECTION_PT_bf_config,
     OBJECT_PT_bf_namelist,
     OBJECT_PT_MULT,

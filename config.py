@@ -18,11 +18,12 @@ MAXLEN = 80
 ## number of columns for second line indent
 INDENT = 6
 
-# FIXME rm min_edge_length min_face_area
 ## min edge length
 MIN_EDGE_LENGTH = 1e-05
 ## min face area
-MIN_FACE_AREA = 1e-07
+MIN_FACE_AREA = 1e-08
+## min intersection length
+MIN_INTERSECTION_LENGTH = 1e-05
 
 ## Supported file version
 supported_file_version = 5, 0, 0

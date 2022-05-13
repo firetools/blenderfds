@@ -3,7 +3,7 @@ BlenderFDS, translate Blender object geometry to FDS GEOM notation.
 """
 
 import bpy, bmesh, mathutils, logging
-from ... import utils
+from ... import utils, config
 from ...types import BFException
 from . import bingeom
 
@@ -124,24 +124,6 @@ def check_geom_sanity(context, ob, protect, is_open):
     bm.free()
 
 
-def _get_epsilons(context):
-    """!
-    Get epsilons for geometry sanity checks.
-    @param context: the Blender context.
-    @return min_edge_length, min_face_area
-    """
-    sc = context.scene
-    prefs = context.preferences.addons[__package__.split(".")[0]].preferences
-    return (
-        sc.bf_config_min_edge_length_export
-        and sc.bf_config_min_edge_length
-        or prefs.min_edge_length,
-        sc.bf_config_min_face_area_export
-        and sc.bf_config_min_face_area
-        or prefs.min_face_area,
-    )  # min_edge_length, min_face_area
-
-
 def _is_bm_sane(context, ob, bm, protect, is_open):
     """!
     Check that bmesh is a closed orientable manifold, with no degenerate geometry.
@@ -151,14 +133,13 @@ def _is_bm_sane(context, ob, bm, protect, is_open):
     @param protect: if True raise BFException without context modifications.
     @param is_open: True if bmesh should be open.
     """
-    epsilon_len, epsilon_area = _get_epsilons(context)
     _has_manifold_verts(context, ob, bm, protect)
     if not is_open:
         _has_manifold_edges(context, ob, bm, protect)
-    _has_no_degenerate_edges(context, ob, bm, protect, epsilon_len=epsilon_len)
-    _has_no_degenerate_faces(context, ob, bm, protect, epsilon_area=epsilon_area)
+    _has_no_degenerate_edges(context, ob, bm, protect)
+    _has_no_degenerate_faces(context, ob, bm, protect)
     _has_loose_vertices(context, ob, bm, protect)
-    _has_duplicate_vertices(context, ob, bm, protect, epsilon_len=epsilon_len)
+    _has_duplicate_vertices(context, ob, bm, protect)
     _has_inconsistent_normals(context, ob, bm, protect)
     if not is_open:
         _has_inverted_normals(context, ob, bm, protect)
@@ -239,11 +220,12 @@ def _has_inverted_normals(context, ob, bm, protect):
         _raise_bad_geometry(context, ob, bm, msg, protect)
 
 
-def _has_no_degenerate_edges(context, ob, bm, protect, epsilon_len):
+def _has_no_degenerate_edges(context, ob, bm, protect):
     """!
     Check no degenerate edges, zero lenght edges.
     """
     bad_edges = list()
+    epsilon_len = config.MIN_EDGE_LENGTH
     for edge in bm.edges:
         if edge.calc_length() <= epsilon_len:
             bad_edges.append(edge)
@@ -252,11 +234,12 @@ def _has_no_degenerate_edges(context, ob, bm, protect, epsilon_len):
         _raise_bad_geometry(context, ob, bm, msg, protect, bad_edges=bad_edges)
 
 
-def _has_no_degenerate_faces(context, ob, bm, protect, epsilon_area):
+def _has_no_degenerate_faces(context, ob, bm, protect):
     """!
     Check degenerate faces, zero area faces.
     """
     bad_faces = list()
+    epsilon_area = config.MIN_FACE_AREA
     for face in bm.faces:
         if face.calc_area() <= epsilon_area:
             bad_faces.append(face)
@@ -278,11 +261,12 @@ def _has_loose_vertices(context, ob, bm, protect):
         _raise_bad_geometry(context, ob, bm, msg, protect, bad_verts=bad_verts)
 
 
-def _has_duplicate_vertices(context, ob, bm, protect, epsilon_len):
+def _has_duplicate_vertices(context, ob, bm, protect):
     """!
     Check duplicate vertices.
     """
     bad_verts = list()
+    epsilon_len = config.MIN_EDGE_LENGTH
     size = len(bm.verts)
     kd = mathutils.kdtree.KDTree(size)  # create a kd-tree from a mesh
     for i, vert in enumerate(bm.verts):
@@ -314,12 +298,12 @@ def check_intersections(context, ob, other_obs=None, protect=True):
     # log.debug(f"Check intersections in Object <{ob.name}>")
     if context.object:
         bpy.ops.object.mode_set(mode="OBJECT")
-    epsilon_len = context.scene.bf_config_min_edge_length
+    epsilon_int = config.MIN_INTERSECTION_LENGTH
     bad_faces = list()
     bm = utils.geometry.get_object_bmesh(
         context=context, ob=ob, world=False, lookup=True
     )
-    tree = mathutils.bvhtree.BVHTree.FromBMesh(bm, epsilon=epsilon_len)
+    tree = mathutils.bvhtree.BVHTree.FromBMesh(bm, epsilon=epsilon_int)
     # Get self-intersections
     bad_faces.extend(_get_bm_intersected_faces(bm, tree, tree))
     # Get intersections
@@ -328,7 +312,7 @@ def check_intersections(context, ob, other_obs=None, protect=True):
         other_bm = utils.geometry.get_object_bmesh(
             context=context, ob=ob, world=False, matrix=matrix, lookup=True
         )
-        other_tree = mathutils.bvhtree.BVHTree.FromBMesh(other_bm, epsilon=epsilon_len)
+        other_tree = mathutils.bvhtree.BVHTree.FromBMesh(other_bm, epsilon=epsilon_int)
         other_bm.free()
         bad_faces.extend(_get_bm_intersected_faces(bm, tree, other_tree))
     # Raise
