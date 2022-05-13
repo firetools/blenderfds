@@ -284,15 +284,15 @@ class MATERIAL_PT_bf_namelist(Panel):
 #         SN_config(context.scene).draw_operators(context, layout)
 
 
-class VIEW3D_PT_bf_ob_tools(Panel):  # FIXME add all tools!
+class VIEW3D_PT_bf_ob_utils(Panel):
     """!
-    Object tools
+    Object utils
     """
 
-    bl_idname = "VIEW3D_PT_bf_ob_tools"
+    bl_idname = "VIEW3D_PT_bf_ob_utils"
     bl_context = "objectmode"
     bl_category = "FDS"
-    bl_label = "FDS Tools"
+    bl_label = "FDS Utils"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
 
@@ -397,7 +397,7 @@ bl_classes = [
     OBJECT_PT_MULT,
     MATERIAL_PT_bf_namelist,
     VIEW3D_PT_bf_mesh_clean_up,
-    VIEW3D_PT_bf_ob_tools,
+    VIEW3D_PT_bf_ob_utils,
     VIEW3D_PT_bf_geolocation,
 ]
 
