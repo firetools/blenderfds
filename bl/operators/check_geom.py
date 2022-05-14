@@ -23,12 +23,12 @@ class OBJECT_OT_bf_check_intersections(Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.active_object
+        return context.object
 
     def execute(self, context):
         w = context.window_manager.windows[0]
         w.cursor_modal_set("WAIT")
-        ob = context.active_object
+        ob = context.object
         obs = context.selected_objects
         if obs:
             obs.remove(ob)
@@ -55,12 +55,12 @@ class SCENE_OT_bf_check_sanity(Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.active_object
+        return context.object
 
     def execute(self, context):
         w = context.window_manager.windows[0]
         w.cursor_modal_set("WAIT")
-        ob = context.active_object
+        ob = context.object
         try:
             lang.ON_GEOM.check_geom_sanity(
                 context,

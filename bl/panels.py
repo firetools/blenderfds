@@ -329,7 +329,7 @@ class VIEW3D_PT_bf_mesh_clean_up(Panel):
         @param context: the Blender context.
         @return current object
         """
-        ob = context.active_object
+        ob = context.object
         return ob and ob.type == "MESH"
 
     def draw(self, context):

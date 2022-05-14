@@ -23,7 +23,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
 
     @classmethod
     def poll(cls, context):
-        ob = context.active_object  # FIXME object or active?
+        ob = context.object  # object or active_object? always object
         return ob and not ob.bf_is_tmp and not ob.bf_has_tmp
 
     def execute(self, context):
@@ -31,7 +31,7 @@ class OBJECT_OT_bf_show_fds_geometry(Operator):
         w = context.window_manager.windows[0]
         w.cursor_modal_set("WAIT")
         sc = context.scene
-        ob = context.active_object
+        ob = context.object
 
         # Export and import back as temporary geometry
         try:

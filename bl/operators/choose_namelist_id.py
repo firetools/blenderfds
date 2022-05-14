@@ -55,11 +55,11 @@ class MATERIAL_OT_bf_choose_matl_id(Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.active_object and context.active_object.active_material
+        return context.object and context.object.active_material
 
     def execute(self, context):
         if self.bf_matl_id:
-            ma = context.active_object.active_material
+            ma = context.object.active_material
             ma.bf_matl_id = self.bf_matl_id
             self.report({"INFO"}, "MATL_ID parameter set")
             return {"FINISHED"}
@@ -68,7 +68,7 @@ class MATERIAL_OT_bf_choose_matl_id(Operator):
             return {"CANCELLED"}
 
     def invoke(self, context, event):
-        ma = context.active_object.active_material
+        ma = context.object.active_material
         try:
             self.bf_matl_id = ma.bf_matl_id
         except TypeError:
@@ -101,11 +101,11 @@ class OBJECT_OT_bf_choose_devc_prop_id(Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.active_object
+        return context.object
 
     def execute(self, context):
         if self.bf_devc_prop_id:
-            ob = context.active_object
+            ob = context.object
             ob.bf_devc_prop_id = self.bf_devc_prop_id
             self.report({"INFO"}, "PROP_ID parameter set")
             return {"FINISHED"}
@@ -114,7 +114,7 @@ class OBJECT_OT_bf_choose_devc_prop_id(Operator):
             return {"CANCELLED"}
 
     def invoke(self, context, event):
-        ob = context.active_object
+        ob = context.object
         try:
             self.bf_devc_prop_id = ob.bf_devc_prop_id
         except TypeError:
@@ -148,14 +148,18 @@ class OBJECT_OT_bf_choose_devc_quantity(Operator):
         items=_get_quantity_items(qtype="D"),
     )
 
+    @classmethod
+    def poll(cls, context):
+        return context.object
+
     def execute(self, context):
-        ob = context.active_object
+        ob = context.object
         ob.bf_quantity = self.bf_quantity
         self.report({"INFO"}, "QUANTITY parameter set")
         return {"FINISHED"}
 
     def invoke(self, context, event):
-        ob = context.active_object
+        ob = context.object
         try:
             self.bf_quantity = ob.bf_quantity  # Manage None
         except TypeError:

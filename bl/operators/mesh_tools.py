@@ -43,7 +43,7 @@ class OBJECT_OT_bf_set_mesh_cell_size(Operator):
         @param context: the Blender context.
         @return True if operator can be called, False otherwise.
         """
-        ob = context.active_object
+        ob = context.object
         return ob and ob.bf_namelist_cls == "ON_MESH"
 
     def draw(self, context):
@@ -56,7 +56,7 @@ class OBJECT_OT_bf_set_mesh_cell_size(Operator):
         layout.prop(self, "bf_poisson_restriction")
 
     def invoke(self, context, event):
-        ob = context.active_object
+        ob = context.object
         # Set default
         self.bf_cell_sizes = lang.ON_MESH.get_cell_sizes(context, ob)
         # Call dialog
@@ -64,7 +64,7 @@ class OBJECT_OT_bf_set_mesh_cell_size(Operator):
         return wm.invoke_props_dialog(self)
 
     def execute(self, context):
-        ob = context.active_object
+        ob = context.object
         ob.bf_xb, ob.bf_xb_export = "BBOX", True
         ob.bf_mesh_ijk = lang.ON_MESH.get_ijk_from_desired_cs(
             context, ob, self.bf_cell_sizes, self.bf_poisson_restriction
@@ -81,7 +81,7 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
 
     @classmethod
     def poll(cls, context):
-        ob = context.active_object
+        ob = context.object
         return ob and ob.bf_namelist_cls == "ON_MESH"
 
     def invoke(self, context, event):  # Ask for confirmation
@@ -91,7 +91,7 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
     def execute(self, context):
         bpy.ops.object.mode_set(mode="OBJECT")
         # Get source and destination objects
-        source_element = context.active_object
+        source_element = context.object
         dest_elements = set(
             ob
             for ob in context.selected_objects

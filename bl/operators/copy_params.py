@@ -79,7 +79,7 @@ class OBJECT_OT_bf_copy_FDS_properties_to_sel_obs(Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.active_object
+        return context.object
 
     def invoke(self, context, event):
         # Ask for confirmation
@@ -89,7 +89,7 @@ class OBJECT_OT_bf_copy_FDS_properties_to_sel_obs(Operator):
     def execute(self, context):
         bpy.ops.object.mode_set(mode="OBJECT")
         # Get source and destination objects
-        source_element = context.active_object
+        source_element = context.object
         dest_elements = set(
             ob
             for ob in context.selected_objects
@@ -122,7 +122,7 @@ class MATERIAL_OT_bf_assign_BC_to_sel_obs(Operator):
 
     @classmethod
     def poll(cls, context):
-        source_element = context.active_object
+        source_element = context.object
         active_material = source_element.active_material
         return source_element and active_material
 
@@ -134,7 +134,7 @@ class MATERIAL_OT_bf_assign_BC_to_sel_obs(Operator):
     def execute(self, context):
         bpy.ops.object.mode_set(mode="OBJECT", toggle=False)
         # Get source and destination materials
-        source_element = context.active_object
+        source_element = context.object
         active_material = source_element.active_material
         dest_elements = set(
             ob

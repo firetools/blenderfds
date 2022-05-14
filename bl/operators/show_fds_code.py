@@ -104,11 +104,11 @@ class OBJECT_OT_bf_show_fds_code(_show_fds_code, Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.active_object
+        return context.object
 
     def _get_lines(self, context):
-        context.scene["bf_first_mpi_process"] = 0  # FIXME bf_first_mpi_process
-        return context.active_object.to_fds_list(context).to_string()
+        context.scene["bf_first_mpi_process"] = 0  # TODO bf_first_mpi_process
+        return context.object.to_fds_list(context).to_string()
 
 
 class COLLECTION_OT_bf_show_fds_code(_show_fds_code, Operator):
@@ -125,7 +125,7 @@ class COLLECTION_OT_bf_show_fds_code(_show_fds_code, Operator):
         return context.collection
 
     def _get_lines(self, context):
-        context.scene["bf_first_mpi_process"] = 0  # FIXME
+        context.scene["bf_first_mpi_process"] = 0  # TODO
         return context.collection.to_fds_list(context).to_string()
 
 
@@ -140,10 +140,10 @@ class MATERIAL_OT_bf_show_fds_code(_show_fds_code, Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.active_object and context.active_object.active_material
+        return context.object and context.object.active_material
 
     def _get_lines(self, context):
-        return context.active_object.active_material.to_fds_list(context).to_string()
+        return context.object.active_material.to_fds_list(context).to_string()
 
 
 class SCENE_OT_bf_show_fds_code(_show_fds_code, Operator):

@@ -96,7 +96,7 @@ class PROPERTIES_PT_navigation_bar_bf(Panel):
     bl_options = {"HIDE_HEADER"}
 
     def draw(self, context):
-        ob = context.active_object
+        ob = context.object
 
         layout = self.layout
         view = context.space_data

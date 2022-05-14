@@ -138,13 +138,13 @@ class SCENE_OT_bf_set_ob_geoloc(Operator, _bf_set_geoloc):
 
     @classmethod
     def poll(cls, context):
-        return context.active_object
+        return context.object
 
     def _get_loc(self, context):
-        return context.active_object.location
+        return context.object.location
 
     def _set_loc(self, context, xyz):
-        context.active_object.location = xyz
+        context.object.location = xyz
 
 
 bl_classes = [
