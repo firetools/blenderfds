@@ -423,11 +423,6 @@ class _OPSlotAdd:
     bpy_idname = "bf_other"
 
     def set_item(self, context, item):
-        """!
-        Set item in the new slot.
-        @param context: the <a href="https://docs.blender.org/api/current/bpy.context.html">blender context</a>.
-        @param item: TODO
-        """
         pass
 
     def execute(self, context):

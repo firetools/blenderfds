@@ -400,7 +400,7 @@ class ON_MULT(BFNamelist):  # not in namelist menu
         OP_MULT_N_UPPER,
     )
 
-    def draw(self, context, layout):  # FIXME feedback if DXB used
+    def draw(self, context, layout):  # TODO feedback if DXB used
         ob = self.element
 
         row = layout.row(align=True)

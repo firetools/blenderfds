@@ -26,7 +26,7 @@ class BFScene:
         Return the FDSList instance from self, never None.
         """
         # Init MPI_PROCESS counter
-        self["bf_first_mpi_process"] = 0  # FIXME
+        self["bf_first_mpi_process"] = 0  # TODO
 
         # Set mysef as the right Scene instance in the context
         # It is needed, because context.scene is needed elsewhere
@@ -144,7 +144,7 @@ class BFScene:
                 fds_list=fds_list,
                 fds_label=fds_label,
                 co_description=co_description,
-                set_tmp=set_tmp,  # FIXME or Scene var?
+                set_tmp=set_tmp,  # TODO or Scene var?
             )
 
         # Restore fds case dir, to avoid overwriting imported case

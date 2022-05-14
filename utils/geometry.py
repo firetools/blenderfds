@@ -52,8 +52,6 @@ def get_object_bmesh(
     # Check object and init
     if ob.type not in {"MESH", "CURVE", "SURFACE", "FONT", "META"}:
         raise BFException(ob, "Object cannnot be converted into mesh")
-    # if context.object:
-    #    bpy.ops.object.mode_set(mode="OBJECT")  # actualize TODO not allowed in panel calls
     # Get evaluated bmesh from ob
     bm = bmesh.new()
     depsgraph = context.evaluated_depsgraph_get()

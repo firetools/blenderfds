@@ -67,7 +67,7 @@ def get_cell_sizes(context, ob):  # used by: mesh_tools.py
 
 def get_mpis(context, ob, nmesh):
     mpis, nmpi = list(), 1
-    if ob.bf_mesh_auto_mpi_process_export:  # FIXME
+    if ob.bf_mesh_auto_mpi_process_export:  # TODO
         sc = context.scene
         first_mpi = sc.get("bf_first_mpi_process", 0)
         bf_mesh_auto_mpi_process = ob.bf_mesh_auto_mpi_process

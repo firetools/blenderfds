@@ -72,7 +72,7 @@ def scene_to_ge1(context, scene):
         and ob.bf_namelist_cls in allowed_nls  # show only allowed namelists
         and (ob.active_material and ob.active_material.name != "OPEN")  # no OPEN
     )
-    # Get GE1 faces from selected objects  # TODO use dummy color for HOLE
+    # Get GE1 faces from selected objects
     gefaces = list()
     for ob in obs:
         # Get the bmesh from the Object and triangulate

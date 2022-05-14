@@ -27,7 +27,7 @@ class BFPreferences(AddonPreferences):
 
     bl_idname = __package__.split(".")[0]
 
-    bf_pref_simplify_ui: BoolProperty(  # TODO remove bf_
+    bf_pref_simplify_ui: BoolProperty(
         name="Simplify UI",
         description="Simplify BlenderFDS user interface",
         default=True,

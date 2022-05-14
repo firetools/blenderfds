@@ -66,7 +66,7 @@ class SP_origin_geoname(BFParam):
 
     def draw(self, context, layout):
         sc = self.element
-        exported = sc.bf_origin_export  # FIXME cleaner
+        exported = sc.bf_origin_export  # TODO cleaner
         url = utils.gis.LonLat(lon=sc.bf_origin_lon, lat=sc.bf_origin_lat).to_url()
         col = layout.column(align=True, heading="Origin Geolocation")
         row = col.row(align=True)

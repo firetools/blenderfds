@@ -88,14 +88,6 @@ class ON_MOVE(BFNamelist):  # not in namelist menu
         )
         utils.geometry.transform_ob(ob=self.element, m=m, force_othogonal=False)
 
-        # Read all other remaining params (eg. any?)
-        # super().from_fds(context, fds_namelist, fds_label)
-
-        # TODO from_fds should return True if Ok
-        # if super().from_fds(context, fds_namelist, fds_label="T34"):
-        #     return
-
-
 # Called by other namelists
 # that support a MOVE_ID
 # and the relative MOVE namelist

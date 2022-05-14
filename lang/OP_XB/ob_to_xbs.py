@@ -12,7 +12,7 @@ from .calc_pixels import get_pixels
 
 log = logging.getLogger(__name__)
 
-# TODO world not used
+# TODO world not applied
 def _ob_to_xbs_voxels(context, ob, world) -> tuple((list, list)):
     """!
     Transform Object solid geometry to xbs notation (voxelization).
@@ -28,7 +28,7 @@ def _ob_to_xbs_voxels(context, ob, world) -> tuple((list, list)):
     return xbs, msgs
 
 
-# TODO world not used
+# TODO world not applied
 def _ob_to_xbs_pixels(context, ob, world) -> tuple((list, list)):
     """!
     Transform Object flat geometry to xbs notation (flat voxelization).

@@ -241,9 +241,9 @@ def zn_ne_to_epsg(zn, ne):
 
 def epsg_to_code(epsg):
     """!
-    TODO
+    Conversion from EPSG to code.
     @param epsg: EPSG.
-    @return TODO
+    @return the code.
     """
     code = _, code = epsg.split(":")
     return code
@@ -382,7 +382,7 @@ class UTM:
     def __repr__(self):
         """!
         Representation of the class.
-        @return TODO
+        @return UTM string
         """
         return f"UTM({self.zn}, {self.ne}, {self.easting}, {self.northing}, {self.elevation})"
 
@@ -450,7 +450,7 @@ class LonLat:
     def __repr__(self):
         """!
         Representation of the class.
-        @return TODO
+        @return LonLat string
         """
         return f"LonLat({self.lon}, {self.lat}, {self.elevation})"
 
