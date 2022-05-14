@@ -5,8 +5,6 @@ from . import bingeom
 
 log = logging.getLogger(__name__)
 
-epsilon = 1e-5  # TODO unify epsilon mgmt
-
 
 def geom_to_ob(context, ob, fds_verts=None, fds_faces=None, fds_surfs=None, fds_faces_surfs=None, filepath=None) -> None:
     """!

@@ -4,11 +4,12 @@ BlenderFDS, translate geometry from FDS XB notation to a Blender mesh.
 
 import bmesh, logging
 from mathutils import Matrix, Vector
+from ... import config
 from ...types import BFException
 
 log = logging.getLogger(__name__)
 
-EPSILON = 1e-5  # TODO unify epsilon mgmt
+EFD = config.FLAT_DIFFERENCE
 
 
 def _xbs_edges_to_bm(bm, xbs, scale_length):
@@ -21,17 +22,17 @@ def _xbs_edges_to_bm(bm, xbs, scale_length):
 def _xbs_faces_to_bm(bm, xbs, scale_length):
     for xb in xbs:
         x0, x1, y0, y1, z0, z1 = (c / scale_length for c in xb)
-        if abs(x1 - x0) <= EPSILON:  # i face
+        if abs(x1 - x0) <= EFD:  # i face
             v0 = bm.verts.new((x0, y0, z0))
             v1 = bm.verts.new((x0, y1, z0))
             v2 = bm.verts.new((x0, y1, z1))
             v3 = bm.verts.new((x0, y0, z1))
-        elif abs(y1 - y0) <= EPSILON:  # j face
+        elif abs(y1 - y0) <= EFD:  # j face
             v0 = bm.verts.new((x0, y0, z0))
             v1 = bm.verts.new((x1, y0, z0))
             v2 = bm.verts.new((x1, y0, z1))
             v3 = bm.verts.new((x0, y0, z1))
-        elif abs(z1 - z0) <= EPSILON:  # k face
+        elif abs(z1 - z0) <= EFD:  # k face
             v0 = bm.verts.new((x0, y0, z0))
             v1 = bm.verts.new((x0, y1, z0))
             v2 = bm.verts.new((x1, y1, z0))
@@ -64,7 +65,7 @@ def _is_faces(xbs, scale_length):
     """
     for xb in xbs:
         x0, x1, y0, y1, z0, z1 = (c / scale_length for c in xb)
-        if abs(x1 - x0) > EPSILON and abs(y1 - y0) > EPSILON and abs(z1 - z0) > EPSILON:
+        if abs(x1 - x0) > EFD and abs(y1 - y0) > EFD and abs(z1 - z0) > EFD:
             return False
     return True
 

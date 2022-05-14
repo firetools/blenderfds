@@ -9,6 +9,9 @@ from . import bingeom
 
 log = logging.getLogger(__name__)
 
+EEL = config.MIN_EDGE_LENGTH
+EFA = config.MIN_FACE_AREA
+EIL = config.MIN_INTERSECTION_LENGTH
 
 def ob_to_geom(context, ob, check, is_open, world, filepath=None):
     """!
@@ -225,9 +228,9 @@ def _has_no_degenerate_edges(context, ob, bm, protect):
     Check no degenerate edges, zero lenght edges.
     """
     bad_edges = list()
-    epsilon_len = config.MIN_EDGE_LENGTH
+    
     for edge in bm.edges:
-        if edge.calc_length() <= epsilon_len:
+        if edge.calc_length() <= EEL:
             bad_edges.append(edge)
     if bad_edges:
         msg = f"Bad geometry: Too short edges detected ({len(bad_edges)} edges)."
@@ -239,9 +242,8 @@ def _has_no_degenerate_faces(context, ob, bm, protect):
     Check degenerate faces, zero area faces.
     """
     bad_faces = list()
-    epsilon_area = config.MIN_FACE_AREA
     for face in bm.faces:
-        if face.calc_area() <= epsilon_area:
+        if face.calc_area() <= EFA:
             bad_faces.append(face)
     if bad_faces:
         msg = f"Bad geometry: Too small area faces detected ({len(bad_faces)} faces)."
@@ -266,7 +268,6 @@ def _has_duplicate_vertices(context, ob, bm, protect):
     Check duplicate vertices.
     """
     bad_verts = list()
-    epsilon_len = config.MIN_EDGE_LENGTH
     size = len(bm.verts)
     kd = mathutils.kdtree.KDTree(size)  # create a kd-tree from a mesh
     for i, vert in enumerate(bm.verts):
@@ -274,7 +275,7 @@ def _has_duplicate_vertices(context, ob, bm, protect):
     kd.balance()
     for vert in bm.verts:
         vert_group = list()
-        for (_, i, _) in kd.find_range(vert.co, epsilon_len):
+        for (_, i, _) in kd.find_range(vert.co, EEL):
             vert_group.append(i)
         if len(vert_group) > 1:
             for i in vert_group:
@@ -298,12 +299,11 @@ def check_intersections(context, ob, other_obs=None, protect=True):
     # log.debug(f"Check intersections in Object <{ob.name}>")
     if context.object:
         bpy.ops.object.mode_set(mode="OBJECT")
-    epsilon_int = config.MIN_INTERSECTION_LENGTH
     bad_faces = list()
     bm = utils.geometry.get_object_bmesh(
         context=context, ob=ob, world=False, lookup=True
     )
-    tree = mathutils.bvhtree.BVHTree.FromBMesh(bm, epsilon=epsilon_int)
+    tree = mathutils.bvhtree.BVHTree.FromBMesh(bm, epsilon=EIL)
     # Get self-intersections
     bad_faces.extend(_get_bm_intersected_faces(bm, tree, tree))
     # Get intersections
@@ -312,7 +312,7 @@ def check_intersections(context, ob, other_obs=None, protect=True):
         other_bm = utils.geometry.get_object_bmesh(
             context=context, ob=ob, world=False, matrix=matrix, lookup=True
         )
-        other_tree = mathutils.bvhtree.BVHTree.FromBMesh(other_bm, epsilon=epsilon_int)
+        other_tree = mathutils.bvhtree.BVHTree.FromBMesh(other_bm, epsilon=EIL)
         other_bm.free()
         bad_faces.extend(_get_bm_intersected_faces(bm, tree, other_tree))
     # Raise

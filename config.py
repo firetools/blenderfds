@@ -1,4 +1,3 @@
-# TODO
 # from . import bl_info
 # module = bl_info['name']
 # PKG = __package__
@@ -24,6 +23,9 @@ MIN_EDGE_LENGTH = 1e-05
 MIN_FACE_AREA = 1e-08
 ## min intersection length
 MIN_INTERSECTION_LENGTH = 1e-05
+## flat face difference
+FLAT_DIFFERENCE = 1e-03
+
 
 ## Supported file version
 SUPPORTED_FILE_VERSION = 6, 0, 0

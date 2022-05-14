@@ -3,11 +3,13 @@ BlenderFDS, translate Blender object geometry to FDS PB notation.
 """
 
 import logging
+from ... import config
 from ...types import BFException
 from ..OP_XB.ob_to_xbs import _ob_to_xbs_faces
 
 log = logging.getLogger(__name__)
 
+EFD = config.FLAT_DIFFERENCE
 
 def _ob_to_pbs_planes(context, ob, world) -> tuple((list, list)):
     """!
@@ -20,14 +22,14 @@ def _ob_to_pbs_planes(context, ob, world) -> tuple((list, list)):
     # pbs is: ("PBX", 3.5), ("PBX", 4.), ("PBY", .5) ...
     pbs = list()
     xbs, _ = _ob_to_xbs_faces(context, ob, world)
-    epsilon = 1e-5
+    
     # For each face build a plane...
     for xb in xbs:
-        if abs(xb[1] - xb[0]) < epsilon:
+        if abs(xb[1] - xb[0]) < EFD:
             pbs.append(("PBX", xb[0]))
-        elif abs(xb[3] - xb[2]) < epsilon:
+        elif abs(xb[3] - xb[2]) < EFD:
             pbs.append(("PBY", xb[2]))
-        elif abs(xb[5] - xb[4]) < epsilon:
+        elif abs(xb[5] - xb[4]) < EFD:
             pbs.append(("PBZ", xb[4]))
         else:
             raise ValueError(
