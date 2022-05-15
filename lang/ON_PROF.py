@@ -16,10 +16,10 @@ class ON_PROF(BFNamelistOb):
     bf_params = (
         OP_namelist_cls,
         OP_ID,
-        OP_ID_suffix,
         OP_FYI,
         OP_DEVC_QUANTITY,
         OP_XYZ,
+        OP_ID_suffix,
         OP_other,
     )
     bf_other = {"appearance": "WIRE"}

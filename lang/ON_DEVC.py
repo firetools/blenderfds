@@ -75,7 +75,6 @@ class ON_DEVC(BFNamelistOb):
     bf_params = (
         OP_namelist_cls,
         OP_ID,
-        OP_ID_suffix,
         OP_FYI,
         OP_DEVC_QUANTITY,
         OP_DEVC_SETPOINT,
@@ -86,6 +85,7 @@ class ON_DEVC(BFNamelistOb):
         OP_XB_voxel_size,
         OP_XB_center_voxels,
         OP_XYZ,
+        OP_ID_suffix,
         OP_other,
     )
     bf_other = {"appearance": "WIRE"}

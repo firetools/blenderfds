@@ -54,7 +54,6 @@ class ON_VENT(BFNamelistOb):
     bf_params = (
         OP_namelist_cls,
         OP_ID,
-        OP_ID_suffix,
         OP_FYI,
         OP_SURF_ID,
         OP_VENT_OBST_ID,
@@ -66,6 +65,7 @@ class ON_VENT(BFNamelistOb):
         OP_PBX,
         OP_PBY,
         OP_PBZ,
+        OP_ID_suffix,
         OP_other_MULT_ID,
         OP_RGB_override,
         OP_COLOR_override,

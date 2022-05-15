@@ -39,7 +39,6 @@ class ON_SLCF(BFNamelistOb):
     bf_params = (
         OP_namelist_cls,
         OP_ID,
-        OP_ID_suffix,
         OP_FYI,
         OP_DEVC_QUANTITY,
         OP_SLCF_VECTOR,
@@ -51,6 +50,7 @@ class ON_SLCF(BFNamelistOb):
         OP_PBX,
         OP_PBY,
         OP_PBZ,
+        OP_ID_suffix,
         OP_other,
     )
     bf_other = {"appearance": "WIRE"}

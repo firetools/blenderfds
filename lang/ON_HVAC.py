@@ -12,5 +12,5 @@ class ON_HVAC(BFNamelistOb):
     collection = "HVAC"
     enum_id = 1017
     fds_label = "HVAC"
-    bf_params = OP_namelist_cls, OP_ID, OP_ID_suffix, OP_FYI, OP_XYZ, OP_other
+    bf_params = OP_namelist_cls, OP_ID, OP_FYI, OP_XYZ, OP_ID_suffix, OP_other
     bf_other = {"appearance": "WIRE"}

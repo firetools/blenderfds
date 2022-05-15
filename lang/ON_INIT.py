@@ -17,10 +17,10 @@ class ON_INIT(BFNamelistOb):
     bf_params = (
         OP_namelist_cls,
         OP_ID,
-        OP_ID_suffix,
         OP_FYI,
         OP_XB,
         OP_XYZ,
+        OP_ID_suffix,
         OP_other_MULT_ID,
         OP_other,
     )

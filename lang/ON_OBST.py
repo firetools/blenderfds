@@ -26,12 +26,12 @@ class ON_OBST(BFNamelistOb):
     bf_params = (
         OP_namelist_cls,
         OP_ID,
-        OP_ID_suffix,
         OP_FYI,
         OP_SURF_ID,
         OP_XB,
         OP_XB_voxel_size,
         OP_XB_center_voxels,
+        OP_ID_suffix,
         OP_other_MULT_ID,
         OP_RGB_override,
         OP_COLOR_override,
