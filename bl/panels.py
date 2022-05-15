@@ -17,10 +17,6 @@ from ..lang.ON_MULT import ON_MULT, OP_other_MULT_ID
 
 
 class _SCENE_PT_bf_namelist:
-    """!
-    FDS Panel
-    """
-
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_label = "FDS Generic Scene Panel"
@@ -34,20 +30,12 @@ class _SCENE_PT_bf_namelist:
         return context.scene
 
     def draw_header(self, context):
-        """!
-        Draw UI elements into the panel’s header UI layout.
-        @param context: the Blender context.
-        """
         sc = context.scene
         self.bf_namelist(sc).draw_header(
             context=context, layout=self.layout, panel=self
         )
 
     def draw(self, context):
-        """!
-        Draw UI elements into the panel UI layout.
-        @param context: the Blender context.
-        """
         sc = context.scene
         layout = self.layout
         layout.use_property_split = True
@@ -56,10 +44,6 @@ class _SCENE_PT_bf_namelist:
 
 
 class SCENE_PT_bf_case(Panel, _SCENE_PT_bf_namelist):
-    """!
-    FDS Case Config
-    """
-
     bf_namelist = SN_config
     bl_label = "FDS Case Config"
 
@@ -72,58 +56,35 @@ class SCENE_PT_bf_case(Panel, _SCENE_PT_bf_namelist):
 
 
 class SCENE_PT_bf_namelist_HEAD(Panel, _SCENE_PT_bf_namelist):
-    """!
-    FDS HEAD
-    """
-
     bf_namelist = SN_HEAD
     bl_label = "FDS HEAD"
 
 
 class SCENE_PT_bf_namelist_TIME(Panel, _SCENE_PT_bf_namelist):
-    """!
-    FDS TIME
-    """
-
     bf_namelist = SN_TIME
     bl_label = "FDS TIME"
     bl_options = {"DEFAULT_CLOSED"}
 
 
 class SCENE_PT_bf_namelist_MISC(Panel, _SCENE_PT_bf_namelist):
-    """!
-    FDS MISC
-    """
-
     bf_namelist = SN_MISC
     bl_label = "FDS MISC"
     bl_options = {"DEFAULT_CLOSED"}
 
 
 class SCENE_PT_bf_namelist_REAC(Panel, _SCENE_PT_bf_namelist):
-    """!
-    FDS REAC
-    """
-
     bf_namelist = SN_REAC
     bl_label = "FDS REAC"
     bl_options = {"DEFAULT_CLOSED"}
 
 
 class SCENE_PT_bf_namelist_RADI(Panel, _SCENE_PT_bf_namelist):
-    """!
-    FDS RADI
-    """
-
     bf_namelist = SN_RADI
     bl_label = "FDS RADI"
     bl_options = {"DEFAULT_CLOSED"}
 
 
 class SCENE_PT_bf_namelist_PRES(Panel, _SCENE_PT_bf_namelist):
-    """!
-    FDS PRES
-    """
 
     bf_namelist = SN_PRES
     bl_label = "FDS PRES"
@@ -131,20 +92,12 @@ class SCENE_PT_bf_namelist_PRES(Panel, _SCENE_PT_bf_namelist):
 
 
 class SCENE_PT_bf_namelist_DUMP(Panel, _SCENE_PT_bf_namelist):
-    """!
-    FDS DUMP
-    """
-
     bf_namelist = SN_DUMP
     bl_label = "FDS DUMP"
     bl_options = {"DEFAULT_CLOSED"}
 
 
 class COLLECTION_PT_bf_config(Panel):
-    """!
-    FDS Collection Config
-    """
-
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "collection"
@@ -169,10 +122,6 @@ class COLLECTION_PT_bf_config(Panel):
 
 
 class OBJECT_PT_bf_namelist(Panel):
-    """!
-    FDS geometric namelist
-    """
-
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
@@ -196,10 +145,6 @@ class OBJECT_PT_bf_namelist(Panel):
 
 
 class OBJECT_PT_MULT(Panel):
-    """!
-    FDS MULT namelist
-    """
-
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
@@ -232,10 +177,6 @@ class OBJECT_PT_MULT(Panel):
 
 
 class MATERIAL_PT_bf_namelist(Panel):
-    """!
-    FDS SURF
-    """
-
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "material"
@@ -285,10 +226,6 @@ class MATERIAL_PT_bf_namelist(Panel):
 
 
 class VIEW3D_PT_bf_ob_utils(Panel):
-    """!
-    Object utils
-    """
-
     bl_idname = "VIEW3D_PT_bf_ob_utils"
     bl_context = "objectmode"
     bl_category = "FDS"
@@ -309,11 +246,36 @@ class VIEW3D_PT_bf_ob_utils(Panel):
         ob.bf_namelist.draw_operators(context, layout)
 
 
-class VIEW3D_PT_bf_mesh_clean_up(Panel):
-    """!
-    Mesh clean up panel
-    """
+# From properties_da_mesh-py, class DATA_PT_remesh()
+class VIEW3D_PT_bf_ob_remesh(Panel):
+    bl_idname = "VIEW3D_PT_bf_ob_remesh"
+    bl_context = "objectmode"
+    bl_category = "FDS"
+    bl_label = "Remesh"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_options = {"DEFAULT_CLOSED"}
 
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False
+        row = layout.row()
+
+        mesh = context.object.data  # fix
+        row.prop(mesh, "remesh_mode", text="Mode", expand=True)
+        col = layout.column()
+        if mesh.remesh_mode == "VOXEL":
+            col.prop(mesh, "remesh_voxel_size")
+            col.prop(mesh, "remesh_voxel_adaptivity")
+            col.prop(mesh, "use_remesh_fix_poles")
+            # Removed props here
+            col.operator("object.voxel_remesh", text="Voxel Remesh")
+        else:
+            col.operator("object.quadriflow_remesh", text="QuadriFlow Remesh")
+
+
+class VIEW3D_PT_bf_mesh_clean_up(Panel):
     bl_idname = "VIEW3D_PT_bf_mesh_clean_up"
     bl_context = "mesh_edit"
     bl_category = "FDS"
@@ -324,11 +286,6 @@ class VIEW3D_PT_bf_mesh_clean_up(Panel):
 
     @classmethod
     def poll(cls, context):
-        """!
-        If this method returns a non-null output, then the panel can be drawn
-        @param context: the Blender context.
-        @return current object
-        """
         ob = context.object
         return ob and ob.type == "MESH"
 
@@ -341,7 +298,6 @@ class VIEW3D_PT_bf_mesh_clean_up(Panel):
         layout.use_property_split = True
         layout.use_property_decorate = False
         col = layout.column()
-        col.label(text=context.screen.statusbar_info().split(" | Tris:", 1)[0])
         row = col.row(align=True)
         row.template_header_3D_mode()
         row.menu("VIEW3D_MT_edit_mesh_select_by_trait")
@@ -349,10 +305,6 @@ class VIEW3D_PT_bf_mesh_clean_up(Panel):
 
 
 class VIEW3D_PT_bf_geolocation(Panel):
-    """!
-    Geolocation panel
-    """
-
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "FDS"
@@ -396,8 +348,9 @@ bl_classes = [
     OBJECT_PT_bf_namelist,
     OBJECT_PT_MULT,
     MATERIAL_PT_bf_namelist,
-    VIEW3D_PT_bf_mesh_clean_up,
     VIEW3D_PT_bf_ob_utils,
+    VIEW3D_PT_bf_ob_remesh,
+    VIEW3D_PT_bf_mesh_clean_up,
     VIEW3D_PT_bf_geolocation,
 ]
 
