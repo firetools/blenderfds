@@ -3,7 +3,8 @@ BlenderFDS, ui classes.
 """
 
 import logging, bpy
-from bpy.types import Panel
+
+from bpy.types import Panel, Scene, Object, Collection
 from bpy.utils import register_class, unregister_class
 
 log = logging.getLogger(__name__)
@@ -96,35 +97,67 @@ class PROPERTIES_PT_navigation_bar_bf(Panel):
     bl_options = {"HIDE_HEADER"}
 
     def draw(self, context):
-        ob = context.object
+        space = context.space_data
+        pin_id = space.pin_id
 
         layout = self.layout
-        view = context.space_data
         layout.scale_x = 1.4
         layout.scale_y = 1.4
 
         col = layout.column(align=True)
-        col.prop_enum(view, "context", "TOOL", text="", icon="TOOL_SETTINGS")
+        col.prop_enum(space, "context", "TOOL", text="", icon="TOOL_SETTINGS")
 
-        col = layout.column(align=True)
-        col.prop_enum(view, "context", "SCENE", text="", icon="SCENE_DATA")
-        if context.collection and context.collection != context.scene.collection:
-            col.prop_enum(
-                view, "context", "COLLECTION", text="", icon="OUTLINER_COLLECTION"
-            )
+        if not pin_id:
+            sc = context.scene
+            ob = context.active_object
+            co = context.collection
 
-        col = layout.column(align=True)
-        if ob:
-            col.prop_enum(view, "context", "OBJECT", text="", icon="OBJECT_DATA")
+            col = layout.column(align=True)
+            col.prop_enum(space, "context", "SCENE", text="", icon="SCENE_DATA")
 
-        if ob and ob.type == "MESH":
-            col.prop_enum(view, "context", "MODIFIER", text="", icon="MODIFIER_DATA")
+            if co != sc.collection:
+                col.prop_enum(
+                    space, "context", "COLLECTION", text="", icon="OUTLINER_COLLECTION"
+                )
+            if ob:
+                col = layout.column(align=True)
+                col.prop_enum(space, "context", "OBJECT", text="", icon="OBJECT_DATA")
+                if ob.type == "MESH":
+                    col.prop_enum(
+                        space, "context", "MODIFIER", text="", icon="MODIFIER_DATA"
+                    )
+                if ob.type == "MESH" or ob.type == "EMPTY":
+                    col.prop_enum(space, "context", "DATA", text="", icon="MESH_DATA")
+                if ob.type == "MESH":
+                    col.prop_enum(
+                        space, "context", "MATERIAL", text="", icon="MATERIAL_DATA"
+                    )
 
-        if ob and (ob.type == "MESH" or ob.type == "EMPTY"):
-            col.prop_enum(view, "context", "DATA", text="", icon="MESH_DATA")
-
-        if ob and ob.type == "MESH":
-            col.prop_enum(view, "context", "MATERIAL", text="", icon="MATERIAL_DATA")
+        else:
+            if isinstance(pin_id, Scene):
+                sc = pin_id
+                col = layout.column(align=True)
+                col.prop_enum(space, "context", "SCENE", text="", icon="SCENE_DATA")
+            elif isinstance(pin_id, Collection):
+                co = pin_id
+                col = layout.column(align=True)
+                col.prop_enum(
+                    space, "context", "COLLECTION", text="", icon="OUTLINER_COLLECTION"
+                )
+            elif isinstance(pin_id, Object):
+                ob = pin_id
+                col = layout.column(align=True)
+                col.prop_enum(space, "context", "OBJECT", text="", icon="OBJECT_DATA")
+                if ob.type == "MESH":
+                    col.prop_enum(
+                        space, "context", "MODIFIER", text="", icon="MODIFIER_DATA"
+                    )
+                if ob.type == "MESH" or ob.type == "EMPTY":
+                    col.prop_enum(space, "context", "DATA", text="", icon="MESH_DATA")
+                if ob.type == "MESH":
+                    col.prop_enum(
+                        space, "context", "MATERIAL", text="", icon="MATERIAL_DATA"
+                    )
 
 
 replacement_classes = (PROPERTIES_PT_navigation_bar_bf,)
