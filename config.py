@@ -1,8 +1,5 @@
-# from . import bl_info
-# module = bl_info['name']
-# PKG = __package__
-# mod = addon_utils.addons_fake_modules.get(PKG)
-# mod.bl_info['show_expanded'] = True
+## Supported file version
+SUPPORTED_FILE_VERSION = 6, 0, 0
 
 ## length precision for geometry
 LP = 4
@@ -10,7 +7,6 @@ LP = 4
 GEOLOC_PRECISION = 9
 ## time precision
 TIME_PRECISION = 1
-
 
 ## max number of columns of formatted output
 MAXLEN = 80
@@ -25,10 +21,6 @@ MIN_FACE_AREA = 1e-08
 MIN_INTERSECTION_LENGTH = 1e-05
 ## flat face difference
 FLAT_DIFFERENCE = 1e-03
-
-
-## Supported file version
-SUPPORTED_FILE_VERSION = 6, 0, 0
 
 ## Default SURF Materials
 DEFAULT_MAS = {  # name: diffuse_color

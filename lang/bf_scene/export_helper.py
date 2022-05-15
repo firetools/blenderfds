@@ -1,13 +1,13 @@
 import time, sys, logging, bpy
 from ...config import MAXLEN
 from ...types import FDSList
-from ... import utils
+from ... import utils, bl_info
 
 log = logging.getLogger(__name__)
 
 
 def append_header(context, sc, fds_list):
-    bfv = sys.modules["blenderfds"].bl_info["version"]
+    bfv = bl_info["version"]
     blv = bpy.app.version_string
     now = time.strftime("%a, %d %b %Y, %H:%M:%S", time.localtime())
     bl_filepath = utils.io.shorten(
