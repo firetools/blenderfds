@@ -2,7 +2,7 @@
 BlenderFDS, operators to choose IDs for MATL_ID, PROP_ID in free text.
 """
 
-import logging, csv, bpy
+import logging, csv
 from bpy.types import Operator
 from bpy.props import EnumProperty
 from ...types import FDSList
