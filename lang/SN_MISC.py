@@ -89,11 +89,6 @@ class SP_origin_geoname(BFParam):
         )
         row.label(text=text)
 
-    def to_fds_list(self, context) -> FDSList:  # FIXME msg is not sent!
-        if self.element.bf_origin_export and self.element.bf_origin_geoname:
-            return FDSList(msg=f"Origin at: <{self.element.bf_origin_geoname}>")
-        return FDSList()
-
 
 class SP_ORIGIN_LON(BFParam):
     label = "ORIGIN_LON"
