@@ -31,231 +31,129 @@ DEFAULT_MAS = {  # name: diffuse_color
     "PERIODIC": ((1.0, 0.0, 1.0, 0.2),),
 }
 
-# FIXME check on doc
-## Frequently used output QUANTITYs (FDS User's guide, table 16.3)
-FDS_QUANTITIES = (  # name, description, units, qtype, subject
-    ("ACTUATED SPRINKLERS", "Number of activated sprinklers", "", "D", "Det"),
-    (
-        "ADIABATIC SURFACE TEMPERATURE",
-        "Adiabatic surface temperature (AST), a quantity that is representative of the heat flux to a solid surface",
-        "°C",
-        "B,D",
-        "Wall",
-    ),
-    (
-        "ASPIRATION",
-        "Central detector of aspiration detection system",
-        "%/m",
-        "D",
-        "Det",
-    ),
-    ("BACKGROUND PRESSURE", "Background pressure", "Pa", "D,I,P,S", "Pressure"),
-    (
-        "BACK WALL TEMPERATURE",
-        "Temperature of the back of an EXPOSED surface.\nThe coordinates XYZ, and orientation IOR, refer to the front surface",
-        "°C",
-        "B,D",
-        "Wall",
-    ),
-    ("BURNING RATE", "Mass loss rate of fuel", "kg/(m²·s)", "B,D", "Fire"),
-    ("CHAMBER OBSCURATION", "Smoke detector chamber obscuration", "%/m", "D", "Det"),
-    ("CONDUCTIVITY", "Thermal conductivity", "W/(m·K)", "D,I,P,S", "Gas"),
-    (
-        "CONVECTIVE HEAT FLUX",
-        "Convective component of NET HEAT FLUX",
-        "kW/m²",
-        "B,D",
-        "Heat",
-    ),
-    ("CPU TIME", "Elapsed CPU time since the start of the simulation", "s", "D", "Sim"),
-    ("DENSITY", "Density", "kg/m³", "D,I,P,S", "Gas"),
-    ("DEPOSITION VELOCITY", "Deposition velocity at the wall", "m/s", "B,D", "Wall"),
-    ("DIVERGENCE", "Divergence", "1/s", "D,I,P,S", "Sim"),
-    ("EXTINCTION COEFFICIENT", "", "1/m", "D,I,P,S", "Visibility"),
-    (
-        "FED",
-        "The fractional effective dose index (FED), developed by Purser,\nis a commonly used measure of human incapacitation due to the combustion gases",
-        "",
-        "D",
-        "Tenability",
-    ),
-    (
-        "FIC",
-        "The fractional irritant concentration (FIC), developed by Purser,\nrepresents the toxic effect which depends upon the immediate concentrations of irritants.",
-        "",
-        "D,S",
-        "Tenability",
-    ),
-    (
-        "GAUGE HEAT FLUX",
-        "This quantity simulates a measurement made with a cold water heat flux gauge",
-        "kW/m²",
-        "B,D",
-        "Det",
-    ),
-    (
-        "HEAT FLOW",
-        "Net flow of energy into or out of a planar surface",
-        "kW",
-        "D",
-        "Heat",
-    ),
-    (
-        "HEAT FLOW WALL",
-        "Net flow of energy into or out of a solid boundary",
-        "kW",
-        "D",
-        "Wall",
-    ),
-    (
-        "NET HEAT FLUX",
-        "Sum of the emitted and absorbed radiation at a solid surface",
-        "kW/m²",
-        "B,D",
-        "Heat",
-    ),
-    ("HRR", "Heat release rate", "kW", "D", "Fire"),
-    ("HRRPUA", "Heat release rate per unit area", "kW/m²", "D", "Fire"),
-    ("HRRPUV", "Heat release rate per unit volume", "kW/m³", "D,I,P,S", "Fire"),
-    ("INCIDENT HEAT FLUX", "Incident term of NET HEAT FLUX", "kW/m²", "B,D", "Heat"),
-    (
-        "INSIDE WALL TEMPERATURE",
-        "Temperature inside a solid surface",
-        "°C",
-        "D",
-        "Wall",
-    ),
-    ("INSIDE WALL DEPTH", "Depth inside a solid surface", "m", "D", "Wall"),
-    (
-        "ITERATION",
-        "Number of time steps completed at the given time of the simulation",
-        "",
-        "D",
-        "Sim",
-    ),
-    (
-        "LAYER HEIGHT",
-        "Layer height, location of the interface between the hot, smoke-laden upper layer and the cooler lower layer in a burning compartment",
-        "m",
-        "D",
-        "Zones",
-    ),
-    (
-        "LINK TEMPERATURE",
-        "Defines a heat detector, which uses essentially the same activation algorithm as a sprinkler, without the water spray",
-        "°C",
-        "D",
-        "Det",
-    ),
-    ("LOWER TEMPERATURE", "Lower layer temperature", "°C", "D", "Zones"),
-    (
-        "MASS FLOW",
-        "Net flow of mass into or out of a planar surface",
-        "kg/s",
-        "D",
-        "Gas",
-    ),
-    (
-        "MASS FLOW WALL",
-        "Net flow of mass into or out of a solid boundary",
-        "kg/s",
-        "D",
-        "Wall",
-    ),
-    ("MASS FRACTION", "", "kg/kg", "D,I,P,S", "Gas"),
-    ("MIXTURE FRACTION", "", "kg/kg", "D,I,P,S", "Gas"),
-    ("NORMAL VELOCITY", "Wall normal velocity", "m/s", "D,B", "Wall"),
-    ("OPTICAL DENSITY", "", "1/m", "D,I,P,S", "Visibility"),
-    ("PATH OBSCURATION", "Beam detector path obscuration", "%", "D", "Det"),
-    ("PRESSURE", "Perturbation pressure", "Pa", "D,I,P,S", "Pressure"),
-    ("PRESSURE ZONE", "Pressure zone", "", "D,S", "Pressure"),
-    (
-        "RADIATIVE HEAT FLUX",
-        "Radiative component of NET HEAT FLUX",
-        "kW/m²",
-        "B,D",
-        "Heat",
-    ),
-    (
-        "RADIATIVE HEAT FLUX GAS",
-        "This records the radiative heat flux away from a solid surface",
-        "kW/m²",
-        "D",
-        "Heat",
-    ),
-    (
-        "RADIOMETER",
-        "Similar to a GAUGE HEAT FLUX, this quantity measures only the radiative heat flux",
-        "kW/m²",
-        "B,D",
-        "Det",
-    ),
-    ("RELATIVE HUMIDITY", "Relative humidity", "%", "D,I,P,S", "Gas"),
-    ("SOLID CONDUCTIVITY", "Material component conductivity", "W/(m·K)", "D", "Wall"),
-    ("SOLID DENSITY", "Material component density", "kg/m³", "D", "Wall"),
-    (
-        "SOLID SPECIFIC HEAT",
-        "Material component specific heat",
-        "kJ/(kg·K)",
-        "D",
-        "Wall",
-    ),
-    (
-        "SPRINKLER LINK TEMPERATURE",
-        "Compute the activation of the device using the standard RTI (Response Time Index) algorithm",
-        "°C",
-        "D",
-        "Det",
-    ),
-    ("SURFACE DEPOSITION", "Surface deposition of SPEC_ID", "kg/m²", "B,D", "Wall"),
-    ("TEMPERATURE", "", "°C", "D,I,P,S", "Gas"),
-    (
-        "THERMOCOUPLE",
-        "Temperature of a modeled thermocouple.\nThe thermocouple temperature lags the true gas temperature by an amount determined mainly by its bead size.",
-        "°C",
-        "D",
-        "Det",
-    ),
-    ("TIME", "Activation time", "s", "D", "Sim"),
-    ("TIME STEP", "Duration of a simulation time step", "s", "D", "Sim"),
-    ("U-VELOCITY", "Gas velocity component", "m/s", "D,I,P,S", "Gas"),
-    ("V-VELOCITY", "Gas velocity component", "m/s", "D,I,P,S", "Gas"),
-    ("W-VELOCITY", "Gas velocity component", "m/s", "D,I,P,S", "Gas"),
-    ("UPPER TEMPERATURE", "Upper layer temperature", "°C", "D", "Zones"),
-    ("VELOCITY", "Gas velocity", "m/s", "D,I,P,S", "Gas"),
-    ("VISCOSITY", "Effective viscosity", "kg/(m·s)", "D,I,P,S", "Gas"),
-    ("VISIBILITY", "Visibility through smoke", "m", "D,I,P,S", "Visibility"),
-    (
-        "VOLUME FLOW",
-        "Net flow of volume into or out of a planar surface",
-        "m³/s",
-        "D",
-        "Gas",
-    ),
-    (
-        "VOLUME FLOW WALL",
-        "Net flow of volume into or out of a solid boundary",
-        "m³/s",
-        "D",
-        "Wall",
-    ),
-    ("VOLUME FRACTION", "", "mol/mol", "D,I,P,S", "Gas"),
-    (
-        "WALL CLOCK TIME",
-        "Elapsed wall clock time since the start of the simulation",
-        "s",
-        "D",
-        "Sim",
-    ),
-    (
-        "WALL CLOCK TIME ITERATIONS",
-        "Elapsed wall clock time since the start of the time stepping loop",
-        "s",
-        "D",
-        "Sim",
-    ),
-    ("WALL TEMPERATURE", "Surface temperature", "°C", "B,D", "Wall"),
-)
+## Frequently used output QUANTITY
+# from FDS User's guide table:
+# name, units, qtype
+FDS_QUANTITIES = """\
+ABSORPTION COEFFICIENT,1/m,DIPS
+ACTUATED SPRINKLERS,,D
+ADIABATIC SURFACE TEMPERATURE,°C,BD
+AEROSOL VOLUME FRACTION,mol/mol,DIPS
+AMPUA,kg/m²,BD
+AMPUA_Z,kg/m²,BD
+ASPIRATION,%/m,D
+BACKGROUND PRESSURE,Pa,DIPS
+BACK WALL TEMPERATURE,°C,BD
+BURNING RATE,kg/(m²·s),BD
+CHAMBER OBSCURATION,%/m,D
+CHI_R,,DIS
+CONDUCTIVITY,W/(m·K),DIPS
+CONTROL,,D
+CONTROL VALUE,,D
+CONDENSATION HEAT FLUX,kW/m²,BD
+CONVECTIVE HEAT FLUX,kW/m²,BD
+CPUA,kW/m²,BD
+CPUA_Z,kW/m²,BD
+CPU TIME,s,D
+DENSITY,kg/m³,DIPS
+DEPOSITION VELOCITY,m/s,BD
+DIVERGENCE,1/s,DIPS
+DROPLET VOLUME FRACTION,,DPS
+ENTHALPY,kJ/m³,DIPS
+ENTHALPY FLUX X,kW/m²,DIPS
+ENTHALPY FLUX Y,kW/m²,DIPS
+ENTHALPY FLUX Z,kW/m²,DIPS
+EXTINCTION COEFFICIENT,1/m,DIPS
+FED,,D
+FIC,,DS
+FRICTION VELOCITY,m/s,BD
+GAUGE HEAT FLUX,kW/m²,BD
+ENTHALPY FLUX WALL,kW/m²,BD
+TOTAL HEAT FLUX,kW/m²,BD
+HRRPUA,kW/m²,D
+HRRPUV,kW/m³,DIPS
+INCAPACITATION TIME,min,D
+INCIDENT HEAT FLUX,kW/m²,BD
+INSIDE WALL TEMPERATURE,°C,D
+INSIDE WALL DEPTH,m,D
+INTERNAL ENERGY,kJ/m³,DIPS
+ITERATION,,D
+LAYER HEIGHT,m,D
+LINK TEMPERATURE,°C,D
+LOWER TEMPERATURE,°C,D
+MASS FLUX,kg/(m²·s),BD
+MASS FLUX WALL,kg/(m²·s),BD
+MASS FLUX X,kg/(m²·s),DIPS
+MASS FLUX Y,kg/(m²·s),DIPS
+MASS FLUX Z,kg/(m²·s),DIPS
+MASS FRACTION,kg/kg,DIPS
+MIXTURE FRACTION,kg/kg,DIPS
+MPUA,kg/m,BD
+MPUA_Z,kg/m²,BD
+MPUV,kg/m³,DPS
+MPUV_Z,kg/m³,DPS
+NORMAL VELOCITY,m/s,DB
+NUMBER OF PARTICLES,,D
+OPEN NOZZLES,,D
+OPTICAL DENSITY,1/m,DIPS
+ORIENTED VELOCITY,m/s,D
+PATH OBSCURATION,%,D
+PARTICLE AGE,s,PA
+PARTICLE BULK DENSITY,kg/m³,PA
+PARTICLE DIAMETER,µm,PA
+PARTICLE FLUX X,kg/(m²·s),PS
+PARTICLE FLUX Y,kg/(m²·s),PS
+PARTICLE FLUX Z,kg/(m²·s),PS
+PARTICLE MASS,kg,PA
+PARTICLE PHASE,,PA
+PARTICLE TEMPERATURE,°C,PA
+PARTICLE U,m/s,PA
+PARTICLE V,m/s,PA
+PARTICLE VELOCITY,m/s,PA
+PARTICLE W,m/s,PA
+PARTICLE WEIGHTING FACTOR,,PA
+PARTICLE X,m,PA
+PARTICLE Y,m,PA
+PARTICLE Z,m,PA
+PRESSURE,Pa,DIPS
+PRESSURE COEFFICIENT,,BD
+PRESSURE ZONE,,DS
+RADIATIVE HEAT FLUX,kW/m²,BD
+RADIATIVE HEAT FLUX GAS,kW/m²,D
+RADIOMETER,kW/m²,BD
+RELATIVE HUMIDITY,%,DIPS
+SENSIBLE ENTHALPY,kJ/m³,DIPS
+SOLID CELL DENSITY,kg/m³,DIPS
+SOLID CELL Q_S,kW/m³,DIPS
+SOLID CELL VOLUME RATIO,m³/m³,DIPS
+SOLID CONDUCTIVITY,W/(m·K),D
+SOLID DENSITY,kg/m³,D
+SOLID SPECIFIC HEAT,kJ/(kg·K),D
+SPECIFIC ENTHALPY,kJ/kg,DIPS
+SPECIFIC HEAT,kJ/(kg·K),DIPS
+SPECIFIC INTERNAL ENERGY,kJ/kg,DIPS
+SPECIFIC SENSIBLE ENTHALPY,kJ/kg,DIPS
+SPRINKLER LINK TEMPERATURE,°C,D
+SURFACE DENSITY,kg/m²,BD
+SURFACE DEPOSITION,kg/m²,BD
+TEMPERATURE,°C,DIPS
+THERMOCOUPLE,°C,D
+TIME,s,D
+TIME STEP,s,D
+TRANSMISSION,%/m,D
+U-VELOCITY,m/s,DIPS
+V-VELOCITY,m/s,DIPS
+W-VELOCITY,m/s,DIPS
+UPPER TEMPERATURE,°C,D
+VELOCITY,m/s,DIPS
+VISCOSITY,kg/(m·s),DIPS
+VISIBILITY,m,DIPS
+VOLUME FRACTION,mol/mol,DIPS
+WALL CLOCK TIME,s,D
+WALL CLOCK TIME ITERATIONS,s,D
+WALL TEMPERATURE,°C,BD
+WALL THICKNESS,m,BD"""
+
 
 ## Color table from FDS source code (data.f90)
 FDS_COLORS = {
