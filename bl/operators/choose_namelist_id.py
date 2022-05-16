@@ -154,7 +154,7 @@ class OBJECT_OT_bf_choose_devc_quantity(Operator):
 
 bl_classes = [
     MATERIAL_OT_bf_choose_matl_id,
-    OBJECT_OT_bf_choose_devc_prop_id,  # FIXME add search functionality too
+    OBJECT_OT_bf_choose_devc_prop_id,
     OBJECT_OT_bf_choose_devc_quantity,
 ]
 
