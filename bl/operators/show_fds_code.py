@@ -107,7 +107,6 @@ class OBJECT_OT_bf_show_fds_code(_show_fds_code, Operator):
         return context.object
 
     def _get_lines(self, context):
-        context.scene["bf_first_mpi_process"] = 0  # TODO bf_first_mpi_process
         return context.object.to_fds_list(context).to_string()
 
 
@@ -125,7 +124,6 @@ class COLLECTION_OT_bf_show_fds_code(_show_fds_code, Operator):
         return context.collection
 
     def _get_lines(self, context):
-        context.scene["bf_first_mpi_process"] = 0  # TODO
         return context.collection.to_fds_list(context).to_string()
 
 

@@ -28,19 +28,6 @@ def update_bf_mesh_nsplits(ob, context):
     if ob.bf_has_tmp:
         utils.geometry.rm_tmp_objects()
 
-
-class OP_MESH_auto_MPI_PROCESS(BFParam):
-    label = "Auto MPI_PROCESS"
-    description = "Number of desired MESH instances for each MPI process"
-    bpy_type = Object
-    bpy_idname = "bf_mesh_auto_mpi_process"
-    bpy_prop = IntProperty
-    bpy_default = 1
-    bpy_other = {"min": 1}
-    bpy_export = "bf_mesh_auto_mpi_process_export"
-    bpy_export_default = False
-
-
 class OP_MESH_IJK(BFParam):
     label = "IJK"
     description = "Cell numbers along axis"
@@ -70,7 +57,7 @@ class OP_MESH_XB_BBOX(OP_XB_BBOX):
 
     def to_fds_list(self, context) -> FDSList:
         ob = self.element
-        hids, ijks, mpis, xbs, msgs = get_mesh_geometry(context=context, ob=ob)
+        hids, ijks, xbs, msgs = get_mesh_geometry(context=context, ob=ob)
         match len(xbs):
             case 0:
                 return FDSList()
@@ -81,7 +68,6 @@ class OP_MESH_XB_BBOX(OP_XB_BBOX):
                     (FDSParam(fds_label="ID", value=hid) for hid in hids),
                     (FDSParam(fds_label="IJK", value=ijk) for ijk in ijks),
                     (FDSParam(fds_label="XB", value=xb, precision=LP) for xb in xbs),
-                    (FDSParam(fds_label="MPI_PROCESS", value=mpi) for mpi in mpis),
                 )
                 return FDSMulti(iterable=iterable, msgs=msgs)
 
@@ -96,7 +82,6 @@ class ON_MESH(BFNamelistOb):
         OP_namelist_cls,
         OP_ID,
         OP_FYI,
-        OP_MESH_auto_MPI_PROCESS,
         OP_MESH_IJK,
         OP_MESH_nsplits,
         OP_MESH_XB_BBOX,

@@ -25,9 +25,6 @@ class BFScene:
         """!
         Return the FDSList instance from self, never None.
         """
-        # Init MPI_PROCESS counter
-        self["bf_first_mpi_process"] = 0  # TODO
-
         # Set mysef as the right Scene instance in the context
         # It is needed, because context.scene is needed elsewhere
         bpy.context.window.scene = self  # set context.scene

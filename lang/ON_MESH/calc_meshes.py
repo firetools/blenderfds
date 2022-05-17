@@ -65,20 +65,6 @@ def get_cell_sizes(context, ob):  # used by: mesh_tools.py
     )
 
 
-def get_mpis(context, ob, nmesh):
-    mpis, nmpi = list(), 1
-    if ob.bf_mesh_auto_mpi_process_export:  # TODO
-        sc = context.scene
-        first_mpi = sc.get("bf_first_mpi_process", 0)
-        bf_mesh_auto_mpi_process = ob.bf_mesh_auto_mpi_process
-        for imesh in range(nmesh):
-            mpis.append(int(imesh / bf_mesh_auto_mpi_process) + first_mpi)
-        last_mpi = mpis[-1]
-        sc["bf_first_mpi_process"] = last_mpi + 1
-        nmpi = last_mpi - first_mpi + 1  # number of used processes
-    return mpis, nmpi
-
-
 def get_mesh_geometry(context, ob):
     """!Get geometry and info on generated MESH instances."""
     # Split
@@ -96,15 +82,12 @@ def get_mesh_geometry(context, ob):
     )
     ijks *= nmult
 
-    # Prepare mpis
-    nmesh = nmult * nsplit
-    mpis, nmpi = get_mpis(context=context, ob=ob, nmesh=nmesh)
-
     # Prepare header
     ijk = ob.bf_mesh_ijk
     ncell_tot = ijk[0] * ijk[1] * ijk[2] * nmult
     has_good_ijk = tuple(ijk) == get_poisson_ijk(ijk) and "Yes" or "No"
     aspect = get_cell_aspect(cs)
+    nmesh = nmult * nsplit
     msgs = list(
         (
             f"MESH Qty: {nmesh} | Splits: {nsplit} | Multiples: {nmult}",
@@ -112,13 +95,7 @@ def get_mesh_geometry(context, ob):
             f"Size: {cs[0]:.3f} · {cs[1]:.3f} · {cs[2]:.3f}m | Aspect: {aspect:.1f} | Poisson: {has_good_ijk}",
         )
     )
-    if nmpi > 1:
-        nmesh_process = ceil(nmesh / nmpi)
-        ncell_process = nmesh_process * ncell
-        msgs.append(
-            f"MPI Processes: {nmpi} | MESH/Process: {nmesh_process} | Cells/Process: ~{ncell_process}"
-        )
-    return hids, ijks, mpis, xbs, msgs
+    return hids, ijks, xbs, msgs
 
 
 def get_cell_aspect(cell_sizes):
