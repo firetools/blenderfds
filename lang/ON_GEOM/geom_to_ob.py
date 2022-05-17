@@ -1,3 +1,4 @@
+import math
 import bpy, bmesh, logging
 from mathutils import Matrix, Vector
 from ...types import BFException
@@ -18,12 +19,21 @@ def geom_to_ob(context, ob, fds_verts=None, fds_faces=None, fds_surfs=None, fds_
     @param filepath: if set, read from bingeom file.
     """
     if filepath:
-        _, fds_verts, fds_faces, fds_surfs, _ = bingeom.read_bingeom_file(filepath)
+        # n_surf_id, fds_verts, fds_faces, fds_surfs, fds_volus, geom_type
+        _, fds_verts, fds_faces, fds_surfs, _, geom_type = bingeom.read_bingeom_file(filepath)
         fds_faces_surfs = None
-    geom_to_mesh(context, me=ob.data, fds_verts=fds_verts, fds_faces=fds_faces, fds_surfs=fds_surfs, fds_faces_surfs=fds_faces_surfs)
+    geom_to_mesh(
+        context,
+        me=ob.data,
+        fds_verts=fds_verts,
+        fds_faces=fds_faces,
+        fds_surfs=fds_surfs,
+        fds_faces_surfs=fds_faces_surfs,
+        geom_type=geom_type,
+    )
 
 
-def geom_to_mesh(context, me, fds_verts, fds_faces=None, fds_surfs=None, fds_faces_surfs=None) -> None:
+def geom_to_mesh(context, me, fds_verts, fds_faces=None, fds_surfs=None, fds_faces_surfs=None, geom_type=1) -> None:
     """!
     Import GEOM VERTS and FACES into Blender Mesh.
     @param context: the blender context.
@@ -85,6 +95,15 @@ def geom_to_mesh(context, me, fds_verts, fds_faces=None, fds_surfs=None, fds_fac
     for iface, face in enumerate(me.polygons):
         material_index = fds_surfs[iface] - 1  # -1 from F90 to py indexes
         face.material_index = material_index
+    # Set the GEOM type
+    match geom_type:
+        case 1:
+            me.bf_geom_is_terrain = False
+        case 2:
+            me.bf_geom_is_terrain = True
+        case _:
+            raise BFException(me, "Unrecognized GEOM type.")
+
 
 # Special GEOMs
 
