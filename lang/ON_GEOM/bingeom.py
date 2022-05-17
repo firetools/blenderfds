@@ -110,7 +110,7 @@ def write_bingeom_file(
         if force_dir:
             utils.io.make_dir(filepath)
         with open(filepath, "wb") as f:
-            _write_record(f, np.array((geom_type,), dtype="int32"))  # was 1 only
+            _write_record(f, np.array((geom_type,), dtype="int32"))  # 1 or 2 if terrain 
             _write_record(
                 f,
                 np.array(
