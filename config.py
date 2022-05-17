@@ -22,6 +22,9 @@ MIN_INTERSECTION_LENGTH = 1e-05
 ## flat face difference
 FLAT_DIFFERENCE = 1e-03
 
+## number of magnetic cells for MESH alignment (align_meshes.py)
+MAGNET_NCELL = 3
+
 ## Default SURF Materials
 DEFAULT_MAS = {  # name: diffuse_color
     "INERT": ((0.8, 0.8, 0.2, 1.0),),

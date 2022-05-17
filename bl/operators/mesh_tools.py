@@ -90,6 +90,7 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
 
     def execute(self, context):
         bpy.ops.object.mode_set(mode="OBJECT")
+
         # Get source and destination objects
         source_element = context.object
         dest_elements = set(
@@ -105,6 +106,7 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
         if not source_element:
             self.report({"WARNING"}, "No source Object")
             return {"CANCELLED"}
+
         # Align
         rijk = source_element.bf_mesh_ijk  # ref ijk
         rxb = utils.geometry.get_bbox_xb(context, ob=source_element, world=True)
@@ -112,12 +114,13 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
             mijk = de.bf_mesh_ijk
             mxb = utils.geometry.get_bbox_xb(context, ob=de, world=True)
             try:
-                rijk, rxb, mijk, mxb, msgs = lang.ON_MESH.align_meshes(
+                rijk, rxb, mijk, mxb, msg = lang.ON_MESH.align_meshes(
                     rijk, rxb, mijk, mxb, poisson=False, protect_rl=False
                 )
             except BFException as err:
                 self.report({"ERROR"}, str(err))
                 return {"CANCELLED"}
+
             # Set source element
             source_element.bf_mesh_ijk = rijk
             if source_element.data.users > 1:
@@ -128,6 +131,7 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
                 xbs=(rxb,),
                 bf_xb="BBOX",
             )
+
             # Set destination element
             de.bf_mesh_ijk = mijk
             if de.data.users > 1:
@@ -138,11 +142,17 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
                 xbs=(mxb,),
                 bf_xb="BBOX",
             )
-            log.debug("\n".join(msgs))
+            msg = f"<{de.name}> to <{source_element.name}>: {msg}"
+            log.debug(msg)
+
         # Update 3dview
         context.view_layer.update()
-        self.report({"INFO"}, "MESH Objects aligned")
-        return {"FINISHED"}
+        if len(dest_elements) == 1:
+            self.report({"INFO"}, f"Alignment: {msg}")
+            return {"FINISHED"}
+        else:
+            self.report({"INFO"}, "Alignment completed (see console log)")
+            return {"FINISHED"}
 
 
 bl_classes = [
