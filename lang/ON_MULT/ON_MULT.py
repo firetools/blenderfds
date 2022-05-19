@@ -28,17 +28,6 @@ class OP_MULT_ID(BFParam):
         pass
 
 
-class OP_MULT_generate_multiples(BFParam):
-    label = "Generate Multiples"
-    description = (
-        "Generate multiplicated namelists,\ninstead of adding the MULT namelist"
-    )
-    fds_default = True
-    bpy_type = Object
-    bpy_prop = BoolProperty
-    bpy_idname = "bf_mult_generate_multiples"
-
-
 class OP_MULT_DX(BFParam):
     label = "DX"
     description = "Displacement along axis x"
@@ -373,8 +362,7 @@ class ON_MULT(BFNamelist):  # not in namelist menu
     bpy_export_default = False
     bpy_other = {"update": update_bf_mult}
     bf_params = (
-        OP_MULT_ID,
-        OP_MULT_generate_multiples,
+        OP_MULT_ID,  # used when importing
         OP_MULT_DX,
         OP_MULT_DY,
         OP_MULT_DZ,
@@ -402,10 +390,6 @@ class ON_MULT(BFNamelist):  # not in namelist menu
 
     def draw(self, context, layout):  # TODO feedback if DXB used
         ob = self.element
-
-        row = layout.row(align=True)
-        row.use_property_split = True  # special
-        row.prop(ob, "bf_mult_generate_multiples")
 
         row = layout.row(align=True)  # X,Y,Z
 
@@ -482,29 +466,17 @@ class ON_MULT(BFNamelist):  # not in namelist menu
 # that support a MULT_ID
 # and the relative MULT namelist
 # (See also: ON_MOVE)
+# It is not exported: multiples are always generated
 
 
 class OP_other_MULT_ID(BFParam):
     label = "MULT_ID"
     description = "Reference to multiplier transformation"
-    fds_label = "MULT_ID"
+    fds_label = "MULT_ID"  # for importing only
     bpy_type = Object
-    bpy_idname = "bf_mult_export"  # should already exist
 
-    def get_value(self, context):
-        return f"{self.element.name}_mult"
-
-    def to_fds_list(self, context) -> FDSList:
-        ob = self.element
-        if ob.bf_mult_export and not ob.bf_mult_generate_multiples:
-            return FDSList(
-                iterable=(
-                    super().to_fds_list(context),
-                    ON_MULT(element=ob).to_fds_list(context),
-                )
-            )
-        else:
-            return FDSList()
+    def get_exported(self, context):
+        return False
 
     def from_fds(self, context, value):
         # Get required MULT parameters from dict created by SN_MULT

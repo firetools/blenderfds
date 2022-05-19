@@ -60,16 +60,10 @@ def multiply_xbs(context, ob, hids, xbs, msgs):
 
     # Msgs
     if nmult > 1:
-        if msgs:
-            msgs[0] += f" | Multiples: {nmult}"
-        else:
-            msgs.append(f"Multiples: {nmult}")
+        msgs.append(f"Multiples: {nmult}")
 
-    # Generate?
-    if ob.bf_mult_generate_multiples:
-        return multi_hids, multi_xbs, msgs, nmult
-    else:
-        return hids, xbs, msgs, nmult
+    # Generate multiples
+    return multi_hids, multi_xbs, msgs, nmult
 
 
 def multiply_xb(
