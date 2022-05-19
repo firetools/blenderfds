@@ -4,7 +4,7 @@ MESH namelist definition
 
 import logging
 from bpy.types import Object
-from bpy.props import IntVectorProperty, IntProperty
+from bpy.props import IntVectorProperty
 from ...config import LP
 from ...types import BFParam, BFNamelistOb, FDSParam, FDSMulti, FDSList, BFException
 from ... import utils
@@ -60,7 +60,7 @@ class OP_MESH_XB_BBOX(OP_XB_BBOX):
         hids, ijks, xbs, msgs = get_mesh_geometry(context=context, ob=ob)
         match len(xbs):
             case 0:
-                return FDSList()
+                return FDSList()  # FIXME raise exception?
             case 1:
                 return FDSParam(fds_label="XB", value=xbs[0], precision=LP, msgs=msgs)
             case _:

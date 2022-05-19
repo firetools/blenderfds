@@ -82,6 +82,8 @@ def get_mesh_geometry(context, ob):
     )
     ijks *= nmult
 
+    # FIXME fix mesh header and ui (per mesh), fds/smokeview run
+
     # Prepare header
     ijk = ob.bf_mesh_ijk
     ncell_tot = ijk[0] * ijk[1] * ijk[2] * nmult

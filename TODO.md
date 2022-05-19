@@ -14,7 +14,6 @@ rm context,sc from def and take it from context.scene
 OK move ON_MOVE and make it similar to ON_MULT
 OK RGB color for MESH, and override for OBST, HOLE, VENT, Other...
 
-OK MPI for MESH (but it should be exported from 0)
 OK Assign number of processes?
 
 test multiply

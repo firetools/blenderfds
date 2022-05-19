@@ -66,7 +66,7 @@ def read_bingeom_file(filepath):
             fds_surfs = _read_record(f, req_dtype="int32", req_dlen=n_faces)
             fds_volus = _read_record(f, req_dtype="int32", req_dlen=4 * n_volus)
     except Exception as err:
-        raise BFException(None, f"Error reading bingeom file <{filepath}>:\n{err}")
+        raise BFException(None, f"Error reading bingeom file: <{filepath}>\n{err}")
     return n_surf_id, fds_verts, fds_faces, fds_surfs, fds_volus, geom_type
 
 
@@ -128,4 +128,4 @@ def write_bingeom_file(
             _write_record(f, np.array(fds_surfs, dtype="int32"))
             _write_record(f, np.array(fds_volus, dtype="int32"))
     except Exception as err:
-        raise BFException(None, f"Error writing bingeom file <{filepath}>:\n{err}")
+        raise BFException(None, f"Error writing bingeom file: <{filepath}>\n{err}")
