@@ -116,12 +116,11 @@ class FDSList(list):
     _RE_SCAN = re.compile(  # scan f90_namelists
         r"""
         ^&                    # & at the beginning of the line
-        ([A-Z]+[A-Z0-9]*)     # namelist label (group 0)
-        [,\s\t]*              # 0+ separator, greedy
+        ([A-Z][A-Z0-9]{3})    # namelist label (group 0)
+        [,\s\t]               # 1 separator
         (                     # namelist params (group 1)
         (?:'.*?'|".*?"|.*?)*  # 0+ any char, protect quoted strings, greedy
-        ) 
-        [,\s\t]*              # 0+ separator, greedy
+        )                     # (separators are stripped later)
         /                     # / end char
         """,
         re.VERBOSE | re.DOTALL | re.IGNORECASE | re.MULTILINE,
@@ -260,6 +259,7 @@ class FDSNamelist(FDSList):
         return self._to_fds_list(inv_ps=inv_ps, multi_ps=multi_ps, add_ns=add_ns)
 
     def to_string(self) -> str:  # FIXME use to_fds_list
+        """Get string representation of self."""
         inv_ps, multi_ps, add_ns = self._classify_items()
         inv_ps = self._rm_dupli_ps_from_inv_ps(inv_ps=inv_ps, multi_ps=multi_ps)
         # Many namelists to be generated? recurse
@@ -298,9 +298,8 @@ class FDSNamelist(FDSList):
         @param f90_params: FDS formatted string of parameters, eg. "ID='Test' PROP=2.34, 1.23, 3.44".
         """
         self.clear()
-        f90_params = " ".join(
-            f90_params.strip().splitlines()
-        )  # rm trailing spaces and newlines
+        # Rm trailing separators and newlines
+        f90_params = " ".join(f90_params.strip(", \t").splitlines())
         for match in re.finditer(self._RE_SCAN, f90_params):
             label, f90_value = match.groups()
             self.append(FDSParam(fds_label=label, f90_value=f90_value))
@@ -431,7 +430,7 @@ class FDSParam(FDSList):
                 try:
                     values[i] = eval(v)
                 except Exception as err:
-                    msg = f"Error parsing value <{v}> in <{self.fds_label}={f90_value}>:\n<{err}>"
+                    msg = f"Malformed FDS file: <{self.fds_label}={f90_value}> (value: <{v}>)\n<{err}>"
                     raise BFException(self, msg)
         # Post treatment of float
         if isinstance(values[0], float):  # first value is a float
