@@ -38,7 +38,7 @@ def append_free_text(context, fds_list):
     sc = context.scene
     if sc.bf_config_text:
         header = f"\n--- Free text from Blender Text: <{sc.bf_config_text.name}>"
-        msg = sc.bf_config_text.as_string()[:-1]  # rm last newline char
+        msg = sc.bf_config_text.as_string()
         fds_list.append(FDSList(header=header, msg=msg))
 
 
@@ -62,13 +62,10 @@ def append_cos_namelists(context, fds_list):
     iterable = context.scene.collection.to_fds_list(context, full=True)
     fds_list.append(FDSList(header=header, iterable=iterable))
 
-
-# FIXME when MULT do not export, or remove generate...
+# FIXME
 # msg per MESH, not per group of MESHes anymore.
 # better keep msgs
 # test test test!
-# remove MESH from Object to_fds_list
-# right order
 
 
 def append_domain_namelists(context, fds_list):
@@ -87,7 +84,6 @@ def append_domain_namelists(context, fds_list):
     for ob in mesh_obs:
         mesh_fds_list.extend(ob.to_fds_list(context).streamline())
     # FIXME fds_list.extend should manage msgs?
-    # FIXME remove MULT
 
     # Short track
     if not sc.bf_config_mpi_processes_export:
