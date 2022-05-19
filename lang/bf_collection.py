@@ -29,7 +29,7 @@ class BFCollection:
             if found:
                 return found
 
-    def to_fds_list(self, context) -> FDSList:
+    def to_fds_list(self, context, full=False) -> FDSList:
         """!
         Return the FDSList instance from self, never None.
         """
@@ -37,11 +37,17 @@ class BFCollection:
         if self.hide_render or layer_collection.exclude:
             return FDSList()  # exclude from exporting
         header = f"\n--- Blender Collection: <{self.name}>"
-        obs = list(self.objects)
+        if full:
+            # MESH are centrally managed and exported by bf_scene
+            obs = list(ob for ob in self.objects if ob.bf_namelist_cls != "ON_MESH")
+        else:
+            obs = list(self.objects)
         obs.sort(key=lambda k: k.name)  # alphabetic by name
         iterable = (ob.to_fds_list(context=context) for ob in obs)
         fds_list = FDSList(header=header, iterable=iterable)
-        fds_list.extend(child.to_fds_list(context=context) for child in self.children)
+        fds_list.extend(
+            child.to_fds_list(context=context, full=full) for child in self.children
+        )
         return fds_list
 
     @classmethod

@@ -31,28 +31,20 @@ class BFScene:
         fds_list = FDSList()
 
         if full:
-            export_helper.append_header(context=context, sc=self, fds_list=fds_list)
+            export_helper.append_header(context=context, fds_list=fds_list)
 
-        export_helper.append_sc_namelists(context=context, sc=self, fds_list=fds_list)
+        export_helper.append_sc_namelists(context=context, fds_list=fds_list)
 
         if self.bf_config_text_position == "BEGIN":
-            export_helper.append_free_text(sc=self, fds_list=fds_list)
+            export_helper.append_free_text(context=context, fds_list=fds_list)
 
         if full:
-            export_helper.append_mas_namelists(
-                context=context, sc=self, fds_list=fds_list
-            )
-
-        if self.bf_config_text_position == "SURF":
-            export_helper.append_free_text(sc=self, fds_list=fds_list)
-
-        if full:
-            export_helper.append_cos_namelists(
-                context=context, sc=self, fds_list=fds_list
-            )
+            export_helper.append_mas_namelists(context=context, fds_list=fds_list)
+            export_helper.append_domain_namelists(context, fds_list=fds_list)
+            export_helper.append_cos_namelists(context=context, fds_list=fds_list)
 
         if self.bf_config_text_position == "END":
-            export_helper.append_free_text(sc=self, fds_list=fds_list)
+            export_helper.append_free_text(context=context, fds_list=fds_list)
 
         if full and self.bf_head_export:
             fds_list.append(FDSList(msg="\n&TAIL /\n"))

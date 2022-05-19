@@ -41,7 +41,7 @@ class FDSList(list):
         """!Check if fds_label is in iterable."""
         return bool(self.get_fds_label(fds_label=fds_label, remove=False))
 
-    def _classify_items(self, inv_ps=None, multi_ps=None, add_ns=None):
+    def _classify_items(self, inv_ps=None, multi_ps=None, add_ns=None):  # FIX msgs mgmt
         """!
         Classify self items in params msgs, invariant params,
         multi params, additional namelists.
@@ -188,7 +188,7 @@ class FDSNamelist(FDSList):
 
     def _to_fds_list(self, inv_ps, multi_ps, add_ns):
         """!
-        Generate many fds namelists, if needed.
+        Generate an fds_list of many fds namelists, if needed.
         """
         fds_list = FDSList()
         if multi_ps:
@@ -253,7 +253,13 @@ class FDSNamelist(FDSList):
         lines[-1] += " /"  # close
         return "\n".join(lines)
 
-    def to_string(self) -> str:
+    def streamline(self) -> FDSList:
+        """Streamline self to simple FDSNamelist instances without multi_ps or add_ns."""
+        inv_ps, multi_ps, add_ns = self._classify_items()
+        inv_ps = self._rm_dupli_ps_from_inv_ps(inv_ps=inv_ps, multi_ps=multi_ps)
+        return self._to_fds_list(inv_ps=inv_ps, multi_ps=multi_ps, add_ns=add_ns)
+
+    def to_string(self) -> str:  # FIXME use to_fds_list
         inv_ps, multi_ps, add_ns = self._classify_items()
         inv_ps = self._rm_dupli_ps_from_inv_ps(inv_ps=inv_ps, multi_ps=multi_ps)
         # Many namelists to be generated? recurse

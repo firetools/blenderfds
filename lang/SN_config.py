@@ -6,6 +6,7 @@ from bpy.props import (
     StringProperty,
     PointerProperty,
     EnumProperty,
+    IntProperty,
 )
 from ..config import LP
 from ..types import BFParam, BFNamelistSc, BFException
@@ -63,6 +64,7 @@ class SP_config_text_position(BFParam):
     bpy_type = Scene
     bpy_idname = "bf_config_text_position"
     bpy_prop = EnumProperty
+    bpy_default = "BEGIN"
     bpy_other = {
         "items": (
             (
@@ -70,12 +72,6 @@ class SP_config_text_position(BFParam):
                 "At Beginning",
                 "Insert at the beginning of the exported file",
                 100,
-            ),
-            (
-                "SURF",
-                "After SURF Lines",
-                "Insert after SURFs boundary conditions",
-                200,
             ),
             (
                 "END",
@@ -88,7 +84,7 @@ class SP_config_text_position(BFParam):
 
 
 class SP_config_default_voxel_size(BFParam):
-    label = "Voxel/Pixel Size"
+    label = "Default Voxel/Pixel Size"
     description = "Default voxel/pixel resolution"
     bpy_type = Scene
     bpy_idname = "bf_default_voxel_size"
@@ -103,6 +99,32 @@ class SP_config_default_voxel_size(BFParam):
     }
 
 
+class SN_config_mpi_processes(BFParam):
+    label = "MPI Processes"
+    description = (
+        "Number of MPI processes automatically allocated to the MESH instances."
+    )
+    bpy_type = Scene
+    bpy_idname = "bf_config_mpi_processes"
+    bpy_prop = IntProperty
+    bpy_default = 1
+    bpy_other = {"min": 1}
+    bpy_export = "bf_config_mpi_processes_export"
+    bpy_export_default = True
+
+
+# class SN_config_openmp_threads(BFParam): # TODO add fds and smokeview run
+#     label = "OpenMP Threads"
+#     description = "Number of OpenMP threads assigned to each process."
+#     bpy_type = Scene
+#     bpy_idname = "bf_config_openmp_threads"
+#     bpy_prop = IntProperty
+#     bpy_default = 1
+#     bpy_other = {"min": 1}
+#     bpy_export = "bf_config_openmp_threads_export"
+#     bpy_export_default = False
+
+
 class SN_config(BFNamelistSc):
     label = "FDS Case Config"
     bf_params = (
@@ -111,6 +133,8 @@ class SN_config(BFNamelistSc):
         SP_config_text,
         SP_config_text_position,
         SP_config_default_voxel_size,
+        SN_config_mpi_processes,
+        # SN_config_openmp_threads,  # TODO add fds and smokeview run
     )
 
     def draw(self, context, layout):
