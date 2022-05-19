@@ -38,7 +38,7 @@ def read_txt_file(filepath):
         except UnicodeDecodeError:
             pass
         except Exception as err:
-            raise BFException(None, f"Error reading file <{filepath}>:\n{err}")
+            raise BFException(None, f"Error reading file: <{filepath}>\n{err}")
     raise UnicodeDecodeError(f"Unknown text encoding in file: <{filepath}>")
 
 
@@ -52,7 +52,7 @@ def write_txt_file(filepath, text=None, force_dir=False):
         with open(filepath, "w", encoding="utf8", errors="ignore") as f:
             f.write(text or str())
     except Exception as err:
-        raise BFException(None, f"Error writing file <{filepath}>:\n{err}")
+        raise BFException(None, f"Error writing file: <{filepath}>\n{err}")
 
 
 # Transform paths
