@@ -39,7 +39,7 @@ def read_txt_file(filepath):
             pass
         except Exception as err:
             raise BFException(None, f"Error reading file <{filepath}>:\n{err}")
-    raise UnicodeDecodeError(f"Unknown text encoding in file <{filepath}>")
+    raise UnicodeDecodeError(f"Unknown text encoding in file: <{filepath}>")
 
 
 def write_txt_file(filepath, text=None, force_dir=False):
@@ -99,7 +99,9 @@ def transform_rbl_to_abs(context, filepath_rbl, name="", extension="") -> str:
     """
     filepath = bpy.path.abspath(filepath_rbl)
     if not is_abs(filepath):
-        raise BFException(None, f"Unresolved relative path, save the Blender file")
+        raise BFException(
+            None, f"Save the Blender file, unresolved relative path: <{filepath_rbl}>"
+        )
     if name or extension:
         filepath = append_filename(filepath, name, extension)
     return filepath
@@ -133,7 +135,9 @@ def transform_rfds_to_abs(context, filepath_rfds) -> str:
     fds_path = get_abs_fds_path(context.scene)
     filepath = os.path.abspath(os.path.join(fds_path, filepath_rfds))
     if not is_abs(filepath):
-        raise BFException(None, f"Unresolved relative path in <{filepath_rfds}>")
+        raise BFException(
+            None, f"Check the FDS file, unresolved relative path: <{filepath_rfds}>"
+        )
     return filepath
 
 
@@ -166,7 +170,9 @@ def get_abs_fds_path(sc) -> str:
     """
     fds_path = bpy.path.abspath(sc.bf_config_directory)
     if not is_abs(fds_path):
-        raise BFException(None, f"Unresolved relative path, save the Blender file")
+        raise BFException(
+            None, f"Save the Blender file, unresolved relative path: <{fds_path}>"
+        )
     return fds_path
 
 
@@ -202,7 +208,7 @@ def is_dir(path):
 def is_abs(path):
     if path.startswith("//"):  # Blender notation for relative paths
         return False
-    elif path.startswith("/"):  # OS notation for absolute paths
+    elif os.path.isabs(path):  # OS notation for absolute paths
         return True
     elif not path:  # empty path is /home/user/
         return True
