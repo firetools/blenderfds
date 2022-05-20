@@ -25,6 +25,21 @@ FLAT_DIFFERENCE = 1e-03
 ## number of magnetic cells for MESH alignment (align_meshes.py)
 MAGNET_NCELL = 3
 
+# TODO
+# ## run fds commands
+# # os.system("command")
+# RUN_FDS = {
+#     "Linux": 'export OMP_NUM_THREADS={t} && mpiexec -n {p} fds "{f}"',
+#     "MacOS": 'export OMP_NUM_THREADS={t} && mpiexec -n {p} fds "{f}"',
+#     "Windows": 'cmd.exe /k "fdsinit & fds_local -p {p} -o {t} -Y "{f}" "',
+# }
+# ## run smokeview commands
+# RUN_SMV = {
+#     "Linux": 'smokeview "{f}"',
+#     "MacOS": 'smokeview "{f}"',
+#     "Windows": 'cmd.exe /k ""fdsinit & smokeview" "{f}""',
+# }
+
 ## Default SURF Materials
 DEFAULT_MAS = {  # name: diffuse_color
     "INERT": ((0.8, 0.8, 0.2, 1.0),),

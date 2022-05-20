@@ -225,7 +225,7 @@ def test():
     assert rxb == [0.0, 5.0, 0.0, 5.0, 0.0, 5.0]
     assert mijk == [8, 40, 20]
     assert mxb == [0.0, 5.0, 0.0, 5.0, 5.0, 10.0]
-    assert msg == ""  # FIXME
+    assert msg == ""  # TODO
 
 
 if __name__ == "__main__":
