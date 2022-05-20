@@ -40,7 +40,10 @@ class BFScene:
 
         if full:
             export_helper.append_mas_namelists(context=context, fds_list=fds_list)
-            export_helper.append_domain_namelists(context, fds_list=fds_list)
+
+        export_helper.append_domain_namelists(context, fds_list=fds_list)
+
+        if full:
             export_helper.append_cos_namelists(context=context, fds_list=fds_list)
 
         if self.bf_config_text_position == "END":
