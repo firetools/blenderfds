@@ -133,7 +133,7 @@ def import_by_fds_label(
 
     # Finally, write free text
     if texts:
-        body = sc.bf_config_text.as_string()[:-1]  # rm newline
+        body = sc.bf_config_text.as_string()
         # Add separator
         if body:
             body += "\n"
