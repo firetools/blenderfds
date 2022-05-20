@@ -8,6 +8,19 @@ from .bf_exception import BFException
 
 log = logging.getLogger(__name__)
 
+def _append_word(lines, word, separator=" ", force_break=False) -> list:
+    """!
+    Append word to the last of lines, generate newline and ident if needed.
+    """
+    if not force_break and len(lines[-1]) + len(separator) + len(word) <= MAXLEN:
+        # append to current line
+        lines[-1] += separator + word
+    else:
+        # append to new line w indent, wo separator
+        lines.append(" " * INDENT + word)
+    return lines
+
+# Classes
 
 class FDSList(list):
     """!
@@ -28,10 +41,10 @@ class FDSList(list):
             self.msgs.append(msg)
         ## header string, that appears only if self is not empty
         self.header = header
-        ## set iterable from f90_namelists
+
+        # Set iterable from f90_namelists
         if f90_namelists:
             self.from_fds(f90_namelists=f90_namelists)
-
 
     def __repr__(self) -> str:
         iterable = ",".join(str(item) for item in self)
@@ -40,36 +53,6 @@ class FDSList(list):
     def __contains__(self, fds_label) -> bool:
         """!Check if fds_label is in iterable."""
         return bool(self.get_fds_label(fds_label=fds_label, remove=False))
-
-    def _classify_items(self, inv_ps=None, multi_ps=None, add_ns=None):  # FIX msgs mgmt
-        """!
-        Classify self items in params msgs, invariant params,
-        multi params, additional namelists.
-        """
-        if inv_ps is None:  # first run
-            # init invariant params, multi params, additional namelists
-            inv_ps, multi_ps, add_ns = FDSList(), None, FDSList()
-        for item in self:
-            match item:
-                case None:
-                    continue
-                case FDSParam():  # invariant params
-                    inv_ps.append(item)
-                case FDSMulti():  # multi param (one only)
-                    if multi_ps:
-                        raise Exception(f"One only FDSMulti allowed in: {self!r}")
-                    iterable = (tuple(ps) for ps in item)  # rm generators                  
-                    iterable = (ps for ps in iterable if ps)  # rm empty tuples
-                    multi_ps = FDSMulti(iterable=iterable, msgs=item.msgs)
-                case FDSNamelist():  # additional namelists
-                    add_ns.append(item)
-                case FDSList():  # recurse
-                    inv_ps, multi_ps, add_ns = item._classify_items(
-                        inv_ps=inv_ps, multi_ps=multi_ps, add_ns=add_ns)
-                case _:
-                    raise ValueError(f"Unrecognized type of <{item!r}> in <{self!r}>")
-        return inv_ps, multi_ps, add_ns
-
 
     def get_fds_label(self, fds_label=None, remove=False):
         """!
@@ -102,14 +85,43 @@ class FDSList(list):
                         self.pop(i)
                     return item
 
+    def _get_flat_components(self):
+        """Get lists of generated namelists and parameters."""
+        ns, ps, multi_ps = FDSList(), FDSList(), None
+        for item in self:
+            match item:
+                case None:
+                    continue
+                case FDSParam():
+                    ps.append(item)
+                case FDSMulti():
+                    if multi_ps:
+                        raise ValueError("Only one FDSMulti in FDSNamelist.")
+                    multi_ps = item
+                    # Replace generators
+                    for i, item in enumerate(multi_ps):
+                        multi_ps[i] = tuple(item)  # break if None
+                case FDSList()|FDSNamelist():
+                    ps_new, multi_ps_new, ns_new = item._get_flat_components()
+                    ns.extend(ns_new)
+                    ps.extend(ps_new)
+                    if multi_ps_new:
+                        if multi_ps:
+                            raise ValueError("Only one FDSMulti in FDSNamelist (from child).")
+                        multi_ps = multi_ps_new
+                case _:
+                    raise ValueError(f"Unrecognized type of <{item!r}> in <{self!r}>")
+        return ps, multi_ps, ns
+
     def to_string(self) -> str:
         """!
         Return the FDS formatted string.
         """
-        lines = self.msgs
-        lines.extend(item.to_string() for item in self)
-        body = "\n".join(l for l in lines if l)
-        if self.header and body:  # only if body!
+        body = list()
+        body.extend(self.msgs)
+        body.extend(item.to_string() for item in self)
+        body = "\n".join(b for b in body if b) # rm empty bodies
+        if self.header and body:
             body = "\n".join((self.header, body))
         return body
 
@@ -126,7 +138,7 @@ class FDSList(list):
         re.VERBOSE | re.DOTALL | re.IGNORECASE | re.MULTILINE,
     )  # MULTILINE, so that ^ is the beginning of each line
 
-    def from_fds(self, f90_namelists) -> None:  # TODO add comments to msgs
+    def from_fds(self, f90_namelists) -> None:
         """!
         Fill self from FDS file or text, on error raise BFException.
         @param f90_namelists: FDS formatted string of namelists, eg. "&OBST ID='Test' /\n&TAIL /".
@@ -164,7 +176,8 @@ class FDSNamelist(FDSList):
         super().__init__(iterable=iterable, msgs=msgs, msg=msg)
         ## fds label of group (eg. namelist or param).
         self.fds_label = fds_label
-        ## set iterable from f90_params
+        
+        # Set iterable from f90_params
         if f90_params:
             self.from_fds(f90_params=f90_params)
 
@@ -175,99 +188,74 @@ class FDSNamelist(FDSList):
     def __bool__(self):
         return bool(self.fds_label or self.msgs)
 
-    def _rm_dupli_ps_from_inv_ps(self, inv_ps, multi_ps):
-        """!
-        Remove params from inv_ps that are duplicated in multi_ps
-        (eg. ID, IJK, XB, ...)
-        """
-        for mp in multi_ps or ():  # protect from None, already cleaned
-            fds_label = mp[0].fds_label
-            inv_ps.get_fds_label(fds_label=fds_label, remove=True)
-        return inv_ps
+    def clone(self):
+        return FDSNamelist(fds_label=self.fds_label, iterable=self, msgs=self.msgs)
 
-    def _to_fds_list(self, inv_ps, multi_ps, add_ns):
-        """!
-        Generate an fds_list of many fds namelists, if needed.
-        """
-        fds_list = FDSList()
+    def get_flat_ns(self):
+        """Generate a flattened list of FDSNamelist instances."""
+        ps, multi_ps, ns = self._get_flat_components()
+        self.clear()
+        # Treat multi_ps
         if multi_ps:
-            fds_list.msgs.extend(self.msgs)
-            fds_list.msgs.extend(multi_ps.msgs)
-            # Zip it, from ((ID=A,ID=B,ID=C),(XB=1,XB=2,XB=3)) to ((ID=A,XB=1),...)
-            # and remove empty params
-            zipped_multi_ps = tuple(zip(*multi_ps))  # already cleaned
-            for zp in zipped_multi_ps: 
-                # Add its multi params (ID comes always first)
-                fds_namelist = FDSNamelist(fds_label=self.fds_label, iterable=zp)
-                # Add invariant params and no msg
-                fds_namelist.extend(inv_ps)
-                # Append one of multi (eg. an OBST voxel) to the list
-                fds_list.append(fds_namelist)
+            # Rm duplicated ps
+            for mp in multi_ps:
+                fds_label = mp[0].fds_label  # break if mp empty
+                ps.get_fds_label(fds_label=fds_label, remove=True)
+            # Get FDSMulti msgs, before deletion
+            ns.msgs.extend(multi_ps.msgs)
+            # Zip multi_ps
+            multi_ps = list(zip(*(mp for mp in multi_ps if mp)))
+            # Extend with invariant parameters: mp + ps
+            for i, mp in enumerate(multi_ps):
+                multi_ps[i] = list(mp)
+                multi_ps[i].extend(ps)
+            # Build multi namelists and save them
+            for mp in multi_ps:
+                n = self.clone()
+                n.extend(mp)
+                ns.append(n)
         else:
-            fds_namelist = FDSNamelist(
-                fds_label=self.fds_label, iterable=inv_ps, msgs=self.msgs
-            )
-            fds_list.append(fds_namelist)  # append self
-        fds_list.extend(add_ns)  # append additional namelists (eg. MOVE)
-        return fds_list
+            # Rebuild depurated self
+            self.extend(ps)
+            ns.append(self)
+        return ns
 
-    def _append_word(self, lines, word, separator=" ", force_break=False) -> list:
-        """!
-        Append word to the last of lines, generate newline and ident if needed.
-        """
-        if not force_break and len(lines[-1]) + len(separator) + len(word) <= MAXLEN:
-            lines[-1] += separator + word  # current line
-        else:
-            lines.append(" " * INDENT + word)  # new line w indent, wo separator
-        return lines
+    def _flat_n_to_string(self, n) -> str:
+        """Get string representation of flat namelist."""
+        body = list()
 
-    def _to_one_string(self, inv_ps):
-        """!
-        Format self, a namelist that generates only one namelist.
-        """
-        lines = self.msgs
-        lines.extend(m for p in self if p for m in p.msgs)  # self params msgs
-        lines.append(f"&{self.fds_label}")  # start namelist, eg. "&OBST"
-        for p in inv_ps:  # add params, use inv_ps because it is flattened
-            if p is None:
-                continue
-            fds_label, fds_values = p.fds_label, p.to_strings()
+        # Add namelist and param msgs
+        body.extend(n.msgs)
+        for p in n:
+            body.extend(p.msgs)
+
+        # Add namelist
+        body.append(f"&{self.fds_label}")
+        for p in n:
+            fds_label, fds_values = p.fds_label, p._to_strings()
             if not fds_values:  # fds_label only provided, probably preformatted (eg. BFParamOther)
-                lines = self._append_word(lines, word=fds_label)
+                body = _append_word(body, word=fds_label)
             else:  # fds_label and its values provided
                 word = f"{fds_label}={','.join(fds_values)}"
                 if len(word) <= MAXLEN - INDENT or len(fds_values) == 1:
                     # short param, keep together
-                    lines = self._append_word(lines, word=word)
+                    body = _append_word(body, word=word)
                 else:
                     # long param, split in lines
-                    lines = self._append_word(
-                        lines, word=f"{fds_label}={fds_values[0]},"
-                    )  # first
+                    body = _append_word(body, word=f"{fds_label}={fds_values[0]},")  # first
                     for v in fds_values[1:-1]:
-                        lines = self._append_word(lines, word=f"{v},", separator="")
-                    lines = self._append_word(
-                        lines, word=f"{fds_values[-1]}", separator=""
-                    )  # last
-        lines[-1] += " /"  # close
-        return "\n".join(lines)
+                        body = _append_word(body, word=f"{v},", separator="")
+                    body = _append_word(body, word=f"{fds_values[-1]}", separator="")  # last
+        body[-1] += " /"  # close
+        return "\n".join(body)
 
-    def streamline(self) -> FDSList:
-        """Streamline self to simple FDSNamelist instances without multi_ps or add_ns."""
-        inv_ps, multi_ps, add_ns = self._classify_items()
-        inv_ps = self._rm_dupli_ps_from_inv_ps(inv_ps=inv_ps, multi_ps=multi_ps)
-        return self._to_fds_list(inv_ps=inv_ps, multi_ps=multi_ps, add_ns=add_ns)
-
-    def to_string(self) -> str:  # FIXME use to_fds_list
-        """Get string representation of self."""
-        inv_ps, multi_ps, add_ns = self._classify_items()
-        inv_ps = self._rm_dupli_ps_from_inv_ps(inv_ps=inv_ps, multi_ps=multi_ps)
-        # Many namelists to be generated? recurse
-        if multi_ps or add_ns:
-            fds_list = self._to_fds_list(inv_ps=inv_ps, multi_ps=multi_ps, add_ns=add_ns)
-            return fds_list.to_string()
-        # Otherwise format self
-        return self._to_one_string(inv_ps=inv_ps)
+    def to_string(self) -> str:
+        """Get string representation."""
+        ns = self.get_flat_ns()
+        if len(ns) == 1:
+            return self._flat_n_to_string(ns[0])
+        else:
+            return ns.to_string()
 
     _RE_SCAN = re.compile(  # scan f90_params
         r"""
@@ -363,7 +351,7 @@ class FDSParam(FDSList):
             case _:
                 self.extend(value)
 
-    def to_strings(self) -> tuple:
+    def _to_strings(self) -> tuple:
         """!
         Return a tuple of FDS formatted values or an empty tuple, eg. "'Test1'","'Test2'".
         """
@@ -391,7 +379,7 @@ class FDSParam(FDSList):
         Return the FDS formatted string.
         """
         if self.fds_label:
-            v = ",".join(self.to_strings())
+            v = ",".join(self._to_strings())
             if v:  # "ABC=1,2,3"
                 return f"{self.fds_label}={v}"
             else:  # "ABC"
