@@ -82,22 +82,25 @@ def get_mesh_geometry(context, ob):
     )
     ijks *= nmult
 
-    # FIXME fix mesh header and ui (per mesh), fds/smokeview run
-
     # Prepare header
     ijk = ob.bf_mesh_ijk
     ncell_tot = ijk[0] * ijk[1] * ijk[2] * nmult
     has_good_ijk = tuple(ijk) == get_poisson_ijk(ijk) and "Yes" or "No"
     aspect = get_cell_aspect(cs)
     nmesh = nmult * nsplit
-    msgs = list(
-        (
-            f"MESH Qty: {nmesh} | Splits: {nsplit} | Multiples: {nmult}",
-            f"Cell Qty: {ncell_tot} (~{ncell} each)",
-            f"Size: {cs[0]:.3f} · {cs[1]:.3f} · {cs[2]:.3f}m | Aspect: {aspect:.1f} | Poisson: {has_good_ijk}",
-        )
+    return (
+        hids,
+        ijks,
+        xbs,
+        nmesh,
+        nsplit,
+        nmult,
+        ncell_tot,
+        ncell,
+        cs,
+        aspect,
+        has_good_ijk,
     )
-    return hids, ijks, xbs, msgs
 
 
 def get_cell_aspect(cell_sizes):
