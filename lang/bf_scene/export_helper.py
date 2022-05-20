@@ -38,7 +38,7 @@ def append_free_text(context, fds_list):
     sc = context.scene
     if sc.bf_config_text:
         header = f"\n--- Free text from Blender Text: <{sc.bf_config_text.name}>"
-        msg = sc.bf_config_text.as_string()
+        msg = sc.bf_config_text.as_string().strip()
         fds_list.append(FDSList(header=header, msg=msg))
 
 
@@ -62,11 +62,6 @@ def append_cos_namelists(context, fds_list):
     iterable = context.scene.collection.to_fds_list(context, full=True)
     fds_list.append(FDSList(header=header, iterable=iterable))
 
-# FIXME
-# msg per MESH, not per group of MESHes anymore.
-# better keep msgs
-# test test test!
-
 
 def append_domain_namelists(context, fds_list):
     sc = context.scene
@@ -82,12 +77,11 @@ def append_domain_namelists(context, fds_list):
     # Linearize MESH fds_list
     mesh_fds_list = FDSList()
     for ob in mesh_obs:
-        mesh_fds_list.extend(ob.to_fds_list(context).streamline())
-    # FIXME fds_list.extend should manage msgs?
+        mesh_fds_list.extend(ob.to_fds_list(context).get_flat_ns())
 
     # Short track
     if not sc.bf_config_mpi_processes_export:
-        mesh_fds_list.header = f"\n--- Domain"
+        mesh_fds_list.header = f"\n--- Computational domain"
         fds_list.append(mesh_fds_list)
         return
 
@@ -95,7 +89,7 @@ def append_domain_namelists(context, fds_list):
     item_weigths = list()
     for nl in mesh_fds_list:
         ijk = nl.get_fds_label(fds_label="IJK", remove=False)
-        ncell = ijk[0] * ijk[2] * ijk[2]
+        ncell = ijk[0] * ijk[1] * ijk[2]
         item_weigths.append((ncell, nl))  # weigth, item
 
     # Binpack
@@ -103,14 +97,16 @@ def append_domain_namelists(context, fds_list):
     bins = utils.binpacking.binpack(nbin=nbin, item_weigths=item_weigths)
 
     # Prepare output
-    ncell_tot = sum(weight for weight, _ in item_weigths)
-    header = f"\n--- Domain | MPI Processes: {nbin} | Cell Qty: {ncell_tot}"
+    ncell_tot = sum(w for w, _ in bins)
+    nmesh_tot = len(mesh_fds_list)
+    header = f"\n--- Computational domain | MPI Processes: {nbin} | MESH Qty: {nmesh_tot} | Cell Qty: {ncell_tot}"
     domain_fds_list = FDSList(header=header)
     for mpi_process, bin in enumerate(bins):
 
         # Per MPI Process
         ncell, mesh_fds_namelists = bin
-        header = f"\n--- MPI Process: <{mpi_process}> | Cell Qty: {ncell}"
+        nmesh_tot = len(mesh_fds_namelists)
+        header = f"\n--- MPI Process: <{mpi_process}> | MESH Qty: {nmesh_tot} | Cell Qty: {ncell}"
         bin_fds_list = FDSList(header=header)
         domain_fds_list.append(bin_fds_list)
         for mesh_fds_namelist in mesh_fds_namelists:

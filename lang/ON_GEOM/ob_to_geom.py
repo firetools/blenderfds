@@ -13,6 +13,7 @@ EEL = config.MIN_EDGE_LENGTH
 EFA = config.MIN_FACE_AREA
 EIL = config.MIN_INTERSECTION_LENGTH
 
+
 def ob_to_geom(context, ob, check, is_open, world, filepath=None):
     """!
     Transform Object geometry to FDS notation.
@@ -31,7 +32,7 @@ def ob_to_geom(context, ob, check, is_open, world, filepath=None):
         is_open=is_open,
         world=world,
     )
-    msgs = list((f"GEOM Vertices: {len(fds_verts)} | Faces: {len(fds_faces)}",))
+    msgs = list((f"Vertices: {len(fds_verts)} | Faces: {len(fds_faces)}",))
     if filepath:
         bingeom.write_bingeom_file(
             geom_type=ob.data.bf_geom_is_terrain and 2 or 1,
@@ -228,7 +229,7 @@ def _has_no_degenerate_edges(context, ob, bm, protect):
     Check no degenerate edges, zero lenght edges.
     """
     bad_edges = list()
-    
+
     for edge in bm.edges:
         if edge.calc_length() <= EEL:
             bad_edges.append(edge)
