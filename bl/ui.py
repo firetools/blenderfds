@@ -104,6 +104,19 @@ class PROPERTIES_PT_navigation_bar_bf(Panel):
         layout.scale_x = 1.4
         layout.scale_y = 1.4
 
+        # Check space.context for strange situations
+        if space.context not in (
+            "OBJECT",
+            "DATA",
+            "MATERIAL",
+            "SCENE",
+            "COLLECTION",
+            "MODIFIER",
+            "TOOL",
+        ):
+            space.context = "SCENE"
+
+        # Set UI
         col = layout.column(align=True)
         col.prop_enum(space, "context", "TOOL", text="", icon="TOOL_SETTINGS")
 
