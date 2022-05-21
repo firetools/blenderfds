@@ -87,7 +87,8 @@ class FDSList(list):
 
     def _get_flat_components(self):
         """Get lists of generated namelists and parameters."""
-        ns, ps, multi_ps = FDSList(), FDSList(), None
+        # additional namelists, invariant params, multi params
+        add_ns, ps, multi_ps = FDSList(), FDSList(), None
         for item in self:
             match item:
                 case None:
@@ -101,9 +102,11 @@ class FDSList(list):
                     # Replace generators
                     for i, item in enumerate(multi_ps):
                         multi_ps[i] = tuple(item)  # break if None
-                case FDSList()|FDSNamelist():
-                    ps_new, multi_ps_new, ns_new = item._get_flat_components()
-                    ns.extend(ns_new)
+                case FDSNamelist():
+                    add_ns.append(item)
+                case FDSList():
+                    ps_new, multi_ps_new, add_ns_new = item._get_flat_components()
+                    add_ns.extend(add_ns_new)
                     ps.extend(ps_new)
                     if multi_ps_new:
                         if multi_ps:
@@ -111,7 +114,7 @@ class FDSList(list):
                         multi_ps = multi_ps_new
                 case _:
                     raise ValueError(f"Unrecognized type of <{item!r}> in <{self!r}>")
-        return ps, multi_ps, ns
+        return ps, multi_ps, add_ns
 
     def to_string(self) -> str:
         """!
@@ -193,9 +196,10 @@ class FDSNamelist(FDSList):
 
     def get_flat_ns(self):
         """Generate a flattened list of FDSNamelist instances."""
-        ps, multi_ps, ns = self._get_flat_components()
+        ns = FDSList()
+        ps, multi_ps, add_ns = self._get_flat_components()
+        # Treat ps and multi_ps related to self
         self.clear()
-        # Treat multi_ps
         if multi_ps:
             # Rm duplicated ps
             for mp in multi_ps:
@@ -218,6 +222,9 @@ class FDSNamelist(FDSList):
             # Rebuild depurated self
             self.extend(ps)
             ns.append(self)
+        # Treat add_ns additional namelists
+        for add_n in add_ns:
+            ns.extend(add_n.get_flat_ns())
         return ns
 
     def _flat_n_to_string(self, n) -> str:
@@ -226,8 +233,9 @@ class FDSNamelist(FDSList):
 
         # Add namelist and param msgs
         body.extend(n.msgs)
-        for p in n:
-            body.extend(p.msgs)
+        msg = " | ".join(m for p in n for m in p.msgs)
+        if msg:
+            body.append(msg)
 
         # Add namelist
         body.append(f"&{self.fds_label}")
