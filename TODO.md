@@ -1,5 +1,14 @@
 # TODO
 
+TEST view_layer export
+TODO find a better way for object.layer_collection
+
+FIXME FIXME Fix property panel selector when in scripting view!!!
+
+Export MULT when not MESH!
+Interface to run fds and smokeview
+Test MPI_process export and import (import could eat it and set numbero of MPI_PROCESS)
+
 Show tot number of MPI_PROCESS
 
 XB_BBOX multiply

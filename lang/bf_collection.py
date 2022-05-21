@@ -36,7 +36,7 @@ class BFCollection:
         layer_collection = self.get_layer_collection(context)
         if self.hide_render or layer_collection.exclude:
             return FDSList()  # exclude from exporting
-        header = f"\n--- Blender Collection: <{self.name}>"
+        header = f"\n-- Blender Collection: <{self.name}>"
         if full:
             # MESH are centrally managed and exported by bf_scene
             obs = list(ob for ob in self.objects if ob.bf_namelist_cls != "ON_MESH")

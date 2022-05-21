@@ -22,6 +22,24 @@ class BFObject:
         """
         return BFNamelist.get_subclass(cls_name=self.bf_namelist_cls)(element=self)
 
+    # TODO is there a faster method?
+    def get_layer_collection(self, context, _layer_collection=None):
+        """!
+        Return related layer_collection in current context.
+        @param context: the Blender context.
+        @param _layer_collection: internal use for recursivity.
+        @return layer_collection related to self in current context.
+        """
+        if not _layer_collection:
+            _layer_collection = context.view_layer.layer_collection
+        found = None
+        if self.name in _layer_collection.collection.objects:
+            return _layer_collection
+        for c in _layer_collection.children:
+            found = self.get_layer_collection(context, _layer_collection=c)
+            if found:
+                return found
+
     def to_fds_list(self, context) -> FDSList:
         """!
         Return the FDSList instance from self, never None.
@@ -55,6 +73,7 @@ class BFObject:
         Object.bf_namelist = cls.bf_namelist
         Object.to_fds_list = cls.to_fds_list
         Object.from_fds = cls.from_fds
+        Object.get_layer_collection = cls.get_layer_collection
 
     @classmethod
     def unregister(cls):
@@ -62,6 +81,7 @@ class BFObject:
         Unregister related Blender properties.
         @param cls: class to be unregistered.
         """
+        del Object.get_layer_collection
         del Object.from_fds
         del Object.to_fds_list
         del Object.bf_namelist
