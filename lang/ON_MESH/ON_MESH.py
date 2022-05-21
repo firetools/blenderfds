@@ -89,6 +89,21 @@ class OP_MESH_XB_BBOX(OP_XB_BBOX):
                 )
                 return FDSMulti(iterable=iterable)
 
+class OP_MESH_MPI_PROCESS(BFParam):  # only import
+    label = "MPI_PROCESS"
+    description = "MPI process number"
+    fds_label = "MPI_PROCESS"  # only import
+    bpy_type = Object
+
+    def draw(self, context, layout):
+        pass 
+
+    def from_fds(self, context, value):
+        # Set the number of MPI processes from the FDS file
+        sc = context.scene
+        sc.bf_config_mpi_processes_export = True
+        if value + 1 > sc.bf_config_mpi_processes:
+            sc.bf_config_mpi_processes = value + 1
 
 class ON_MESH(BFNamelistOb):
     label = "MESH"
@@ -100,6 +115,7 @@ class ON_MESH(BFNamelistOb):
         OP_namelist_cls,
         OP_ID,
         OP_FYI,
+        OP_MESH_MPI_PROCESS,
         OP_MESH_IJK,
         OP_MESH_nsplits,
         OP_MESH_XB_BBOX,
