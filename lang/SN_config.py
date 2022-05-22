@@ -113,16 +113,16 @@ class SN_config_mpi_processes(BFParam):
     bpy_export_default = True
 
 
-# class SN_config_openmp_threads(BFParam): # TODO add fds and smokeview run
-#     label = "OpenMP Threads"
-#     description = "Number of OpenMP threads assigned to each process."
-#     bpy_type = Scene
-#     bpy_idname = "bf_config_openmp_threads"
-#     bpy_prop = IntProperty
-#     bpy_default = 1
-#     bpy_other = {"min": 1}
-#     bpy_export = "bf_config_openmp_threads_export"
-#     bpy_export_default = False
+class SN_config_openmp_threads(BFParam):
+    label = "OpenMP Threads"
+    description = "Number of OpenMP threads assigned to each process."
+    bpy_type = Scene
+    bpy_idname = "bf_config_openmp_threads"
+    bpy_prop = IntProperty
+    bpy_default = 1
+    bpy_other = {"min": 1}
+    bpy_export = "bf_config_openmp_threads_export"
+    bpy_export_default = False
 
 
 class SN_config(BFNamelistSc):
@@ -134,7 +134,7 @@ class SN_config(BFNamelistSc):
         SP_config_text_position,
         SP_config_default_voxel_size,
         SN_config_mpi_processes,
-        # SN_config_openmp_threads,  # TODO add fds and smokeview run
+        SN_config_openmp_threads,
     )
 
     def draw(self, context, layout):

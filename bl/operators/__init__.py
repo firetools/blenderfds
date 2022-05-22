@@ -10,6 +10,7 @@ from . import (
     show_fds_code,
     show_fds_geometry,
     show_ui,
+    run_external,
 )
 
 ms_to_register = (
@@ -24,6 +25,7 @@ ms_to_register = (
     show_fds_code,
     show_fds_geometry,
     show_ui,
+    run_external,
 )
 
 

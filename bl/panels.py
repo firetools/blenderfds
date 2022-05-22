@@ -202,29 +202,6 @@ class MATERIAL_PT_bf_namelist(Panel):
 # Toolbar panels
 
 
-# class VIEW3D_PT_bf_sc_config_tools(Panel):
-#     """!
-#     Object case tools
-#     """
-
-#     bl_idname = "VIEW3D_PT_bf_sc_config_tools"
-#     bl_context = "objectmode"
-#     bl_category = "FDS"
-#     bl_label = "FDS Case Config Tools"
-#     bl_space_type = "VIEW_3D"
-#     bl_region_type = "UI"
-
-#     @classmethod
-#     def poll(cls, context):
-#         return context.scene
-
-#     def draw(self, context):
-#         layout = self.layout
-#         layout.use_property_split = True
-#         layout.use_property_decorate = False
-#         SN_config(context.scene).draw_operators(context, layout)
-
-
 class VIEW3D_PT_bf_ob_utils(Panel):
     bl_idname = "VIEW3D_PT_bf_ob_utils"
     bl_context = "objectmode"
@@ -236,13 +213,21 @@ class VIEW3D_PT_bf_ob_utils(Panel):
     @classmethod
     def poll(cls, context):
         ob = context.object
-        return ob and ob.type == "MESH" and not ob.bf_is_tmp  # TODO other types?
+        return ob and ob.type == "MESH" and not ob.bf_is_tmp
 
     def draw(self, context):
         ob = context.object
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False
+
+        # Draw FDS and Smokeview run
+        col = layout.column(align=True)
+        col.operator("scene.bf_run_fds")
+        col.operator("scene.bf_run_smv")
+        col.separator()
+
+        # Draw Object operators
         ob.bf_namelist.draw_operators(context, layout)
 
 

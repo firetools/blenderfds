@@ -25,20 +25,26 @@ FLAT_DIFFERENCE = 1e-03
 ## number of magnetic cells for MESH alignment (align_meshes.py)
 MAGNET_NCELL = 3
 
-# TODO
-# ## run fds commands
-# # os.system("command")
-# RUN_FDS = {
-#     "Linux": 'export OMP_NUM_THREADS={t} && mpiexec -n {p} fds "{f}"',
-#     "MacOS": 'export OMP_NUM_THREADS={t} && mpiexec -n {p} fds "{f}"',
-#     "Windows": 'cmd.exe /k "fdsinit & fds_local -p {p} -o {t} -Y "{f}" "',
-# }
-# ## run smokeview commands
-# RUN_SMV = {
-#     "Linux": 'smokeview "{f}"',
-#     "MacOS": 'smokeview "{f}"',
-#     "Windows": 'cmd.exe /k ""fdsinit & smokeview" "{f}""',
-# }
+## run fds commands
+# from sys.platform: linux is any Linux, darwin is any MacOS, win32 is any Windows
+FDS_COMMAND = {
+    "linux": """cd '{p}' && export OMP_NUM_THREADS={t} && mpiexec -n {n} fds '{f}' """,
+    "darwin": """cd '{p}' && export OMP_NUM_THREADS={t} && mpiexec -n {n} fds '{f}' """,
+    "win32": """"cd {p} && fdsinit & fds_local -p {n} -o {t} -Y" "{f}" """,
+}
+## run smokeview commands
+SMV_COMMAND = {
+    "linux": """cd {p} && smokeview '{f}'""",
+    "darwin": """cd {p} && smokeview '{f}'""",
+    "win32": """"fdsinit & smokeview" "{f}" """,
+}
+## run terminal commands
+TERM_COMMAND = {
+    "linux": """gnome-terminal --window --title "FDS" -- bash -c "{c}" """,
+    "darwin": """osascript -e 'tell app "Terminal" to do script "{c}"' """,  # FIXME
+    "win32": """cmd.exe /C "{c}" """,
+}
+
 
 ## Default SURF Materials
 DEFAULT_MAS = {  # name: diffuse_color
