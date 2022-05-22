@@ -128,5 +128,6 @@ class ON_MESH(BFNamelistOb):
 
     def draw_operators(self, context, layout):
         col = layout.column(align=True)
+        col.label(text="FDS MESH Utils")
         col.operator("object.bf_set_mesh_cell_size")
         col.operator("object.bf_align_selected_meshes")

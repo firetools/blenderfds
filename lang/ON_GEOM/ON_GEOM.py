@@ -222,6 +222,7 @@ class ON_GEOM(BFNamelistOb):
 
     def draw_operators(self, context, layout):
         col = layout.column(align=True)
+        col.label(text="FDS GEOM Utils")
         col.prop(self.element.data, "bf_geom_protect", text="Protect Original")
         col.operator("object.bf_geom_check_sanity")
         col.operator("object.bf_geom_check_intersections")
