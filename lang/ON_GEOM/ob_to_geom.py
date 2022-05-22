@@ -120,7 +120,7 @@ def check_geom_sanity(context, ob, protect, is_open):
     @param protect: if set raise BFException without modifications.
     @param is_open: set if the bmesh should be open.
     """
-    # log.debug(f"Check geom sanity in Object <{ob.name}>")
+    log.debug(f"Check geom sanity in Object <{ob.name}>...")
     bm = utils.geometry.get_object_bmesh(
         context=context, ob=ob, world=False, triangulate=True, lookup=True
     )
@@ -297,7 +297,7 @@ def check_intersections(context, ob, other_obs=None, protect=True):
     @param other_obs: the list of objects to evaluate the intersection with ob.
     @param protect: if True raise BFException without context modifications.
     """
-    # log.debug(f"Check intersections in Object <{ob.name}>")
+    log.debug(f"Check intersections in Object <{ob.name}>...")
     if context.object:
         bpy.ops.object.mode_set(mode="OBJECT")
     bad_faces = list()

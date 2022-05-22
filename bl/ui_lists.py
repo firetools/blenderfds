@@ -39,12 +39,12 @@ bl_classes = [
 
 
 def register():
-    log.debug("Register ui_lists...")
+    log.info("Register ui_lists...")
     for c in bl_classes:
         register_class(c)
 
 
 def unregister():
-    log.debug("Unregister ui_lists...")
+    log.info("Unregister ui_lists...")
     for c in reversed(bl_classes):
         unregister_class(c)

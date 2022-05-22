@@ -35,19 +35,19 @@ import logging
 # because it imports ui_lists
 from . import bl, lang
 
-logging.basicConfig(level=logging.DEBUG)  # INFO or DEBUG
+logging.basicConfig(level=logging.INFO)  # INFO or DEBUG
 log = logging.getLogger(__name__)
 
 
 # Automatic registering/deregistering
 # of Blender entities
 def register():
-    log.debug("Register BlenderFDS...")
+    log.info("Register BlenderFDS...")
     bl.register()
     lang.register()
 
 
 def unregister():
-    log.debug("Unregister BlenderFDS...")
+    log.info("Unregister BlenderFDS...")
     lang.unregister()
     bl.unregister()

@@ -152,14 +152,14 @@ def _depsgraph_update_post(scene):
 
 
 def register():
-    log.debug("Registering handlers...")
+    log.info("Register handlers...")
     load_post.append(_load_post)
     save_pre.append(_save_pre)
     depsgraph_update_post.append(_depsgraph_update_post)
 
 
 def unregister():
-    log.debug("Unregistering handlers...")
+    log.info("Unregister handlers...")
     depsgraph_update_post.remove(_depsgraph_update_post)
     save_pre.remove(_save_pre)
     load_post.remove(_load_post)

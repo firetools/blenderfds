@@ -52,10 +52,10 @@ class BFPreferences(AddonPreferences):
 
 
 def register():
-    log.debug("Register preferences...")
+    log.info("Register preferences...")
     bpy.utils.register_class(BFPreferences)
 
 
 def unregister():
-    log.debug("Unregister preferences...")
+    log.info("Unregister preferences...")
     bpy.utils.unregister_class(BFPreferences)

@@ -44,7 +44,7 @@ def register():
     from ..types import BFParam, BFNamelist
 
     log = logging.getLogger(__name__)
-    log.debug("Register lang...")
+    log.info("Register lang...")
 
     # Update namelist_cls items (after importing all namelists)
     bf_object.update_OP_namelist_cls_items()
@@ -68,7 +68,7 @@ def unregister():
     from ..types import BFParam, BFNamelist
 
     log = logging.getLogger(__name__)
-    log.debug("Unregister lang...")
+    log.info("Unregister lang...")
 
     # Unregister Blender entities extensions
     bf_object.BFObject.unregister()

@@ -217,7 +217,7 @@ def _set_normal_ui():
 
 
 def toggle_simple_ui(prefs=None, context=None, force_normal=False):
-    log.debug("Toggle simple ui...")
+    log.info("Toggle simple ui...")
     if not original_classes:
         _load_original_classes()
     if force_normal:

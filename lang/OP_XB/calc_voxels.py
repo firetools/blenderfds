@@ -21,7 +21,7 @@ def get_voxels(context, ob):
     @param ob: the Blender object.
     @return the voxels in xbs format.
     """
-    # log.debug(f"Get voxels in Object <{ob.name}>")
+    log.debug(f"Get voxels in Object <{ob.name}>...")
     # Check object and init
     if ob.type not in {"MESH", "CURVE", "SURFACE", "FONT", "META"}:
         raise BFException(ob, "Object can not be converted to mesh.")

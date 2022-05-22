@@ -181,13 +181,13 @@ class BFParam:
         """
         if cls.bpy_type:
             if cls.bpy_idname and cls.bpy_prop:
-                # log.debug(f"Unregistering <{cls.bpy_idname}>")
+                log.debug(f"Unregister <{cls.bpy_idname}>...")
                 try:
                     delattr(cls.bpy_type, cls.bpy_idname)
                 except AttributeError:  # already deleted
                     pass
             if cls.bpy_export and cls.bpy_export_default is not None:
-                # log.debug(f"Unregistering <{cls.bpy_export}>")
+                log.debug(f"Unregister <{cls.bpy_export}>...")
                 try:
                     delattr(cls.bpy_type, cls.bpy_export)
                 except AttributeError:  # already deleted
@@ -558,9 +558,9 @@ class BFParamOther(BFParam):
 
     @classmethod
     def unregister(cls):
-        # log.debug(f"Unregistering <{cls.__name__}>")
+        log.debug(f"Unregistering <{cls.__name__}>...")
         if not cls.bpy_type:
-            # log.debug(f"No bpy_type in class <{cls}>")
+            log.debug(f"No bpy_type in class <{cls}>")
             return
         bpy_idx_idname = f"{cls.bpy_idname}_idx"
         # Unregister operators

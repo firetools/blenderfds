@@ -17,7 +17,7 @@ def get_pixels(context, ob):
     @param ob: the Blender object.
     @return the xbs and the voxel size.
     """
-    # log.debug(f"Get pixels in Object <{ob.name}>")
+    log.debug(f"Get pixels in Object <{ob.name}>...")
     # Check object and init
     if ob.type not in {"MESH", "CURVE", "SURFACE", "FONT", "META"}:
         raise BFException(ob, "Object can not be converted to mesh.")
