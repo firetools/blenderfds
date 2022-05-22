@@ -1,13 +1,13 @@
 import logging
 from bpy.types import Material
-from bpy.props import EnumProperty
+from bpy.props import EnumProperty, StringProperty
 from ..types import (
     BFParam,
     BFParamOther,
     BFParamFYI,
     BFNamelist,
     BFException,
-    FDSParam,
+    BFNotImported,
     FDSList,
 )
 from ..bl.ui_lists import WM_PG_bf_other, WM_UL_bf_other_items
@@ -181,6 +181,24 @@ class MP_TRANSPARENCY(BFParam):  # no draw
 
     def draw(self, context, layout):  # see MP_RGB
         pass
+
+
+# class MP_MATL_ID(BFParam):
+#     label = "MATL_ID"
+#     description = "Reference to a MATL (Material) line for self properties"
+#     fds_label = "MATL_ID"
+#     bpy_type = Material
+#     bpy_prop = StringProperty
+#     bpy_idname = "bf_matl_id"
+
+#     def draw_operators(self, context, layout):
+#         layout.operator("material.bf_choose_matl_id", icon="VIEWZOOM", text="")
+
+#     def from_fds(self, context, value):
+#         if isinstance(value, str):
+#             return super().from_fds(context, value)
+#         else:
+#             raise BFNotImported(self, "Material list not handled")
 
 
 class MP_other(BFParamOther):

@@ -1,5 +1,5 @@
 ## Supported file version
-SUPPORTED_FILE_VERSION = 6, 0, 0
+SUPPORTED_FILE_VERSION = 6, 0, 1
 
 ## length precision for geometry
 LP = 4

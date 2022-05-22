@@ -26,7 +26,6 @@ from . import (
     ON_DEVC,
     ON_GEOM,
     ON_HOLE,
-    ON_HVAC,
     ON_INIT,
     ON_MESH,
     ON_MOVE,

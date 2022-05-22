@@ -1,46 +1,26 @@
 # TODO
 
-TEST view_layer export
+FIXME Import namelist 1017 (HVAC) to Other in handlers
+SURF Burner back? 2001 ?
+
+Manage HVAC
+Split and coarser MESHes
+
+Fix DEBUG variable output
+Rm DEVC SETPOINT INITIAL... LATCH
+
+"FDS Utils" panel title to "FDS MESH Utils"
+
 TODO find a better way for object.layer_collection
-
-FIXME FIXME Fix property panel selector when in scripting view!!!
-
-Export MULT when not MESH!
 Interface to run fds and smokeview
-Test MPI_process export and import (import could eat it and set numbero of MPI_PROCESS)
-
-Show tot number of MPI_PROCESS
-
-XB_BBOX multiply
-tool panel
-run fds smokeview
-always visible UI, greyed out when not avail
 
 release notes
 
-rm context,sc from def and take it from context.scene
-
-OK move ON_MOVE and make it similar to ON_MULT
-OK RGB color for MESH, and override for OBST, HOLE, VENT, Other...
-
-OK Assign number of processes?
-
-test multiply
 test cell_size
 test geolocation
 
-OK fix multiply in show_geometry for all other namelists
-OK how to check that a namelist has a parameter?
-
-rm min edge length and min face area
-
-test DEVC QUANTITIES
-
 new op template for bc (code snippets, templates)
 or old SURFs, but not as default
-
-tests:
-copy_to op
 
 user doc
 

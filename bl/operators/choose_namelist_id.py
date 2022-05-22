@@ -10,6 +10,8 @@ from ... import config
 
 log = logging.getLogger(__name__)
 
+# Helper function
+
 
 def _get_namelist_items(self, context, fds_label):
     """!
@@ -34,18 +36,18 @@ def _get_namelist_items(self, context, fds_label):
     return items
 
 
+# MATL_ID
+
+
 def _get_matl_items(self, context):
     return _get_namelist_items(self, context, fds_label="MATL")
 
 
 class MATERIAL_OT_bf_choose_matl_id(Operator):
-    """!
-    Choose MATL_ID from MATLs available in Free Text.
-    """
-
     bl_label = "Choose MATL_ID"
     bl_idname = "material.bf_choose_matl_id"
     bl_description = "Choose MATL_ID from MATLs available in Free Text"
+    bl_property = "bf_matl_id"
 
     bf_matl_id: EnumProperty(
         name="MATL_ID",
@@ -59,8 +61,7 @@ class MATERIAL_OT_bf_choose_matl_id(Operator):
 
     def execute(self, context):
         if self.bf_matl_id:
-            ma = context.object.active_material
-            ma.bf_matl_id = self.bf_matl_id
+            context.object.active_material.bf_matl_id = self.bf_matl_id
             self.report({"INFO"}, "MATL_ID parameter set")
             return {"FINISHED"}
         else:
@@ -68,32 +69,27 @@ class MATERIAL_OT_bf_choose_matl_id(Operator):
             return {"CANCELLED"}
 
     def invoke(self, context, event):
-        ma = context.object.active_material
-        try:
-            self.bf_matl_id = ma.bf_matl_id
-        except TypeError:
-            pass
-        wm = context.window_manager
-        return wm.invoke_props_dialog(self, width=300)
-
-    def draw(self, context):
-        self.layout.prop(self, "bf_matl_id", text="")
+        context.window_manager.invoke_search_popup(self)
+        return {"FINISHED"}
 
 
 def _get_devc_prop_items(self, context):
     return _get_namelist_items(self, context, fds_label="PROP")
 
 
+# PROP_ID
+
+
 class OBJECT_OT_bf_choose_devc_prop_id(Operator):
     bl_label = "Choose PROP_ID"
     bl_idname = "object.bf_choose_devc_prop_id"
-    bl_description = "Choose PROP_ID from PROPs available in Free Text"
+    bl_description = "Choose PROP_ID from PROP namelists available in Free Text"
     bl_property = "bf_devc_prop_id"
 
     bf_devc_prop_id: EnumProperty(
         name="PROP_ID",
         description="PROP_ID parameter",
-        items=_get_devc_prop_items,
+        items=_get_devc_prop_items,  # Updating function
     )
 
     @classmethod
@@ -112,6 +108,46 @@ class OBJECT_OT_bf_choose_devc_prop_id(Operator):
     def invoke(self, context, event):
         context.window_manager.invoke_search_popup(self)
         return {"FINISHED"}
+
+
+# CTRL_ID
+
+
+def _get_devc_ctrl_items(self, context):
+    return _get_namelist_items(self, context, fds_label="CTRL")
+
+
+class OBJECT_OT_bf_choose_devc_ctrl_id(Operator):
+    bl_label = "Choose CTRL_ID"
+    bl_idname = "object.bf_choose_devc_ctrl_id"
+    bl_description = "Choose CTRL_ID from CTRL namelists available in Free Text"
+    bl_property = "bf_devc_ctrl_id"
+
+    bf_devc_ctrl_id: EnumProperty(
+        name="CTRL_ID",
+        description="CTRL_ID parameter",
+        items=_get_devc_ctrl_items,  # Updating function
+    )
+
+    @classmethod
+    def poll(cls, context):
+        return context.object
+
+    def execute(self, context):
+        if self.bf_devc_ctrl_id:
+            context.object.bf_devc_ctrl_id = self.bf_devc_ctrl_id
+            self.report({"INFO"}, "CTRL_ID parameter set")
+            return {"FINISHED"}
+        else:
+            self.report({"WARNING"}, "CTRL_ID parameter not set")
+            return {"CANCELLED"}
+
+    def invoke(self, context, event):
+        context.window_manager.invoke_search_popup(self)
+        return {"FINISHED"}
+
+
+# DEVC QUANTITY from config.FDS_QUANTITIES
 
 
 def _get_devc_quantity_items(self, context):
@@ -152,9 +188,12 @@ class OBJECT_OT_bf_choose_devc_quantity(Operator):
         return {"FINISHED"}
 
 
+# Register/unregister
+
 bl_classes = [
     MATERIAL_OT_bf_choose_matl_id,
     OBJECT_OT_bf_choose_devc_prop_id,
+    OBJECT_OT_bf_choose_devc_ctrl_id,
     OBJECT_OT_bf_choose_devc_quantity,
 ]
 

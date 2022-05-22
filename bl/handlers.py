@@ -8,6 +8,7 @@ from bpy.types import Object
 from .. import utils
 from .. import config
 
+from ..lang.bf_object import OP_other
 from ..lang.bf_material import MP_other
 
 log = logging.getLogger(__name__)
@@ -23,29 +24,59 @@ def _load_post(self):
     bf_file_version = tuple(bpy.data.scenes[0].bf_file_version)
 
     if bf_file_version < config.SUPPORTED_FILE_VERSION:
-        # Fix old SURF namelist
         context = bpy.context
+
         for ob in bpy.data.objects:
+
+            # Fix old Object export toggle
             if ob.hide_viewport:
                 ob.hide_render = True
+
+            # Fix old removed namelists (eg. 1017 HVAC)
+            if not ob.bf_namelist_cls:
+                ob.bf_namelist_cls = "ON_other"
+
+            # Fix old DEVC namelist removed params
+            if ob.bf_namelist_cls == "ON_DEVC":
+                op_other = OP_other(ob)
+                if ob.get("bf_devc_setpoint_export") and ob.get("bf_devc_setpoint"):
+                    op_other.set_value(
+                        context, f"SETPOINT={ob['bf_devc_setpoint']:.3f}"
+                    )
+                    ob["bf_devc_setpoint_export"] = False
+                if ob.get("bf_devc_initial_state"):
+                    op_other.set_value(context, f"INITIAL_STATE=T")
+                    ob["bf_devc_initial_state"] = False
+                if ob.get("bf_devc_latch"):
+                    op_other.set_value(context, f"LATCH=T")
+                    ob["bf_devc_latch"] = False
+
+        # Fix old SURF namelist removed params
         for ma in bpy.data.materials:
             ma.bf_namelist_cls = "MN_SURF"
+            mp_other = MP_other(ma)
             if ma.get("bf_thickness_export") and ma.get("bf_thickness"):
-                MP_other(ma).set_value(context, f"THICKNESS={ma['bf_thickness']:.3f}")
+                mp_other.set_value(context, f"THICKNESS={ma['bf_thickness']:.3f}")
+                ma["bf_thickness_export"] = False
             if ma.get("bf_hrrpua"):
-                MP_other(ma).set_value(context, f"HRRPUA={ma['bf_hrrpua']:.1f}")
+                mp_other.set_value(context, f"HRRPUA={ma['bf_hrrpua']:.1f}")
+                ma["bf_hrrpua"] = 0.0
             if ma.get("bf_tau_q"):
-                MP_other(ma).set_value(context, f"TAU_Q={ma['bf_tau_q']:.1f}")
+                mp_other.set_value(context, f"TAU_Q={ma['bf_tau_q']:.1f}")
+                ma["bf_tau_q"] = 0.0
             if ma.get("bf_matl_id_export") and ma.get("bf_matl_id"):
-                MP_other(ma).set_value(context, f"MATL_ID='{ma['bf_matl_id']}'")
+                mp_other.set_value(context, f"MATL_ID='{ma['bf_matl_id']}'")
+                ma["bf_matl_id_export"] = False
             if ma.get("bf_ignition_temperature_export") and ma.get(
                 "bf_ignition_temperature"
             ):
-                MP_other(ma).set_value(
+                mp_other.set_value(
                     context, f"IGNITION_TEMPERATURE={ma['bf_ignition_temperature']:.1f}"
                 )
+                ma["bf_ignition_temperature_export"] = False
             if ma.get("bf_backing_export") and ma.get("bf_backing") != "EXPOSED":
-                MP_other(ma).set_value(context, f"BACKING='{ma['bf_backing']}'")
+                mp_other.set_value(context, f"BACKING='{ma['bf_backing']}'")
+                ma["bf_backing_export"] = False
 
         # Inform
         bpy.ops.wm.bf_dialog(
