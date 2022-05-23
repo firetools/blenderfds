@@ -223,8 +223,13 @@ class VIEW3D_PT_bf_ob_utils(Panel):
 
         # Draw FDS and Smokeview run
         col = layout.column(align=True)
-        col.operator("scene.bf_run_fds")
-        col.operator("scene.bf_run_smv")
+        col.operator("scene.bf_run_fds", icon="EXPORT")
+        col.operator("scene.bf_run_smv", icon="HIDE_OFF")
+        col.separator()
+
+        # Draw import snippet
+        col = layout.column(align=True)
+        col.operator("import_to_current_scene.fds", icon="IMPORT")
         col.separator()
 
         # Draw Object operators

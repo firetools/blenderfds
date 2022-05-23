@@ -6,7 +6,7 @@ import bpy
 
 
 def menu_func_import_FDS(self, context):
-    self.layout.operator("import_to_current_scene.fds", text="NIST FDS as Scene (.fds)")
+    self.layout.operator("import_to_scene.fds", text="NIST FDS as New Scene (.fds)")
 
 
 def menu_func_export_to_fds(self, context):

@@ -11,7 +11,7 @@ class ImportFDSToScene(Operator, ImportHelper):
     Import FDS case file to a Blender Scene.
     """
 
-    bl_idname = "import_to_current_scene.fds"
+    bl_idname = "import_to_scene.fds"
     bl_label = "Import from FDS"
     bl_description = "Import FDS case file to a Blender Scene"
     bl_options = {"UNDO"}
@@ -71,8 +71,32 @@ class ImportFDSToScene(Operator, ImportHelper):
         return {"FINISHED"}
 
 
+class ImportFDSToCurrentScene(Operator, ImportHelper):
+    """!
+    Import FDS case file to current Blender Scene.
+    """
+
+    bl_idname = "import_to_current_scene.fds"
+    bl_label = "Import Snippet"
+    bl_description = "Import FDS code snippet to current Blender Scene"
+    bl_options = {"UNDO"}
+
+    filename_ext = ".fds"
+    filter_glob: StringProperty(default="*.fds", options={"HIDDEN"})
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene
+
+    def execute(self, context):
+        return bpy.ops.import_to_scene.fds(
+            filepath=self.filepath, new_scene=False, all_cases=False
+        )
+
+
 bl_classes = [
     ImportFDSToScene,
+    ImportFDSToCurrentScene,
 ]
 
 
