@@ -61,7 +61,7 @@ class ImportFDSToScene(Operator, ImportHelper):
                 )
             except BFException as err:
                 w.cursor_modal_restore()
-                self.report({"ERROR"}, f"Import: {str(err)}")
+                self.report({"ERROR"}, str(err))
                 return {"CANCELLED"}
 
         # Close

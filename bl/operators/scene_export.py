@@ -24,6 +24,11 @@ class ExportSceneToFDS(Operator, ExportHelper):
         return context.scene
 
     def invoke(self, context, event):
+        # Check saved
+        if not bpy.data.is_saved:
+            self.report({"ERROR"}, "Save the Blender file first!")
+            return {"CANCELLED"}
+
         # Set best filepath as default, empty path is /home/user
         sc = context.scene
         self.filepath = utils.io.append_filename(
@@ -48,9 +53,9 @@ class ExportSceneToFDS(Operator, ExportHelper):
                 full=True,
                 save=True,
             )
-        except BFException as err:
+        except Exception as err:
             w.cursor_modal_restore()
-            self.report({"ERROR"}, f"Export: {str(err)}")
+            self.report({"ERROR"}, str(err))
             return {"CANCELLED"}
 
         # Close
@@ -73,15 +78,19 @@ class ExportAllSceneToFDS(Operator):
         return context.scene
 
     def invoke(self, context, event):
+        # Check saved
+        if not bpy.data.is_saved:
+            self.report({"ERROR"}, "Save the Blender file first!")
+            return {"CANCELLED"}
+
         return context.window_manager.invoke_confirm(self, event)  # confirm
 
     def execute(self, context):
         # Check destination
         for sc in bpy.data.scenes:
             if not sc.bf_config_directory:
-                self.report(
-                    {"ERROR"}, f"Missing FDS case directory in Scene <{sc.name}>"
-                )
+                msg = f"Missing FDS case directory in Scene <{sc.name}>"
+                self.report({"ERROR"}, msg)
                 return {"CANCELLED"}
 
         # Export
@@ -94,9 +103,9 @@ class ExportAllSceneToFDS(Operator):
                     full=True,
                     save=True,
                 )
-            except BFException as err:
+            except Exception as err:
                 w.cursor_modal_restore()
-                self.report({"ERROR"}, f"Export: {str(err)}")
+                self.report({"ERROR"}, str(err))
                 return {"CANCELLED"}
 
         # Close

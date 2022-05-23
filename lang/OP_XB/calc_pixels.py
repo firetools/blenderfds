@@ -55,7 +55,7 @@ def get_pixels(context, ob):
     try:
         xbs, voxel_size = get_voxels(context=context, ob=ob_copy)
     except BFException as err:
-        raise BFException(ob, f"No pixel created\n{err}")
+        raise BFException(ob, f"No pixel created: {err}")
     finally:
         bpy.data.meshes.remove(ob_copy.data, do_unlink=True)  # clean up
     # Flatten the solidified object xbs

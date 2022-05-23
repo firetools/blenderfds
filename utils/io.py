@@ -78,59 +78,59 @@ def write_txt_file(filepath, text=None, force_dir=False):
 # From relative to blender file (rbl)
 
 
+def transform_rbl_to_abs(context, filepath_rbl, name="", extension="") -> str:
+    """!
+    Transform filepath relative to blender file to absolute.
+    """
+    filepath = bpy.path.abspath(filepath_rbl or "//.")
+    if not is_abs(filepath):
+        msg = f"transform_rbl_to_abs(context, filepath_rbl={filepath_rbl}, name={name}, extension={extension})"
+        log.debug(msg)
+        raise BFException(None, f"Save the Blender file first!")
+    if name or extension:
+        filepath = append_filename(filepath, name, extension)
+    return filepath
+
+
 def transform_rbl_to_abs_and_rfds(context, filepath_rbl, name="", extension=""):
     """!
     Transform filepath relative to blender file to absolute and relative to fds case file.
     """
+    # Get abs filepath
     filepath = transform_rbl_to_abs(
         context=context,
         filepath_rbl=filepath_rbl or get_abs_fds_path(context.scene),
         name=name,
         extension=extension,
     )
+
     # Set filepath_rfds
     if not filepath_rbl:  # empty means same as fds case path
         filepath_rfds = os.path.basename(filepath)
-    elif not is_abs(filepath_rbl):
+    elif not is_abs(filepath_rbl):  # try to leave it relative
         filepath_rfds = transform_abs_to_rfds(filepath, context.scene)
-    else:
+    else:  # keep the existing abs
         filepath_rfds = filepath
+
     return filepath, filepath_rfds
-
-
-def transform_rbl_to_abs(context, filepath_rbl, name="", extension="") -> str:
-    """!
-    Transform filepath relative to blender file to absolute.
-    """
-    filepath = bpy.path.abspath(filepath_rbl)
-    if not is_abs(filepath):
-        msg = f"Save the Blender file, unresolved path: <{filepath_rbl}>"
-        raise BFException(None, msg)
-    if name or extension:
-        filepath = append_filename(filepath, name, extension)
-    return filepath
 
 
 # From relative to fds case file (rfds)
 
 
-def transform_rfds_to_abs_and_rbl(context, filepath_rfds):
+def get_abs_fds_path(sc) -> str:
     """!
-    Transform filepath relative to fds file to absolute and relative to blender file.
+    Get absolute fds case path.
+    @param sc: exported scene.
+    @return: absolute fds path.
     """
-    filepath = transform_rfds_to_abs(
-        context=context, filepath_rfds=filepath_rfds or get_abs_fds_path(context.scene)
-    )
-    # Set filepath_rbl
-    if not filepath_rfds:  # empty means same as fds case path
-        filepath_rbl = ""
-    elif not is_abs(filepath_rfds):
-        filepath_rbl = transform_abs_to_rbl(filepath)
-    else:
-        filepath_rbl = filepath
-    # Set other
-    path_rbl, name = extract_path_name(filepath_rbl)
-    return filepath, filepath_rbl, path_rbl, name
+    # Could be abs already, so no check on save but on result
+    # If empty try the same as the Blender file
+    fds_path = bpy.path.abspath(sc.bf_config_directory or "//.")  # always or "//."
+    if not is_abs(fds_path):
+        log.debug(f"get_abs_fds_path(bf_config_directory={sc.bf_config_directory})")
+        raise BFException(None, f"Save the Blender file first!")
+    return fds_path
 
 
 def transform_rfds_to_abs(context, filepath_rfds) -> str:
@@ -139,10 +139,30 @@ def transform_rfds_to_abs(context, filepath_rfds) -> str:
     """
     fds_path = get_abs_fds_path(context.scene)
     filepath = os.path.abspath(os.path.join(fds_path, filepath_rfds))
-    if not is_abs(filepath):
-        msg = f"Check the FDS file, unresolved path: <{filepath_rfds}>"
-        raise BFException(None, msg)
     return filepath
+
+
+def transform_rfds_to_abs_and_rbl(context, filepath_rfds):
+    """!
+    Transform filepath relative to fds file to absolute and relative to blender file.
+    """
+    # Get abs filepath
+    filepath = transform_rfds_to_abs(
+        context=context, filepath_rfds=filepath_rfds or get_abs_fds_path(context.scene)
+    )
+
+    # Set filepath_rbl
+    if not filepath_rfds:  # empty means same as fds case path
+        filepath_rbl = ""
+    elif not is_abs(filepath_rfds):  # try to leave it relative
+        filepath_rbl = transform_abs_to_rbl(filepath)
+    else:  # keep the existing abs
+        filepath_rbl = filepath
+
+    # Set other
+    path_rbl, name = extract_path_name(filepath_rbl)
+
+    return filepath, filepath_rbl, path_rbl, name
 
 
 # From absolute to relative
@@ -152,31 +172,25 @@ def transform_abs_to_rbl(filepath) -> str:
     """!
     Transform absolute filepath to relative to blend file.
     """
-    return bpy.path.relpath(filepath)
+    if bpy.data.is_saved:
+        return bpy.path.relpath(filepath)  # try to make it relative
+    else:
+        return filepath  # keep the existing
 
 
 def transform_abs_to_rfds(filepath, sc) -> str:
     """!
     Transform absolute filepath to relative to fds case file.
     """
-    fds_path = get_abs_fds_path(sc)
-    return os.path.relpath(filepath, start=fds_path)
+    try:
+        fds_path = get_abs_fds_path(sc)
+    except BFException:
+        return filepath  # keep the existing
+    else:
+        return os.path.relpath(filepath, start=fds_path)  # make it relative
 
 
 # Others
-
-
-def get_abs_fds_path(sc) -> str:
-    """!
-    Get absolute fds case path.
-    @param sc: exported scene.
-    @return: absolute fds path.
-    """
-    fds_path = bpy.path.abspath(sc.bf_config_directory or "//.")
-    if not is_abs(fds_path):
-        msg = f"Save the Blender file, unresolved path: <{fds_path}>"
-        raise BFException(None, msg)
-    return fds_path
 
 
 def append_filename(path="", name="", extension="") -> str:
@@ -218,10 +232,11 @@ def is_dir(path):
 def is_abs(path):
     if path.startswith("//"):  # Blender notation for relative paths
         return False
-    elif os.path.isabs(path):  # OS notation for absolute paths
-        return True
-    else:
-        return False
+    return os.path.isabs(path)
+
+
+def is_clean(filename):
+    return bpy.path.clean_name(filename) == filename
 
 
 def make_dir(filepath):

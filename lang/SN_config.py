@@ -39,7 +39,7 @@ class SP_config_directory(BFParam):
     def check(self, context):
         if self.get_exported(context):
             value = self.element.bf_config_directory
-            if not os.path.exists(bpy.path.abspath(value)):
+            if not os.path.exists(bpy.path.abspath(value or "//.")):
                 raise BFException(self, f"Case directory <{value}> not existing")
 
     def copy_to(self, context, dest_element):

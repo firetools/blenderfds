@@ -1,6 +1,7 @@
 import logging
 from bpy.types import Scene
-from ..types import BFParam, BFParamFYI, BFNamelistSc, FDSList
+from ..types import BFParam, BFParamFYI, BFNamelistSc, FDSList, BFException
+from .. import utils
 
 log = logging.getLogger(__name__)
 
@@ -11,6 +12,13 @@ class SP_HEAD_CHID(BFParam):
     fds_label = "CHID"
     bpy_type = Scene
     bpy_idname = "name"
+
+    def check(self, context):
+        name = self.element.name
+        if "." in name:
+            raise BFException(self, f"No periods allowed")
+        if not utils.io.is_clean(name):
+            raise BFException(self, f"No special chars or spaces allowed")
 
     def copy_to(self, context, dest_element):
         pass
