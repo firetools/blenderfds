@@ -17,8 +17,6 @@ class SP_HEAD_CHID(BFParam):
         name = self.element.name
         if "." in name:
             raise BFException(self, f"No periods allowed")
-        if not utils.io.is_clean(name):
-            raise BFException(self, f"No special chars or spaces allowed")
 
     def copy_to(self, context, dest_element):
         pass
