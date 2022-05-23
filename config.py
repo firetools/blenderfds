@@ -30,7 +30,7 @@ MAGNET_NCELL = 3
 FDS_COMMAND = {
     "linux": """cd '{p}' && export OMP_NUM_THREADS={t} && mpiexec -n {n} fds '{f}' """,
     "darwin": """cd '{p}' && export OMP_NUM_THREADS={t} && mpiexec -n {n} fds '{f}' """,
-    "win32": """cd  "{p}" & fdsinit & mpiexec -n {n} -env OMP_NUM_THREADS {t} fds "{f}" """,
+    "win32": """cd "{p}" & fdsinit & mpiexec -n {n} -env OMP_NUM_THREADS {t} fds "{f}" """,
 }
 ## run smokeview commands
 SMV_COMMAND = {
