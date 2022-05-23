@@ -1,7 +1,5 @@
 # TODO
 
-FIXME header and doc in py files
-
 Manage HVAC
 Split and coarser MESHes
 

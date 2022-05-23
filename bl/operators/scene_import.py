@@ -116,7 +116,7 @@ class ImportFDSToCurrentScene(Operator, ImportHelper):
         # Close
         utils.ui.view_all(context=context)
         w.cursor_modal_restore()
-        self.report({"INFO"}, f"{fds_namelist_qty} namelists imported")
+        self.report({"INFO"}, f"{fds_namelist_qty} namelist(s) imported")
         return {"FINISHED"}
 
 
