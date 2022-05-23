@@ -110,6 +110,7 @@ class BFScene:
 
         # Load fds case from f90_namelists
         fds_list = FDSList(f90_namelists=f90_namelists)
+        fds_namelist_qty = len(fds_list)
 
         # Prepare free text for unmanaged namelists, no rewind
         if not self.bf_config_text:
@@ -144,6 +145,8 @@ class BFScene:
         # Restore fds case dir, to avoid overwriting imported case
         if filepath:
             self.bf_config_directory = bf_config_directory
+
+        return fds_namelist_qty  # feedback
 
     @classmethod
     def register(cls):

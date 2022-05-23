@@ -12,6 +12,26 @@ from ... import utils
 from ...types import BFException
 
 
+def _get_all_filepaths(filepath, extension=".fds"):
+    filepaths = list()
+    for f in os.scandir(os.path.dirname(filepath)):
+        if os.path.isfile(f) and f.name.endswith(extension):
+            filepaths.append(f.path)
+    return filepaths
+
+
+def _import_fds_to_scene(context, filepath, to_new_scene=True):
+    if to_new_scene:
+        sc = bpy.data.scenes.new("New case")
+    else:
+        sc = context.scene
+    fds_namelist_qty = sc.from_fds(
+        context,
+        filepath=filepath,
+    )
+    return fds_namelist_qty
+
+
 class ImportFDSToScene(Operator, ImportHelper):
     """!
     Import FDS case file to a Blender Scene.
@@ -24,12 +44,6 @@ class ImportFDSToScene(Operator, ImportHelper):
 
     filename_ext = ".fds"
     filter_glob: StringProperty(default="*.fds", options={"HIDDEN"})
-
-    new_scene: BoolProperty(
-        name="New Scene",
-        default=True,
-        description="Import selected case into a new Scene.",
-    )
 
     all_cases: BoolProperty(
         name="Import All",
@@ -45,29 +59,19 @@ class ImportFDSToScene(Operator, ImportHelper):
         w = context.window_manager.windows[0]
         w.cursor_modal_set("WAIT")
 
-        # List filepaths
-        filepaths = list()
+        # Set filepaths
         if self.all_cases:
-            for f in os.scandir(os.path.dirname(self.filepath)):
-                if os.path.isfile(f) and f.name.endswith(".fds"):
-                    filepaths.append(f.path)
+            filepaths = _get_all_filepaths(filepath, extension=".fds")
         else:
-            filepaths.append(self.filepath)
+            filepaths = (self.filepath,)
 
         # Import
         for filepath in filepaths:
-            if self.new_scene:
-                sc = bpy.data.scenes.new("New case")
-            else:
-                sc = context.scene
             try:
-                sc.from_fds(
-                    context,
-                    filepath=filepath,
-                )
+                _import_fds_to_scene(context, filepath, to_new_scene=True)
             except BFException as err:
                 w.cursor_modal_restore()
-                self.report({"ERROR"}, str(err))
+                self.report({"ERROR"}, f"Import <{filepath}>: {err}")
                 return {"CANCELLED"}
 
         # Close
@@ -95,9 +99,25 @@ class ImportFDSToCurrentScene(Operator, ImportHelper):
         return context.scene
 
     def execute(self, context):
-        return bpy.ops.import_to_scene.fds(
-            filepath=self.filepath, new_scene=False, all_cases=False
-        )
+        w = context.window_manager.windows[0]
+        w.cursor_modal_set("WAIT")
+
+        # Import
+        filepath = self.filepath
+        try:
+            fds_namelist_qty = _import_fds_to_scene(
+                context, filepath, to_new_scene=False
+            )
+        except BFException as err:
+            w.cursor_modal_restore()
+            self.report({"ERROR"}, f"Import <{filepath}>: {err}")
+            return {"CANCELLED"}
+
+        # Close
+        utils.ui.view_all(context=context)
+        w.cursor_modal_restore()
+        self.report({"INFO"}, f"{fds_namelist_qty} namelists imported")
+        return {"FINISHED"}
 
 
 bl_classes = [
