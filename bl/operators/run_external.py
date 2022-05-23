@@ -45,8 +45,7 @@ class SCENE_OT_bf_run_fds(Operator):
 
     @classmethod
     def poll(cls, context):
-        sc = context.scene
-        return sc and sc.bf_config_directory and bpy.data.is_saved
+        return context.scene
 
     # def invoke(self, context, event):
     #     # Ask for confirmation
@@ -68,7 +67,7 @@ class SCENE_OT_bf_run_fds(Operator):
             )
         except Exception as err:
             w.cursor_modal_restore()
-            self.report({"ERROR"}, f"Export: {str(err)}")
+            self.report({"ERROR"}, str(err))
             return {"CANCELLED"}
         fds_path, _ = utils.io.extract_path_name(fds_filepath)
 
@@ -77,7 +76,7 @@ class SCENE_OT_bf_run_fds(Operator):
             sc.to_fds(context, full=True, save=True)
         except Exception as err:
             w.cursor_modal_restore()
-            self.report({"ERROR"}, f"Export: {str(err)}")
+            self.report({"ERROR"}, str(err))
             return {"CANCELLED"}
 
         # Prepare the command
@@ -101,7 +100,7 @@ class SCENE_OT_bf_run_fds(Operator):
 
         # Close
         w.cursor_modal_restore()
-        self.report({"INFO"}, "FDS is running, see the command prompt.")
+        self.report({"INFO"}, "Run FDS, see the command prompt.")
         return {"FINISHED"}
 
 
@@ -116,32 +115,32 @@ class SCENE_OT_bf_run_smv(Operator):
 
     @classmethod
     def poll(cls, context):
-        sc = context.scene
-        if sc and sc.bf_config_directory and bpy.data.is_saved:
-            try:
-                smv_filepath = utils.io.transform_rbl_to_abs(
-                    context=context,
-                    filepath_rbl=sc.bf_config_directory,
-                    name=sc.name,
-                    extension=".smv",
-                )
-            except:
-                return False
-            return os.path.exists(smv_filepath)
+        return context.scene
 
     def execute(self, context):
         w = context.window_manager.windows[0]
         w.cursor_modal_set("WAIT")
         sc = context.scene
 
-        # Prepare path
-        smv_filepath = utils.io.transform_rbl_to_abs(
-            context=context,
-            filepath_rbl=sc.bf_config_directory,
-            name=sc.name,
-            extension=".smv",
-        )
+        # Prepare path and check file existence
+        try:
+            smv_filepath = utils.io.transform_rbl_to_abs(
+                context=context,
+                filepath_rbl=sc.bf_config_directory,
+                name=sc.name,
+                extension=".smv",
+            )
+        except Exception as err:
+            w.cursor_modal_restore()
+            self.report({"ERROR"}, str(err))
+            return {"CANCELLED"}
+
         smv_path, _ = utils.io.extract_path_name(smv_filepath)
+
+        if not utils.io.is_file(smv_filepath):
+            w.cursor_modal_restore()
+            self.report({"ERROR"}, f"Run FDS, before opening Smokeview!")
+            return {"CANCELLED"}
 
         # Prepare the command
         prefs = context.preferences.addons[__package__.split(".")[0]].preferences
@@ -157,7 +156,7 @@ class SCENE_OT_bf_run_smv(Operator):
 
         # Close
         w.cursor_modal_restore()
-        self.report({"INFO"}, "Smokeview is running.")
+        self.report({"INFO"}, "Open Smokeview, see the command prompt.")
         return {"FINISHED"}
 
 
