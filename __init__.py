@@ -18,54 +18,36 @@ bl_info = {
     "name": "BlenderFDS",
     "author": "Emanuele Gissi",
     "description": "BlenderFDS, an open graphical editor for the NIST Fire Dynamics Simulator",
-    "blender": (2, 90, 1),
-    "version": (5, 1, 1),
+    "blender": (3, 2, 0),
+    "version": (6, 0, 0),
     "location": "File > Export > FDS Case (.fds)",
     "warning": "",
     "category": "Import-Export",
-    "wiki_url": "http://www.blenderfds.org/",
+    "doc_url": "http://www.blenderfds.org/",
     "tracker_url": "https://github.com/firetools/blenderfds/issues",
     "support": "COMMUNITY",
 }
 
+import logging
 
-# Register
+# Reading class definitions,
+# bl should be imported before lang,
+# because it imports ui_lists
+from . import bl, lang
 
-import bpy, logging
-
-from . import ext
-from .bl import operators, panels, menus, ui, handlers, preferences
-
-
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO)  # INFO or DEBUG
 log = logging.getLogger(__name__)
 
 
+# Automatic registering/deregistering
+# of Blender entities
 def register():
-    log.debug("Registering")
-    # Preferences
-    preferences.register()
-    pref = bpy.context.preferences.addons[__package__].preferences
-    # Set log level from preferences
-    log.setLevel(pref.bf_loglevel)
-    # Register Blender properties, ops, panels, ...
-    ext.register()  # -> lang.py -> types.py
-    operators.register()
-    panels.register()
-    menus.register()
-    handlers.register()
-    # Simplify UI, if preferred
-    if pref.bf_pref_simplify_ui:
-        ui.register()
+    log.info("Register BlenderFDS...")
+    bl.register()
+    lang.register()
 
 
 def unregister():
-    log.debug("Unregistering")
-    # ui.unregister() # restart needed
-    menus.unregister()
-    panels.unregister()
-    operators.unregister()
-    ext.unregister()
-    handlers.unregister()
-    preferences.unregister()
-
+    log.info("Unregister BlenderFDS...")
+    lang.unregister()
+    bl.unregister()

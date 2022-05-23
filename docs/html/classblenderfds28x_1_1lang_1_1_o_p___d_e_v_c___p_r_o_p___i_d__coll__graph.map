@@ -1,5 +1,0 @@
-<map id="blenderfds28x.lang.OP_DEVC_PROP_ID" name="blenderfds28x.lang.OP_DEVC_PROP_ID">
-<area shape="rect" id="node1" title="Blender representation of the PROP_ID parameter, the reference to a PROP (Property) line for self pro..." alt="" coords="35,155,190,196"/>
-<area shape="rect" id="node2" href="$classblenderfds28x_1_1types_1_1_b_f_param_str.html" title="Blender representation of an FDS parameter, helper for any FDS string parameter." alt="" coords="5,80,220,107"/>
-<area shape="rect" id="node3" href="$classblenderfds28x_1_1types_1_1_b_f_param.html" title="Blender representation of an FDS parameter." alt="" coords="13,5,212,32"/>
-</map>

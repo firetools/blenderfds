@@ -2,43 +2,27 @@
 BlenderFDS, panel class extensions.
 """
 
-import bpy
-from bpy.types import Panel, UIList, Operator, bpy_struct
-
-from . import custom_uilist
-from .. import lang, config, geometry, gis, fds
-
-bl_classes = list()
-bf_classes = list()
-
-
-def subscribe(cls):
-    """!
-    Subscribe class to related collection.
-    @param cls: the class to subscribe.
-    @return the class subscribed.
-    """
-    if issubclass(cls, bpy_struct):
-        bl_classes.append(cls)
-    else:
-        bf_classes.append(cls)
-    return cls
-
+from bpy.types import Panel
+from ..lang.SN_config import SN_config
+from ..lang.SN_HEAD import SN_HEAD
+from ..lang.SN_TIME import SN_TIME
+from ..lang.SN_MISC import SN_MISC
+from ..lang.SN_REAC import SN_REAC
+from ..lang.SN_RADI import SN_RADI
+from ..lang.SN_PRES import SN_PRES
+from ..lang.SN_DUMP import SN_DUMP
+from ..lang.ON_MULT import ON_MULT, OP_other_MULT_ID
 
 # Property panels
 
 
-class SCENE_PT_bf_namelist:
-    """!
-    FDS Panel
-    """
-
+class _SCENE_PT_bf_namelist:
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
-    bl_label = "FDS Panel"
+    bl_label = "FDS Generic Scene Panel"
     bl_context = "scene"
 
-    bf_namelist_cls = "SN_HEAD"  # example
+    bf_namelist = SN_HEAD  # example
     layout = None  # example
 
     @classmethod
@@ -46,185 +30,102 @@ class SCENE_PT_bf_namelist:
         return context.scene
 
     def draw_header(self, context):
-        """!
-        Draw UI elements into the panel’s header UI layout.
-        @param context: the Blender context.
-        """
         sc = context.scene
-        # Manage Scene
-        bf_namelist = lang.bf_namelists_by_cls[self.bf_namelist_cls]
-        if bf_namelist.bpy_export:
-            self.layout.prop(sc, bf_namelist.bpy_export, icon_only=True)
-        if bf_namelist.description:
-            self.bl_label = f"FDS {bf_namelist.label} ({bf_namelist.description})"
-        else:
-            self.bl_label = bf_namelist.label
-
-    def draw(self, context):
-        """!
-        Draw UI elements into the panel UI layout.
-        @param context: the Blender context.
-        """
-        sc = context.scene
-        layout = self.layout
-        layout.use_property_split = True
-        layout.use_property_decorate = False  # No animation.
-        flow = layout.grid_flow(row_major=True, columns=1, even_columns=True)
-        bf_namelist = lang.bf_namelists_by_cls[self.bf_namelist_cls]
-        bf_namelist(sc).draw(context, flow)
-
-
-@subscribe
-class SCENE_PT_bf_case(Panel, SCENE_PT_bf_namelist):
-    """!
-    FDS Case Config
-    """
-
-    bf_namelist_cls = "SN_config"
-    bl_label = "FDS Case"
+        self.bf_namelist(sc).draw_header(
+            context=context, layout=self.layout, panel=self
+        )
 
     def draw(self, context):
         sc = context.scene
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
-        row = layout.row(align=True)  # general operators
-        row.operator("scene.bf_show_fds_code", icon="HIDE_OFF")
-        row.operator("scene.bf_props_to_scene", icon="COPYDOWN")
-        bf_namelist = lang.bf_namelists_by_cls[self.bf_namelist_cls]
-        flow = layout.grid_flow(row_major=True, columns=1, even_columns=True)
-        bf_namelist(sc).draw(context, flow)
+        self.bf_namelist(sc).draw(context, layout)
 
 
-@subscribe
-class SCENE_PT_bf_config_sizes(Panel, SCENE_PT_bf_namelist):
-    """!
-    Default Sizes and Thresholds
-    """
+class SCENE_PT_bf_case(Panel, _SCENE_PT_bf_namelist):
+    bf_namelist = SN_config
+    bl_label = "FDS Case Config"
 
-    bf_namelist_cls = "SN_config_sizes"
-    bl_label = "Default Sizes and Thresholds"
-    bl_parent_id = "SCENE_PT_bf_case"
-    bl_options = {"DEFAULT_CLOSED"}
-
-
-@subscribe
-class SCENE_PT_bf_config_units(Panel, SCENE_PT_bf_namelist):
-    """!
-    Units configuration
-    """
-
-    bf_namelist_cls = "SN_config_units"
-    bl_label = "Units"
-    bl_parent_id = "SCENE_PT_bf_case"
-    bl_options = {"DEFAULT_CLOSED"}
+    def draw(self, context):
+        sc = context.scene
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False  # No animation.
+        self.bf_namelist(sc).draw(context, layout)
 
 
-@subscribe
-class SCENE_PT_bf_namelist_HEAD(Panel, SCENE_PT_bf_namelist):
-    """!
-    FDS HEAD
-    """
-
-    bf_namelist_cls = "SN_HEAD"
+class SCENE_PT_bf_namelist_HEAD(Panel, _SCENE_PT_bf_namelist):
+    bf_namelist = SN_HEAD
     bl_label = "FDS HEAD"
-    bl_parent_id = "SCENE_PT_bf_case"
 
 
-@subscribe
-class SCENE_PT_bf_namelist_TIME(Panel, SCENE_PT_bf_namelist):
-    """!
-    FDS TIME
-    """
-
-    bf_namelist_cls = "SN_TIME"
+class SCENE_PT_bf_namelist_TIME(Panel, _SCENE_PT_bf_namelist):
+    bf_namelist = SN_TIME
     bl_label = "FDS TIME"
-    bl_parent_id = "SCENE_PT_bf_case"
     bl_options = {"DEFAULT_CLOSED"}
 
 
-@subscribe
-class SCENE_PT_bf_namelist_MISC(Panel, SCENE_PT_bf_namelist):
-    """!
-    FDS MISC
-    """
-
-    bf_namelist_cls = "SN_MISC"
+class SCENE_PT_bf_namelist_MISC(Panel, _SCENE_PT_bf_namelist):
+    bf_namelist = SN_MISC
     bl_label = "FDS MISC"
-    bl_parent_id = "SCENE_PT_bf_case"
     bl_options = {"DEFAULT_CLOSED"}
 
 
-@subscribe
-class SCENE_PT_bf_namelist_REAC(Panel, SCENE_PT_bf_namelist):
-    """!
-    FDS REAC
-    """
-
-    bf_namelist_cls = "SN_REAC"
+class SCENE_PT_bf_namelist_REAC(Panel, _SCENE_PT_bf_namelist):
+    bf_namelist = SN_REAC
     bl_label = "FDS REAC"
-    bl_parent_id = "SCENE_PT_bf_case"
     bl_options = {"DEFAULT_CLOSED"}
 
 
-@subscribe
-class SCENE_PT_bf_namelist_RADI(Panel, SCENE_PT_bf_namelist):
-    """!
-    FDS RADI
-    """
-
-    bf_namelist_cls = "SN_RADI"
+class SCENE_PT_bf_namelist_RADI(Panel, _SCENE_PT_bf_namelist):
+    bf_namelist = SN_RADI
     bl_label = "FDS RADI"
-    bl_parent_id = "SCENE_PT_bf_case"
     bl_options = {"DEFAULT_CLOSED"}
 
 
-@subscribe
-class SCENE_PT_bf_namelist_PRES(Panel, SCENE_PT_bf_namelist):
-    """!
-    FDS PRES
-    """
+class SCENE_PT_bf_namelist_PRES(Panel, _SCENE_PT_bf_namelist):
 
-    bf_namelist_cls = "SN_PRES"
+    bf_namelist = SN_PRES
     bl_label = "FDS PRES"
-    bl_parent_id = "SCENE_PT_bf_case"
     bl_options = {"DEFAULT_CLOSED"}
 
 
-@subscribe
-class SCENE_PT_bf_namelist_DUMP(Panel, SCENE_PT_bf_namelist):
-    """!
-    FDS DUMP
-    """
-
-    bf_namelist_cls = "SN_DUMP"
+class SCENE_PT_bf_namelist_DUMP(Panel, _SCENE_PT_bf_namelist):
+    bf_namelist = SN_DUMP
     bl_label = "FDS DUMP"
-    bl_parent_id = "SCENE_PT_bf_case"
     bl_options = {"DEFAULT_CLOSED"}
 
 
-@subscribe
-class SCENE_PT_bf_namelist_CATF(Panel, SCENE_PT_bf_namelist):
-    """!
-    FDS CATF
-    """
+class COLLECTION_PT_bf_config(Panel):
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = "collection"
+    bl_label = "FDS Collection Config"
 
-    bf_namelist_cls = "SN_CATF"
-    bl_label = "FDS CATF"
-    bl_parent_id = "SCENE_PT_bf_case"
-    bl_options = {"DEFAULT_CLOSED"}
+    def draw_header(self, context):
+        self.layout.prop(
+            context.collection,
+            "hide_render",
+            icon_only=True,
+            toggle=False,
+            invert_checkbox=True,
+        )
+
+    def draw(self, context):
+        co = context.collection
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False  # No animation.
+        layout.operator("collection.bf_show_fds_code", icon="HIDE_OFF")
+        layout.prop(co, "name")
 
 
-@subscribe
 class OBJECT_PT_bf_namelist(Panel):
-    """!
-    FDS geometric namelist
-    """
-
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
-    bl_label = "FDS Namelist"
+    bl_label = "FDS Geometric Namelist"
 
     @classmethod
     def poll(cls, context):
@@ -233,43 +134,53 @@ class OBJECT_PT_bf_namelist(Panel):
 
     def draw_header(self, context):
         ob = context.object
-        if ob.bf_is_tmp:
-            self.bl_label = f"FDS Temp Geometry"
-            return
-        bf_namelist = ob.bf_namelist
-        self.bl_label = f"FDS {bf_namelist.label} ({bf_namelist.description})"
-        self.layout.prop(ob, "hide_render", emboss=False, icon_only=True)
+        ob.bf_namelist.draw_header(context=context, layout=self.layout, panel=self)
 
     def draw(self, context):
         ob = context.object
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False  # no animation
-        row = layout.row(align=True)  # general operators
-        if ob.bf_is_tmp:
-            row.operator("object.bf_show_fds_geometry", icon="HIDE_ON")
-            return
-        if ob.bf_has_tmp:
-            row.operator("object.bf_show_fds_geometry", icon="HIDE_ON")
-        else:
-            row.operator("object.bf_show_fds_geometry", icon="HIDE_OFF")
-        row.operator("object.bf_show_fds_code", icon="HIDE_OFF")
-        row.operator("object.bf_props_to_sel_obs", icon="COPYDOWN")
-        flow = layout.grid_flow(row_major=True, columns=1, even_columns=True)
-        flow.prop(ob, "bf_namelist_cls")  # draw namelist choice
-        ob.bf_namelist.draw(context, flow)  # draw namelist
+        ob.bf_namelist.draw(context, layout)  # draw namelist
 
 
-@subscribe
+class OBJECT_PT_MULT(Panel):
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = "object"
+    bl_label = "FDS MULT"
+    bl_parent_id = "OBJECT_PT_bf_namelist"
+    bl_options = {"DEFAULT_CLOSED"}
+
+    bf_namelist = ON_MULT
+
+    @classmethod
+    def poll(cls, context):
+        ob = context.object
+        return (
+            ob
+            and ob.type == "MESH"
+            and not ob.bf_is_tmp
+            and ob.bf_namelist.has_bf_param(OP_other_MULT_ID)
+        )
+
+    def draw_header(self, context):
+        self.bf_namelist(context.object).draw_header(
+            context=context, layout=self.layout, panel=self
+        )
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = False  # special
+        layout.use_property_decorate = False  # no animation
+        self.bf_namelist(context.object).draw(context, layout)  # draw namelist
+
+
 class MATERIAL_PT_bf_namelist(Panel):
-    """!
-    FDS SURF
-    """
-
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "material"
-    bl_label = "FDS SURF"
+    bl_label = "FDS Boundary Condition"
 
     @classmethod
     def poll(cls, context):
@@ -278,78 +189,56 @@ class MATERIAL_PT_bf_namelist(Panel):
 
     def draw_header(self, context):
         ma = context.object.active_material
-        # Manage predefined Material
-        if ma.name in config.default_mas:
-            self.bl_label = f"FDS Predefined {ma.name}"
-            return
-        # Manage Material
-        bf_namelist = ma.bf_namelist
-        self.bl_label = f"FDS {bf_namelist.label} ({bf_namelist.description})"
-        self.layout.prop(ma, "bf_surf_export", icon_only=True)
+        ma.bf_namelist.draw_header(context=context, layout=self.layout, panel=self)
 
     def draw(self, context):
         ma = context.object.active_material
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False  # no animation
-        row = layout.row(align=True)  # general operators
-        if ma.name in config.default_mas:
-            row.prop(ma, "diffuse_color")
-            return
-        row.operator("material.bf_show_fds_code", icon="HIDE_OFF")
-        row.operator("material.bf_surf_to_sel_obs", icon="COPYDOWN")
-        flow = layout.grid_flow(row_major=True, columns=1, even_columns=True)
-        flow.prop(ma, "bf_namelist_cls")  # draw namelist choice
-        ma.bf_namelist.draw(context, flow)  # draw namelist
+        ma.bf_namelist.draw(context, layout)  # draw namelist
 
 
 # Toolbar panels
 
 
-@subscribe
-class VIEW3D_PT_bf_ob_namelist_tools(Panel):
-    """!
-    Object namelist tools
-    """
-
-    bl_idname = "VIEW3D_PT_bf_ob_namelist_tools"
+class VIEW3D_PT_bf_ob_utils(Panel):
+    bl_idname = "VIEW3D_PT_bf_ob_utils"
     bl_context = "objectmode"
     bl_category = "FDS"
-    bl_label = "FDS Namelist Tools"
+    bl_label = "FDS Utils"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
 
     @classmethod
     def poll(cls, context):
         ob = context.object
-        return ob and ob.type == "MESH"  # TODO other types?
-
-    def draw_header(self, context):
-        ob = context.object
-        if ob.bf_is_tmp:
-            self.bl_label = f"FDS Temp Geometry"
-            return
-        bf_namelist = ob.bf_namelist
-        self.bl_label = f"FDS {bf_namelist.label}"
+        return ob and ob.type == "MESH" and not ob.bf_is_tmp
 
     def draw(self, context):
         ob = context.object
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False
-        if ob.bf_is_tmp or ob.bf_has_tmp:
-            layout.operator("object.bf_show_fds_geometry", icon="HIDE_ON")
-            return
+
+        # Draw FDS and Smokeview run
+        col = layout.column(align=True)
+        col.operator("scene.bf_run_fds", icon="EXPORT")
+        col.operator("scene.bf_run_smv", icon="HIDE_OFF")
+        col.separator()
+
+        # Draw import snippet
+        col = layout.column(align=True)
+        col.operator("import_to_current_scene.fds", icon="IMPORT")
+        col.separator()
+
+        # Draw Object operators
         ob.bf_namelist.draw_operators(context, layout)
 
 
-@subscribe
-class VIEW3D_PT_bf_remesh(Panel):
-    """!
-    Object remesh panel
-    """
-
-    bl_idname = "VIEW3D_PT_bf_remesh"
+# From properties_da_mesh-py, class DATA_PT_remesh()
+class VIEW3D_PT_bf_ob_remesh(Panel):
+    bl_idname = "VIEW3D_PT_bf_ob_remesh"
     bl_context = "objectmode"
     bl_category = "FDS"
     bl_label = "Remesh"
@@ -357,50 +246,26 @@ class VIEW3D_PT_bf_remesh(Panel):
     bl_region_type = "UI"
     bl_options = {"DEFAULT_CLOSED"}
 
-    @classmethod
-    def poll(cls, context):
-        """!
-        If this method returns a non-null output, then the panel can be drawn
-        @param context: the Blender context.
-        @return current object
-        """
-        ob = context.active_object
-        return ob and ob.type == "MESH"
-
     def draw(self, context):
-        """!
-        Draw UI elements into the panel UI layout.
-        @param context: the Blender context.
-        """
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False
-        me = context.active_object.data
+        row = layout.row()
+
+        mesh = context.object.data  # fix
+        row.prop(mesh, "remesh_mode", text="Mode", expand=True)
         col = layout.column()
-        row = col.row()
-        # See: properties_data_mesh.py, class DATA_PT_remesh
-        row.prop(me, "remesh_mode", text="Mode", expand=True)
-        if me.remesh_mode == "VOXEL":
-            row = col.row(align=True)
-            row.prop(me, "remesh_voxel_size")
-            row.operator(
-                "sculpt.sample_detail_size", text="", icon="EYEDROPPER"
-            ).mode = "VOXEL"
-            col.prop(me, "remesh_voxel_adaptivity")
-            col.prop(me, "use_remesh_fix_poles")
-            col.prop(me, "use_remesh_smooth_normals")
-            col.prop(me, "use_remesh_preserve_volume")
+        if mesh.remesh_mode == "VOXEL":
+            col.prop(mesh, "remesh_voxel_size")
+            col.prop(mesh, "remesh_voxel_adaptivity")
+            col.prop(mesh, "use_remesh_fix_poles")
+            # Removed props here
             col.operator("object.voxel_remesh", text="Voxel Remesh")
         else:
             col.operator("object.quadriflow_remesh", text="QuadriFlow Remesh")
 
 
-@subscribe
 class VIEW3D_PT_bf_mesh_clean_up(Panel):
-    """!
-    Mesh clean up panel
-    """
-
     bl_idname = "VIEW3D_PT_bf_mesh_clean_up"
     bl_context = "mesh_edit"
     bl_category = "FDS"
@@ -411,12 +276,7 @@ class VIEW3D_PT_bf_mesh_clean_up(Panel):
 
     @classmethod
     def poll(cls, context):
-        """!
-        If this method returns a non-null output, then the panel can be drawn
-        @param context: the Blender context.
-        @return current object
-        """
-        ob = context.active_object
+        ob = context.object
         return ob and ob.type == "MESH"
 
     def draw(self, context):
@@ -428,19 +288,13 @@ class VIEW3D_PT_bf_mesh_clean_up(Panel):
         layout.use_property_split = True
         layout.use_property_decorate = False
         col = layout.column()
-        col.label(text=context.screen.statusbar_info().split(" | Tris:", 1)[0])
         row = col.row(align=True)
         row.template_header_3D_mode()
         row.menu("VIEW3D_MT_edit_mesh_select_by_trait")
         col.menu("VIEW3D_MT_edit_mesh_clean")
 
 
-@subscribe
 class VIEW3D_PT_bf_geolocation(Panel):
-    """!
-    Geolocation panel
-    """
-
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "FDS"
@@ -471,40 +325,35 @@ class VIEW3D_PT_bf_geolocation(Panel):
         col.operator("wm.url_open", text="Transform Coordinates").url = url
 
 
-@subscribe
-class VIEW3D_PT_bf_view3d_properties(Panel):  # FIXME set view clipping automatically
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
-    bl_category = "FDS"
-    bl_label = "View"
-    bl_options = {"DEFAULT_CLOSED"}
-
-    def draw(self, context):
-        layout = self.layout
-        view = context.space_data
-        layout.use_property_split = True
-        layout.use_property_decorate = False  # No animation.
-        col = layout.column()
-
-        subcol = col.column(align=True)
-        subcol.prop(view, "clip_start", text="Clip Start")
-        subcol.prop(view, "clip_end", text="End")
-
-
-# Register
+bl_classes = [
+    SCENE_PT_bf_case,
+    SCENE_PT_bf_namelist_HEAD,
+    SCENE_PT_bf_namelist_TIME,
+    SCENE_PT_bf_namelist_MISC,
+    SCENE_PT_bf_namelist_REAC,
+    SCENE_PT_bf_namelist_RADI,
+    SCENE_PT_bf_namelist_PRES,
+    SCENE_PT_bf_namelist_DUMP,
+    COLLECTION_PT_bf_config,
+    OBJECT_PT_bf_namelist,
+    OBJECT_PT_MULT,
+    MATERIAL_PT_bf_namelist,
+    VIEW3D_PT_bf_ob_utils,
+    VIEW3D_PT_bf_ob_remesh,
+    VIEW3D_PT_bf_mesh_clean_up,
+    VIEW3D_PT_bf_geolocation,
+]
 
 
 def register():
-    """!
-    Load the Python classes and functions to blender.
-    """
-    for cls in bl_classes:
-        bpy.utils.register_class(cls)
+    from bpy.utils import register_class
+
+    for c in bl_classes:
+        register_class(c)
 
 
 def unregister():
-    """!
-    Unload the Python classes and functions from blender.
-    """
-    for cls in bl_classes:
-        bpy.utils.unregister_class(cls)
+    from bpy.utils import unregister_class
+
+    for c in reversed(bl_classes):
+        unregister_class(c)
