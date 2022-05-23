@@ -28,20 +28,24 @@ MAGNET_NCELL = 3
 ## run fds commands
 # from sys.platform: linux is any Linux, darwin is any MacOS, win32 is any Windows
 FDS_COMMAND = {
-    "linux": """cd '{p}' && export OMP_NUM_THREADS={t} && mpiexec -n {n} fds '{f}' """,
-    "darwin": """cd '{p}' && export OMP_NUM_THREADS={t} && mpiexec -n {n} fds '{f}' """,
-    "win32": """cd "{p}" & fdsinit & mpiexec -n {n} -env OMP_NUM_THREADS {t} fds "{f}" """,
+    "linux": """cd '{p}' && export OMP_NUM_THREADS={t} && mpiexec -n {n} fds '{f}' ; sleep 5 ; exit""",
+    "darwin": """cd '{p}' && export OMP_NUM_THREADS={t} && mpiexec -n {n} fds '{f}' ; sleep 5 ; exit""",
+    "win32": """cd "{p}" && fdsinit && mpiexec -n {n} -env OMP_NUM_THREADS {t} fds "{f}" & timeout 5 & exit""",
 }
 ## run smokeview commands
 SMV_COMMAND = {
     "linux": """cd '{p}' && smokeview '{f}'""",
     "darwin": """cd '{p}' && smokeview '{f}'""",
-    "win32": """cd "{p}" & fdsinit & smokeview "{f}" """,
+    "win32": """cd "{p}" && fdsinit && smokeview "{f}" """,
 }
 ## run terminal commands
+# In darwin, to have the terminal close, the user should also modify
+# a (much debated in the forums ;-) default of the Terminal App setting:
+# Preferences → Profiles → (pick whichever is yours) →
+# → Shell → When the shell exits: (change this to "Close if the shell exits cleanly").
 TERM_COMMAND = {
     "linux": """gnome-terminal --window --title "FDS" -- bash -c "{c}" """,
-    "darwin": """osascript -e 'tell app "Terminal" to do script "{c}"' """,
+    "darwin": """osascript -e 'tell app "Terminal" to do script "{c}" ' """,
     "win32": """START "FDS" cmd /c "{c}" """,
 }
 
