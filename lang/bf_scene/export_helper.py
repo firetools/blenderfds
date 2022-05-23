@@ -75,6 +75,7 @@ def append_domain_namelists(context, fds_list):
         if ob.bf_namelist_cls == "ON_MESH"
         and not ob.hide_render
         and not ob.get_layer_collection(context).exclude  # visible in the View Layer
+        and not ob.bf_is_tmp
     ]
     mesh_obs.sort(key=lambda k: k.name)
 
