@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """!
 BlenderFDS, translate geometry from FDS XB notation to a Blender mesh.
 """

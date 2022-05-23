@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 ## Supported file version
 SUPPORTED_FILE_VERSION = 6, 0, 1
 

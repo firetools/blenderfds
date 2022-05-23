@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """!
 BlenderFDS, Geographic information system: original code from https://github.com/Turbo87/utm
 - simplified version that only handle utm zones (and not latitude bands from MGRS grid)

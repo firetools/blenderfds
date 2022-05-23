@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 import logging, bpy
 from bpy.types import Scene, Object, Material
 from ...types import BFNamelist, BFNotImported

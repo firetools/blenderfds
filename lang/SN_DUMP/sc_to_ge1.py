@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """!
 BlenderFDS, export geometry to ge1 cad file format.
 """

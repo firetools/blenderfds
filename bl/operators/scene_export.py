@@ -1,3 +1,9 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+"""!
+BlenderFDS, operators to export an FDS case.
+"""
+
 import bpy
 from bpy.types import Operator
 from bpy.props import StringProperty

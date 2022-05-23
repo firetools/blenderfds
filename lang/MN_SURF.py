@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 import logging
 from ..types import BFNamelistMa
 from .bf_material import (

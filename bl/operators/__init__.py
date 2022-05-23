@@ -1,3 +1,9 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+"""!
+BlenderFDS, Blender Operators.
+"""
+
 from . import (
     check_geom,
     choose_namelist_id,

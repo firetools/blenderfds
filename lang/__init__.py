@@ -1,4 +1,6 @@
-# Import all py file to have them loaded
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+#  Import all py file to have them loaded
 # the order of scene namelists is also the exporting order
 
 from . import (

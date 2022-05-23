@@ -1,5 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """!
-BlenderFDS, operators for the MESH tools panel.
+BlenderFDS, operators for the MESH namelist.
 """
 
 import logging, bpy

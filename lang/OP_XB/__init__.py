@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 from .OP_XB import (
     OP_XB,
     OP_XB_voxel_size,

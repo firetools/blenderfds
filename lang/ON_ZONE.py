@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 import logging
 from ..types import BFNamelistOb
 from .bf_object import OP_namelist_cls,OP_ID, OP_FYI, OP_other

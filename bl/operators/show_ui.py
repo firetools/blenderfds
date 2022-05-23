@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """!
 BlenderFDS, operators to show parts of Blender UI.
 """

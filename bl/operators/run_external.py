@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """!
 BlenderFDS, operators to run external commands (eg. fds, smokeview, ...).
 """

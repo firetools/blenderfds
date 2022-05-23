@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 import logging, re
 from bpy.types import Object
 from bpy.props import BoolProperty

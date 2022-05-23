@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 import logging, os
 from bpy.types import Scene
 from .. import utils

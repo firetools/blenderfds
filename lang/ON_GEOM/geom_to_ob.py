@@ -1,3 +1,9 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+"""!
+BlenderFDS, translate FDS GEOM notation to Blender object geometry.
+"""
+
 import math
 import bpy, bmesh, logging
 from mathutils import Matrix, Vector

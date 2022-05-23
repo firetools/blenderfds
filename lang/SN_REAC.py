@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 import logging
 from bpy.types import Scene
 from bpy.props import BoolProperty, FloatProperty, StringProperty

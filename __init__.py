@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 # BlenderFDS, an open tool for the NIST Fire Dynamics Simulator
 # Copyright (C) 2013  Emanuele Gissi, http://www.blenderfds.org
 #

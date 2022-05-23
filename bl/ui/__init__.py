@@ -1,3 +1,9 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+"""!
+BlenderFDS, ui simplification.
+"""
+
 from . import simplify_ui
 from .simplify_ui import toggle_simple_ui
 

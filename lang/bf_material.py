@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 import logging
 from bpy.types import Material
 from bpy.props import EnumProperty, StringProperty

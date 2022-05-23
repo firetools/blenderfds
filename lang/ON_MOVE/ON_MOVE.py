@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 import logging
 from bpy.types import Object
 from bpy.props import FloatProperty, IntProperty, FloatVectorProperty

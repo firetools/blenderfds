@@ -1,3 +1,9 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+"""!
+BlenderFDS, Blender UI lists.
+"""
+
 from bpy.types import PropertyGroup, UIList
 from bpy.props import BoolProperty, StringProperty
 from bpy.utils import register_class, unregister_class

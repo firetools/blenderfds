@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """!
 BlenderFDS, operators to choose IDs for MATL_ID, PROP_ID in free text.
 """

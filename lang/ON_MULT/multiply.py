@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 from ... import utils
 from ..OP_XB.xbs_to_ob import xbs_to_ob
 
