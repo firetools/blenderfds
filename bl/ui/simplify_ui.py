@@ -4,7 +4,7 @@ BlenderFDS, ui classes.
 
 import logging, bpy
 
-from bpy.types import Panel, Scene, Object, Collection
+from bpy.types import Menu, Panel, Scene, Object, Collection
 from bpy.utils import register_class, unregister_class
 
 log = logging.getLogger(__name__)
@@ -87,7 +87,66 @@ original_class_names = [
     "MATERIAL_PT_custom_props",
     ## from: 3.0/scripts/startup/bl_ui/space_properties.py
     "PROPERTIES_PT_navigation_bar",
+    "TOPBAR_MT_editor_menus",
+    "VIEW3D_MT_view",
 ]
+
+
+class TOPBAR_MT_editor_menus_bf(Menu):
+    bl_idname = "TOPBAR_MT_editor_menus"
+    bl_label = ""
+
+    def draw(self, context):
+        layout = self.layout
+
+        # Allow calling this menu directly (this might not be a header area).
+        if getattr(context.area, "show_menus", False):
+            layout.menu("TOPBAR_MT_blender", text="", icon="BLENDER")
+        else:
+            layout.menu("TOPBAR_MT_blender", text="Blender")
+
+        layout.menu("TOPBAR_MT_file")
+        layout.menu("TOPBAR_MT_edit")
+
+        layout.menu("TOPBAR_MT_window")
+        layout.menu("TOPBAR_MT_help")
+
+
+class VIEW3D_MT_view_bf(Menu):
+    bl_idname = "VIEW3D_MT_view"
+    bl_label = "View"
+
+    def draw(self, context):
+        layout = self.layout
+        view = context.space_data
+
+        layout.prop(view, "show_region_toolbar")
+        layout.prop(view, "show_region_ui")
+        layout.prop(view, "show_region_tool_header")
+        layout.prop(view, "show_region_hud")
+
+        layout.separator()
+
+        layout.operator(
+            "view3d.view_selected", text="Frame Selected"
+        ).use_all_regions = False
+        if view.region_quadviews:
+            layout.operator(
+                "view3d.view_selected", text="Frame Selected (Quad View)"
+            ).use_all_regions = True
+
+        layout.operator("view3d.view_all").center = False
+        layout.operator("view3d.view_persportho", text="Perspective/Orthographic")
+        layout.menu("VIEW3D_MT_view_local")
+
+        layout.separator()
+        layout.menu("VIEW3D_MT_view_viewpoint")
+        layout.menu("VIEW3D_MT_view_navigation")
+        layout.menu("VIEW3D_MT_view_align")
+
+        layout.separator()
+
+        layout.menu("INFO_MT_area")
 
 
 class PROPERTIES_PT_navigation_bar_bf(Panel):
@@ -173,7 +232,11 @@ class PROPERTIES_PT_navigation_bar_bf(Panel):
                     )
 
 
-replacement_classes = (PROPERTIES_PT_navigation_bar_bf,)
+replacement_classes = (
+    TOPBAR_MT_editor_menus_bf,
+    PROPERTIES_PT_navigation_bar_bf,
+    VIEW3D_MT_view_bf,
+)
 
 
 def _load_original_classes():
