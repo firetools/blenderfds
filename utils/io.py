@@ -8,6 +8,10 @@ from ..types import BFException, BFNotImported
 
 log = logging.getLogger(__name__)
 
+# TODO see also:
+# bpy_extras.io_utils.path_reference(filepath, base_src, base_dst, mode='AUTO', copy_subdir='', copy_set=None, library=None)
+# bpy_extras.io_utils.unique_name(key, name, name_dict, name_max=- 1, clean_func=None, sep='.')
+
 
 def shorten(string, max_len=80, start_part=0.1):
     """Shorten string to max_len length."""
@@ -125,8 +129,7 @@ def transform_rfds_to_abs_and_rbl(context, filepath_rfds):
     else:
         filepath_rbl = filepath
     # Set other
-    path_rbl = os.path.dirname(filepath_rbl)
-    name = os.path.splitext(bpy.path.basename(filepath_rbl))[0]
+    path_rbl, name = extract_path_name(filepath_rbl)
     return filepath, filepath_rbl, path_rbl, name
 
 
@@ -181,9 +184,16 @@ def append_filename(path="", name="", extension="") -> str:
     return os.path.join(path, filename)
 
 
+def extract_path_basename(filepath) -> tuple:
+    # Fix bug in Windows, never use os.path.dirname
+    basename = bpy.path.basename(filepath)
+    path = filepath[: -len(basename)]
+    return path, basename
+
+
 def extract_path_name(filepath) -> tuple:
-    path = os.path.dirname(filepath)
-    name = os.path.splitext(bpy.path.basename(filepath))[0]
+    path, basename = extract_path_basename(filepath)
+    name = os.path.splitext(basename)[0]
     return path, name
 
 
@@ -215,4 +225,5 @@ def is_abs(path):
 
 
 def make_dir(filepath):
-    Path(os.path.dirname(filepath)).mkdir(parents=True, exist_ok=True)
+    path, _ = extract_path_basename(filepath)
+    Path(path).mkdir(parents=True, exist_ok=True)
