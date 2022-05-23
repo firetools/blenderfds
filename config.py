@@ -30,19 +30,19 @@ MAGNET_NCELL = 3
 FDS_COMMAND = {
     "linux": """cd '{p}' && export OMP_NUM_THREADS={t} && mpiexec -n {n} fds '{f}' """,
     "darwin": """cd '{p}' && export OMP_NUM_THREADS={t} && mpiexec -n {n} fds '{f}' """,
-    "win32": """"cd {p} && fdsinit & fds_local -p {n} -o {t} -Y" "{f}" """,
+    "win32": """cd  "{p}" & fdsinit & mpiexec -n {n} -env OMP_NUM_THREADS {t} fds "{f}" """,
 }
 ## run smokeview commands
 SMV_COMMAND = {
-    "linux": """cd {p} && smokeview '{f}'""",
-    "darwin": """cd {p} && smokeview '{f}'""",
-    "win32": """"fdsinit & smokeview" "{f}" """,
+    "linux": """cd '{p}' && smokeview '{f}'""",
+    "darwin": """cd '{p}' && smokeview '{f}'""",
+    "win32": """cd "{p}" & fdsinit & smokeview "{f}" """,
 }
 ## run terminal commands
 TERM_COMMAND = {
     "linux": """gnome-terminal --window --title "FDS" -- bash -c "{c}" """,
-    "darwin": """osascript -e 'tell app "Terminal" to do script "{c}"' """,  # FIXME
-    "win32": """cmd.exe /C "{c}" """,
+    "darwin": """osascript -e 'tell app "Terminal" to do script "{c}"' """,
+    "win32": """START "FDS" cmd /c "{c}" """,
 }
 
 
