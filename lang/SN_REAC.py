@@ -17,15 +17,6 @@ from ..bl.ui_lists import (
 log = logging.getLogger(__name__)
 
 
-class SP_REAC_ID(BFParam):
-    label = "ID"
-    description = "Identificator of the reaction"
-    fds_label = "ID"
-    bpy_type = Scene
-    bpy_prop = StringProperty
-    bpy_idname = "bf_reac_id"
-
-
 class SP_REAC_FYI(BFParamFYI):
     bpy_type = Scene
     bpy_idname = "bf_reac_fyi"
@@ -128,7 +119,6 @@ class SN_REAC(BFNamelistSc):
     bpy_export = "bf_reac_export"
     bpy_export_default = False
     bf_params = (
-        SP_REAC_ID,
         SP_REAC_FUEL,
         SP_REAC_FYI,
         SP_REAC_FORMULA,
