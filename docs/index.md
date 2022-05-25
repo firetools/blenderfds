@@ -1,9 +1,9 @@
 
 <header>
 <ul class="downloads">
-    <li><a href="https://github.com/firetools/blenderfds/wiki">Read the<strong>wiki doc</strong></a></li>
-    <li><a href="https://groups.google.com/g/blenderfds">Ask a question<strong>user group</strong></a></li>
-    <li><a href="https://github.com/firetools/blenderfds/issues">Submit an<strong>issue</strong></a></li>
+    <li><a href="https://github.com/firetools/blenderfds/wiki">Read the <strong>wiki doc</strong></a></li>
+    <li><a href="https://groups.google.com/g/blenderfds">Ask a question <strong>user group</strong></a></li>
+    <li><a href="https://github.com/firetools/blenderfds/issues">Submit an <strong>issue</strong></a></li>
 </ul>
 </header>
 
