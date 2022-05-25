@@ -8,33 +8,48 @@ import logging, csv
 from bpy.types import Operator
 from bpy.props import EnumProperty
 from ...types import FDSList
-from ... import config
+from ... import config, utils
 
 log = logging.getLogger(__name__)
 
 # Helper function
 
 
-def _get_namelist_items(self, context, fds_label):
+def get_referenced_ids(context, fds_label="SURF"):
     """!
-    Get fds_label namelist IDs available in Free Text.
+    Get fds_label IDs referenced in Free Text.
     """
     fds_list = FDSList()
     sc = context.scene
+
     # Get namelists from Free Text
     if sc.bf_config_text:
         fds_list.from_fds(f90_namelists=sc.bf_config_text.as_string())
+
+    # # Get namelists from available CATF files
+    # if sc.bf_catf_export:
+    #     for item in sc.bf_catf_files:
+    #         if not item.bf_export:
+    #             continue
+    #         filepath = item.name
+    #         try:
+    #             f90_namelists = utils.io.read_txt_file(filepath)
+    #         except IOError:
+    #             pass
+    #         else:
+    #             fds_list.from_fds(f90_namelists=f90_namelists)
+
     # Prepare list of IDs
     items = list()
-    while True:
-        fds_namelist = fds_list.get_fds_label(fds_label=fds_label, remove=True)
-        if not fds_namelist:
-            break
-        fds_param = fds_namelist.get_fds_label(fds_label="ID", remove=True)
+    for fds_namelist in fds_list:
+        if fds_namelist.fds_label != fds_label:
+            continue
+        fds_param = fds_namelist.get_fds_label(fds_label="ID")
         if fds_param:
             hid = fds_param.get_value()
-            items.append((hid, hid, ""))
+            items.append((hid, hid, ""))  # (identifier, name, description)
     items.sort(key=lambda k: k[0])
+
     return items
 
 
@@ -42,7 +57,7 @@ def _get_namelist_items(self, context, fds_label):
 
 
 def _get_matl_items(self, context):
-    return _get_namelist_items(self, context, fds_label="MATL")
+    return get_referenced_ids(context, fds_label="MATL")
 
 
 class MATERIAL_OT_bf_choose_matl_id(Operator):
@@ -76,7 +91,7 @@ class MATERIAL_OT_bf_choose_matl_id(Operator):
 
 
 def _get_devc_prop_items(self, context):
-    return _get_namelist_items(self, context, fds_label="PROP")
+    return get_referenced_ids(context, fds_label="PROP")
 
 
 # PROP_ID
@@ -116,7 +131,7 @@ class OBJECT_OT_bf_choose_devc_prop_id(Operator):
 
 
 def _get_devc_ctrl_items(self, context):
-    return _get_namelist_items(self, context, fds_label="CTRL")
+    return get_referenced_ids(context, fds_label="CTRL")
 
 
 class OBJECT_OT_bf_choose_devc_ctrl_id(Operator):
