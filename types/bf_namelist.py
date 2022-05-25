@@ -8,7 +8,7 @@ import logging
 
 from numpy import iterable
 from bpy.types import Object, Scene, Material
-from .. import config
+from .. import config, utils
 from .fds_list import FDSList, FDSNamelist
 from .bf_exception import BFException, BFNotImported
 from .bf_param import BFParam, BFParamOther
@@ -180,7 +180,7 @@ class BFNamelist(BFParam):
                         context=context, value=fds_param.get_value()
                     )
                 except BFNotImported as err:
-                    context.scene.bf_config_text.write(str(err))
+                    utils.ui.write_bl_text(context, bl_text=context.scene.bf_config_text, header="-- Import error", texts=(str(err),))
                 else:
                     is_imported = True
 
@@ -192,7 +192,7 @@ class BFNamelist(BFParam):
                         context, value=fds_param.to_string()
                     )
                 except BFNotImported as err:
-                    context.scene.bf_config_text.write(str(err))
+                    utils.ui.write_bl_text(context, bl_text=context.scene.bf_config_text, header="-- Import error", texts=(str(err),))
                 else:
                     is_imported = True
 

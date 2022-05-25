@@ -113,10 +113,10 @@ class BFScene:
         fds_namelist_qty = len(fds_list)
 
         # Prepare free text for unmanaged namelists, no rewind
-        if not self.bf_config_text:
-            self.bf_config_text = utils.ui.get_text_in_editor(
+        if not self.bf_config_text:  # TODO remove if?
+            self.bf_config_text = utils.ui.show_bl_text(
                 context=context,
-                text=None,
+                bl_text=None,
                 name="New Text",
             )
 

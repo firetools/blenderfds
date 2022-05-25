@@ -163,27 +163,6 @@ class SCENE_OT_bf_show_fds_code(_show_fds_code, Operator):
         return context.scene.to_fds_list(context).to_string()
 
 
-class SCENE_OT_bf_show_text(Operator):
-    """!
-    Show free text in the editor.
-    """
-
-    bl_label = "Show Free Text"
-    bl_idname = "scene.bf_show_text"
-    bl_description = "Show free text in the editor"
-
-    def execute(self, context):
-        context.scene.bf_config_text = utils.ui.get_text_in_editor(
-            context=context,
-            text=context.scene.bf_config_text,
-            name="Text",
-        )
-        self.report(
-            {"INFO"}, f"See Blender text editor: <{context.scene.bf_config_text.name}>"
-        )
-        return {"FINISHED"}
-
-
 bl_classes = [
     WM_OT_bf_dialog,
     OBJECT_OT_bf_show_fds_code,

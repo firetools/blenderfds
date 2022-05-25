@@ -27,27 +27,45 @@ def get_screen_area(context, area_type="PROPERTIES"):
     return selected_area
 
 
-def get_text_in_editor(context, text=None, name=None):
+def show_bl_text(context, bl_text=None, name=None):
     """!
-    Show text in Blender Text Editor.
+    Show bl_text in Blender Text Editor.
     """
     # If not given, create text
-    if not text:
-        text = bpy.data.texts.new(name or str())
+    if not bl_text:
+        bl_text = bpy.data.texts.new(name or str())
     # Rewind to the first line
-    text.current_line_index = 0
+    bl_text.current_line_index = 0
     # Search existing ui area or create one
     selected_area = get_screen_area(context, area_type="TEXT_EDITOR")
     # Set highlighting
     space = selected_area.spaces[0]
-    space.text = text
+    space.text = bl_text
     space.show_line_numbers = True
     space.show_line_highlight = True
     space.show_word_wrap = True
     space.show_margin = True
     space.margin_column = 130
     space.show_syntax_highlight = True
-    return text
+    return bl_text
+
+
+def write_bl_text(context, bl_text, header=None, texts=()):
+    """!
+    Write text in bl_text from Blender Text Editor.
+    """
+    if not texts:
+        return
+    # Prepare body
+    body = bl_text.as_string().strip()
+    if body:
+        body += "\n"
+        if header:
+            body += "\n"
+    if header:
+        body += f"{header}\n"
+    body += "\n".join(texts)
+    bl_text.from_string(body)
 
 
 def show_property_panel(context, space_context="MATERIAL"):

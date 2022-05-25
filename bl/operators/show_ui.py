@@ -34,9 +34,9 @@ class SCENE_OT_bf_show_text(Operator):
     bl_description = "Show free text in the editor"
 
     def execute(self, context):
-        context.scene.bf_config_text = utils.ui.get_text_in_editor(
+        context.scene.bf_config_text = utils.ui.show_bl_text(
             context=context,
-            text=context.scene.bf_config_text,
+            bl_text=context.scene.bf_config_text,
             name="Text",
         )
         self.report(

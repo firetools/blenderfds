@@ -134,15 +134,10 @@ def import_by_fds_label(
             texts.append(fds_namelist.to_string())
 
     # Finally, write free text
-    if texts:
-        body = sc.bf_config_text.as_string().strip()
-        # Add separator
-        if body:
-            body += "\n"
-        # Add header
-        if co_description:
-            body += f"\n-- From: <{co_description}>\n"
-        else:
-            body += f"\n-- From: <{sc.name}.fds>\n"  # TODO hardcoded?
-        body += "\n".join(texts)
-        sc.bf_config_text.from_string(body)
+    if co_description:
+        header = f"-- From: <{co_description}>"
+    else:
+        header = f"-- From: <{sc.name}.fds>"
+    utils.ui.write_bl_text(
+        context, bl_text=sc.bf_config_text, header=header, texts=texts
+    )
