@@ -62,7 +62,7 @@ class SP_config_text(BFParam):
 
 class SP_config_text_position(BFParam):
     label = "Free Text Position"
-    description = "Set Free Text postion in the exported file"
+    description = "Set Free Text position in the exported file"
     bpy_type = Scene
     bpy_idname = "bf_config_text_position"
     bpy_prop = EnumProperty
