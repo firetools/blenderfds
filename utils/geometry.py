@@ -94,6 +94,7 @@ def set_is_tmp(context, ob) -> None:
     """
     ob.bf_is_tmp = True
     ob.show_wire = True
+    ob.select_set(True)
 
 
 def set_has_tmp(context, ob) -> None:
