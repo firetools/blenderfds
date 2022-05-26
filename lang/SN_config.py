@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 
 class SP_config_case_name(BFParam):
-    label = "Filename"
+    label = "Case Filename"
     description = "Filename for exported FDS case,\nalso used as HEAD CHID"
     bpy_type = Scene
     bpy_idname = "name"
@@ -30,8 +30,8 @@ class SP_config_case_name(BFParam):
 
 
 class SP_config_directory(BFParam):
-    label = "Directory"
-    description = "Destination directory for exported FDS case"
+    label = "Case Directory"
+    description = "Default destination directory for the exported FDS case"
     bpy_type = Scene
     bpy_idname = "bf_config_directory"
     bpy_prop = StringProperty
@@ -39,10 +39,9 @@ class SP_config_directory(BFParam):
     bpy_other = {"subtype": "DIR_PATH", "maxlen": 1024}
 
     def check(self, context):
-        if self.get_exported(context):
-            value = self.element.bf_config_directory
-            if not os.path.exists(bpy.path.abspath(value or "//.")):
-                raise BFException(self, f"Case directory <{value}> not existing")
+        value = self.element.bf_config_directory
+        if not os.path.exists(bpy.path.abspath(value or "//.")):
+            raise BFException(self, f"Case directory <{value}> not available")
 
     def copy_to(self, context, dest_element):
         pass

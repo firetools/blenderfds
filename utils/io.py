@@ -128,9 +128,10 @@ def get_abs_fds_path(sc) -> str:
     """
     # Could be abs already, so no check on save but on result
     # If empty try the same as the Blender file
-    fds_path = bpy.path.abspath(sc.bf_config_directory or "//.")  # always or "//."
+    bf_config_directory = sc.bf_config_directory or "//."
+    fds_path = bpy.path.abspath(bf_config_directory)
     if not is_abs(fds_path):
-        log.debug(f"get_abs_fds_path(bf_config_directory={sc.bf_config_directory})")
+        log.debug(f"get_abs_fds_path(bf_config_directory={bf_config_directory})")
         raise BFException(None, f"Save the Blender file first!")
     return fds_path
 
@@ -244,3 +245,11 @@ def is_clean(filename):
 def make_dir(filepath):
     path, _ = extract_path_basename(filepath)
     Path(path).mkdir(parents=True, exist_ok=True)
+
+
+def get_filepaths(path, extension=".fds"):
+    filepaths = list()
+    for f in os.scandir(os.path.dirname(path)):
+        if os.path.isfile(f) and f.name.endswith(extension):
+            filepaths.append(f.path)
+    return filepaths

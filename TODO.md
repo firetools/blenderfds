@@ -1,5 +1,10 @@
 # TODO
 
+Fix non exixting bf_config_dir (transform_rbl_to_abs funct)
+
+Revise error msgs, use INFO icon
+Investigate use of bf_dialog
+
 Manage HVAC
 Split and coarser MESHes
 

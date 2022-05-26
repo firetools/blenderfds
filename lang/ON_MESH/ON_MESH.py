@@ -46,7 +46,7 @@ class OP_MESH_IJK(BFParam):
             _, _, _, nmesh, nsplit, nmult, ncell_tot, ncell, cs, aspect, has_good_ijk = get_mesh_geometry(context=context, ob=ob)
         except BFException:
             col = layout.column(align=True)
-            col.label(text="MESH in Edit Mode.")
+            col.label(text="No MESH info while in Edit Mode.")
         else:
             col = layout.column(align=True)
             col.label(text=f"MESH Qty: {nmesh} | Splits: {nsplit} | Multiples: {nmult}")

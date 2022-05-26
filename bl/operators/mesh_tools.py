@@ -144,7 +144,7 @@ class OBJECT_OT_bf_set_suggested_mesh_cell_size(Operator):
         )
         utils.ui.show_bl_text(context=context, bl_text=sc.bf_config_text)  # refresh
 
-        self.report({"INFO"}, "Suggested MESH cell size set")
+        self.report({"INFO"}, "MESH IJK set")
         return {"FINISHED"}
 
 
@@ -196,7 +196,7 @@ class OBJECT_OT_bf_set_mesh_cell_size(Operator):
         ob.bf_mesh_ijk = lang.ON_MESH.get_ijk_from_desired_cs(
             context, ob, self.bf_cell_sizes, self.bf_poisson_restriction
         )
-        self.report({"INFO"}, "MESH cell size set")
+        self.report({"INFO"}, "MESH IJK set")
         return {"FINISHED"}
 
 
