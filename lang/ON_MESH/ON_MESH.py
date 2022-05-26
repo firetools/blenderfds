@@ -42,11 +42,16 @@ class OP_MESH_IJK(BFParam):
 
     def draw(self, context, layout):
         ob = self.element
-        _, _, _, nmesh, nsplit, nmult, ncell_tot, ncell, cs, aspect, has_good_ijk = get_mesh_geometry(context=context, ob=ob)
-        col = layout.column(align=True)
-        col.label(text=f"MESH Qty: {nmesh} | Splits: {nsplit} | Multiples: {nmult}")
-        col.label(text=f"Cell Qty: {ncell_tot} (~{ncell} each)")
-        col.label(text=f"Size: {cs[0]:.3f}·{cs[1]:.3f}·{cs[2]:.3f}m | Aspect: {aspect:.1f} | Poisson: {has_good_ijk}")
+        try:
+            _, _, _, nmesh, nsplit, nmult, ncell_tot, ncell, cs, aspect, has_good_ijk = get_mesh_geometry(context=context, ob=ob)
+        except BFException:
+            col = layout.column(align=True)
+            col.label(text="MESH in Edit Mode.")
+        else:
+            col = layout.column(align=True)
+            col.label(text=f"MESH Qty: {nmesh} | Splits: {nsplit} | Multiples: {nmult}")
+            col.label(text=f"Cell Qty: {ncell_tot} (~{ncell} each)")
+            col.label(text=f"Size: {cs[0]:.3f}·{cs[1]:.3f}·{cs[2]:.3f}m | Aspect: {aspect:.1f} | Poisson: {has_good_ijk}")
 
         col = layout.column()
         row = col.row(align=True)
