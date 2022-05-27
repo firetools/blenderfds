@@ -16,9 +16,9 @@ class WM_OT_bf_load_default_commands(Operator):
     Load default commands, deleting current data.
     """
 
-    bl_label = "Load Default Commands"
+    bl_label = "Reload Default Commands"
     bl_idname = "wm.bf_load_default_commands"
-    bl_description = "Load default commands, deleting current data!"
+    bl_description = "Reload default commands for your platform"
 
     def invoke(self, context, event):
         # Ask for confirmation
