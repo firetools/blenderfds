@@ -1,9 +1,18 @@
 # TODO
 
-Fix non exixting bf_config_dir (transform_rbl_to_abs funct)
+use render.engine "Workbench" when bug corrected and no need for use_node=False
 
-Revise error msgs, use INFO icon
-Investigate use of bf_dialog
+Investigate use of bf_dialog:
+WM_OT_bf_dialog(Operator):  # FIXME move to ui?  # FIXME Use WM_OT_bf_dialog?
+
+Revise error msgs "Text not found: ..."
+
+HRR Ramp
+Check exit code when returnon run fds
+
+collection instance?
+
+learn grease pencil
 
 Manage HVAC
 Split and coarser MESHes
