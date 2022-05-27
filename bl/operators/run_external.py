@@ -43,7 +43,7 @@ class SCENE_OT_bf_run_fds(Operator):
 
     bl_label = "Run FDS"
     bl_idname = "scene.bf_run_fds"
-    bl_description = "Export current case and run FDS on it."
+    bl_description = "Export current case and run FDS on it"
 
     @classmethod
     def poll(cls, context):
@@ -102,7 +102,7 @@ class SCENE_OT_bf_run_fds(Operator):
 
         # Close
         w.cursor_modal_restore()
-        self.report({"INFO"}, "Run FDS, see the command prompt.")
+        self.report({"INFO"}, "See the command prompt")
         return {"FINISHED"}
 
 
@@ -113,7 +113,7 @@ class SCENE_OT_bf_run_smv(Operator):
 
     bl_label = "Open Smokeview"
     bl_idname = "scene.bf_run_smv"
-    bl_description = "Open Smokeview on the current case."
+    bl_description = "Open Smokeview on the current FDS case"
 
     @classmethod
     def poll(cls, context):
@@ -158,7 +158,7 @@ class SCENE_OT_bf_run_smv(Operator):
 
         # Close
         w.cursor_modal_restore()
-        self.report({"INFO"}, "Open Smokeview, see the command prompt.")
+        self.report({"INFO"}, "See the command prompt")
         return {"FINISHED"}
 
 
