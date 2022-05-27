@@ -114,7 +114,7 @@ class BFNamelist(BFParam):
         @param layout: the Blender panel layout.
         @return used layout.
         """
-        pass
+        layout.label(text="None")
 
     def draw(self, context, layout):
         """!
@@ -228,7 +228,7 @@ class BFNamelistSc(BFNamelist):
     def set_appearance(self, context):
         if not config.SET_SCENE_APPEARANCE:
             return
-        self.element.render.engine = "BLENDER_EEVEE"
+        self.element.render.engine = "BLENDER_WORKBENCH"
 
 class BFNamelistOb(BFNamelist):
     """!

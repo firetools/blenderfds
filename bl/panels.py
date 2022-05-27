@@ -204,18 +204,17 @@ class MATERIAL_PT_bf_namelist(Panel):
 # Toolbar panels
 
 
-class VIEW3D_PT_bf_ob_utils(Panel):
-    bl_idname = "VIEW3D_PT_bf_ob_utils"
+class VIEW3D_PT_bf_sc_utils(Panel):
+    bl_idname = "VIEW3D_PT_bf_sc_utils"
     bl_context = "objectmode"
     bl_category = "FDS"
-    bl_label = "FDS Utils"
+    bl_label = "FDS Case Utils"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
 
     @classmethod
     def poll(cls, context):
-        ob = context.object
-        return ob and ob.type == "MESH" and not ob.bf_is_tmp
+        return context.scene
 
     def draw(self, context):
         ob = context.object
@@ -233,6 +232,34 @@ class VIEW3D_PT_bf_ob_utils(Panel):
         col = layout.column(align=True)
         col.operator("import_to_current_scene.fds", icon="IMPORT")
         col.separator()
+
+
+class VIEW3D_PT_bf_ob_utils(Panel):
+    bl_idname = "VIEW3D_PT_bf_ob_utils"
+    bl_context = "objectmode"
+    bl_category = "FDS"
+    bl_label = " "  # FDS Namelist Utils"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+
+    @classmethod
+    def poll(cls, context):
+        ob = context.object
+        return (
+            ob
+            and ob.type == "MESH"
+            and not ob.bf_is_tmp
+            and ob.bf_namelist_cls in ("ON_MESH", "ON_GEOM")  # FIXME
+        )
+
+    def draw_header(self, context):
+        self.layout.label(text=f"FDS {context.object.bf_namelist_cls[3:7]} Utils")
+
+    def draw(self, context):
+        ob = context.object
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False
 
         # Draw Object operators
         ob.bf_namelist.draw_operators(context, layout)
@@ -340,6 +367,7 @@ bl_classes = [
     OBJECT_PT_bf_namelist,
     OBJECT_PT_MULT,
     MATERIAL_PT_bf_namelist,
+    VIEW3D_PT_bf_sc_utils,
     VIEW3D_PT_bf_ob_utils,
     VIEW3D_PT_bf_ob_remesh,
     VIEW3D_PT_bf_mesh_clean_up,
