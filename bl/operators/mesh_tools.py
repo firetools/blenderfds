@@ -100,7 +100,7 @@ class OBJECT_OT_bf_set_suggested_mesh_cell_size(Operator):
         layout.prop(self, "bf_cp")
         layout.prop(self, "bf_t")
         layout.prop(self, "bf_g")
-        layout.label(text="Calculation details saved to Free Text")
+        layout.label(text="Result saved to Free Text and MESH IJK")
 
     def invoke(self, context, event):
         wm = context.window_manager
@@ -181,6 +181,7 @@ class OBJECT_OT_bf_set_mesh_cell_size(Operator):
         layout = self.layout
         layout.prop(self, "bf_cell_sizes", text="")
         layout.prop(self, "bf_poisson_restriction")
+        layout.label(text="Result saved to MESH IJK")
 
     def invoke(self, context, event):
         ob = context.object

@@ -79,10 +79,10 @@ class MATERIAL_OT_bf_choose_matl_id(Operator):
     def execute(self, context):
         if self.bf_matl_id:
             context.object.active_material.bf_matl_id = self.bf_matl_id
-            self.report({"INFO"}, "MATL_ID parameter set")
+            self.report({"INFO"}, "MATL_ID set")
             return {"FINISHED"}
         else:
-            self.report({"WARNING"}, "MATL_ID parameter not set")
+            self.report({"WARNING"}, "MATL_ID not set")
             return {"CANCELLED"}
 
     def invoke(self, context, event):
@@ -116,10 +116,10 @@ class OBJECT_OT_bf_choose_devc_prop_id(Operator):
     def execute(self, context):
         if self.bf_devc_prop_id:
             context.object.bf_devc_prop_id = self.bf_devc_prop_id
-            self.report({"INFO"}, "PROP_ID parameter set")
+            self.report({"INFO"}, "PROP_ID set")
             return {"FINISHED"}
         else:
-            self.report({"WARNING"}, "PROP_ID parameter not set")
+            self.report({"WARNING"}, "PROP_ID not set")
             return {"CANCELLED"}
 
     def invoke(self, context, event):
@@ -153,10 +153,10 @@ class OBJECT_OT_bf_choose_devc_ctrl_id(Operator):
     def execute(self, context):
         if self.bf_devc_ctrl_id:
             context.object.bf_devc_ctrl_id = self.bf_devc_ctrl_id
-            self.report({"INFO"}, "CTRL_ID parameter set")
+            self.report({"INFO"}, "CTRL_ID set")
             return {"FINISHED"}
         else:
-            self.report({"WARNING"}, "CTRL_ID parameter not set")
+            self.report({"WARNING"}, "CTRL_ID not set")
             return {"CANCELLED"}
 
     def invoke(self, context, event):
@@ -194,10 +194,10 @@ class OBJECT_OT_bf_choose_devc_quantity(Operator):
     def execute(self, context):
         if self.bf_quantity:
             context.object.bf_quantity = self.bf_quantity
-            self.report({"INFO"}, "QUANTITY parameter set")
+            self.report({"INFO"}, "QUANTITY set")
             return {"FINISHED"}
         else:
-            self.report({"WARNING"}, "QUANTITY parameter not set")
+            self.report({"WARNING"}, "QUANTITY not set")
             return {"CANCELLED"}
 
     def invoke(self, context, event):
