@@ -226,7 +226,9 @@ class BFNamelistSc(BFNamelist):
     bpy_type = Scene
 
     def set_appearance(self, context):
-        pass
+        if not config.SET_SCENE_APPEARANCE:
+            return
+        self.element.render.engine = "BLENDER_EEVEE"
 
 class BFNamelistOb(BFNamelist):
     """!
@@ -307,7 +309,10 @@ class BFNamelistMa(BFNamelist):
         return False
 
     def set_appearance(self, context):
-        pass
+        if not config.SET_MATERIAL_APPEARANCE:
+            return
+        # This forces the use of diffuse_color for 3DView render
+        self.element.use_nodes = False
             
     def draw_header(self, context, layout, panel):
         ma = self.element
