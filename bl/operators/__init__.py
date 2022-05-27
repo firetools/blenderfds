@@ -17,6 +17,7 @@ from . import (
     show_fds_geometry,
     show_ui,
     run_external,
+    clean_ma_slots,
 )
 
 ms_to_register = (
@@ -32,6 +33,7 @@ ms_to_register = (
     show_fds_geometry,
     show_ui,
     run_external,
+    clean_ma_slots,
 )
 
 

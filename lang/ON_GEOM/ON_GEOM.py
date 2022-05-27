@@ -49,11 +49,12 @@ class OP_GEOM_SURF_ID(BFParam):
     def draw(self, context, layout):  # only label
         row = layout.split(factor=0.4)
         row.alignment = "RIGHT"
-        row.label(text=self.label)
+        row.label(text="SURF_ID")
         row.alignment = "EXPAND"
-        value = self.get_value(context)
-        text = value and ", ".join(self.get_value(context)) or "None"
-        row.label(text=text, icon="MATERIAL_DATA")
+        row.prop(self.element, "material_slots", icon="MATERIAL_DATA", text="")
+        row = row.row()
+        row.alignment = "RIGHT"
+        row.operator("object.material_slot_remove_unused", icon="BRUSH_DATA", text="")
 
 
 class OP_GEOM_SURF_IDS(OP_GEOM_SURF_ID):  # importing only

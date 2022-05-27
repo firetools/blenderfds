@@ -43,5 +43,8 @@ class OP_SURF_ID(BFParam):
             and not ob.active_material.bf_surf_export
         ):
             raise BFException(
-                self, f"Referred SURF <{ob.active_material.name}> is not exported"
+                self, f"Referenced SURF <{ob.active_material.name}> not exported"
             )
+
+    def draw_operators(self, context, layout):
+        layout.operator("object.bf_clean_ma_slots", icon="BRUSH_DATA", text="")
