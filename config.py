@@ -3,8 +3,12 @@
 ## supported file version
 SUPPORTED_FILE_VERSION = 6, 0, 1
 
-## set automatic namelist appearance
+## set automatic Blender Scene appearance
+SET_SCENE_APPEARANCE = True
+## set automatic Blender Object appearance
 SET_OBJECT_APPEARANCE = True
+## set automatic Blender Material appearance
+SET_MATERIAL_APPEARANCE = True
 
 ## length precision for geometry
 LP = 4

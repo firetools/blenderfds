@@ -9,6 +9,7 @@ from bpy.app.handlers import persistent, load_post, save_pre, depsgraph_update_p
 from bpy.types import Object
 from .. import utils
 from .. import config
+from ..types import BFNamelistSc
 
 from ..lang.bf_object import OP_other
 from ..lang.bf_material import MP_other
@@ -109,15 +110,20 @@ def _load_post(self):
         ma.bf_surf_export = True
         ma.use_fake_user = True
 
-    # Set default object and material appearance
+    # Set default appearances of Scene, Object, Material instances
     context = bpy.context
+    for sc in bpy.data.scenes:
+        # set only once
+        BFNamelistSc(sc).set_appearance(context=context)
     for ob in bpy.data.objects:
         bf_namelist = ob.bf_namelist
         if bf_namelist:
+            # config.SET_OBJECT_APPEARANCE is checked in bf_namelist
             ob.bf_namelist.set_appearance(context=context)
     for ma in bpy.data.materials:
         bf_namelist = ma.bf_namelist
         if bf_namelist:
+            # config.SET_MATERIAL_APPEARANCE is checked in bf_namelist
             ma.bf_namelist.set_appearance(context=context)
 
 
