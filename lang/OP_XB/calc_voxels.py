@@ -26,7 +26,7 @@ def get_voxels(context, ob):
     log.debug(f"Get voxels in Object <{ob.name}>...")
     # Check object and init
     if ob.type not in {"MESH", "CURVE", "SURFACE", "FONT", "META"}:
-        raise BFException(ob, "Object can not be converted to mesh.")
+        raise BFException(ob, "Object can not be converted to a mesh.")
     if not ob.data.vertices:
         raise BFException(ob, "Empty object, no available geometry")
     voxel_size = _get_voxel_size(context, ob)
@@ -131,7 +131,7 @@ def _init_remesh_mod(context, ob, voxel_size):
             break
         if octree_depth > 9:
             raise BFException(
-                ob, "Object too large for its voxel size, split in parts."
+                ob, "Object too large for its voxel size, split it in its parts."
             )
     return octree_depth, scale
 

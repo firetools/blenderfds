@@ -43,7 +43,7 @@ class OP_GEOM_SURF_ID(BFParam):
         for name in value:
             ma = bpy.data.materials.get(name)
             if not ma:
-                raise BFException(self, f"Unknown SURF_ID <{name}>")
+                raise BFException(self, f"Unknown SURF_ID: <{name}>")
             ob.data.materials.append(ma)
 
     def draw(self, context, layout):  # only label
