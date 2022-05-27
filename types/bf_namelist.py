@@ -246,21 +246,19 @@ class BFNamelistOb(BFNamelist):
             self.element.hide_render = not bool(value)
 
     def set_appearance(self, context):
-        # Defaults
-        display_type = "TEXTURED"
-        show_name = False
-        # Mods
+        if not config.SET_OBJECT_APPEARANCE:
+            return
         match self.bf_other.get("appearance"):
             case "BBOX":
-                display_type, show_name = "WIRE", True
+                ob = self.element
+                ob.display_type = "WIRE"
+                ob.show_name = True
             case "WIRE":
-                display_type = "WIRE"
+                ob = self.element
+                ob.display_type = "WIRE"
             case _:
-                pass
-        # Set
-        ob = self.element
-        ob.display_type = display_type
-        ob.show_name = show_name
+                ob = self.element
+                ob.display_type = "TEXTURED"
         # ob.show_in_front = show_in_front  # unused
         # ob.show_wire = show_wire  # unused 
 
