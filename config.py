@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-## Supported file version
+## supported file version
 SUPPORTED_FILE_VERSION = 6, 0, 1
+
+## set automatic namelist appearance
+SET_OBJECT_APPEARANCE = True
 
 ## length precision for geometry
 LP = 4
@@ -15,13 +18,13 @@ MAXLEN = 80
 ## number of columns for second line indent
 INDENT = 6
 
-## min edge length
+## min allowed edge length for GEOM
 MIN_EDGE_LENGTH = 1e-05
-## min face area
+## min allowed face area for GEOM
 MIN_FACE_AREA = 1e-08
-## min intersection length
+## min intersection length for GEOM
 MIN_INTERSECTION_LENGTH = 1e-05
-## flat face difference
+## flat face difference for FACES
 FLAT_DIFFERENCE = 1e-03
 
 ## number of magnetic cells for MESH alignment (align_meshes.py)
@@ -34,12 +37,14 @@ FDS_COMMAND = {
     "darwin": """cd '{p}' && export OMP_NUM_THREADS={t} && mpiexec -n {n} fds '{f}' ; sleep 5 ; exit""",
     "win32": """cd "{p}" && fdsinit && mpiexec -n {n} -env OMP_NUM_THREADS {t} fds "{f}" & timeout 5 & exit""",
 }
+
 ## run smokeview commands
 SMV_COMMAND = {
     "linux": """cd '{p}' && smokeview '{f}'""",
     "darwin": """cd '{p}' && smokeview '{f}'""",
     "win32": """cd "{p}" && fdsinit && smokeview "{f}" """,
 }
+
 ## run terminal commands
 # In darwin, to have the terminal close, the user should also modify
 # a (much debated in the forums ;-) default of the Terminal App setting:
