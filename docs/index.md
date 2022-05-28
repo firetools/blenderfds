@@ -25,7 +25,7 @@ and it is fully scriptable.
 
 BlenderFDS is available for [MS Windows, MacOSX, Linux](https://github.com/firetools/blenderfds/wiki/Installing).
 
-[![](https://github.com/firetools/blenderfds/wiki/images/web/win_mac_linux.png)](https://github.com/firetools/blenderfds/wiki/Installing)
+[![](https://github.com/firetools/blenderfds/wiki/images/web/win_mac_linux.png)](https://github.com/firetools/blenderfds/wiki/Install)
 
 ![blenderfds](https://github.com/firetools/blenderfds/wiki/images/web/blenderfds.gif)
 

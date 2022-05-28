@@ -24,16 +24,15 @@ import shutil, tempfile
 
 # Config
 ignore_patterns = (
+    "dev",
+    "docs",
     "__pycache__",
     "*.pyc",
+    "*.blend1",
+    "TODO.md",
     ".git",
     ".gitignore",
     ".vscode",
-    "startup.blend1",
-    "TODO.md",
-    "dev",
-    "docs",
-    "verification",
 )
 output_filename = "blenderfds"
 
