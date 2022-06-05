@@ -2,7 +2,7 @@
 
 import logging
 from bpy.types import Material
-from bpy.props import EnumProperty, StringProperty
+from bpy.props import EnumProperty
 from ..types import (
     BFParam,
     BFParamOther,
@@ -47,7 +47,7 @@ class BFMaterial:
         self.bf_namelist_cls = bf_namelist.__name__
         # Import
         self.bf_namelist.from_fds(context, fds_namelist=fds_namelist)
-        self.use_fake_user = True # eg. used by CTRL
+        self.use_fake_user = True  # eg. used by CTRL
 
     @classmethod
     def register(cls):
@@ -201,6 +201,20 @@ class MP_TRANSPARENCY(BFParam):  # no draw
 #             return super().from_fds(context, value)
 #         else:
 #             raise BFNotImported(self, "Material list not handled")
+
+# When this Material is default, export DEFAULT=T
+class MP_DEFAULT(BFParam):  # no label
+    label = "DEFAULT"
+    description = "Set default SURF"
+    fds_label = "DEFAULT"
+    fds_default = False
+    bpy_type = Material
+
+    def get_value(self, context):
+        return context.scene.bf_default_surf == self.element
+
+    def set_value(self, context, value=None):
+        context.scene.bf_default_surf = self.element
 
 
 class MP_other(BFParamOther):

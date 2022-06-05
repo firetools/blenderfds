@@ -96,9 +96,12 @@ def _get_ob_ref_mas(context):
 
 def append_mas_namelists(context, fds_list):
     header = "\n--- Boundary conditions from Blender Materials\n"
-    ob_ref_mas = _get_ob_ref_mas(context)
-    free_text_ref_mas = _get_free_text_ref_mas(context)
-    mas = list(set(ob_ref_mas).union(free_text_ref_mas))
+    # Create list of Materials
+    mas = set(_get_ob_ref_mas(context)).union(_get_free_text_ref_mas(context))
+    bf_default_surf = context.scene.bf_default_surf
+    if bf_default_surf:
+        mas.add(bf_default_surf)  # add default SURF
+    mas = list(mas)
     mas.sort(key=lambda k: k.name)  # alphabetic sorting by name
     iterable = (ma.to_fds_list(context=context) for ma in mas)
     fds_list.append(FDSList(header=header, iterable=iterable))

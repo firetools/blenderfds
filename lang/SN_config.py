@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging, os, bpy
-from bpy.types import Scene
+from bpy.types import Scene, Material
 from bpy.props import (
     BoolProperty,
     FloatProperty,
@@ -10,7 +10,7 @@ from bpy.props import (
     EnumProperty,
     IntProperty,
 )
-from ..config import LP
+from ..config import LP, DEFAULT_MAS
 from ..types import BFParam, BFNamelistSc, BFException
 
 log = logging.getLogger(__name__)
@@ -100,7 +100,28 @@ class SP_config_default_voxel_size(BFParam):
     }
 
 
-class SN_config_mpi_processes(BFParam):
+class SP_config_default_SURF(BFParam):
+    label = "Default SURF"
+    description = (
+        "Specify the particular SURF to be applied as the default boundary condition"
+    )
+    bpy_type = Scene
+    bpy_prop = PointerProperty
+    bpy_idname = "bf_default_surf"
+    bpy_other = {"type": Material}
+
+    def check(self, context):
+        if (
+            self.element.bf_default_surf
+            and self.element.bf_default_surf.name in DEFAULT_MAS
+        ):
+            raise BFException(
+                self,
+                f"Cannot set predefined boundary condition <{self.element.name}> as default SURF",
+            )
+
+
+class SP_config_mpi_processes(BFParam):
     label = "MPI Processes"
     description = (
         "Number of MPI processes automatically allocated to the MESH instances."
@@ -114,7 +135,7 @@ class SN_config_mpi_processes(BFParam):
     bpy_export_default = True
 
 
-class SN_config_openmp_threads(BFParam):
+class SP_config_openmp_threads(BFParam):
     label = "OpenMP Threads"
     description = "Number of OpenMP threads assigned to each process."
     bpy_type = Scene
@@ -134,8 +155,9 @@ class SN_config(BFNamelistSc):
         SP_config_text,
         SP_config_text_position,
         SP_config_default_voxel_size,
-        SN_config_mpi_processes,
-        SN_config_openmp_threads,
+        SP_config_default_SURF,
+        SP_config_mpi_processes,
+        SP_config_openmp_threads,
     )
 
     def draw(self, context, layout):
