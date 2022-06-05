@@ -47,6 +47,7 @@ class BFMaterial:
         self.bf_namelist_cls = bf_namelist.__name__
         # Import
         self.bf_namelist.from_fds(context, fds_namelist=fds_namelist)
+        self.use_fake_user = True # eg. used by CTRL
 
     @classmethod
     def register(cls):
