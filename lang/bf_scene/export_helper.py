@@ -2,8 +2,6 @@
 
 import time, logging, bpy
 
-from numpy import iterable
-
 from ...config import MAXLEN
 from ...types import FDSList, FDSParam
 from ... import utils, bl_info
@@ -44,16 +42,63 @@ def append_free_text(context, fds_list):
         fds_list.append(FDSList(header=header, msg=msg))
 
 
+def _get_free_text_ref_mas(context):
+    """!
+    Get list of Blender Material referenced in Free Text by SURF_ID.
+    """
+    sc = context.scene
+
+    # Get namelists from Free Text
+    fds_list = FDSList()
+    if sc.bf_config_text:
+        fds_list.from_fds(f90_namelists=sc.bf_config_text.as_string())
+
+    # Prepare list of Materials
+    mas = list()
+    for fds_namelist in fds_list:
+        # Check only namelists supporting SURF_ID
+        if fds_namelist.fds_label not in ("OBST", "VENT", "DEVC", "CTRL", "PART"):
+            continue
+        # Has SURF_ID?
+        fds_param = fds_namelist.get_fds_label(fds_label="SURF_ID")
+        if fds_param:
+            hid = fds_param.get_value()
+            ma = bpy.data.materials.get(hid)
+            if ma:
+                mas.append(ma)
+    return mas
+
+
+def _get_exported_obs(context):
+    """!
+    Get generator of all exported Objects in context.
+    """
+    return (
+        ob
+        for ob in context.scene.objects
+        if not ob.hide_render  # exported
+        and not ob.get_layer_collection(context).exclude  # visible in the View Layer
+        and not ob.bf_is_tmp  # not tmp
+    )
+
+
+def _get_ob_ref_mas(context):
+    """!
+    Get generator of all Materials referenced by exported Objects in context.
+    """
+    return (
+        ms.material
+        for ob in _get_exported_obs(context)
+        for ms in ob.material_slots
+        if ms.material
+    )
+
+
 def append_mas_namelists(context, fds_list):
     header = "\n--- Boundary conditions from Blender Materials\n"
-    mas = list(
-        set(  # related to Scene + use_fake_user
-            ms.material
-            for ob in context.scene.objects
-            for ms in ob.material_slots
-            if ms.material
-        ).union(ma for ma in bpy.data.materials if ma.use_fake_user)
-    )
+    ob_ref_mas = _get_ob_ref_mas(context)
+    free_text_ref_mas = _get_free_text_ref_mas(context)
+    mas = list(set(ob_ref_mas).union(free_text_ref_mas))
     mas.sort(key=lambda k: k.name)  # alphabetic sorting by name
     iterable = (ma.to_fds_list(context=context) for ma in mas)
     fds_list.append(FDSList(header=header, iterable=iterable))
@@ -69,14 +114,8 @@ def append_domain_namelists(context, fds_list):
     sc = context.scene
 
     # Get exported MESHes and sort them by name
-    mesh_obs = [
-        ob
-        for ob in sc.objects
-        if ob.bf_namelist_cls == "ON_MESH"
-        and not ob.hide_render
-        and not ob.get_layer_collection(context).exclude  # visible in the View Layer
-        and not ob.bf_is_tmp
-    ]
+    obs = _get_exported_obs(context)
+    mesh_obs = list((ob for ob in obs if ob.bf_namelist_cls == "ON_MESH"))
     mesh_obs.sort(key=lambda k: k.name)
 
     # Linearize MESH fds_list
