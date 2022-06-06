@@ -612,11 +612,15 @@ class BFParamOther(BFParam):
     def to_fds_list(self, context) -> FDSList:
         self.check(context)
         coll = getattr(self.element, self.bpy_idname)
-        if not coll:
-            return FDSList()
-        f90_params = " ".join(i.name for i in coll if i.bf_export and i.name)
-        fds_list = FDSList(f90_params=f90_params)  # make list of FDSParams
-        return fds_list
+        if coll:
+            return FDSList(
+                iterable=(
+                    FDSParam(fds_label=item.name)  # label only
+                    for item in coll
+                    if item.bf_export and item.name
+                )
+            )
+        return FDSList()
 
     def copy_to(self, context, dest_element):
         log.debug(f"  Copying <{self}> to <{dest_element.name}>")
