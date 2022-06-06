@@ -10,6 +10,8 @@ from .bf_exception import BFException
 
 log = logging.getLogger(__name__)
 
+# Helper
+
 def _append_word(lines, word, separator=" ", force_break=False) -> list:
     """!
     Append word to the last of lines, generate newline and ident if needed.
@@ -29,7 +31,7 @@ class FDSList(list):
     List of FDSParam, FDSNamelist, FDSList instances.
     """
 
-    def __init__(self, iterable=(), f90_namelists=None, msgs=(), msg=None, header=None) -> None:
+    def __init__(self, iterable=(), f90_namelists=None, f90_params=None, f90_value=None, msgs=(), msg=None, header=None) -> None:
         """!
         Class constructor.
         @param iterable: iterable content of any type.
@@ -44,9 +46,9 @@ class FDSList(list):
         ## header string, that appears only if self is not empty
         self.header = header
 
-        # Set iterable from f90_namelists
-        if f90_namelists:
-            self.from_fds(f90_namelists=f90_namelists)
+        # Set iterable from f90
+        if any((f90_namelists, f90_params, f90_value)):
+            self.from_fds(f90_namelists=f90_namelists, f90_params=f90_params, f90_value=f90_value)
 
     def __repr__(self) -> str:
         iterable = ",".join(str(item) for item in self)
@@ -55,6 +57,30 @@ class FDSList(list):
     def __contains__(self, fds_label) -> bool:
         """!Check if fds_label is in iterable."""
         return bool(self.get_fds_label(fds_label=fds_label, remove=False))
+
+    def recurse_fds_namelists(self):
+        """!Get recursive generator of my FDSNamelist instances."""
+        fds_namelists = FDSList()
+        for item in self:
+            match item:
+                case FDSNamelist():
+                    fds_namelists.append(item)
+                case FDSList():
+                    fds_namelists.extend(item.recurse_fds_namelists())
+        return fds_namelists
+
+    def recurse_fds_params(self):
+        """!Get recursive generator of my FDSParam instances."""
+        fds_params = FDSList()
+        for item in self:
+            match item:
+                case FDSParam():
+                    fds_params.append(item)
+                case FDSList():
+                    fds_params.extend(item.recurse_fds_params())
+                # FIXME FDSMulti?
+        return fds_params
+
 
     def get_fds_label(self, fds_label=None, remove=False):
         """!
@@ -130,7 +156,8 @@ class FDSList(list):
             body = "\n".join((self.header, body))
         return body
 
-    _RE_SCAN = re.compile(  # scan f90_namelists
+    # scan f90_namelists
+    _RE_SCAN_F90_NAMELISTS = re.compile(  
         r"""
         ^&                    # & at the beginning of the line
         ([A-Z][A-Z0-9]{3})    # namelist label (group 0)
@@ -143,18 +170,97 @@ class FDSList(list):
         re.VERBOSE | re.DOTALL | re.IGNORECASE | re.MULTILINE,
     )  # MULTILINE, so that ^ is the beginning of each line
 
-    def from_fds(self, f90_namelists) -> None:
+    # scan f90_params
+    _RE_SCAN_F90_PARAMS = re.compile(  
+        r"""
+        ([A-Z][A-Z0-9_\(\):,]*?)  # label (group 0)
+        [,\s\t]*                  # 0+ separators
+        =                         # = sign
+        [,\s\t]*                  # 0+ separators
+        (                         # value (group 1)
+            (?:'.*?'|".*?"|.+?)*?     # 1+ any char, protect str, not greedy
+                (?=                       # end previous match when:
+                    (?:                       # there is another label:
+                        [,\s\t]+                  # 1+ separators
+                        [A-Z][A-Z0-9_\(\):,]*?    # label
+                        [,\s\t]*                  # 0+ separators
+                        =                         # = sign
+                    )
+                |                         # or
+                    $                         # it is end of line
+                )
+        )
+        """,
+        re.VERBOSE | re.DOTALL | re.IGNORECASE,
+    )  # no MULTILINE, so that $ is the end of the file
+
+    # scan f90_values
+    _RE_SCAN_F90_VALUES = re.compile(
+        r"""'.*?'|".*?"|[^,\s\t]+""", re.VERBOSE | re.DOTALL | re.IGNORECASE
+    )
+
+    # scan decimal positions
+    _RE_SCAN_DECIMAL_POS = re.compile(r"\.([0-9]+)", re.VERBOSE | re.DOTALL | re.IGNORECASE )
+
+    # scan integer postions of exp notation
+    _RE_SCAN_INTEGER = re.compile(r"([0-9]*)\.?[0-9]*[eE]", re.VERBOSE | re.DOTALL | re.IGNORECASE)
+
+
+    def from_fds(self, f90_namelists=None, f90_params=None, f90_value=None) -> None:
         """!
         Fill self from FDS file or text, on error raise BFException.
         @param f90_namelists: FDS formatted string of namelists, eg. "&OBST ID='Test' /\n&TAIL /".
         """
         self.clear()
-        for match in re.finditer(self._RE_SCAN, f90_namelists):
-            label, f90_params = match.groups()
-            fds_namelist = FDSNamelist(fds_label=label)
-            fds_namelist.from_fds(f90_params=f90_params)
-            self.append(fds_namelist)
 
+        if f90_namelists:
+            # Import from F90 case
+            for match in re.finditer(self._RE_SCAN_F90_NAMELISTS, f90_namelists):
+                label, f90_params = match.groups()
+                fds_namelist = FDSNamelist(fds_label=label)
+                fds_namelist.from_fds(f90_params=f90_params)
+                self.append(fds_namelist)
+
+        elif f90_params:
+            # Import from F90 namelist parameters
+            # Rm trailing separators and newlines
+            f90_params = " ".join(f90_params.strip(", \t").splitlines())
+            for match in re.finditer(self._RE_SCAN_F90_PARAMS, f90_params):
+                label, f90_value = match.groups()
+                self.append(FDSParam(fds_label=label, f90_value=f90_value))
+
+        elif f90_value:
+            # Import from F90 parameter values
+            # Remove trailing spaces and newlines, then scan values
+            f90_value = " ".join(f90_value.strip().splitlines())
+            values = re.findall(self._RE_SCAN_F90_VALUES, f90_value)
+
+            # Eval values
+            for i, v in enumerate(values):
+                if v in (".TRUE.", "T"):
+                    values[i] = True
+                elif v in (".FALSE.", "F"):
+                    values[i] = False
+                else:
+                    try:
+                        values[i] = eval(v)
+                    except Exception as err:
+                        msg = f"Malformed FDS file: <{self.fds_label}={f90_value}> (value: <{v}>)\n<{err}>"
+                        raise BFException(self, msg)
+
+            # Post treatment of float
+            if isinstance(values[0], float):  # first value is a float
+                # Get precision
+                match = re.findall(self._RE_SCAN_DECIMAL_POS, f90_value)
+                self.precision = match and max(len(m) for m in match) or 1
+                # Get exponential
+                match = re.findall(self._RE_SCAN_INTEGER, f90_value)
+                if match:
+                    self.exponential = True
+                    self.precision += max(len(m) for m in match) - 1
+                    
+            # Record
+            self.extend(values)            
 
 class FDSMulti(FDSList):
     """!
@@ -178,13 +284,10 @@ class FDSNamelist(FDSList):
         @param msgs: list of comment message strings.
         @param msg: comment message string.
         """
-        super().__init__(iterable=iterable, msgs=msgs, msg=msg)
         ## fds label of group (eg. namelist or param).
         self.fds_label = fds_label
-        
-        # Set iterable from f90_params
-        if f90_params:
-            self.from_fds(f90_params=f90_params)
+        # Init
+        super().__init__(iterable=iterable, f90_params=f90_params, msgs=msgs, msg=msg)
 
     def __repr__(self) -> str:
         iterable = ",".join(str(item) for item in self)
@@ -267,41 +370,6 @@ class FDSNamelist(FDSList):
         else:
             return ns.to_string()
 
-    _RE_SCAN = re.compile(  # scan f90_params
-        r"""
-        ([A-Z][A-Z0-9_\(\):,]*?)  # label (group 0)
-        [,\s\t]*                  # 0+ separators
-        =                         # = sign
-        [,\s\t]*                  # 0+ separators
-        (                         # value (group 1)
-            (?:'.*?'|".*?"|.+?)*?     # 1+ any char, protect str, not greedy
-                (?=                       # end previous match when:
-                    (?:                       # there is another label:
-                        [,\s\t]+                  # 1+ separators
-                        [A-Z][A-Z0-9_\(\):,]*?    # label
-                        [,\s\t]*                  # 0+ separators
-                        =                         # = sign
-                    )
-                |                         # or
-                    $                         # it is end of line
-                )
-        )
-        """,
-        re.VERBOSE | re.DOTALL | re.IGNORECASE,
-    )  # no MULTILINE, so that $ is the end of the file
-
-    def from_fds(self, f90_params) -> None:
-        """!
-        Fill self from FDS formatted string of parameters, on error raise BFException.
-        @param f90_params: FDS formatted string of parameters, eg. "ID='Test' PROP=2.34, 1.23, 3.44".
-        """
-        self.clear()
-        # Rm trailing separators and newlines
-        f90_params = " ".join(f90_params.strip(", \t").splitlines())
-        for match in re.finditer(self._RE_SCAN, f90_params):
-            label, f90_value = match.groups()
-            self.append(FDSParam(fds_label=label, f90_value=f90_value))
-
 
 class FDSParam(FDSList):
     """!
@@ -320,23 +388,21 @@ class FDSParam(FDSList):
         @param msgs: list of comment message strings.
         @param msg: comment message string.
         """
-        super().__init__(iterable=iterable, msgs=msgs, msg=msg)
         ## fds label of group (eg. namelist or param).
         self.fds_label = fds_label
         ## float precision, number of decimal digits
         self.precision = precision
         ## if True sets exponential representation of floats
         self.exponential = exponential
+        # Init
+        super().__init__(iterable=iterable, f90_value=f90_value, msgs=msgs, msg=msg)
         # Set parameter value from f90_value
-        if f90_value:
-            self.from_fds(f90_value=f90_value)
-        else:
+        if not f90_value:
             self.set_value(value=value)
 
     def __repr__(self) -> str:
         iterable = ",".join(str(item) for item in self)
         return f"{self.__class__.__name__}({self.fds_label}, {iterable})"
-
 
     def get_value(self):
         """!
@@ -394,51 +460,3 @@ class FDSParam(FDSList):
                 return f"{self.fds_label}={v}"
             else:  # "ABC"
                 return self.fds_label
-
-    _RE_DECIMAL_POS = r"\.([0-9]+)"  # decimal positions
-
-    _RE_SCAN_DECIMAL = re.compile(
-        _RE_DECIMAL_POS, re.VERBOSE | re.DOTALL | re.IGNORECASE
-    )
-
-    _RE_INTEGER = r"([0-9]*)\.?[0-9]*[eE]"  # integer postions of exp notation
-
-    _RE_SCAN_INTEGER = re.compile(_RE_INTEGER, re.VERBOSE | re.DOTALL | re.IGNORECASE)
-
-    _RE_SCAN_VALUES = re.compile(
-        r"""'.*?'|".*?"|[^,\s\t]+""", re.VERBOSE | re.DOTALL | re.IGNORECASE
-    )
-
-    def from_fds(self, f90_value) -> None:
-        """!
-        Import from FDS formatted string, on error raise BFException.
-        @param f90_value: FDS formatted string containing value, eg. "2.34, 1.23, 3.44" or ".TRUE.,.FALSE.".
-        """
-        self.clear()
-        # Remove trailing spaces and newlines, then scan values
-        f90_value = " ".join(f90_value.strip().splitlines())
-        values = re.findall(self._RE_SCAN_VALUES, f90_value)
-        # Eval values
-        for i, v in enumerate(values):
-            if v in (".TRUE.", "T"):
-                values[i] = True
-            elif v in (".FALSE.", "F"):
-                values[i] = False
-            else:
-                try:
-                    values[i] = eval(v)
-                except Exception as err:
-                    msg = f"Malformed FDS file: <{self.fds_label}={f90_value}> (value: <{v}>)\n<{err}>"
-                    raise BFException(self, msg)
-        # Post treatment of float
-        if isinstance(values[0], float):  # first value is a float
-            # Get precision
-            match = re.findall(self._RE_DECIMAL_POS, f90_value)
-            self.precision = match and max(len(m) for m in match) or 1
-            # Get exponential
-            match = re.findall(self._RE_INTEGER, f90_value)
-            if match:
-                self.exponential = True
-                self.precision += max(len(m) for m in match) - 1
-        # Record
-        self.extend(values)

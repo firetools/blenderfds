@@ -54,6 +54,10 @@ def _load_post(self):
                     op_other.set_value(context, f"LATCH=T")
                     ob["bf_devc_latch"] = False
 
+            # Fix new Object bf_surf_id_export
+            if ob.bf_namelist_cls in ("ON_OBST", "ON_VENT") and ob.active_material:
+                ob.bf_surf_id_export = True
+
         # Fix old SURF namelist removed params
         for ma in bpy.data.materials:
             ma.bf_namelist_cls = "MN_SURF"
