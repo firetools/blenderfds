@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 ## supported file version
-SUPPORTED_FILE_VERSION = 6, 0, 1
+SUPPORTED_FILE_VERSION = 6, 0, 2
 
 ## set automatic Blender Scene appearance
 SET_SCENE_APPEARANCE = True
