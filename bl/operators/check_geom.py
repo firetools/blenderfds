@@ -35,7 +35,9 @@ class OBJECT_OT_bf_check_intersections(Operator):
         if obs:
             obs.remove(ob)
         try:
-            lang.ON_GEOM.check_intersections(context, ob, obs, protect=ob.data.bf_geom_protect)
+            lang.ON_GEOM.check_intersections(
+                context, ob, obs, protect=ob.data.bf_geom_protect
+            )
         except BFException as err:
             self.report({"ERROR"}, f"Check intersections: {err}")
             return {"CANCELLED"}
@@ -46,7 +48,7 @@ class OBJECT_OT_bf_check_intersections(Operator):
             w.cursor_modal_restore()
 
 
-class SCENE_OT_bf_check_sanity(Operator):
+class OBJECT_OT_bf_check_sanity(Operator):
     """!
     Check if closed orientable manifold, with no degenerate geometry.
     """
@@ -68,7 +70,7 @@ class SCENE_OT_bf_check_sanity(Operator):
                 context,
                 ob,
                 protect=ob.data.bf_geom_protect,
-                is_open=not ob.data.bf_geom_is_terrain,
+                is_open=ob.data.bf_geom_is_terrain,
             )
         except BFException as err:
             self.report({"ERROR"}, f"Check sanity: {err}")
@@ -80,7 +82,7 @@ class SCENE_OT_bf_check_sanity(Operator):
             w.cursor_modal_restore()
 
 
-bl_classes = [OBJECT_OT_bf_check_intersections, SCENE_OT_bf_check_sanity]
+bl_classes = [OBJECT_OT_bf_check_intersections, OBJECT_OT_bf_check_sanity]
 
 
 def register():

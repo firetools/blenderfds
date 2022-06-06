@@ -14,22 +14,24 @@ class OP_SURF_ID(BFParam):
     bpy_type = Object
     bpy_idname = "active_material"
     bpy_export = "bf_surf_id_export"
-    bpy_export_default = True
+    bpy_export_default = False
 
     def get_value(self, context):
         if self.element.active_material:
             return self.element.active_material.name
 
     def set_value(self, context, value):
+        ob = self.element
         if value is None:
-            self.element.active_material = None
+            ob.active_material = None
         else:
             try:  # TODO use utils
                 ma = bpy.data.materials.get(value)
             except IndexError:
                 raise BFException(self, f"Blender Material <{value}> does not exists")
             else:
-                self.element.active_material = ma
+                ob.active_material = ma
+                ob.bf_surf_id_export = True
 
     def get_exported(self, context):
         ob = self.element
