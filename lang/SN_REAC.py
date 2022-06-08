@@ -119,8 +119,8 @@ class SN_REAC(BFNamelistSc):
     bpy_export = "bf_reac_export"
     bpy_export_default = False
     bf_params = (
-        SP_REAC_FUEL,
         SP_REAC_FYI,
+        SP_REAC_FUEL,
         SP_REAC_FORMULA,
         SP_REAC_CO_YIELD,
         SP_REAC_SOOT_YIELD,
