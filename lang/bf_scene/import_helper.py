@@ -9,6 +9,9 @@ log = logging.getLogger(__name__)
 
 
 def _import_sc(context, sc, bf_namelist, fds_namelist, texts):
+    """!
+    Import Scene related namelist.
+    """
     is_imported = False
     try:
         bf_namelist(element=sc).from_fds(context=context, fds_namelist=fds_namelist)
@@ -28,6 +31,9 @@ def _import_ob(
     co_description="",
     set_tmp=False,
 ):
+    """!
+    Import Object related namelist.
+    """
     # Get the right collection
     if set_tmp:
         co = sc.collection
@@ -61,6 +67,9 @@ def _import_ob(
 
 
 def _import_ma(context, sc, fds_namelist, hid, texts):
+    """!
+    Import Material related namelist.
+    """
     is_imported = False
     ma = bpy.data.materials.new(hid)  # new Material
     try:

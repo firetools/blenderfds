@@ -92,7 +92,7 @@ class BFScene:
         # if not existing, create
         self.bf_config_text = utils.ui.show_bl_text(
             context=context,
-            bl_text=not self.bf_config_text,
+            bl_text=self.bf_config_text,
             name="New Text",
         )
 
