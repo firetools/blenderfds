@@ -8,7 +8,7 @@ import logging, csv
 from bpy.types import Operator
 from bpy.props import EnumProperty
 from ...types import FDSList
-from ... import config, utils
+from ... import config
 
 log = logging.getLogger(__name__)
 
@@ -25,19 +25,6 @@ def get_referenced_ids(context, fds_label="SURF"):
     # Get namelists from Free Text
     if sc.bf_config_text:
         fds_list.from_fds(f90_namelists=sc.bf_config_text.as_string())
-
-    # # Get namelists from available CATF files
-    # if sc.bf_catf_export:
-    #     for item in sc.bf_catf_files:
-    #         if not item.bf_export:
-    #             continue
-    #         filepath = item.name
-    #         try:
-    #             f90_namelists = utils.io.read_txt_file(filepath)
-    #         except IOError:
-    #             pass
-    #         else:
-    #             fds_list.from_fds(f90_namelists=f90_namelists)
 
     # Prepare list of IDs
     items = list()

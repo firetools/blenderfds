@@ -105,6 +105,9 @@ class BFParam:
         default=None,
         bpy_other=None,
     ):
+        """!
+        Register a bpy_prop.
+        """
         if default is not None:
             bpy_other["default"] = default
         log.debug(
@@ -194,6 +197,8 @@ class BFParam:
                     delattr(cls.bpy_type, cls.bpy_export)
                 except AttributeError:  # already deleted
                     pass
+
+    # Override the following methods in child classes for different behaviours
 
     def get_value(self, context):
         """!

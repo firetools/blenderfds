@@ -5,8 +5,6 @@ BlenderFDS, Blender interfaces to FDS namelists.
 """
 
 import logging
-
-from numpy import iterable
 from bpy.types import Object, Scene, Material
 from .. import config, utils
 from .fds_list import FDSList, FDSNamelist
@@ -58,7 +56,7 @@ class BFNamelist(BFParam):
         """
         return bf_param in cls.bf_params
 
-    def get_bf_param(self, fds_label):
+    def _get_bf_param(self, fds_label):
         """!
         Return bf_param (class or instance) by its fds_label.
         @param fds_label: FDS parameter to be obtained.
@@ -68,12 +66,14 @@ class BFNamelist(BFParam):
         if i is not None:
             return self.bf_params[i]
 
-    def get_bf_param_other(self):
+    def _get_bf_param_other(self):
         """!
         Return the reference of the other bf_param (class or instance).
         """
         if self._bf_param_other_idx is not None:
             return self.bf_params[self._bf_param_other_idx]
+
+    # Override the following methods in child classes for different behaviours
 
     def get_active(self, context):
         """!
@@ -173,7 +173,7 @@ class BFNamelist(BFParam):
             is_imported = False
 
             # Try managed bf_param
-            bf_param = self.get_bf_param(fds_label=fds_param.fds_label)
+            bf_param = self._get_bf_param(fds_label=fds_param.fds_label)
             if not is_imported and bf_param:
                 try:
                     bf_param.from_fds(
@@ -185,7 +185,7 @@ class BFNamelist(BFParam):
                     is_imported = True
 
             # Try bf_param_other
-            bf_param_other = self.get_bf_param_other()
+            bf_param_other = self._get_bf_param_other()
             if not is_imported and bf_param_other:
                 try:
                     bf_param_other.set_value(
