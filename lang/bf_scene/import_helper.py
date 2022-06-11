@@ -81,12 +81,12 @@ def import_by_fds_label(
     set_tmp=False,
 ) -> str:
     """!
-    Import all namelists with label fds_label from fds_list into Scene.
+    Import all namelists with fds_label from fds_list into Scene.
     """
     # Scan fds_list for fds_label
     texts = list()
     while True:
-        fds_namelist = fds_list.get_fds_label(fds_label=fds_label, remove=True)
+        fds_namelist = fds_list.get_by_fds_label(fds_label=fds_label, remove=True)
         if not fds_namelist:
             break
 

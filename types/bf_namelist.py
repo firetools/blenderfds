@@ -167,7 +167,7 @@ class BFNamelist(BFParam):
         @param fds_label: if set, import only self.bf_params with fds_label
         """
         while True:  # consume fds_namelist
-            fds_param = fds_namelist.get_fds_label(fds_label=fds_label, remove=True)
+            fds_param = fds_namelist.get_by_fds_label(fds_label=fds_label, remove=True)
             if not fds_param:
                 break
             is_imported = False

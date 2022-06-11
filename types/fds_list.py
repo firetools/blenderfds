@@ -6,25 +6,11 @@ BlenderFDS, Blender list of FDS namelists or parameters.
 
 import re, logging
 from ..config import MAXLEN, INDENT
+from ..utils.text import append_word
 from .bf_exception import BFException
 
 log = logging.getLogger(__name__)
 
-# Helper
-
-def _append_word(lines, word, separator=" ", force_break=False) -> list:
-    """!
-    Append word to the last of lines, generate newline and ident if needed.
-    """
-    if not force_break and len(lines[-1]) + len(separator) + len(word) <= MAXLEN:
-        # append to current line
-        lines[-1] += separator + word
-    else:
-        # append to new line w indent, wo separator
-        lines.append(" " * INDENT + word)
-    return lines
-
-# Classes
 
 class FDSList(list):
     """!
@@ -56,63 +42,55 @@ class FDSList(list):
 
     def __contains__(self, fds_label) -> bool:
         """!Check if fds_label is in iterable."""
-        return bool(self.get_fds_label(fds_label=fds_label, remove=False))
+        return bool(self.get_by_fds_label(fds_label=fds_label))
 
-    def recurse_fds_namelists(self):
-        """!Get recursive generator of my FDSNamelist instances."""
+    def recurse_fds_namelists(self, fds_label=None):
+        """!Get recursive list of my FDSNamelist instances. If available, by fds_label."""
         fds_namelists = FDSList()
         for item in self:
             match item:
                 case FDSNamelist():
+                    if fds_label and item.fds_label != fds_label:
+                        continue
                     fds_namelists.append(item)
                 case FDSList():
-                    fds_namelists.extend(item.recurse_fds_namelists())
+                    fds_namelists.extend(item.recurse_fds_namelists(fds_label=fds_label))
         return fds_namelists
 
-    def recurse_fds_params(self):
-        """!Get recursive generator of my FDSParam instances."""
+    def recurse_fds_params(self, fds_label=None):
+        """!Get recursive list of my FDSParam instances. If available, by fds_label."""
         fds_params = FDSList()
         for item in self:
             match item:
                 case FDSParam():
+                    if fds_label and item.fds_label != fds_label:
+                        continue
                     fds_params.append(item)
                 case FDSList():
-                    fds_params.extend(item.recurse_fds_params())
+                    fds_params.extend(item.recurse_fds_params(fds_label=fds_label))
                 # FIXME FDSMulti?
         return fds_params
 
-
-    def get_fds_label(self, fds_label=None, remove=False):
+    def get_by_fds_label(self, fds_label=None, remove=False):
         """!
-        Get first occurence of fds_label.
+        Get by first occurence of fds_label.
         @param fds_label: FDS label.
         @param remove: remove found item.
         @return item or None.
         """
         for i, item in enumerate(self):
-            if item is None:
-                continue
-            try:
-                item_fds_label = item.fds_label
-            except AttributeError:
-                # item is FDSList, recurse
-                found = item.get_fds_label(fds_label=fds_label, remove=remove)
-                if found:
-                    return found
-            else:
-                # item is FDSParam or FDSNamelist, check
-                if fds_label:
-                    if item_fds_label == fds_label:
-                        # first occurrence w fds_label
-                        if remove:
-                            self.pop(i)
-                        return item
-                else:
-                    # first occurrence
+            match item:
+                case FDSParam()|FDSNamelist():
+                    if fds_label and item.fds_label != fds_label:
+                        continue
                     if remove:
                         self.pop(i)
                     return item
-
+                case FDSList():
+                    found = item.get_by_fds_label(self, fds_label=None, remove=False)
+                    if found:
+                        return found
+                        
     def _get_flat_components(self):
         """Get lists of generated namelists and parameters."""
         # additional namelists, invariant params, multi params
@@ -309,7 +287,7 @@ class FDSNamelist(FDSList):
             # Rm duplicated ps
             for mp in multi_ps:
                 fds_label = mp[0].fds_label  # break if mp empty
-                ps.get_fds_label(fds_label=fds_label, remove=True)
+                ps.get_by_fds_label(fds_label=fds_label, remove=True)
             # Get FDSMulti msgs, before deletion
             ns.msgs.extend(multi_ps.msgs)
             # Zip multi_ps
@@ -347,18 +325,18 @@ class FDSNamelist(FDSList):
         for p in n:
             fds_label, fds_values = p.fds_label, p._to_strings()
             if not fds_values:  # fds_label only provided, probably preformatted (eg. BFParamOther)
-                body = _append_word(body, word=fds_label)
+                body = append_word(body, word=fds_label)
             else:  # fds_label and its values provided
                 word = f"{fds_label}={','.join(fds_values)}"
                 if len(word) <= MAXLEN - INDENT or len(fds_values) == 1:
                     # short param, keep together
-                    body = _append_word(body, word=word)
+                    body = append_word(body, word=word)
                 else:
                     # long param, split in lines
-                    body = _append_word(body, word=f"{fds_label}={fds_values[0]},")  # first
+                    body = append_word(body, word=f"{fds_label}={fds_values[0]},")  # first
                     for v in fds_values[1:-1]:
-                        body = _append_word(body, word=f"{v},", separator="")
-                    body = _append_word(body, word=f"{fds_values[-1]}", separator="")  # last
+                        body = append_word(body, word=f"{v},", separator="")
+                    body = append_word(body, word=f"{fds_values[-1]}", separator="")  # last
         body[-1] += " /"  # close
         return "\n".join(body)
 

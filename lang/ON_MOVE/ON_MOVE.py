@@ -70,7 +70,7 @@ class ON_MOVE(BFNamelist):  # not in namelist menu
             "DZ": 0.0,
         }
         for fds_label in ps:
-            fds_param = fds_namelist.get_fds_label(fds_label=fds_label, remove=True)
+            fds_param = fds_namelist.get_by_fds_label(fds_label=fds_label, remove=True)
             if fds_param:
                 ps[fds_label] = fds_param.get_value()  # assign value
         m = calc_bl_matrix(

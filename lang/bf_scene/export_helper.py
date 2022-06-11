@@ -77,7 +77,7 @@ def _get_domain(context):
     # Init item_weights: ((w0, item0), (w1, item1), ...)
     item_weigths = list()
     for nl in mesh_fds_list:
-        ijk = nl.get_fds_label(fds_label="IJK", remove=False)
+        ijk = nl.get_by_fds_label(fds_label="IJK")
         ncell = ijk[0] * ijk[1] * ijk[2]
         item_weigths.append((ncell, nl))  # weigth, item
 

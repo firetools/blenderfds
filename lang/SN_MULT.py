@@ -23,7 +23,7 @@ class SN_MULT(BFNamelistSc):
 
     def from_fds(self, context, fds_namelist):
         # Get ID
-        fds_param = fds_namelist.get_fds_label(fds_label="ID", remove=True)
+        fds_param = fds_namelist.get_by_fds_label(fds_label="ID", remove=True)
         if not fds_param:
             raise BFNotImported(self, f"Missing ID in: {fds_namelist}")
 
