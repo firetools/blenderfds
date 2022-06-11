@@ -3,12 +3,7 @@
 import logging
 from bpy.types import Scene
 from bpy.props import BoolProperty, FloatProperty, StringProperty
-from ..types import (
-    BFParam,
-    BFParamOther,
-    BFParamFYI,
-    BFNamelistSc,
-)
+from ..types import BFParam, BFParamOther, BFParamFYI, BFNamelistSc
 from ..bl.ui_lists import (
     WM_PG_bf_other,
     WM_UL_bf_other_items,

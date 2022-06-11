@@ -26,10 +26,12 @@ class SN_MOVE(BFNamelistSc):
         fds_param = fds_namelist.get_by_fds_label(fds_label="ID", remove=True)
         if not fds_param:
             raise BFNotImported(self, f"Missing ID in: {fds_namelist}")
+
         # Prepare Scene dict
         if "bf_move_coll" not in context.scene:
             context.scene["bf_move_coll"] = dict()
         bf_move_coll = context.scene["bf_move_coll"]
+        
         # Set Scene dict by ID, eg. {"ob_move": "A=3 B=4 C=5"}
         f90_params = " ".join((item.to_string() for item in fds_namelist))
         bf_move_coll[fds_param.get_value()] = f90_params
