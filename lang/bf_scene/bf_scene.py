@@ -4,7 +4,7 @@ import logging, bpy, os
 from bpy.types import Scene
 from bpy.props import IntVectorProperty
 from ...config import MAXLEN
-from ...types import BFNamelist, FDSList
+from ...types import BFNamelist, FDSList, BFParam
 from ... import utils
 from . import export_helper, import_helper
 
@@ -89,18 +89,18 @@ class BFScene:
         fds_namelist_qty = len(fds_list)
 
         # Prepare free text for unmanaged namelists, no rewind
-        if not self.bf_config_text:  # TODO remove if?
-            self.bf_config_text = utils.ui.show_bl_text(
-                context=context,
-                bl_text=None,
-                name="New Text",
-            )
+        # if not existing, create
+        self.bf_config_text = utils.ui.show_bl_text(
+            context=context,
+            bl_text=not self.bf_config_text,
+            name="New Text",
+        )
 
         # Import by fds_label
         fds_labels = (
             "HEAD",
-            "MOVE",  # pre-load moves and multiplicity
-            "MULT",
+            "MOVE",  # pre-load moves
+            "MULT",  # pre-loar multiplicity
             "MESH",  # create domain collection
             "SURF",  # load SURFs
             "CATF",  # load additional SURFs
@@ -134,9 +134,6 @@ class BFScene:
         Scene.to_fds_list = cls.to_fds_list
         Scene.to_fds = cls.to_fds
         Scene.from_fds = cls.from_fds
-        Scene.bf_file_version = IntVectorProperty(
-            name="BlenderFDS File Version", size=3
-        )
 
     @classmethod
     def unregister(cls):
@@ -149,3 +146,14 @@ class BFScene:
         del Scene.to_fds
         del Scene.to_fds_list
         del Scene.bf_namelists
+
+
+# Automatically filled by an handler
+class OP_file_version(BFParam):
+    label = "BlenderFDS File Version"
+    description = "BlenderFDS File Version"
+    bpy_type = Scene
+    bpy_idname = "bf_file_version"
+    bpy_prop = IntVectorProperty
+    bpy_default = (0, 0, 0)
+    bpy_other = {"size": 3}
