@@ -172,7 +172,7 @@ def _get_materials(context, collections_fds_list):
     return FDSList(header=header, iterable=iterable)
 
 
-def sc_to_fds_list(sc, context, full=False) -> FDSList:
+def sc_to_fds_list(context, sc, full=False) -> FDSList:
     """!
     Return the FDSList instance from sc, never None.
     """

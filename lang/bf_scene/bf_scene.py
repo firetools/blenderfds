@@ -30,7 +30,7 @@ class BFScene:
         # Set mysef as the right Scene instance in the context
         # It is needed, because context.scene is needed elsewhere
         bpy.context.window.scene = self  # set context.scene
-        return export_helper.sc_to_fds_list(sc=self, context=context, full=full)
+        return export_helper.sc_to_fds_list(context=context, sc=self, full=full)
 
     def to_fds(self, context, full=False, save=False):
         """!
@@ -100,7 +100,7 @@ class BFScene:
         fds_labels = (
             "HEAD",
             "MOVE",  # pre-load moves
-            "MULT",  # pre-loar multiplicity
+            "MULT",  # pre-load multiplicity
             "MESH",  # create domain collection
             "SURF",  # load SURFs
             "CATF",  # load additional SURFs
@@ -121,6 +121,13 @@ class BFScene:
         # Restore fds case dir, to avoid overwriting imported case
         if filepath:
             self.bf_config_directory = bf_config_directory
+
+        # Empty temporary Scene collections and states
+        # they get created in SN_MOVE, SN_MULT, SN_REAC
+        if "bf_move_coll" in self:
+            del self["bf_move_coll"]
+        if "bf_mult_coll" in self:
+            del self["bf_mult_coll"]
 
         return fds_namelist_qty  # feedback
 
