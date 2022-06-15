@@ -70,7 +70,7 @@ class ON_MOVE(BFNamelist):  # not in namelist menu
             "DZ": 0.0,
         }
         for fds_label in ps:
-            fds_param = fds_namelist.get_by_fds_label(fds_label=fds_label, remove=True)
+            fds_param = fds_namelist.get_fds_param(fds_label=fds_label, remove=True)
             if fds_param:
                 ps[fds_label] = fds_param.get_value()  # assign value
         m = calc_bl_matrix(
@@ -89,6 +89,7 @@ class ON_MOVE(BFNamelist):  # not in namelist menu
             axis=ps["AXIS"],
         )
         utils.geometry.transform_ob(ob=self.element, m=m, force_othogonal=False)
+
 
 # Called by other namelists
 # that support a MOVE_ID

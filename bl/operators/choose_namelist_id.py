@@ -28,10 +28,8 @@ def get_referenced_ids(context, fds_label="SURF"):
 
     # Prepare list of IDs
     items = list()
-    for fds_namelist in fds_list:
-        if fds_namelist.fds_label != fds_label:
-            continue
-        fds_param = fds_namelist.get_by_fds_label(fds_label="ID")
+    for fds_namelist in fds_list.get_fds_namelists(fds_label=fds_label):
+        fds_param = fds_namelist.get_fds_param(fds_label="ID")
         if fds_param:
             hid = fds_param.get_value()
             items.append((hid, hid, ""))  # (identifier, name, description)

@@ -166,10 +166,7 @@ class BFNamelist(BFParam):
         @param fds_namelist: instance of type FDSNamelist.
         @param fds_label: if set, import only self.bf_params with fds_label
         """
-        while True:  # consume fds_namelist
-            fds_param = fds_namelist.get_by_fds_label(fds_label=fds_label, remove=True)
-            if not fds_param:
-                break
+        for fds_param in fds_namelist.get_fds_params(fds_label=fds_label, remove=True):
             is_imported = False
 
             # Try managed bf_param

@@ -41,58 +41,87 @@ class FDSList(list):
         return f"{self.__class__.__name__}({iterable})"
 
     def __contains__(self, fds_label) -> bool:
-        """!Check if fds_label is in iterable."""
-        return bool(self.get_by_fds_label(fds_label=fds_label))
-
-    def recurse_fds_namelists(self, fds_label=None):
-        """!Get recursive list of my FDSNamelist instances. If available, by fds_label."""
-        fds_namelists = FDSList()
+        """!Check if fds_label is in self."""
         for item in self:
             match item:
-                case FDSNamelist():
-                    if fds_label and item.fds_label != fds_label:
-                        continue
-                    fds_namelists.append(item)
+                case FDSNamelist()|FDSParam():
+                    if item.fds_label == fds_label:
+                        return True
+                case FDSMulti():
+                    for subitem in item:
+                        if subitem and subitem[0].fds_label == fds_label:
+                            return True
                 case FDSList():
-                    fds_namelists.extend(item.recurse_fds_namelists(fds_label=fds_label))
-        return fds_namelists
+                    if item.__contains__(fds_label=fds_label):
+                        return True
 
-    def recurse_fds_params(self, fds_label=None):
-        """!Get recursive list of my FDSParam instances. If available, by fds_label."""
-        fds_params = FDSList()
-        for item in self:
-            match item:
-                case FDSParam():
-                    if fds_label and item.fds_label != fds_label:
-                        continue
-                    fds_params.append(item)
-                case FDSList():
-                    fds_params.extend(item.recurse_fds_params(fds_label=fds_label))
-                # FIXME FDSMulti?
-        return fds_params
-
-    def get_by_fds_label(self, fds_label=None, remove=False):
-        """!
-        Get by first occurence of fds_label.
-        @param fds_label: FDS label.
-        @param remove: remove found item.
-        @return item or None.
-        """
+    def get_fds_namelist(self, fds_label=None, remove=False):
+        """!Get first FDSNamelist instance in self."""
         for i, item in enumerate(self):
             match item:
-                case FDSParam()|FDSNamelist():
-                    if fds_label and item.fds_label != fds_label:
-                        continue
-                    if remove:
-                        self.pop(i)
-                    return item
+                case FDSNamelist():
+                    if not fds_label or item.fds_label==fds_label:
+                        if remove:
+                            return self.pop(i)
+                        else:
+                            return item
                 case FDSList():
-                    found = item.get_by_fds_label(self, fds_label=None, remove=False)
+                    found = item.get_fds_namelist(fds_label=fds_label, remove=remove)
                     if found:
                         return found
+
+    def get_fds_param(self, fds_label=None, remove=False):
+        """!Get first FDSParam instance in self."""
+        for i, item in enumerate(self):
+            match item:
+                case FDSParam():
+                    if not fds_label or item.fds_label==fds_label:
+                        if remove:
+                            return self.pop(i)
+                        else:
+                            return item
+                # no case FDSMulti()
+                case FDSList():
+                    found = item.get_fds_param(fds_label=fds_label, remove=remove)
+                    if found:
+                        return found
+
+
+    def get_fds_namelists(self, fds_label=None, remove=False):
+        """!Get FDSList of all my FDSNamelist instances."""
+        indexes, items = list(), FDSList()
+        for i, item in enumerate(self):
+            match item:
+                case FDSNamelist():
+                    if not fds_label or item.fds_label==fds_label:
+                        indexes.append(i)
+                        items.append(item)
+                case FDSList():
+                    items.extend(item.get_fds_namelists(fds_label=fds_label, remove=remove))
+        if remove:
+            for i in reversed(indexes):
+                self.pop(i)
+        return items
+
+    def get_fds_params(self, fds_label=None, remove=False):
+        """!Get FDSList of all my FDSParam instances."""
+        indexes, items = list(), FDSList()
+        for i, item in enumerate(self):
+            match item:
+                case FDSParam():
+                    if not fds_label or item.fds_label==fds_label:
+                        indexes.append(i)
+                        items.append(item)
+                # no case FDSMulti()
+                case FDSList():
+                    items.extend(item.get_fds_params(fds_label=fds_label, remove=remove))
+        if remove:
+            for i in reversed(indexes):
+                self.pop(i)
+        return items
                         
     def _get_flat_components(self):
-        """Get lists of generated namelists and parameters."""
+        """!Get lists of generated namelists and parameters."""
         # additional namelists, invariant params, multi params
         add_ns, ps, multi_ps = FDSList(), FDSList(), None
         for item in self:
@@ -192,7 +221,7 @@ class FDSList(list):
         self.clear()
 
         if f90_namelists:
-            # Import from F90 case
+            # Import from F90 case to list of FDSNamelist
             for match in re.finditer(self._RE_SCAN_F90_NAMELISTS, f90_namelists):
                 label, f90_params = match.groups()
                 fds_namelist = FDSNamelist(fds_label=label)
@@ -200,7 +229,7 @@ class FDSList(list):
                 self.append(fds_namelist)
 
         elif f90_params:
-            # Import from F90 namelist parameters
+            # Import from F90 namelist parameters to list of FDSParams
             # Rm trailing separators and newlines
             f90_params = " ".join(f90_params.strip(", \t").splitlines())
             for match in re.finditer(self._RE_SCAN_F90_PARAMS, f90_params):
@@ -208,7 +237,7 @@ class FDSList(list):
                 self.append(FDSParam(fds_label=label, f90_value=f90_value))
 
         elif f90_value:
-            # Import from F90 parameter values
+            # Import from F90 parameter values to list of pyvalues
             # Remove trailing spaces and newlines, then scan values
             f90_value = " ".join(f90_value.strip().splitlines())
             values = re.findall(self._RE_SCAN_F90_VALUES, f90_value)
@@ -287,7 +316,7 @@ class FDSNamelist(FDSList):
             # Rm duplicated ps
             for mp in multi_ps:
                 fds_label = mp[0].fds_label  # break if mp empty
-                ps.get_by_fds_label(fds_label=fds_label, remove=True)
+                ps.get_fds_param(fds_label=fds_label, remove=True)
             # Get FDSMulti msgs, before deletion
             ns.msgs.extend(multi_ps.msgs)
             # Zip multi_ps

@@ -77,7 +77,7 @@ def _get_domain(context):
     # Init item_weights: ((w0, item0), (w1, item1), ...)
     item_weigths = list()
     for nl in mesh_fds_list:
-        ijk = nl.get_by_fds_label(fds_label="IJK")
+        ijk = nl.get_fds_param(fds_label="IJK")
         ncell = ijk[0] * ijk[1] * ijk[2]
         item_weigths.append((ncell, nl))  # weigth, item
 
@@ -122,13 +122,12 @@ def _fill_mas(fds_namelist, mas, fds_label):
     """!
     Fill mas with Materials referenced by fds_namelist.
     """
-    for fds_param in fds_namelist.recurse_fds_params():
-        if fds_param.fds_label == fds_label:
-            for hid in fds_param:
-                ma = bpy.data.materials.get(hid)
-                if ma:
-                    mas.append(ma)
-            return True
+    for fds_param in fds_namelist.get_fds_params(fds_label=fds_label):
+        for hid in fds_param:
+            ma = bpy.data.materials.get(hid)
+            if ma:
+                mas.append(ma)
+        return True
 
 
 def _get_ref_mas(context, collections_fds_list):
@@ -144,7 +143,7 @@ def _get_ref_mas(context, collections_fds_list):
 
     # Get references to mas
     mas = list()
-    for fds_namelist in fds_list.recurse_fds_namelists():
+    for fds_namelist in fds_list.get_fds_namelists():
         fds_label = fds_namelist.fds_label
         if fds_label == "OBST":
             if _fill_mas(fds_namelist=fds_namelist, mas=mas, fds_label="SURF_ID"):

@@ -258,7 +258,7 @@ class ON_GEOM(BFNamelistOb):
             "ZVALS": None,
         }
         for fds_label in ps:
-            fds_param = fds_namelist.get_by_fds_label(fds_label=fds_label, remove=True)
+            fds_param = fds_namelist.get_fds_param(fds_label=fds_label, remove=True)
             if fds_param:
                 ps[fds_label] = fds_param.get_value()  # assign value
         # Read SURF_ID params, to prepare Material slots
