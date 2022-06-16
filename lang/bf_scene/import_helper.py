@@ -1,11 +1,56 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from fileinput import filename
 import logging, bpy
+
 from bpy.types import Scene, Object, Material
 from ...types import BFNamelist, BFNotImported
 from ... import utils
 
 log = logging.getLogger(__name__)
+
+
+def sc_from_fds_list(context, sc, fds_list, set_tmp=False, texts=(), filename=None):
+
+    # Special treatment for the REAC namelists
+    fds_label = "REAC"
+    fds_namelists = fds_list.get_fds_namelists(fds_label=fds_label, remove=True)
+    if len(fds_namelists) == 1:
+        bf_namelist = BFNamelist.get_subclass(fds_label=fds_label)
+        _import_sc(context, sc, bf_namelist, fds_namelists[0], texts)
+    elif len(fds_namelists) > 1:
+        texts.append(f"REAC: {len(fds_namelists)} reactions")
+        texts.extend(n.to_string() for n in fds_namelists)
+
+    # Import by fds_label
+    fds_labels = (
+        "HEAD",
+        "MOVE",  # pre-load moves
+        "MULT",  # pre-load multiplicity
+        "MESH",  # create domain collection
+        "SURF",  # load SURFs
+        "CATF",  # load additional SURFs
+        "OBST",
+        "GEOM",
+        None,
+    )
+    for fds_label in fds_labels:
+        import_by_fds_label(
+            context=context,
+            sc=sc,
+            fds_list=fds_list,
+            fds_label=fds_label,
+            set_tmp=set_tmp,  # TODO or Scene var?
+            texts=texts,
+            filename=filename,
+        )
+
+    # Empty temporary Scene collections and states
+    # they get created in SN_MOVE, SN_MULT, SN_REAC
+    if "bf_move_coll" in sc:
+        del sc["bf_move_coll"]
+    if "bf_mult_coll" in sc:
+        del sc["bf_mult_coll"]
 
 
 def _import_sc(context, sc, bf_namelist, fds_namelist, texts):
@@ -28,8 +73,8 @@ def _import_ob(
     fds_namelist,
     hid,
     texts,
-    co_description="",
     set_tmp=False,
+    co_description=None,
 ):
     """!
     Import Object related namelist.
@@ -40,7 +85,7 @@ def _import_ob(
     else:
         co_name = f"New {bf_namelist.collection}"
         if co_description:
-            co_name += f" | From: <{co_description}>"
+            co_name += f" from <{co_description}>"
         co = bpy.data.collections.get(co_name)
         if co and not sc.user_of_id(co):  # not in current scene?
             co.name = f"{co_name}.001"  # rename existing
@@ -59,7 +104,7 @@ def _import_ob(
     # Fill it
     try:
         ob.from_fds(context, fds_namelist=fds_namelist)
-    except BFNotImported as err:
+    except BFNotImported as err:  # FIXME what's the exact role of BFNotImported and BFException?
         # Show error in Free Text
         texts.append(str(err))
         return False
@@ -82,22 +127,13 @@ def _import_ma(context, sc, fds_namelist, hid, texts):
 
 
 def import_by_fds_label(
-    context,
-    sc,
-    fds_list,
-    fds_label=None,
-    co_description="",
-    set_tmp=False,
+    context, sc, fds_list, fds_label=None, set_tmp=False, texts=(), filename=None
 ) -> str:
     """!
     Import all namelists with fds_label from fds_list into Scene.
     """
     # Scan fds_list for fds_label
-    texts = list()
-    while True:
-        fds_namelist = fds_list.get_by_fds_label(fds_label=fds_label, remove=True)
-        if not fds_namelist:
-            break
+    for fds_namelist in fds_list.get_fds_namelists(fds_label=fds_label, remove=True):
 
         # Manage found
         bf_namelist = BFNamelist.get_subclass(fds_label=fds_namelist.fds_label)
@@ -122,8 +158,8 @@ def import_by_fds_label(
                     fds_namelist=fds_namelist,
                     hid=hid,
                     texts=texts,
-                    co_description=co_description,
                     set_tmp=set_tmp,
+                    co_description=filename,
                 )
 
             elif bf_namelist.bpy_type == Material:
@@ -141,12 +177,3 @@ def import_by_fds_label(
         # Last resort, import to Free Text
         if not is_imported:
             texts.append(fds_namelist.to_string())
-
-    # Finally, write free text
-    if co_description:
-        header = f"-- From: <{co_description}>"
-    else:
-        header = f"-- From: <{sc.name}.fds>"
-    utils.ui.write_bl_text(
-        context, bl_text=sc.bf_config_text, header=header, texts=texts
-    )

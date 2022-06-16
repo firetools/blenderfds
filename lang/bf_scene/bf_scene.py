@@ -56,7 +56,6 @@ class BFScene:
         context,
         filepath=None,
         f90_namelists=None,
-        co_description="",
         set_tmp=False,
     ):
         """!
@@ -64,7 +63,6 @@ class BFScene:
         @param context: the Blender context.
         @param filepath: filepath of FDS case to be imported.
         @param f90_namelists: FDS formatted string of namelists, eg. "&OBST ID='Test' /\n&TAIL /".
-        @param co_description: Collection description string.
         @param set_tmp: set temporary Objects.
         """
         # Set mysef as the right Scene instance in the context
@@ -93,41 +91,32 @@ class BFScene:
         self.bf_config_text = utils.ui.show_bl_text(
             context=context,
             bl_text=self.bf_config_text,
-            name="New Text",
+            name="New Free Text",
         )
 
-        # Import by fds_label
-        fds_labels = (
-            "HEAD",
-            "MOVE",  # pre-load moves
-            "MULT",  # pre-load multiplicity
-            "MESH",  # create domain collection
-            "SURF",  # load SURFs
-            "CATF",  # load additional SURFs
-            "OBST",
-            "GEOM",
-            None,
+        # Import
+        texts = list()
+        filename = bpy.path.basename(filepath or "")
+        import_helper.sc_from_fds_list(
+            context,
+            sc=self,
+            fds_list=fds_list,
+            set_tmp=set_tmp,
+            texts=texts,
+            filename=filename,
         )
-        for fds_label in fds_labels:
-            import_helper.import_by_fds_label(
-                context=context,
-                sc=self,
-                fds_list=fds_list,
-                fds_label=fds_label,
-                co_description=co_description,
-                set_tmp=set_tmp,  # TODO or Scene var?
-            )
+
+        # Finally, write free text
+        header = None
+        if filepath:
+            header = f"-- From: <{filename}>"
+        utils.ui.write_bl_text(
+            context, bl_text=self.bf_config_text, header=header, texts=texts
+        )
 
         # Restore fds case dir, to avoid overwriting imported case
         if filepath:
             self.bf_config_directory = bf_config_directory
-
-        # Empty temporary Scene collections and states
-        # they get created in SN_MOVE, SN_MULT, SN_REAC
-        if "bf_move_coll" in self:
-            del self["bf_move_coll"]
-        if "bf_mult_coll" in self:
-            del self["bf_mult_coll"]
 
         return fds_namelist_qty  # feedback
 
