@@ -22,11 +22,7 @@ class SP_CATF_files(BFParam):
             value = (value,)
         for v in value:
             filepath = utils.io.transform_rfds_to_abs(context=context, filepath_rfds=v)
-            context.scene.from_fds(
-                context=context,
-                filepath=filepath,
-                co_description=v,  # collection description
-            )
+            context.scene.from_fds(context=context, filepath=filepath)
 
 
 class SN_CATF(BFNamelistSc):  # for importing only
