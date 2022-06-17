@@ -56,6 +56,7 @@ class BFScene:
         context,
         filepath=None,
         f90_namelists=None,
+        fds_list=None,
         set_tmp=False,
     ):
         """!
@@ -63,6 +64,7 @@ class BFScene:
         @param context: the Blender context.
         @param filepath: filepath of FDS case to be imported.
         @param f90_namelists: FDS formatted string of namelists, eg. "&OBST ID='Test' /\n&TAIL /".
+        @param fds_list: FDSList of FDSNamelists.
         @param set_tmp: set temporary Objects.
         """
         # Set mysef as the right Scene instance in the context
@@ -83,7 +85,13 @@ class BFScene:
             self.bf_config_directory = os.path.dirname(filepath)
 
         # Load fds case from f90_namelists
-        fds_list = FDSList(f90_namelists=f90_namelists)
+        if f90_namelists:
+            fds_list = FDSList(f90_namelists=f90_namelists)
+
+        # Load fds_case from fds_list (protect from None)
+        if not fds_list:
+            fds_list = FDSList()
+
         fds_namelist_qty = len(fds_list)
 
         # Prepare free text for unmanaged namelists, no rewind
