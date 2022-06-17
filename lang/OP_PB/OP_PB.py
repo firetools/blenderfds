@@ -59,7 +59,7 @@ class OP_PB(BFParam):
                     )
                 return FDSMulti(iterable=iterable, msgs=msgs)
 
-    def from_fds(self, context, value):
+    def set_value(self, context, value=None):
         bf_pb = pbs_to_ob(
             context=context,
             ob=self.element,

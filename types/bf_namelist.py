@@ -173,12 +173,11 @@ class BFNamelist(BFParam):
             bf_param = self._get_bf_param(fds_label=fds_param.fds_label)
             if not is_imported and bf_param:
                 try:
-                    bf_param.from_fds(
-                        context=context, value=fds_param.get_value()
-                    )
+                    bf_param.set_value(context=context, value=fds_param.get_value())
                 except BFNotImported as err:
                     utils.ui.write_bl_text(context, bl_text=context.scene.bf_config_text, header="-- Import error", texts=(str(err),))
                 else:
+                    bf_param.set_exported(context=context, value=True)
                     is_imported = True
 
             # Try bf_param_other

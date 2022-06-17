@@ -15,7 +15,7 @@ class SP_CATF_files(BFParam):
     fds_label = "OTHER_FILES"
     bpy_type = Scene
 
-    def from_fds(self, context, value):
+    def set_value(self, context, value=None):
         if not value:
             return
         if isinstance(value, str):

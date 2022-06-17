@@ -480,7 +480,7 @@ class OP_other_MULT_ID(BFParam):
     def get_exported(self, context):
         return False
 
-    def from_fds(self, context, value):
+    def set_value(self, context, value=None):
         # Get required MULT parameters from dict created by SN_MULT
         try:
             f90_params = context.scene["bf_mult_coll"][value]

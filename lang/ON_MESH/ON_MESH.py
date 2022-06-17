@@ -105,7 +105,7 @@ class OP_MESH_MPI_PROCESS(BFParam):  # only import
     def draw(self, context, layout):
         pass 
 
-    def from_fds(self, context, value):
+    def set_value(self, context, value=None):
         # Set the number of MPI processes from the FDS file
         sc = context.scene
         sc.bf_config_mpi_processes_export = True

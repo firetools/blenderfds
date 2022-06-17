@@ -106,6 +106,17 @@ class OP_other_MOVE_ID(BFParam):
     def get_value(self, context):
         return f"{self.element.name}_move"
 
+    def set_value(self, context, value=None):
+        # Get required MOVE parameters from dict created by SN_MOVE
+        try:
+            f90_params = context.scene["bf_move_coll"][value]
+        except KeyError as err:
+            raise BFNotImported(self, f"Missing MOVE ID='{value}'")
+        ON_MOVE(element=self.element).from_fds(
+            context=context,
+            fds_namelist=FDSNamelist(fds_label="MOVE", f90_params=f90_params),
+        )
+
     def get_active(self, context):  # set in namelists that use it (eg. ON_GEOM)
         return False
 
@@ -122,17 +133,6 @@ class OP_other_MOVE_ID(BFParam):
             )
         else:
             return FDSList()
-
-    def from_fds(self, context, value):
-        # Get required MOVE parameters from dict created by SN_MOVE
-        try:
-            f90_params = context.scene["bf_move_coll"][value]
-        except KeyError as err:
-            raise BFNotImported(self, f"Missing MOVE ID='{value}'")
-        ON_MOVE(element=self.element).from_fds(
-            context=context,
-            fds_namelist=FDSNamelist(fds_label="MOVE", f90_params=f90_params),
-        )
 
     def draw(self, context, layout):  # only label
         row = layout.split(factor=0.4)

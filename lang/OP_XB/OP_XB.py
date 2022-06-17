@@ -101,7 +101,7 @@ class OP_XB(BFParam):
                 )
                 return FDSMulti(iterable=iterable, msgs=msgs)
 
-    def from_fds(self, context, value):
+    def set_value(self, context, value=None):
         ob = self.element
         bf_xb = xbs_to_ob(
             context=context,
@@ -126,15 +126,6 @@ class OP_XB_BBOX(OP_XB):  # should always work, even without bf_xb_export and bf
         ob = self.element
         xb = utils.geometry.get_bbox_xb(context=context, ob=ob, world=True)
         return FDSParam(fds_label="XB", value=xb, precision=LP)
-
-    # def from_fds(self, context, value):
-    #     xbs_to_ob(
-    #         context=context,
-    #         ob=self.element,
-    #         xbs=(value,),
-    #         set_origin=True,
-    #         add=True,
-    #     )
 
     def draw(self, context, layout):  # draw label only
         row = layout.split(factor=0.4)

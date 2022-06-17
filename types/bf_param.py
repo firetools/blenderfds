@@ -371,13 +371,7 @@ class BFParam:
         return FDSList()
 
     def from_fds(self, context, value):
-        """!
-        Set self from py value, on error raise BFException.
-        @param context: the Blender context.
-        @param value: the value to set. Can be of any type.
-        """
-        self.set_value(context, value)
-        self.set_exported(context, True)
+        raise Exception("Removed, use set_value and set_exported.")
 
     def copy_to(self, context, dest_element):
         """!

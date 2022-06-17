@@ -61,7 +61,7 @@ class OP_XYZ(BFParam):
 
                 return FDSMulti(iterable=iterable, msgs=msgs)
 
-    def from_fds(self, context, value):
+    def set_value(self, context, value=None):
         bf_xyz = xyzs_to_ob(
             context=context,
             ob=self.element,

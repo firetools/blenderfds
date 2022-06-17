@@ -181,7 +181,7 @@ class MP_TRANSPARENCY(BFParam):  # no draw
 #     def draw_operators(self, context, layout):
 #         layout.operator("material.bf_choose_matl_id", icon="VIEWZOOM", text="")
 
-#     def from_fds(self, context, value):
+#     def set_value(self, context, value):
 #         if isinstance(value, str):
 #             return super().from_fds(context, value)
 #         else:
