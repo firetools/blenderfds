@@ -36,19 +36,6 @@ class BFMaterial:
         """
         return self.bf_namelist.to_fds_list(context)
 
-    def from_fds(self, context, fds_namelist):
-        """!
-        Set self.bf_namelist from FDSNamelist, on error raise BFException.
-        @param context: the Blender context.
-        @param fds_namelist: FDSNamelist.
-        """
-        # Get subclass from offered fds_label, set bf_namelist_cls
-        bf_namelist = BFNamelist.get_subclass(fds_label=fds_namelist.fds_label)
-        self.bf_namelist_cls = bf_namelist.__name__
-        # Import
-        self.bf_namelist.from_fds(context, fds_namelist=fds_namelist)
-        self.use_fake_user = True  # eg. used by CTRL
-
     @classmethod
     def register(cls):
         """!
@@ -57,7 +44,6 @@ class BFMaterial:
         """
         Material.bf_namelist = cls.bf_namelist
         Material.to_fds_list = cls.to_fds_list
-        Material.from_fds = cls.from_fds
 
     @classmethod
     def unregister(cls):
@@ -65,7 +51,6 @@ class BFMaterial:
         Unregister related Blender properties.
         @param cls: class to be unregistered.
         """
-        del Material.from_fds
         del Material.to_fds_list
         del Material.bf_namelist
 

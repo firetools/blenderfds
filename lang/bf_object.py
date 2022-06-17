@@ -52,20 +52,6 @@ class BFObject:
             bpy.ops.object.mode_set(mode="OBJECT")
         return self.bf_namelist.to_fds_list(context)
 
-    def from_fds(self, context, fds_namelist):
-        """!
-        Set self.bf_namelist from FDSNamelist, on error raise BFException.
-        @param context: the Blender context.
-        @param fds_namelist: FDSNamelist.
-        """
-        # Get subclass from offered fds_label, set bf_namelist_cls
-        bf_namelist = BFNamelist.get_subclass(fds_label=fds_namelist.fds_label)
-        self.bf_namelist_cls = bf_namelist.__name__
-        # Prevent default geometry (eg. XB=BBOX)
-        self.bf_xb_export, self.bf_xyz_export, self.bf_pb_export = (False, False, False)
-        # Import
-        self.bf_namelist.from_fds(context, fds_namelist=fds_namelist)
-
     @classmethod
     def register(cls):
         """!
@@ -74,7 +60,6 @@ class BFObject:
         """
         Object.bf_namelist = cls.bf_namelist
         Object.to_fds_list = cls.to_fds_list
-        Object.from_fds = cls.from_fds
         Object.get_layer_collection = cls.get_layer_collection
 
     @classmethod
@@ -84,7 +69,6 @@ class BFObject:
         @param cls: class to be unregistered.
         """
         del Object.get_layer_collection
-        del Object.from_fds
         del Object.to_fds_list
         del Object.bf_namelist
 
