@@ -134,10 +134,11 @@ def _import_to_ob(
             co = sc.collection
         else:
             if filename:
-                co_name = f"New {bf_namelist.collection} from <{filename}>"
+                # prevent long filenames
+                co_name = f"New {bf_namelist.collection} from <{filename}>"[:56]
             else:
-                co_name = f"New {bf_namelist.collection}"
-            co = bpy.data.collections.get(co_name[:56])  # max len
+                co_name = f"New {bf_namelist.collection}"[:56]
+            co = bpy.data.collections.get(co_name)  # max len
             if co and not sc.user_of_id(co):  # not in current scene?
                 co.name = f"{co_name}.001"  # rename existing
                 co = None  # not the right one
@@ -148,8 +149,8 @@ def _import_to_ob(
         # Create the new Object
         ob = utils.geometry.get_new_object(context=context, name=hid, co=co)
 
-        # Set it tmp
-        if set_tmp:  # tmp geometry
+        # Set it tmp geometry
+        if set_tmp:
             utils.geometry.set_is_tmp(context=context, ob=ob)
 
         # Fill it
