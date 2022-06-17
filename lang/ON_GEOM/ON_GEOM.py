@@ -222,6 +222,7 @@ class ON_GEOM(BFNamelistOb):
         OP_GEOM_EXTEND_TERRAIN,
         OP_other,
     )
+    bf_import_order = 200
 
     def draw_operators(self, context, layout):
         col = layout.column(align=True)

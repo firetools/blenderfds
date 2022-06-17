@@ -34,6 +34,7 @@ class MN_SURF(BFNamelistMa):
         MP_TRANSPARENCY,
         MP_other,
     )
+    bf_import_order = 40
 
     def get_exported(self, context):  # was in MP_namelist_cls
         if self.element.name in config.DEFAULT_MAS:

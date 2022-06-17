@@ -17,6 +17,7 @@ class SN_MULT(BFNamelistSc):
     description = "Multiplier transformations"
     enum_id = False  # No bf_namelist_cls menu
     fds_label = "MULT"
+    bf_import_order = 20
 
     def get_exported(self, context):  # No automatic export
         return False

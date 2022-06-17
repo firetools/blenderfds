@@ -132,6 +132,7 @@ class ON_MESH(BFNamelistOb):
         OP_other,
     )
     bf_other = {"appearance": "BBOX"}
+    bf_import_order = 30
 
     def draw_operators(self, context, layout):
         col = layout.column(align=True)

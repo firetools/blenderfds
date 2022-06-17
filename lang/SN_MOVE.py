@@ -17,6 +17,7 @@ class SN_MOVE(BFNamelistSc):
     description = "Geometric transformations"
     enum_id = False  # no bf_namelist_cls menu
     fds_label = "MOVE"
+    bf_import_order = 10
 
     def get_exported(self, context):  # No automatic export
         return False

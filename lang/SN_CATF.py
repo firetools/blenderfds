@@ -30,6 +30,7 @@ class SN_CATF(BFNamelistSc):  # for importing only
     description = "Concatenated file paths"
     fds_label = "CATF"
     bf_params = (SP_CATF_files,)
+    bf_import_order = 50
 
     def get_exported(self, context):
         return False

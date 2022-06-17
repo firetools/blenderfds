@@ -49,6 +49,8 @@ class BFParam:
     bpy_export = None
     ## default value for export toggle Blender property
     bpy_export_default = None
+    ## import order index from 0 to 1E5
+    bf_import_order = 9000
 
     ## List of subclassess
     subclasses = list()

@@ -41,6 +41,7 @@ class SN_HEAD(BFNamelistSc):
     bpy_export = "bf_head_export"
     bpy_export_default = True
     bf_params = SP_HEAD_CHID, SP_HEAD_TITLE
+    bf_import_order = 0  # first imported
 
 
 class SN_TAIL(BFNamelistSc):  # importing only, prevent free_text
@@ -48,6 +49,7 @@ class SN_TAIL(BFNamelistSc):  # importing only, prevent free_text
     description = "Case closing"
     enum_id = 3010  # to avoid TAIL import into free_text
     fds_label = "TAIL"
+    bf_import_order = 1E5  # last imported
 
     def get_exported(self, context):
         return False
