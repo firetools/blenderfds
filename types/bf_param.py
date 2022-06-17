@@ -370,9 +370,6 @@ class BFParam:
             )
         return FDSList()
 
-    def from_fds(self, context, value):
-        raise Exception("Removed, use set_value and set_exported.")
-
     def copy_to(self, context, dest_element):
         """!
         Copy self values to destination element.

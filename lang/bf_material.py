@@ -183,7 +183,7 @@ class MP_TRANSPARENCY(BFParam):  # no draw
 
 #     def set_value(self, context, value):
 #         if isinstance(value, str):
-#             return super().from_fds(context, value)
+#             return super().set_value(context, value)
 #         else:
 #             raise BFNotImported(self, "Material list not handled")
 
