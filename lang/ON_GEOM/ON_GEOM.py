@@ -230,7 +230,7 @@ class ON_GEOM(BFNamelistOb):
         col.operator("object.bf_geom_check_sanity")
         col.operator("object.bf_geom_check_intersections")
 
-    def from_fds(self, context, fds_namelist):
+    def from_fds_list(self, context, fds_list):
         # Read fds_params
         ps = {  # label: default value
             # Traditional
@@ -259,13 +259,13 @@ class ON_GEOM(BFNamelistOb):
             "ZVALS": None,
         }
         for fds_label in ps:
-            fds_param = fds_namelist.get_fds_param(fds_label=fds_label, remove=True)
+            fds_param = fds_list.get_fds_param(fds_label=fds_label, remove=True)
             if fds_param:
                 ps[fds_label] = fds_param.get_value()  # assign value
         # Read SURF_ID params, to prepare Material slots
-        super().from_fds(context, fds_namelist=fds_namelist, fds_label="SURF_ID")
-        super().from_fds(context, fds_namelist=fds_namelist, fds_label="SURF_IDS")
-        super().from_fds(context, fds_namelist=fds_namelist, fds_label="SURF_ID6")
+        super().from_fds_list(context, fds_list=fds_list, fds_label="SURF_ID")
+        super().from_fds_list(context, fds_list=fds_list, fds_label="SURF_IDS")
+        super().from_fds_list(context, fds_list=fds_list, fds_label="SURF_ID6")
         # Treat alternative geometries
         if ps["VERTS"] and ps["FACES"]:
             geom_to_mesh(
@@ -304,4 +304,4 @@ class ON_GEOM(BFNamelistOb):
         elif ps["ZVALS"] is not None:
             raise BFNotImported(self, "ZVALS not implemented")
         # Read all other remaining params (eg. BINARY_FILE, MOVE_ID)
-        super().from_fds(context, fds_namelist=fds_namelist)
+        super().from_fds_list(context, fds_list=fds_list)

@@ -22,17 +22,17 @@ class SN_MULT(BFNamelistSc):
     def get_exported(self, context):  # No automatic export
         return False
 
-    def from_fds(self, context, fds_namelist):
+    def from_fds_list(self, context, fds_list):
         # Get ID
-        fds_param = fds_namelist.get_fds_param(fds_label="ID", remove=True)
+        fds_param = fds_list.get_fds_param(fds_label="ID", remove=True)
         if not fds_param:
-            raise BFNotImported(self, f"Missing ID in: {fds_namelist}")
+            raise BFNotImported(self, f"Missing ID in: {fds_list}")
 
         # Prepare Scene dict
         if "bf_mult_coll" not in context.scene:
             context.scene["bf_mult_coll"] = dict()
         bf_mult_coll = context.scene["bf_mult_coll"]
-        
+
         # Set Scene dict by ID, eg. {"ob_mult": "A=3 B=4 C=5"}
-        f90_params = " ".join((item.to_string() for item in fds_namelist))
+        f90_params = " ".join((item.to_string() for item in fds_list))
         bf_mult_coll[fds_param.get_value()] = f90_params

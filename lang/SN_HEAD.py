@@ -49,10 +49,10 @@ class SN_TAIL(BFNamelistSc):  # importing only, prevent free_text
     description = "Case closing"
     enum_id = 3010  # to avoid TAIL import into free_text
     fds_label = "TAIL"
-    bf_import_order = 1E5  # last imported
+    bf_import_order = 1e5  # last imported
 
     def get_exported(self, context):
         return False
 
-    def from_fds(self, context, fds_namelist):
+    def from_fds_list(self, context, fds_list):
         pass

@@ -4,7 +4,7 @@ import logging
 from bpy.types import Object
 from bpy.props import FloatProperty, IntProperty, FloatVectorProperty, BoolProperty
 from ...config import LP
-from ...types import BFNamelist, BFParam, BFNotImported, FDSList, FDSNamelist
+from ...types import BFNamelist, BFParam, BFNotImported, FDSList
 from ... import utils
 
 
@@ -486,7 +486,7 @@ class OP_other_MULT_ID(BFParam):
             f90_params = context.scene["bf_mult_coll"][value]
         except KeyError as err:
             raise BFNotImported(self, f"Missing MULT ID='{value}'")
-        ON_MULT(element=self.element).from_fds(
+        ON_MULT(element=self.element).from_fds_list(
             context=context,
-            fds_namelist=FDSNamelist(fds_label="MULT", f90_params=f90_params),
+            fds_list=FDSList(f90_params=f90_params),
         )

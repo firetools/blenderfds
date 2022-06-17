@@ -159,14 +159,14 @@ class BFNamelist(BFParam):
             )
         return FDSList()
 
-    def from_fds(self, context, fds_namelist, fds_label=None):
+    def from_fds_list(self, context, fds_list, fds_label=None):
         """!
         Set self.bf_params value, on error raise BFException.
         @param context: the Blender context.
-        @param fds_namelist: instance of type FDSNamelist.
+        @param fds_list: instance of type FDSList, that contains BFParam instances.
         @param fds_label: if set, import only self.bf_params with fds_label
         """
-        for fds_param in fds_namelist.get_fds_params(fds_label=fds_label, remove=True):
+        for fds_param in fds_list.get_fds_params(fds_label=fds_label, remove=True):
             is_imported = False
 
             # Try managed bf_param

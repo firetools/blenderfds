@@ -52,7 +52,7 @@ class ON_MOVE(BFNamelist):  # not in namelist menu
         OP_MOVE_T34,
     )
 
-    def from_fds(self, context, fds_namelist, fds_label=None):
+    def from_fds_list(self, context, fds_list, fds_label=None):
         # Read fds_params
         ps = {  # label: default value
             "T34": None,
@@ -70,7 +70,7 @@ class ON_MOVE(BFNamelist):  # not in namelist menu
             "DZ": 0.0,
         }
         for fds_label in ps:
-            fds_param = fds_namelist.get_fds_param(fds_label=fds_label, remove=True)
+            fds_param = fds_list.get_fds_param(fds_label=fds_label, remove=True)
             if fds_param:
                 ps[fds_label] = fds_param.get_value()  # assign value
         m = calc_bl_matrix(
@@ -112,9 +112,9 @@ class OP_other_MOVE_ID(BFParam):
             f90_params = context.scene["bf_move_coll"][value]
         except KeyError as err:
             raise BFNotImported(self, f"Missing MOVE ID='{value}'")
-        ON_MOVE(element=self.element).from_fds(
+        ON_MOVE(element=self.element).from_fds_list(
             context=context,
-            fds_namelist=FDSNamelist(fds_label="MOVE", f90_params=f90_params),
+            fds_list=FDSList(f90_params=f90_params),
         )
 
     def get_active(self, context):  # set in namelists that use it (eg. ON_GEOM)

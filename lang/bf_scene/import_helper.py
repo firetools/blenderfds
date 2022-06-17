@@ -115,7 +115,9 @@ def _import_to_sc(context, sc, bf_namelist, fds_namelists, texts):
     """Import Scene related fds_namelists."""
     for fds_namelist in fds_namelists:
         try:
-            bf_namelist(element=sc).from_fds(context=context, fds_namelist=fds_namelist)
+            bf_namelist(element=sc).from_fds_list(
+                context=context, fds_list=fds_namelist
+            )
         except BFNotImported as err:
             texts.append(fds_namelist.to_string())
         except Exception as err:
@@ -156,7 +158,9 @@ def _import_to_ob(
         # Fill it
         ob.bf_namelist_cls = bf_namelist.__name__
         try:
-            bf_namelist(element=ob).from_fds(context=context, fds_namelist=fds_namelist)
+            bf_namelist(element=ob).from_fds_list(
+                context=context, fds_list=fds_namelist
+            )
         except BFNotImported as err:
             texts.append(fds_namelist.to_string())
         except Exception as err:
@@ -171,7 +175,9 @@ def _import_to_ma(context, sc, bf_namelist, fds_namelists, hid, texts):
         ma.bf_namelist_cls = bf_namelist.__name__
         ma.use_fake_user = True  # eg. used by CTRL
         try:
-            bf_namelist(element=ma).from_fds(context=context, fds_namelist=fds_namelist)
+            bf_namelist(element=ma).from_fds_list(
+                context=context, fds_list=fds_namelist
+            )
         except BFNotImported as err:
             texts.append(fds_namelist.to_string())
         except Exception as err:
