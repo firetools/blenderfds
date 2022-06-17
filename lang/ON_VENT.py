@@ -74,3 +74,4 @@ class ON_VENT(BFNamelistOb):
         OP_TRANSPARENCY_override,
         OP_other,
     )
+    bf_import_order = 300
