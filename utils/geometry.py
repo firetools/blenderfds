@@ -38,6 +38,23 @@ def get_sc_collections(context, sc):
 # Working on Blender objects
 
 
+def get_exported_obs(context, obs):
+    """!
+    Get generator of all exported Objects in context.
+    @param context: the Blender Context.
+    @param obs: the pool of Blender Objects to examine (eg. sc.objects)
+    @return generator of exported Objects
+    """
+    return (
+        ob
+        for ob in context.scene.objects
+        if ob.type == "MESH"  # no lights, cameras, ...
+        and not ob.hide_render  # Object is exported
+        and not ob.get_layer_collection(context).exclude  # visible in the View Layer
+        and not ob.bf_is_tmp  # not tmp geometry
+    )
+
+
 def get_object_bmesh(
     context, ob, matrix=None, world=True, triangulate=False, lookup=False
 ):

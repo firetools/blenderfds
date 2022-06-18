@@ -43,24 +43,11 @@ def _get_free_text(context):
     return FDSList(header=header, msg=msg)
 
 
-def _get_exported_obs(context):
-    """!
-    Get generator of all exported Objects in context.
-    """
-    return (
-        ob
-        for ob in context.scene.objects
-        if not ob.hide_render  # exported
-        and not ob.get_layer_collection(context).exclude  # visible in the View Layer
-        and not ob.bf_is_tmp  # not tmp
-    )
-
-
 def _get_domain(context):
     sc = context.scene
 
-    # Get exported MESHes and sort them by name
-    obs = _get_exported_obs(context)
+    # Get all exported MESHes and sort them by name
+    obs = utils.geometry.get_exported_obs(context, obs=context.scene.objects)
     mesh_obs = list((ob for ob in obs if ob.bf_namelist_cls == "ON_MESH"))
     mesh_obs.sort(key=lambda k: k.name)
 

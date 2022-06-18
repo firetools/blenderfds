@@ -2,7 +2,6 @@
 
 import logging
 
-from numpy import iterable
 from bpy.types import Collection
 from ..types import FDSList
 
@@ -37,7 +36,7 @@ class BFCollection:
         """
         layer_collection = self.get_layer_collection(context)
         if self.hide_render or layer_collection.exclude:
-            return FDSList()  # exclude from exporting
+            return FDSList()  # exclude self from exporting
         header = f"\n-- Blender Collection: <{self.name}>"
         if full:
             # MESH are centrally managed and exported by bf_scene
