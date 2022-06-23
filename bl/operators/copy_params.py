@@ -45,6 +45,11 @@ class SCENE_OT_bf_copy_props_to_scene(Operator):
         row = layout.row()
         row.prop_search(self, "bf_dest_element", bpy.data, "scenes", text="Scene")
 
+    def invoke(self, context, event):
+        # Call dialog
+        wm = context.window_manager
+        return wm.invoke_props_dialog(self)
+
     def execute(self, context):
         # Get source and dest scenes
         source_element = context.scene
@@ -62,11 +67,6 @@ class SCENE_OT_bf_copy_props_to_scene(Operator):
         _bf_props_copy(context, source_element, dest_elements)
         self.report({"INFO"}, f"Copied to destination Scene <{dest_elements[0].name}>")
         return {"FINISHED"}
-
-    def invoke(self, context, event):
-        # Call dialog
-        wm = context.window_manager
-        return wm.invoke_props_dialog(self)
 
 
 class OBJECT_OT_bf_copy_FDS_properties_to_sel_obs(Operator):
