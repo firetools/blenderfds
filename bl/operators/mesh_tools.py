@@ -132,7 +132,7 @@ class OBJECT_OT_bf_set_suggested_mesh_cell_size(Operator):
             )
         texts = (
             f"According to the NUREG 1824, US NRC (2007), given the max HRR: {self.bf_max_hrr:.{HRR_P}f} kW,",
-            f"density: {self.bf_density:-{DENSITY_P}f} kg/m³, Cp: {self.bf_cp:.{HEAT_CAPACITY_P}f} KJ/(kg·K), temperature: {self.bf_t:.{TEMP_P}f}°C, gravity: {self.bf_g:.{GRAVITY_P}f} m/s²,",
+            f"density: {self.bf_density:.{DENSITY_P}f} kg/m³, Cp: {self.bf_cp:.{HEAT_CAPACITY_P}f} KJ/(kg·K), temperature: {self.bf_t:.{TEMP_P}f}°C, gravity: {self.bf_g:.{GRAVITY_P}f} m/s²,",
             f"then the characteristic fire diameter D* is calculated as: {d_star:.{LP}f} m",
             f"and the cell size range for D*/dx ratio between 4 and 16 is: {d_star_16:.{LP}f} ÷ {d_star_4:.{LP}f} m",
         )
