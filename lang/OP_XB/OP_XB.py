@@ -6,7 +6,6 @@ from bpy.props import EnumProperty, BoolProperty, FloatProperty
 from ...config import LP
 from ...types import BFParam, FDSParam, FDSList, FDSMulti
 from ... import utils
-from ..ON_MULT import OP_other_MULT_ID, multiply_xbs
 from .ob_to_xbs import ob_to_xbs
 from .xbs_to_ob import xbs_to_ob
 

@@ -29,7 +29,7 @@ class BFException(Exception):
                 name = f"{element.name}: {sender.fds_label or sender.label or sender.__class__.__name__}"
             else:
                 name = getattr(sender, "name", None) or sender.__class__.__name__
-            return f"ERR: {name}: {self.msg}"
+            return f"ERROR: {name}: {self.msg}"
         else:
             return self.msg
 
