@@ -37,7 +37,7 @@ from .calc_meshes import get_n_for_poisson
 #  |       |       |
 
 
-def _align_along_axis(ri, rx0, rx1, mi, mx0, mx1, poisson=False, protect_rl=False):
+def _align_along_axis(ri, rx0, rx1, mi, mx0, mx1, poisson, protect_rxb, protect_rcs):
     """!Align coarse MESH to fixed ref MESH along an axis."""
     # Init
     if rx0 >= rx1 or mx0 >= mx1:
@@ -48,7 +48,7 @@ def _align_along_axis(ri, rx0, rx1, mi, mx0, mx1, poisson=False, protect_rl=Fals
     # Coarsening ratio
     if mcs / rcs < 0.501:  # same or coarser allowed, protect from float err
         raise BFException(
-            None, f"Destination MESHes should be coarser than source: {mcs} > {rcs}"
+            None, f"Aligned MESH should be coarser than reference: {mcs} > {rcs}"
         )
     n = round(mcs / rcs)
 
@@ -58,15 +58,19 @@ def _align_along_axis(ri, rx0, rx1, mi, mx0, mx1, poisson=False, protect_rl=Fals
     if poisson:
         rim = get_n_for_poisson(rim)
     msg = None
-    if protect_rl:  # protect ref length
-        if ri != rim:
+    if abs(ri - rim) > 0.00001:  # not multiple!
+        if protect_rcs:
+            if protect_rxb:
+                raise BFException(
+                    None, "Alignment impossible, allow resizing reference."
+                )
+            else:
+                rl = rcs * rim  # extend ref length due to updated ri
+                rx1 = rx0 + rl
+                msg = "increased ref size"
+        else:
             rcs = rl / rim  # reduce ref cell size
             msg = "decreased ref cell size"
-    else:
-        if ri != rim:
-            rl = rcs * rim  # extend ref length due to updated ri
-            rx1 = rx0 + rl
-            msg = "increased ref size"
 
     # Calc new coarse cell size from ref cell size
     mcs = rcs * n
@@ -85,7 +89,7 @@ def _align_along_axis(ri, rx0, rx1, mi, mx0, mx1, poisson=False, protect_rl=Fals
     return rim, rx0, rx1, mi, mx0, mx1, msg
 
 
-def _align_along_x(rijk, rxb, mijk, mxb, poisson=False, protect_rl=False):
+def _align_along_x(rijk, rxb, mijk, mxb, poisson, protect_rxb, protect_rcs):
     """!Align coarse MESH to fixed ref MESH along axis x."""
     rijk[0], rxb[0], rxb[1], mijk[0], mxb[0], mxb[1], msg = _align_along_axis(
         ri=rijk[0],
@@ -95,12 +99,13 @@ def _align_along_x(rijk, rxb, mijk, mxb, poisson=False, protect_rl=False):
         mx0=mxb[0],
         mx1=mxb[1],
         poisson=False,  # not needed along x
-        protect_rl=protect_rl,
+        protect_rxb=protect_rxb,
+        protect_rcs=protect_rcs,
     )
     return msg and f"{msg} along x axis"
 
 
-def _align_along_y(rijk, rxb, mijk, mxb, poisson=False, protect_rl=False):
+def _align_along_y(rijk, rxb, mijk, mxb, poisson, protect_rxb, protect_rcs):
     """!Align coarse MESH to fixed ref MESH along axis y."""
     rijk[1], rxb[2], rxb[3], mijk[1], mxb[2], mxb[3], msg = _align_along_axis(
         ri=rijk[1],
@@ -110,12 +115,13 @@ def _align_along_y(rijk, rxb, mijk, mxb, poisson=False, protect_rl=False):
         mx0=mxb[2],
         mx1=mxb[3],
         poisson=poisson,  # needed along y
-        protect_rl=protect_rl,
+        protect_rxb=protect_rxb,
+        protect_rcs=protect_rcs,
     )
     return msg and f"{msg} along y axis"
 
 
-def _align_along_z(rijk, rxb, mijk, mxb, poisson=False, protect_rl=False):
+def _align_along_z(rijk, rxb, mijk, mxb, poisson, protect_rxb, protect_rcs):
     """!Align coarse MESH to fixed ref MESH along axis z."""
     rijk[2], rxb[4], rxb[5], mijk[2], mxb[4], mxb[5], msg = _align_along_axis(
         ri=rijk[2],
@@ -125,7 +131,8 @@ def _align_along_z(rijk, rxb, mijk, mxb, poisson=False, protect_rl=False):
         mx0=mxb[4],
         mx1=mxb[5],
         poisson=poisson,  # needed along z
-        protect_rl=protect_rl,
+        protect_rxb=protect_rxb,
+        protect_rcs=protect_rcs,
     )
     return msg and f"{msg} along z axis"
 
@@ -147,7 +154,9 @@ def _is_far(rxb, mxb, deltas):
     )
 
 
-def align_meshes(rijk, rxb, mijk, mxb, poisson=False, protect_rl=False):
+def align_meshes(
+    rijk, rxb, mijk, mxb, poisson=False, protect_rxb=True, protect_rcs=True
+):
     """!
     Function to align meshes.
     @param rijk:  ijk of the ref mesh.
@@ -155,7 +164,8 @@ def align_meshes(rijk, rxb, mijk, mxb, poisson=False, protect_rl=False):
     @param mijk: ijk of the other mesh.
     @param mxb: xbs of the other mesh.
     @param poisson: True for respecting the Poisson constraint.
-    @param protect_rl: True to protect ref length.
+    @param protect_rxb: True to protect ref xb.
+    @param protect_rcs: True to protect ref cell size.
     @return return new rijk, rxb, mijk and mxb.
     """
     # Init
@@ -177,38 +187,38 @@ def align_meshes(rijk, rxb, mijk, mxb, poisson=False, protect_rl=False):
     # If mesh sides are close, then snap them
     # otherwise align their meshes
     if abs(rxb[0] - mxb[1]) <= deltas[0]:  # -x close?
-        msgs.append(f"ref x0 snapped")
+        # msgs.append(f"ref x0 snapped")
         mxb[1] = rxb[0]
     elif abs(mxb[0] - rxb[1]) <= deltas[0]:  # +x close?
-        msgs.append(f"ref x1 snapped")
+        # msgs.append(f"ref x1 snapped")
         mxb[0] = rxb[1]
     else:
-        msg = _align_along_x(rijk, rxb, mijk, mxb, poisson, protect_rl)
+        msg = _align_along_x(rijk, rxb, mijk, mxb, poisson, protect_rxb, protect_rcs)
         msgs.append(msg)
-        msgs.append("x axis aligned")
+        # msgs.append("x axis aligned")
     if abs(rxb[2] - mxb[3]) <= deltas[1]:  # -y close?
-        msgs.append(f"ref y0 snapped")
+        # msgs.append(f"ref y0 snapped")
         mxb[3] = rxb[2]
     elif abs(mxb[2] - rxb[3]) <= deltas[1]:  # +y close?
-        msgs.append(f"ref y1 snapped")
+        # msgs.append(f"ref y1 snapped")
         mxb[2] = rxb[3]
     else:
-        msg = _align_along_y(rijk, rxb, mijk, mxb, poisson, protect_rl)
+        msg = _align_along_y(rijk, rxb, mijk, mxb, poisson, protect_rxb, protect_rcs)
         msgs.append(msg)
-        msgs.append("y axis aligned")
+        # msgs.append("y axis aligned")
     if abs(rxb[4] - mxb[5]) <= deltas[2]:  # -z close?
-        msgs.append(f"ref z0 aligned")
+        # msgs.append(f"ref z0 aligned")
         mxb[5] = rxb[4]
     elif abs(mxb[4] - rxb[5]) <= deltas[2]:  # +z close?
-        msgs.append(f"ref z1 snapped")
+        # msgs.append(f"ref z1 snapped")
         mxb[4] = rxb[5]
     else:
-        msg = _align_along_z(rijk, rxb, mijk, mxb, poisson, protect_rl)
+        msg = _align_along_z(rijk, rxb, mijk, mxb, poisson, protect_rxb, protect_rcs)
         msgs.append(msg)
-        msgs.append("z axis aligned")
+        # msgs.append("z axis aligned")
 
     # Set msg
-    msg = ", ".join(m for m in msgs if m) + "."
+    msg = ", ".join(m for m in msgs if m)
     return rijk, rxb, mijk, mxb, msg
 
 
@@ -219,7 +229,7 @@ def test():
         mijk=[9, 38, 20],
         mxb=[0.0, 5.0, 0.0, 5.0, 5.01, 10.0],
         poisson=True,
-        protect_rl=True,
+        protect_rxb=True,
     )
     assert rijk == [16, 40, 51]
     assert rxb == [0.0, 5.0, 0.0, 5.0, 0.0, 5.0]

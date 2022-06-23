@@ -138,4 +138,5 @@ class ON_MESH(BFNamelistOb):
         col = layout.column(align=True)
         col.operator("object.bf_set_suggested_mesh_cell_size")
         col.operator("object.bf_set_mesh_cell_size")
-        col.operator("object.bf_align_selected_meshes")
+        # col.operator("object.bf_align_selected_meshes")  # FIXME rm
+        col.operator("object.bf_align_to_mesh")

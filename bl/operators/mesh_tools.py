@@ -7,7 +7,13 @@ BlenderFDS, operators for the MESH namelist.
 from math import sqrt
 import logging, bpy
 from bpy.types import Operator
-from bpy.props import BoolProperty, FloatVectorProperty, FloatProperty, IntProperty
+from bpy.props import (
+    BoolProperty,
+    FloatVectorProperty,
+    FloatProperty,
+    IntProperty,
+    EnumProperty,
+)
 from ...config import DENSITY_P, GRAVITY_P, HEAT_CAPACITY_P, LP, HRR_P, TEMP_P
 from ... import utils, lang
 from ...types import BFException
@@ -51,8 +57,8 @@ class OBJECT_OT_bf_set_suggested_mesh_cell_size(Operator):
 
     bf_poisson_restriction: BoolProperty(
         name="Poisson Restriction",
-        description="Respect FDS Poisson solver restriction on IJK value while setting desired cell sizes.",
-        default=True,
+        description="Respect FDS Poisson solver restriction on the IJK value.",
+        default=False,
     )
 
     bf_density: FloatProperty(
@@ -168,7 +174,7 @@ class OBJECT_OT_bf_set_mesh_cell_size(Operator):
     )
     bf_poisson_restriction: BoolProperty(
         name="Poisson Restriction",
-        description="Respect FDS Poisson solver restriction on IJK value while setting desired cell sizes.",
+        description="Respect FDS Poisson solver restriction on the IJK value.",
         default=True,
     )
 
@@ -201,6 +207,121 @@ class OBJECT_OT_bf_set_mesh_cell_size(Operator):
         return {"FINISHED"}
 
 
+def _get_mesh_items(self, context):
+    obs = utils.geometry.get_exported_obs(context, obs=context.scene.objects)
+    sel_ob = context.object
+    items = list(
+        (ob.name, ob.name, "")
+        for ob in obs
+        if ob.bf_namelist_cls == "ON_MESH" and ob != sel_ob
+    )
+    items.sort(key=lambda k: k[0])
+    return items
+
+
+class OBJECT_OT_bf_align_to_mesh(Operator):
+    bl_label = "Align To"
+    bl_idname = "object.bf_align_to_mesh"
+    bl_description = "Align current to a reference MESH"
+    bl_options = {"REGISTER", "UNDO"}
+
+    bf_dest_element: EnumProperty(
+        name="Reference MESH",
+        description="Reference MESH",
+        items=_get_mesh_items,  # Updating function
+    )
+
+    bf_protect_ref_xb: BoolProperty(
+        name="Protect Ref XB",
+        description="Protect reference MESH size.",
+        default=True,
+    )
+
+    bf_protect_ref_cs: BoolProperty(
+        name="Protect Ref Cell Size",
+        description="Protect reference cell size.",
+        default=True,
+    )
+
+    bf_poisson_restriction: BoolProperty(
+        name="Poisson Restriction",
+        description="Respect FDS Poisson solver restriction on the IJK value.",
+        default=False,
+    )
+
+    @classmethod
+    def poll(cls, context):
+        ob = context.object
+        return ob and ob.bf_namelist_cls == "ON_MESH"
+
+    def invoke(self, context, event):
+        # Call dialog
+        wm = context.window_manager
+        return wm.invoke_props_dialog(self)
+
+    def execute(self, context):
+        bpy.ops.object.mode_set(mode="OBJECT")
+
+        # Get source and destination objects
+        source_element = context.object
+        dest_element = context.scene.objects.get(self.bf_dest_element, None)
+
+        if source_element == dest_element:
+            self.report({"WARNING"}, "Reference MESH same as currently selected MESH")
+            return {"CANCELLED"}
+        if not dest_element:
+            self.report({"ERROR"}, "No reference MESH selected")
+            return {"CANCELLED"}
+
+        # Align
+        rijk = dest_element.bf_mesh_ijk  # ref ijk
+        rxb = utils.geometry.get_bbox_xb(context, ob=dest_element, world=True)
+        mijk = source_element.bf_mesh_ijk
+        mxb = utils.geometry.get_bbox_xb(context, ob=source_element, world=True)
+        try:
+            rijk, rxb, mijk, mxb, msg = lang.ON_MESH.align_meshes(
+                rijk,
+                rxb,
+                mijk,
+                mxb,
+                poisson=self.bf_poisson_restriction,
+                protect_rxb=self.bf_protect_ref_xb,
+                protect_rcs=self.bf_protect_ref_cs,
+            )
+        except BFException as err:
+            self.report({"ERROR"}, str(err))
+            return {"CANCELLED"}
+
+        # Set reference MESH (dest_element)
+        dest_element.bf_mesh_ijk = rijk
+        if dest_element.data.users > 1:  # only local change
+            dest_element.data = bpy.data.meshes.new(dest_element.data.name)
+        lang.OP_XB.xbs_to_ob(
+            context=context,
+            ob=dest_element,
+            xbs=(rxb,),
+            bf_xb="BBOX",
+        )
+
+        # Set aligned MESH (source_element)
+        source_element.bf_mesh_ijk = mijk
+        if source_element.data.users > 1:  # only local change
+            source_element.data = bpy.data.meshes.new(source_element.data.name)
+        lang.OP_XB.xbs_to_ob(
+            context=context,
+            ob=source_element,
+            xbs=(mxb,),
+            bf_xb="BBOX",
+        )
+        log.debug(f"<{source_element.name}> to <{dest_element.name}>: {msg}")
+
+        # Update 3dview
+        context.view_layer.update()
+        self.report({"INFO"}, msg and f"Aligned: {msg}." or "Aligned.")
+        return {"FINISHED"}
+
+
+# currently used only for testing FIXME rm and update test
 class OBJECT_OT_bf_align_selected_meshes(Operator):
     bl_label = "Align Selected"
     bl_idname = "object.bf_align_selected_meshes"
@@ -243,7 +364,7 @@ class OBJECT_OT_bf_align_selected_meshes(Operator):
             mxb = utils.geometry.get_bbox_xb(context, ob=de, world=True)
             try:
                 rijk, rxb, mijk, mxb, msg = lang.ON_MESH.align_meshes(
-                    rijk, rxb, mijk, mxb, poisson=False, protect_rl=False
+                    rijk, rxb, mijk, mxb, poisson=False, protect_rxb=False
                 )
             except BFException as err:
                 self.report({"ERROR"}, str(err))
@@ -287,6 +408,7 @@ bl_classes = [
     OBJECT_OT_bf_set_suggested_mesh_cell_size,
     OBJECT_OT_bf_set_mesh_cell_size,
     OBJECT_OT_bf_align_selected_meshes,
+    OBJECT_OT_bf_align_to_mesh,
 ]
 
 
