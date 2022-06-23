@@ -5,7 +5,7 @@ BlenderFDS, Blender list of FDS namelists or parameters.
 """
 
 import re, logging
-from ..config import MAXLEN, INDENT
+from ..config import DEFAULT_P, MAXLEN, INDENT
 from ..utils.text import append_word
 from .bf_exception import BFException
 
@@ -383,7 +383,7 @@ class FDSParam(FDSList):
     List representing an FDS parameter.
     """
 
-    def __init__(self, fds_label, iterable=(), value=None, f90_value=None, precision=3, exponential=False, msgs=(), msg=None) -> None:
+    def __init__(self, fds_label, iterable=(), value=None, f90_value=None, precision=DEFAULT_P, exponential=False, msgs=(), msg=None) -> None:
         """!
         Class constructor.
         @param fds_label: namelist parameter label.

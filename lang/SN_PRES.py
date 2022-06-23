@@ -3,6 +3,7 @@
 import logging
 from bpy.types import Scene
 from bpy.props import BoolProperty, FloatProperty, IntProperty
+from ..config import VELOCITY_TOLERANCE_P
 from ..types import (
     BFParam,
     BFParamOther,
@@ -41,7 +42,7 @@ class SP_PRES_VELOCITY_TOLERANCE(BFParam):
     bpy_prop = FloatProperty
     bpy_export = "bf_pres_velocity_tolerance_export"
     bpy_export_default = False
-    bpy_other = {"precision": 6, "min": 0.0, "max": 1.0}
+    bpy_other = {"precision": VELOCITY_TOLERANCE_P, "min": 0.0, "max": 1.0}
 
 
 class SP_PRES_MAX_PRESSURE_ITERATIONS(BFParam):

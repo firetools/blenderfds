@@ -3,7 +3,7 @@
 import logging
 from bpy.types import Scene
 from bpy.props import BoolProperty, FloatProperty
-from ..config import TIME_PRECISION
+from ..config import TIME_P
 from ..types import BFParam, BFParamOther, BFNamelistSc, FDSParam, FDSList
 from ..bl.ui_lists import WM_PG_bf_other, WM_UL_bf_other_items
 
@@ -29,7 +29,7 @@ class SP_TIME_T_BEGIN(BFParam):
     bpy_prop = FloatProperty
     bpy_other = {
         "step": 100.0,
-        "precision": TIME_PRECISION,
+        "precision": TIME_P,
     }  # "unit": "TIME", not working
 
     def get_active(self, context):
@@ -46,7 +46,7 @@ class SP_TIME_T_END(BFParam):
     bpy_default = 1.0
     bpy_other = {
         "step": 100.0,
-        "precision": TIME_PRECISION,
+        "precision": TIME_P,
     }  # "unit": "TIME", not working
 
     def to_fds_list(self, context) -> FDSList:
@@ -55,7 +55,7 @@ class SP_TIME_T_END(BFParam):
                 fds_label="T_END",
                 value=0.0,
                 msg="Smokeview setup only",
-                precision=TIME_PRECISION,
+                precision=TIME_P,
             )
         return super().to_fds_list(context)
 

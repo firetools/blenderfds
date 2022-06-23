@@ -8,7 +8,7 @@ from math import sqrt
 import logging, bpy
 from bpy.types import Operator
 from bpy.props import BoolProperty, FloatVectorProperty, FloatProperty, IntProperty
-from ...config import LP
+from ...config import DENSITY_P, GRAVITY_P, HEAT_CAPACITY_P, LP, HRR_P, TEMP_P
 from ... import utils, lang
 from ...types import BFException
 
@@ -35,7 +35,7 @@ class OBJECT_OT_bf_set_suggested_mesh_cell_size(Operator):
         description="Maximum heat release rate during the simulation",
         default=1000.0,
         min=1.0,
-        precision=1,
+        precision=HRR_P,
     )
 
     bf_ncell: IntProperty(
@@ -60,7 +60,7 @@ class OBJECT_OT_bf_set_suggested_mesh_cell_size(Operator):
         description="Density",
         default=1.204,
         min=0.1,
-        precision=3,
+        precision=DENSITY_P,
     )
 
     bf_cp: FloatProperty(
@@ -68,7 +68,7 @@ class OBJECT_OT_bf_set_suggested_mesh_cell_size(Operator):
         description="Specific heat at constant pressure",
         default=1.005,
         min=0.1,
-        precision=3,
+        precision=HEAT_CAPACITY_P,
     )
 
     bf_t: FloatProperty(
@@ -76,7 +76,7 @@ class OBJECT_OT_bf_set_suggested_mesh_cell_size(Operator):
         description="Ambient temperature",
         default=20.0,
         min=-273.0,
-        precision=1,
+        precision=TEMP_P,
     )
 
     bf_g: FloatProperty(
@@ -84,7 +84,7 @@ class OBJECT_OT_bf_set_suggested_mesh_cell_size(Operator):
         description="Gravity acceleration",
         default=9.81,
         min=1.0,
-        precision=2,
+        precision=GRAVITY_P,
     )
 
     @classmethod
@@ -131,10 +131,10 @@ class OBJECT_OT_bf_set_suggested_mesh_cell_size(Operator):
                 context=context, bl_text=None, name="New Text"
             )
         texts = (
-            f"According to the NUREG 1824, US NRC (2007), given the max HRR: {self.bf_max_hrr:.1f} kW,",
-            f"density: {self.bf_density:.3f} kg/m³, Cp: {self.bf_cp:.3f} KJ/(kg·K), temperature: {self.bf_t:.1f}°C, gravity: {self.bf_g:.2f} m/s²,",
-            f"then the characteristic fire diameter D* is calculated as: {d_star:.3f} m",
-            f"and the cell size range for D*/dx ratio between 4 and 16 is: {d_star_16:.3f} ÷ {d_star_4:.3f} m",
+            f"According to the NUREG 1824, US NRC (2007), given the max HRR: {self.bf_max_hrr:.{HRR_P}f} kW,",
+            f"density: {self.bf_density:-{DENSITY_P}f} kg/m³, Cp: {self.bf_cp:.{HEAT_CAPACITY_P}f} KJ/(kg·K), temperature: {self.bf_t:.{TEMP_P}f}°C, gravity: {self.bf_g:.{GRAVITY_P}f} m/s²,",
+            f"then the characteristic fire diameter D* is calculated as: {d_star:.{LP}f} m",
+            f"and the cell size range for D*/dx ratio between 4 and 16 is: {d_star_16:.{LP}f} ÷ {d_star_4:.{LP}f} m",
         )
         utils.ui.write_bl_text(
             context,

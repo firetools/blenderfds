@@ -3,6 +3,7 @@
 import logging
 from bpy.types import Object
 from bpy.props import FloatProperty, IntProperty, FloatVectorProperty
+from ...config import T34_P
 from ...types import BFNamelist, BFParam, BFNotImported, FDSList, FDSNamelist, FDSParam
 from ... import utils
 from .t34 import calc_t34, calc_bl_matrix
@@ -28,7 +29,7 @@ class OP_MOVE_T34(BFParam):
     description = "Geometric transformation 3x4 matrix"
     fds_label = "T34"
     bpy_type = Object
-    bpy_other = {"precision": 6}
+    bpy_other = {"precision": T34_P}
 
     def get_value(self, context):
         return calc_t34(m=self.element.matrix_world)

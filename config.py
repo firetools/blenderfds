@@ -10,12 +10,46 @@ SET_OBJECT_APPEARANCE = True
 ## set automatic Blender Material appearance
 SET_MATERIAL_APPEARANCE = True
 
-## length precision for geometry
-LP = 4
-## geographic location precision
-GEOLOC_PRECISION = 9
-## time precision
-TIME_PRECISION = 1
+## default precision (eg. 3 is .001)
+DEFAULT_P = 3
+## length precision, m (eg. 4 is .0001)
+LP = 3
+## time precision, s
+TIME_P = 1
+## MOVE T34 precision
+T34_P = 6
+## temperature precision, °C
+TEMP_P = 1
+
+## velocity tolerance precision, m/s
+VELOCITY_TOLERANCE_P = 6
+
+## HRR precision, kW/m²
+HRR_P = 1
+## density precision, kg/m³
+DENSITY_P = 3
+## gravity m/s²
+GRAVITY_P = 2
+
+## heat capacity cp, KJ/(kg·K)
+HEAT_CAPACITY_P = 3
+## reaction yield precision, kg/kg
+YIELD_P = 3
+## heat of combustion precision, KJ/kg
+HOC_P = 1
+## radiative fraction precision
+RADIATIVE_FRACTION_P = 2
+
+## geographic latitude longitude precision, degrees
+LATLON_P = 9
+## geographic latitude longitude output precision, degrees
+LATLONOUT_P = 6
+## UTM easting, northing precision, m
+GEONORTHING_P = 1
+## elevation precision, m
+GEOELEV_P = 1
+## bearing precision, degrees
+BEARING_P = 1
 
 ## max number of columns of formatted output
 MAXLEN = 80

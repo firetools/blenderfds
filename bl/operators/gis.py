@@ -7,7 +7,7 @@ BlenderFDS, operators for geographic operations.
 import logging, bpy
 from bpy.types import Operator
 from bpy.props import BoolProperty, FloatProperty
-from ...config import GEOLOC_PRECISION
+from ...config import LATLON_P
 from ... import utils
 
 log = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ class _bf_set_geoloc:
         description="Longitude (WGS84, EPSG:4326) in decimal degrees",
         min=-180,
         max=+180,
-        precision=GEOLOC_PRECISION,
+        precision=LATLON_P,
     )
 
     bf_lat: FloatProperty(
@@ -38,7 +38,7 @@ class _bf_set_geoloc:
         description="Latitude (WGS84, EPSG:4326) in decimal degrees",
         min=-80,
         max=+84,
-        precision=GEOLOC_PRECISION,
+        precision=LATLON_P,
     )
 
     def draw(self, context):

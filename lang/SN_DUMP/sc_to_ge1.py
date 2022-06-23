@@ -6,6 +6,7 @@ BlenderFDS, export geometry to ge1 cad file format.
 
 import bpy, bmesh
 from ... import utils
+from ...config import LP
 
 # GE1 file format:
 
@@ -96,7 +97,7 @@ def scene_to_ge1(context, scene):
             # Grab ordered vertices coordinates
             coos = [co for v in f.verts for co in v.co]
             coos.extend((coos[-3], coos[-2], coos[-1]))  # tri to quad
-            items = [f"{coo * scale_length:.4f}" for coo in coos]
+            items = [f"{coo * scale_length:.{LP}f}" for coo in coos]
             # Get appearance_index
             if default_material_name:
                 material_name = default_material_name

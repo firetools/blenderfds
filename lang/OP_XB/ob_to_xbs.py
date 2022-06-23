@@ -7,6 +7,7 @@ BlenderFDS, translate Blender object geometry to FDS XB notation.
 import logging
 from ...types import BFException
 from ... import utils
+from ...config import LP
 from ..ON_MULT import multiply_xbs
 from .calc_voxels import get_voxels
 from .calc_pixels import get_pixels
@@ -26,7 +27,7 @@ def _ob_to_xbs_voxels(context, ob, world) -> tuple((list, list)):
     xbs, voxel_size = get_voxels(context=context, ob=ob)
     if not xbs:
         raise BFException(ob, "XB: No exported voxels!")
-    msgs = list((f"XB Voxels: {len(xbs)} | Resolution: {voxel_size:.3f} m",))
+    msgs = list((f"XB Voxels: {len(xbs)} | Resolution: {voxel_size:.{LP}f} m",))
     return xbs, msgs
 
 
@@ -44,7 +45,7 @@ def _ob_to_xbs_pixels(context, ob, world) -> tuple((list, list)):
         raise BFException(ob, "XB: No exported pixels!")
     scale_length = context.scene.unit_settings.scale_length
     res = voxel_size * scale_length
-    msgs = list((f"XB Pixels: {len(xbs)} | Resolution: {res:.3f} m",))
+    msgs = list((f"XB Pixels: {len(xbs)} | Resolution: {res:.{LP}f} m",))
     return xbs, msgs
 
 

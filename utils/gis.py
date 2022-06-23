@@ -23,6 +23,8 @@ Formulas : https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinat
 
 import math
 
+from ..config import GEONORTHING_P, GEOELEV_P, LATLONOUT_P
+
 
 K0 = 0.9996
 
@@ -379,7 +381,7 @@ class UTM:
         String representation of the class.
         @return the string.
         """
-        return f"{self.zn}{self.ne and 'N' or 'S'}  {self.easting:.1f}m E  {self.northing:.1f}m N (WGS84) h={self.elevation}m"
+        return f"{self.zn}{self.ne and 'N' or 'S'}  {self.easting:.{GEONORTHING_P}f}m E  {self.northing:.{GEONORTHING_P}f}m N (WGS84) h={self.elevation:.{GEOELEV_P}f}m"
 
     def __repr__(self):
         """!
@@ -447,7 +449,7 @@ class LonLat:
         String representation of the class.
         @return the string.
         """
-        return f"{self.lon:.6f}° {self.lon<0. and 'W' or 'E'}  {self.lat:.6f}° {self.lat<0. and 'S' or 'N'} (WGS84) h={self.elevation}m"
+        return f"{self.lon:.{LATLONOUT_P}f}° {self.lon<0. and 'W' or 'E'}  {self.lat:.{LATLONOUT_P}f}° {self.lat<0. and 'S' or 'N'} (WGS84) h={self.elevation:.{GEOELEV_P}f}m"
 
     def __repr__(self):
         """!

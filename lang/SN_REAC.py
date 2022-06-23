@@ -3,6 +3,7 @@
 import logging
 from bpy.types import Scene
 from bpy.props import BoolProperty, FloatProperty, StringProperty
+from ..config import HOC_P, RADIATIVE_FRACTION_P, YIELD_P
 from ..types import BFParam, BFParamOther, BFParamFYI, BFNamelistSc
 from ..bl.ui_lists import (
     WM_PG_bf_other,
@@ -45,7 +46,7 @@ class SP_REAC_CO_YIELD(BFParam):
     bpy_type = Scene
     bpy_prop = FloatProperty
     bpy_idname = "bf_reac_co_yield"
-    bpy_other = {"step": 1.0, "precision": 3, "min": 0.0, "max": 1.0}
+    bpy_other = {"step": 1.0, "precision": YIELD_P, "min": 0.0, "max": 1.0}
     bpy_export = "bf_reac_co_yield_export"
     bpy_export_default = False
 
@@ -68,7 +69,7 @@ class SP_REAC_HEAT_OF_COMBUSTION(BFParam):
     bpy_type = Scene
     bpy_idname = "bf_reac_heat_of_combustion"
     bpy_prop = FloatProperty
-    bpy_other = {"precision": 1, "min": 0.0}
+    bpy_other = {"precision": HOC_P, "min": 0.0}
     bpy_export = "bf_reac_heat_of_combustion_export"
     bpy_export_default = False
 
@@ -94,7 +95,7 @@ class SP_REAC_RADIATIVE_FRACTION(BFParam):
     bpy_type = Scene
     bpy_idname = "bf_reac_radiative_fraction"
     bpy_prop = FloatProperty
-    bpy_other = {"precision": 2, "min": 0.0, "max": 1.0}
+    bpy_other = {"precision": RADIATIVE_FRACTION_P, "min": 0.0, "max": 1.0}
     bpy_export = "bf_reac_radiative_fraction_export"
     bpy_export_default = False
 

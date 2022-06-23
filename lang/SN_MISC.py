@@ -3,7 +3,7 @@
 import logging
 from bpy.types import Scene
 from bpy.props import BoolProperty, FloatProperty, StringProperty, IntProperty
-from ..config import GEOLOC_PRECISION
+from ..config import BEARING_P, LATLON_P
 from ..types import BFParam, BFParamOther, BFParamFYI, BFNamelistSc, FDSParam, FDSList
 from ..bl.ui_lists import (
     WM_PG_bf_other,
@@ -104,7 +104,7 @@ class SP_ORIGIN_LON(BFParam):
     bpy_other = {
         "min": -180.0,
         "max": 180.0,
-        "precision": GEOLOC_PRECISION,
+        "precision": LATLON_P,
         "update": update_lonlat,
     }
 
@@ -124,7 +124,7 @@ class SP_ORIGIN_LAT(BFParam):
     bpy_other = {
         "min": -80.0,
         "max": 84.0,
-        "precision": GEOLOC_PRECISION,
+        "precision": LATLON_P,
         "update": update_lonlat,
     }
 
@@ -195,7 +195,7 @@ class SP_ORIGIN_NORTH_BEARING(BFParam):
     bpy_other = {
         "min": -180.0,
         "max": 180.0,
-        "precision": 1,
+        "precision": BEARING_P,
     }
 
     def draw(self, context, layout):

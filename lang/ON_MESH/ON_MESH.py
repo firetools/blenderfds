@@ -51,7 +51,7 @@ class OP_MESH_IJK(BFParam):
             col = layout.column(align=True)
             col.label(text=f"MESH Qty: {nmesh} | Splits: {nsplit} | Multiples: {nmult}")
             col.label(text=f"Cell Qty: {ncell_tot} (~{ncell} each)")
-            col.label(text=f"Size: {cs[0]:.3f}·{cs[1]:.3f}·{cs[2]:.3f}m | Aspect: {aspect:.1f} | Poisson: {has_good_ijk}")
+            col.label(text=f"Size: {cs[0]:.{LP}f}·{cs[1]:.{LP}f}·{cs[2]:.{LP}f}m | Aspect: {aspect:.1f} | Poisson: {has_good_ijk}")
 
         col = layout.column()
         row = col.row(align=True)
@@ -81,7 +81,7 @@ class OP_MESH_XB_BBOX(OP_XB_BBOX):
     def to_fds_list(self, context) -> FDSList:
         ob = self.element
         hids, ijks, xbs, _, _, _, _, ncell, cs, aspect, has_good_ijk = get_mesh_geometry(context=context, ob=ob)
-        msg = f" | Size: {cs[0]:.3f}·{cs[1]:.3f}·{cs[2]:.3f}m | Aspect: {aspect:.1f} | Poisson: {has_good_ijk}"
+        msg = f" | Size: {cs[0]:.{LP}f}·{cs[1]:.{LP}f}·{cs[2]:.{LP}f}m | Aspect: {aspect:.1f} | Poisson: {has_good_ijk}"
         match len(xbs):
             case 0:
                 return FDSList()  # FIXME raise exception?

@@ -4,10 +4,10 @@
 BlenderFDS, Blender interfaces to FDS parameters.
 """
 
-import collections
 import logging, bpy
 from bpy.types import Operator, Mesh
 from bpy.props import IntProperty, CollectionProperty, BoolProperty, StringProperty
+from ..config import DEFAULT_P
 from .fds_list import FDSList, FDSParam
 from .bf_exception import BFException, BFNotImported
 
@@ -366,7 +366,7 @@ class BFParam:
             return FDSParam(
                 fds_label=self.fds_label,
                 value=self.get_value(context=context),
-                precision=self.bpy_other.get("precision", 3),
+                precision=self.bpy_other.get("precision", DEFAULT_P),
             )
         return FDSList()
 
