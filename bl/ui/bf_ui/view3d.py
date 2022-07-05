@@ -66,27 +66,28 @@ class VIEW3D_MT_add(Menu):
         )
         layout.menu("VIEW3D_MT_image_add", text="Image", icon="OUTLINER_OB_IMAGE")
 
-        layout.separator()
-        has_collections = bool(bpy.data.collections)
-        col = layout.column()
-        col.enabled = has_collections
+        # FIXME Manage Collection instances
+        # layout.separator()
+        # has_collections = bool(bpy.data.collections)
+        # col = layout.column()
+        # col.enabled = has_collections
 
-        if not has_collections or len(bpy.data.collections) > 10:
-            col.operator_context = "INVOKE_REGION_WIN"
-            col.operator(
-                "object.collection_instance_add",
-                text="Collection Instance..."
-                if has_collections
-                else "No Collections to Instance",
-                icon="OUTLINER_OB_GROUP_INSTANCE",
-            )
-        else:
-            col.operator_menu_enum(
-                "object.collection_instance_add",
-                "collection",
-                text="Collection Instance",
-                icon="OUTLINER_OB_GROUP_INSTANCE",
-            )
+        # if not has_collections or len(bpy.data.collections) > 10:
+        #     col.operator_context = "INVOKE_REGION_WIN"
+        #     col.operator(
+        #         "object.collection_instance_add",
+        #         text="Collection Instance..."
+        #         if has_collections
+        #         else "No Collections to Instance",
+        #         icon="OUTLINER_OB_GROUP_INSTANCE",
+        #     )
+        # else:
+        #     col.operator_menu_enum(
+        #         "object.collection_instance_add",
+        #         "collection",
+        #         text="Collection Instance",
+        #         icon="OUTLINER_OB_GROUP_INSTANCE",
+        #     )
 
 
 class VIEW3D_MT_object(Menu):
