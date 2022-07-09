@@ -6,19 +6,40 @@ BlenderFDS, operators to run external commands (eg. fds, smokeview, ...).
 
 import os, sys, bpy, logging
 from bpy.types import Operator
+from bpy.props import EnumProperty
 from ... import config, utils
 
 log = logging.getLogger(__name__)
 
 
-class WM_OT_bf_load_default_commands(Operator):
+class WM_OT_bf_restore_default_commands(Operator):
     """!
     Load default commands, deleting current data.
     """
 
-    bl_label = "Reload Default Commands"
-    bl_idname = "wm.bf_load_default_commands"
-    bl_description = "Reload default commands for your platform"
+    bl_label = "Restore Default Command"
+    bl_idname = "wm.bf_restore_default_commands"
+    bl_description = "Restore default commands for your platform"
+
+    bf_command: EnumProperty(
+        name="Restore Command",
+        description="Select command to restore",
+        items=[
+            ("All", "All", "Restore all default commands for your platform"),
+            ("FDS", "FDS", "Restore default FDS command for your platform"),
+            (
+                "Smokeview",
+                "Smokeview",
+                "Restore default Smokeview command for your platform",
+            ),
+            (
+                "Terminal",
+                "Terminal",
+                "Restore default terminal command for your platform",
+            ),
+        ],
+        default="All",
+    )
 
     def invoke(self, context, event):
         # Ask for confirmation
@@ -28,11 +49,14 @@ class WM_OT_bf_load_default_commands(Operator):
     def execute(self, context):
         prefs = context.preferences.addons[__package__.split(".")[0]].preferences
         platform = sys.platform
-        prefs.bf_pref_fds_command = config.FDS_COMMAND.get(platform, "")
-        prefs.bf_pref_smv_command = config.SMV_COMMAND.get(platform, "")
-        prefs.bf_pref_term_command = config.TERM_COMMAND.get(platform, "")
+        if self.bf_command in ("All", "FDS"):
+            prefs.bf_pref_fds_command = config.FDS_COMMAND.get(platform, "")
+        if self.bf_command in ("All", "Smokeview"):
+            prefs.bf_pref_smv_command = config.SMV_COMMAND.get(platform, "")
+        if self.bf_command in ("All", "Terminal"):
+            prefs.bf_pref_term_command = config.TERM_COMMAND.get(platform, "")
         # Report
-        self.report({"INFO"}, "Default commands loaded")
+        self.report({"INFO"}, "Default restored")
         return {"FINISHED"}
 
 
@@ -163,7 +187,7 @@ class SCENE_OT_bf_run_smv(Operator):
 
 
 bl_classes = [
-    WM_OT_bf_load_default_commands,
+    WM_OT_bf_restore_default_commands,
     SCENE_OT_bf_run_fds,
     SCENE_OT_bf_run_smv,
 ]

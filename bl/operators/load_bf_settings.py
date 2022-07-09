@@ -32,7 +32,7 @@ class WM_OT_bf_load_blenderfds_settings(Operator):
         bpy.ops.wm.open_mainfile(filepath=filepath, load_ui=True, use_scripts=True)
         bpy.ops.wm.save_homefile()
         # Load default commands
-        bpy.ops.wm.bf_load_default_commands()
+        bpy.ops.wm.bf_restore_default_commands()
         # Save user preferences
         bpy.ops.wm.save_userpref()
         # Open new file (unlink startup)
