@@ -26,7 +26,7 @@ class SP_config_case_name(BFParam):
         pass
 
     def draw_operators(self, context, layout):
-        layout.operator("scene.bf_props_to_scene", icon="COPYDOWN", text="")
+        layout.operator("scene.bf_props_to_sc", icon="COPYDOWN", text="")
 
 
 class SP_config_directory(BFParam):

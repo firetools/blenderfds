@@ -85,7 +85,7 @@ class MP_namelist_cls(BFParam):
     bpy_default = "MN_SURF"
 
     def draw_operators(self, context, layout):
-        layout.operator("material.bf_surf_to_sel_obs", icon="COPYDOWN", text="")
+        layout.operator("material.bf_props_to_ma", icon="COPYDOWN", text="")
 
 
 class MP_ID(BFParam):
