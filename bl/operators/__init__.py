@@ -18,6 +18,7 @@ from . import (
     show_ui,
     run_external,
     clean_ma_slots,
+    update_addon,
 )
 
 ms_to_register = (
@@ -34,6 +35,7 @@ ms_to_register = (
     show_ui,
     run_external,
     clean_ma_slots,
+    update_addon,
 )
 
 
