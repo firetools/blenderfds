@@ -82,19 +82,35 @@ class BFPreferences(AddonPreferences):
         paths = context.preferences.filepaths
         layout = self.layout
 
-        box = layout.box()
-        box.label(text="User Interface")
-        box.operator("wm.bf_load_blenderfds_settings")
-        box.prop(self, "bf_pref_simplify_ui")
-        box.prop(paths, "use_load_ui")
-        box.prop(paths, "use_relative_paths")
+        row = layout.row()
+        row.operator("wm.bf_load_blenderfds_settings")
+        row.operator("wm.bf_update_addon")
+
+        row = layout.row()
+        row.prop(self, "bf_pref_simplify_ui")
+        row.prop(paths, "use_load_ui")
+        row.prop(paths, "use_relative_paths")
 
         box = layout.box()
-        box.label(text="Run External Commands")
-        box.operator("wm.bf_load_default_commands")
-        box.prop(self, "bf_pref_fds_command")
-        box.prop(self, "bf_pref_smv_command")
-        box.prop(self, "bf_pref_term_command")
+        box.label(text="External Commands")
+
+        row = box.row(align=True)
+        row.prop(self, "bf_pref_fds_command", text="FDS")
+        row.operator(
+            "wm.bf_restore_default_commands", text="", icon="LOOP_BACK"
+        ).bf_command = "FDS"
+
+        row = box.row(align=True)
+        row.prop(self, "bf_pref_smv_command", text="Smokeview")
+        row.operator(
+            "wm.bf_restore_default_commands", text="", icon="LOOP_BACK"
+        ).bf_command = "Smokeview"
+
+        row = box.row(align=True)
+        row.prop(self, "bf_pref_term_command", text="Terminal")
+        row.operator(
+            "wm.bf_restore_default_commands", text="", icon="LOOP_BACK"
+        ).bf_command = "Terminal"
 
         return layout
 
