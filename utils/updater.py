@@ -4,18 +4,11 @@
 BlenderFDS, utils to update the addon.
 """
 
-REPO_URL = "https://api.github.com/repos/firetools/blenderfds"
-RELEASES_URL = f"{REPO_URL}/releases"
-BRANCHES_URL = f"{REPO_URL}/branches"
-BRANCHES = (
-    "master",
-    "next",
-)
-ADDON_NAME = "BlenderFDS"
-
 import addon_utils
 import logging, json, ssl, platform, tempfile, os, zipfile, shutil
 import urllib.request, urllib
+
+from ..config import ADDON_NAME, REPO_URL, RELEASES_URL, BRANCHES, MIN_RELEASE_VERSION
 
 log = logging.getLogger(__name__)
 
@@ -27,8 +20,9 @@ def get_branch_url(branch):
 
 def get_tags():
     """Get all tags, add branches."""
-    tags = get_api(RELEASES_URL) or list()
-    for b in BRANCHES:
+    tags = get_api(RELEASES_URL) or list()  # get release tags from github
+    tags = list(t for t in tags if get_version_tuple(t["tag_name"]) > MIN_RELEASE_VERSION)
+    for b in BRANCHES:  # append branches
         tags.append({"name": b.title(), "zipball_url": get_branch_url(b)})
     return tags
 
@@ -41,13 +35,13 @@ def get_raw(url):
         request.add_header("User-Agent", "Python/" + str(platform.python_version()))
         with urllib.request.urlopen(request, context=context, timeout=5) as response:
             result_string = response.read()
-    except urllib.error.HTTPError as e:
-        if str(e.code) == "403":
+    except urllib.error.HTTPError as err:
+        if str(err.code) == "403":
             raise IOError("HTTP error (access denied)")
         else:
             raise IOError("HTTP error")
-    except urllib.error.URLError as e:
-        reason = str(e.reason)
+    except urllib.error.URLError as err:
+        reason = str(err.reason)
         if "TLSV1_ALERT" in reason or "SSL" in reason.upper():
             raise IOError("Connection rejected")
         else:
@@ -149,11 +143,10 @@ def install_addon(url_file):
     addon_path = get_addon_path(name=ADDON_NAME)
     log.debug(f"addon_path: {addon_path}")
     if os.path.islink(addon_path):
-        raise IOError(f"Current addon path is a link, not a directory")
+        raise IOError(f"Current addon path is a link, not a directory: {addon_path}")
 
     zip_filename = "source.zip"
     with tempfile.TemporaryDirectory() as tmp_path:
-        tmp_path = "/home/egissi/tmp/"  # FIXME
 
         # Download and unzip chosen version
         zip_filepath = os.path.join(tmp_path, zip_filename)
@@ -175,31 +168,26 @@ def install_addon(url_file):
             raise Exception(f"Install error, addon restored: {err}")
 
 
-def version_tuple_from_text(text):  # FIXME FIXME FIXME
+def get_version_tuple(version_text):
     """Convert text into a tuple of numbers (int).
 
     Should go through string and remove all non-integers, and for any
     given break split into a different section.
     """
-    if text is None:
-        return ()
-
     segments = list()
     tmp = ""
-    for char in str(text):
-        if not char.isdigit():
+    for char in str(version_text):
+        if char.isdigit():
+            tmp += char
+        else:
+            # Number followed by non char
             if len(tmp) > 0:
                 segments.append(int(tmp))
                 tmp = ""
-        else:
-            tmp += char
+    # Last one
     if len(tmp) > 0:
         segments.append(int(tmp))
 
     if len(segments) == 0:
-        print("No version strings found text: " + str(text))
-        if not self._include_branches:
-            return ()
-        else:
-            return text
+        raise ValueError(f"Version not found: {version_text}")
     return tuple(segments)

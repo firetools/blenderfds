@@ -68,6 +68,19 @@ FLAT_DIFFERENCE = 1e-03
 ## number of magnetic cells for MESH alignment (align_meshes.py)
 MAGNET_NCELL = 3
 
+## github repository url for upgrade
+REPO_URL = "https://api.github.com/repos/firetools/blenderfds"
+## github releases url for upgrade
+RELEASES_URL = f"{REPO_URL}/releases"
+## min installable release
+MIN_RELEASE_VERSION = (6, 0, 0)
+## github branches url for upgrade
+BRANCHES_URL = f"{REPO_URL}/branches"
+## github available branches for upgrade
+BRANCHES = ("master",)
+## addon name from bl_info
+ADDON_NAME = "BlenderFDS"
+
 ## run fds commands
 # from sys.platform: linux is any Linux, darwin is any MacOS, win32 is any Windows
 FDS_COMMAND = {
