@@ -146,7 +146,7 @@ class SCENE_OT_bf_eta_fds(Operator):
 
     bl_label = "Estimate completion wall time"
     bl_idname = "scene.bf_eta_fds"
-    bl_description = "Estimate FDS calculation completion wall time"
+    bl_description = "Estimate ongoing FDS calculation completion wall time"
 
     @classmethod
     def poll(cls, context):
@@ -220,7 +220,7 @@ class SCENE_OT_bf_eta_fds(Operator):
         end_datetime_str = end_datetime.strftime("%B %d at %H:%M")
 
         # Close
-        self.report({"INFO"}, f"Estimated completion: {end_datetime_str}{duration_delta_str}")
+        self.report({"INFO"}, f"If running, estimated completion: {end_datetime_str}{duration_delta_str}")
         return {"FINISHED"}
 
 
