@@ -222,10 +222,10 @@ class VIEW3D_PT_bf_sc_utils(Panel):
         layout.use_property_decorate = False
 
         # Draw FDS and Smokeview run
-        col = layout.column(align=True)
+        col = layout.column()
         row = col.row(align=True)
         row.operator("scene.bf_run_fds")
-        row.operator("scene.bf_eta_fds", icon="TIME", text="")
+        row.operator("scene.bf_eta_fds", icon="SORTTIME", text="")
         col.operator("scene.bf_run_smv")
         col.separator()
 

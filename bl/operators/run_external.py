@@ -131,13 +131,16 @@ class SCENE_OT_bf_run_fds(Operator):
         self.report({"INFO"}, "See the command prompt")
         return {"FINISHED"}
 
+
 def get_datetime(timestring):
     # From FDS format: 2022-07-11T14:55:15.587+02:00
-    return datetime.strptime(timestring[:-6],'%Y-%m-%dT%H:%M:%S.%f')
+    return datetime.strptime(timestring[:-6], "%Y-%m-%dT%H:%M:%S.%f")
+
 
 def get_timedelta(timestring1, timestring0):
-    delta = get_datetime(timestring1) -  get_datetime(timestring0)
+    delta = get_datetime(timestring1) - get_datetime(timestring0)
     return delta.total_seconds()
+
 
 class SCENE_OT_bf_eta_fds(Operator):
     """!
@@ -146,7 +149,12 @@ class SCENE_OT_bf_eta_fds(Operator):
 
     bl_label = "Estimate completion wall time"
     bl_idname = "scene.bf_eta_fds"
-    bl_description = "Estimate ongoing FDS calculation completion wall time"
+    bl_description = (
+        "Estimate ongoing FDS calculation completion wall time,"
+        "\nAs it is based on the most recent time step,"
+        "\nwait until the simulated velocity field stabilises (eg. due"
+        "\nto fire growth, ventilation) to obtain a dependable estimate"
+    )
 
     @classmethod
     def poll(cls, context):
@@ -172,9 +180,9 @@ class SCENE_OT_bf_eta_fds(Operator):
 
         # Load the step file
         try:
-            with open(steps_filepath, newline='') as csvfile:
+            with open(steps_filepath, newline="") as csvfile:
                 # Get rows
-                rows = csv.reader(csvfile, delimiter=',')
+                rows = csv.reader(csvfile, delimiter=",")
                 rows = tuple(r for r in rows)
                 if len(rows) < 4:
                     self.report({"ERROR"}, "Calc just started, try again later")
@@ -187,7 +195,7 @@ class SCENE_OT_bf_eta_fds(Operator):
                 # Get wall time delta in seconds
                 wall_datetime1 = get_datetime(timestring=rows[-1][1])
                 wall_datetime0 = get_datetime(timestring=rows[-2][1])
-                wall_deltatime = (wall_datetime1- wall_datetime0).total_seconds()
+                wall_deltatime = (wall_datetime1 - wall_datetime0).total_seconds()
 
                 # Get last time step sim duration, and calculated sim time
                 step_size1 = float(rows[-1][2])
@@ -206,7 +214,7 @@ class SCENE_OT_bf_eta_fds(Operator):
             return {"CANCELLED"}
 
         # Calc the number of remaining timesteps
-        nsteps = (t_end-sim_time1) / step_size1
+        nsteps = (t_end - sim_time1) / step_size1
 
         # Calc current wall time per timestep
         wall_time_per_step = wall_deltatime / (nstep1 - nstep0)
@@ -216,11 +224,14 @@ class SCENE_OT_bf_eta_fds(Operator):
         duration_delta_str = ""
         if duration_delta.seconds >= 3600:
             duration_delta_str = f", in {duration_delta.seconds/3600:.1f} hours"
-        end_datetime = wall_datetime1 + duration_delta
+        end_datetime = datetime.now() + duration_delta
         end_datetime_str = end_datetime.strftime("%B %d at %H:%M")
 
         # Close
-        self.report({"INFO"}, f"If running, estimated completion: {end_datetime_str}{duration_delta_str}")
+        self.report(
+            {"INFO"},
+            f"If running, estimated completion time: {end_datetime_str}{duration_delta_str}",
+        )
         return {"FINISHED"}
 
 
