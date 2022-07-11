@@ -217,20 +217,21 @@ class VIEW3D_PT_bf_sc_utils(Panel):
         return context.scene
 
     def draw(self, context):
-        ob = context.object
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False
 
         # Draw FDS and Smokeview run
         col = layout.column(align=True)
-        col.operator("scene.bf_run_fds", icon="EXPORT")
-        col.operator("scene.bf_run_smv", icon="HIDE_OFF")
+        row = col.row(align=True)
+        row.operator("scene.bf_run_fds")
+        row.operator("scene.bf_eta_fds", icon="TIME", text="")
+        col.operator("scene.bf_run_smv")
         col.separator()
 
         # Draw import snippet
         col = layout.column(align=True)
-        col.operator("import_to_current_scene.fds", icon="IMPORT")
+        col.operator("import_to_current_scene.fds")
         col.separator()
 
 
