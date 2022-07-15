@@ -48,10 +48,10 @@ def _load_post(self):
                     )
                     ob["bf_devc_setpoint_export"] = False
                 if ob.get("bf_devc_initial_state"):
-                    op_other.set_value(context, f"INITIAL_STATE=T")
+                    op_other.set_value(context, "INITIAL_STATE=T")
                     ob["bf_devc_initial_state"] = False
                 if ob.get("bf_devc_latch"):
-                    op_other.set_value(context, f"LATCH=T")
+                    op_other.set_value(context, "LATCH=T")
                     ob["bf_devc_latch"] = False
 
             # Fix new Object bf_surf_id_export
