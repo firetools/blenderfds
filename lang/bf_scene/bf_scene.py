@@ -40,6 +40,7 @@ class BFScene:
         @param save: if True, save to disk.
         @return FDS formatted string (eg. "&OBST ID='Test' /"), or None.
         """
+        log.info(f"Export from Scene {self.name}...")
         text = self.to_fds_list(context=context, full=full).to_string()
         if save:
             filepath = utils.io.transform_rbl_to_abs(
@@ -48,7 +49,9 @@ class BFScene:
                 name=self.name,
                 extension=".fds",
             )
+            log.info(f"Save to {filepath}...")
             utils.io.write_txt_file(filepath, text)
+        log.info("Done!")
         return text
 
     def from_fds(
@@ -67,6 +70,8 @@ class BFScene:
         @param fds_list: FDSList of FDSNamelists.
         @param set_tmp: set temporary Objects.
         """
+        log.info(f"Import to Scene {self.name}...")
+
         # Set mysef as the right Scene instance in the context
         # this is used by context.scene calls elsewhere
         # Also for visibility
@@ -74,6 +79,7 @@ class BFScene:
 
         # Load fds case from filepath
         if filepath:
+            log.info(f"Load from {filepath}...")
             filepath = utils.io.transform_rbl_to_abs(
                 context=context,
                 filepath_rbl=filepath,
@@ -90,12 +96,14 @@ class BFScene:
 
         # Load fds_case from fds_list (protect from None)
         if not fds_list:
+            log.info("Prepare FDSList...")
             fds_list = FDSList()
 
         fds_namelist_qty = len(fds_list)
 
         # Prepare free text for unmanaged namelists, no rewind
         # if not existing, create
+        log.info("Prepare free text...")
         self.bf_config_text = utils.ui.show_bl_text(
             context=context,
             bl_text=self.bf_config_text,
@@ -115,6 +123,7 @@ class BFScene:
         )
 
         # Finally, write free text
+        log.info("Write free text...")
         header = None
         if filepath:
             header = f"-- From: <{filename}>"
@@ -126,6 +135,7 @@ class BFScene:
         if filepath:
             self.bf_config_directory = bf_config_directory
 
+        log.info("Done!")
         return fds_namelist_qty  # feedback
 
     @classmethod

@@ -163,21 +163,27 @@ def sc_to_fds_list(context, sc, full=False) -> FDSList:
     Return the FDSList instance from sc, never None.
     """
     # Init components
+    log.info("Prepare Scene namelists...")
     scene_fds_list = _get_scene(context)
 
     if not full:
         return scene_fds_list
 
+    log.info("Prepare header and free text...")
     header_fds_list = _get_header(context)
     free_text_fds_list = _get_free_text(context)
+    log.info("Prepare domain...")
     domain_fds_list = _get_domain(context)
+    log.info("Prepare geometric namelists...")
     collections_fds_list = _get_collections(context)
+    log.info("Prepare boundary conditions...")
     materials_fds_list = _get_materials(
         context,
         collections_fds_list=collections_fds_list,
     )
 
     # Join components
+    log.info("Append namelists...")
     fds_list = FDSList()
     fds_list.append(header_fds_list)
     fds_list.append(scene_fds_list)

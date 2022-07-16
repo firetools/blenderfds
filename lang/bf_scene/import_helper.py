@@ -13,9 +13,11 @@ def sc_from_fds_list(context, sc, fds_list, set_tmp=False, texts=(), filename=No
     """Import in Scene from fds_list."""
 
     # Special treatment for REACs
+    log.info("Import REACs...")
     _treat_REACs(context, sc, fds_list, texts)
 
     # Get properly ordered list of managed bf_namelists
+    log.info("Get managed namelists...")
     managed_bf_namelists = sorted(
         (n for n in BFNamelist.subclasses if n.fds_label),
         key=lambda k: k.bf_import_order,
@@ -23,9 +25,11 @@ def sc_from_fds_list(context, sc, fds_list, set_tmp=False, texts=(), filename=No
     managed_fds_labels = tuple(n.fds_label for n in managed_bf_namelists)
 
     # Get fds_namelists
+    log.info("Get importing namelists...")
     fds_namelists = fds_list.get_fds_namelists()
 
     # Select managed and unmanaged fds_namelists
+    log.info("Select managed/unmanaged namelists...")
     fds_namelists.reverse()  # for pop from the beginning
     managed_fds_namelists_by_fds_label = dict()
     unmanaged_fds_namelists = list()
@@ -43,6 +47,7 @@ def sc_from_fds_list(context, sc, fds_list, set_tmp=False, texts=(), filename=No
     # Import managed namelists
     for bf_namelist in managed_bf_namelists:
         managed_fds_label = bf_namelist.fds_label
+        log.info(f"Import {managed_fds_label} namelists...")
         fds_namelists = managed_fds_namelists_by_fds_label.pop(managed_fds_label, ())
         hid = f"New {managed_fds_label}"
 
@@ -129,8 +134,14 @@ def _import_to_ob(
     context, sc, bf_namelist, fds_namelists, hid, texts, set_tmp, filename=None
 ):
     """Import Object related fds_namelists."""
-    for fds_namelist in fds_namelists:
 
+    # Set progress report
+    wm = context.window_manager
+    wm.progress_begin(0, 9999)
+    kprogress = 99.0 / (len(fds_namelists) or 1.0)
+    iprogress_old = 0.0
+
+    for i, fds_namelist in enumerate(fds_namelists):
         # Get the right Collection
         if set_tmp:  # tmp geometry
             co = sc.collection
@@ -167,6 +178,16 @@ def _import_to_ob(
             texts.append(f"ERROR: {err}")
             texts.append(fds_namelist.to_string())
 
+        # Set progress
+        iprogress = int(i * kprogress)
+        if iprogress != iprogress_old:
+            log.info(f"{iprogress}%")
+            wm.progress_update(iprogress)
+            iprogress_old = iprogress
+
+    # End progress
+    wm.progress_end()
+
 
 def _import_to_ma(context, sc, bf_namelist, fds_namelists, hid, texts):
     """Import Material related namelist."""
@@ -178,7 +199,7 @@ def _import_to_ma(context, sc, bf_namelist, fds_namelists, hid, texts):
             bf_namelist(element=ma).from_fds_list(
                 context=context, fds_list=fds_namelist
             )
-        except BFNotImported as err:
+        except BFNotImported:
             texts.append(fds_namelist.to_string())
         except Exception as err:
             texts.append(f"ERROR: {err}")
