@@ -84,12 +84,21 @@ class BFPreferences(AddonPreferences):
 
         row = layout.row()
         row.operator("wm.bf_load_blenderfds_settings")
-        row.operator("wm.bf_update_addon")
+        if context.window_manager.get("bf_restart_required"):
+            alert_row = row.row()
+            alert_row.alert = True
+            alert_row.operator("wm.quit_blender", text="Restart Blender", icon="ERROR")
+        else:
+            row.operator("wm.bf_update_addon")
 
-        row = layout.row()
-        row.prop(self, "bf_pref_simplify_ui")
-        row.prop(paths, "use_load_ui")
-        row.prop(paths, "use_relative_paths")
+        col = layout.column()
+        col.prop(self, "bf_pref_simplify_ui")
+        col.prop(paths, "use_load_ui", text="Load UI setup when loading .blend files")
+        col.prop(
+            paths,
+            "use_relative_paths",
+            text="Default to relative paths in the file selector",
+        )
 
         box = layout.box()
         box.label(text="External Commands")

@@ -73,6 +73,7 @@ class WM_OT_bf_update_addon(Operator):
             self.report({"ERROR"}, f"Install failed: {err}")
             return {"CANCELLED"}
         self.report({"WARNING"}, f"Install completed, restart Blender!")
+        context.window_manager["bf_restart_required"] = True
         return {"FINISHED"}
 
 
