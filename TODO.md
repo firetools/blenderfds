@@ -1,7 +1,8 @@
 # TODO
 
-Add SURF_IDS and SURF_ID6 for ref to SURF
-Add other because of SURF_IDS and SURF_ID6
+Op calc area of selected bc
+HRR Ramp
+Auto mesh cutter (https://fireworkbench.com/fds_prepro_mesh)
 
 check SN_config also when exporting, something could be wrong!
 
@@ -9,8 +10,6 @@ check mat_slots preview bug corrected, and no need for use_node=False
 
 Investigate use of bf_dialog:
 WM_OT_bf_dialog(Operator):  # FIXME move to ui?  # FIXME Use WM_OT_bf_dialog?
-
-HRR Ramp
 
 collection instance?
 
