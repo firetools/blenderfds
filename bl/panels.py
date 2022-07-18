@@ -246,12 +246,7 @@ class VIEW3D_PT_bf_ob_utils(Panel):
     @classmethod
     def poll(cls, context):
         ob = context.object
-        return (
-            ob
-            and ob.type == "MESH"
-            and not ob.bf_is_tmp
-            and ob.bf_namelist_cls in ("ON_MESH", "ON_GEOM")  # FIXME
-        )
+        return ob and ob.type == "MESH" and not ob.bf_is_tmp
 
     def draw_header(self, context):
         self.layout.label(text=f"FDS {context.object.bf_namelist_cls[3:7]} Utils")

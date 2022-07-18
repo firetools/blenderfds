@@ -52,7 +52,7 @@ class BFNamelist(BFParam):
         """!
         Check if bf_param (class) is in cls.bf_params.
         @param bf_param: parameter to be tested.
-        @return True or False.        
+        @return True or False.
         """
         return bf_param in cls.bf_params
 
@@ -114,7 +114,7 @@ class BFNamelist(BFParam):
         @param layout: the Blender panel layout.
         @return used layout.
         """
-        layout.label(text="None")
+        layout.label(text="None available")
 
     def draw(self, context, layout):
         """!
@@ -175,7 +175,12 @@ class BFNamelist(BFParam):
                 try:
                     bf_param.set_value(context=context, value=fds_param.get_value())
                 except BFNotImported as err:
-                    utils.ui.write_bl_text(context, bl_text=context.scene.bf_config_text, header="-- Import error", texts=(str(err),))
+                    utils.ui.write_bl_text(
+                        context,
+                        bl_text=context.scene.bf_config_text,
+                        header="-- Import error",
+                        texts=(str(err),),
+                    )
                 else:
                     bf_param.set_exported(context=context, value=True)
                     is_imported = True
@@ -184,11 +189,14 @@ class BFNamelist(BFParam):
             bf_param_other = self._get_bf_param_other()
             if not is_imported and bf_param_other:
                 try:
-                    bf_param_other.set_value(
-                        context, value=fds_param.to_string()
-                    )
+                    bf_param_other.set_value(context, value=fds_param.to_string())
                 except BFNotImported as err:
-                    utils.ui.write_bl_text(context, bl_text=context.scene.bf_config_text, header="-- Import error", texts=(str(err),))
+                    utils.ui.write_bl_text(
+                        context,
+                        bl_text=context.scene.bf_config_text,
+                        header="-- Import error",
+                        texts=(str(err),),
+                    )
                 else:
                     is_imported = True
 
@@ -226,6 +234,7 @@ class BFNamelistSc(BFNamelist):
             return
         self.element.render.engine = "BLENDER_WORKBENCH"
 
+
 class BFNamelistOb(BFNamelist):
     """!
     Blender representation of an FDS namelist group related to a Blender Object.
@@ -258,7 +267,7 @@ class BFNamelistOb(BFNamelist):
                 ob = self.element
                 ob.display_type = "TEXTURED"
         # ob.show_in_front = show_in_front  # unused
-        # ob.show_wire = show_wire  # unused 
+        # ob.show_wire = show_wire  # unused
 
     def draw_header(self, context, layout, panel):
         ob = self.element
@@ -268,7 +277,13 @@ class BFNamelistOb(BFNamelist):
             return
         # Manage all others
         if self.bpy_export:
-            layout.prop(self.element, self.bpy_export, icon_only=True, toggle=False, invert_checkbox=True)
+            layout.prop(
+                self.element,
+                self.bpy_export,
+                icon_only=True,
+                toggle=False,
+                invert_checkbox=True,
+            )
         if self.description:
             panel.bl_label = f"FDS {self.label} ({self.description})"
         else:
@@ -286,7 +301,7 @@ class BFNamelistOb(BFNamelist):
             row.operator("scene.bf_hide_fds_geometry", icon="HIDE_ON")
         else:
             row.operator("object.bf_show_fds_geometry", icon="HIDE_OFF")
-        row.operator("object.bf_show_fds_code", icon="HIDE_OFF")    
+        row.operator("object.bf_show_fds_code", icon="HIDE_OFF")
         return super().draw(context, layout)
 
 
@@ -309,7 +324,7 @@ class BFNamelistMa(BFNamelist):
             return
         # This forces the use of diffuse_color for 3DView render
         self.element.use_nodes = False
-            
+
     def draw_header(self, context, layout, panel):
         ma = self.element
         if self.bpy_export and ma.name not in config.DEFAULT_MAS:
