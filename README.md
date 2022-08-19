@@ -1,6 +1,6 @@
 # BlenderFDS repository
 
-![](https://github.com/firetools/blenderfds/wiki/images/logo.png)
+![](https://github.com/firetools/blenderfds/wiki/p/web/logo.png)
 
 This is the main repository of *BlenderFDS*, the open user interface for
 the [NIST Fire Dynamics Simulator (FDS)](https://pages.nist.gov/fds-smv/).
@@ -10,6 +10,7 @@ the [NIST Fire Dynamics Simulator (FDS)](https://pages.nist.gov/fds-smv/).
 
 ***
 
-The development of *BlenderFDS* is funded by a grant from the Italian Ministry of Foreign Affairs and International Cooperation.
+The development of *BlenderFDS* was funded by a grant from
+the Italian Ministry of Foreign Affairs and International Cooperation.
 
-![MAECI](https://github.com/firetools/blenderfds/wiki/images/logo_maeci.jpeg)
+![MAECI](https://github.com/firetools/blenderfds/wiki/p/web/logo-maeci.jpeg)

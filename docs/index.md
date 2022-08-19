@@ -25,9 +25,9 @@ and it is fully scriptable.
 
 Discover [here](https://github.com/firetools/blenderfds/wiki/Install) ho to install BlenderFDS for the supported platforms.
 
-[![](https://github.com/firetools/blenderfds/wiki/images/web/win_mac_linux.png)](https://github.com/firetools/blenderfds/wiki/Install)
+![os](https://github.com/firetools/blenderfds/wiki/p/web/os.png)](https://github.com/firetools/blenderfds/wiki/Install)
 
-![blenderfds](https://github.com/firetools/blenderfds/wiki/images/web/blenderfds.gif)
+![blenderfds](https://github.com/firetools/blenderfds/wiki/p/screencast/bf.gif)
 
 ## What is FDS?
 
@@ -43,18 +43,19 @@ and BlenderFDS makes use of its 3D modeling tools.
 
 ## A family of open tools for FDS
 
-Another companion tool is [qgis2fds](https://github.com/firetools/qgis2fds/wiki), an open [QGIS](https://www.qgis.org) plugin
+Another companion tool is [qgis2fds](https://github.com/firetools/qgis2fds/wiki),
+an open [QGIS](https://www.qgis.org) plugin
 that exports terrains and landuse for wildfire simulation and atmospheric dispersion of fire pollutants.
 The resulting FDS file can be imported to BlenderFDS for further customization.
 
-![qgis2fds](https://github.com/firetools/blenderfds/wiki/images/web/qgis2fds-blenderfds.gif)
+![qgis2fds](https://github.com/firetools/blenderfds/wiki/p/screencast/qgis2fds.gif)
 
 ## Funded by the WUIFI-21 project
 
-The development of BlenderFDS is funded by a grant from
+The development of BlenderFDS was funded by a grant from
 the [Italian Ministry of Foreign Affairs and International Cooperation](https://www.esteri.it/).
 
-![MAECI](https://github.com/firetools/blenderfds/wiki/images/logo_maeci.jpeg)
+![MAECI](https://github.com/firetools/blenderfds/wiki/p/web/logo-maeci.jpeg)
 
 ## License
 
