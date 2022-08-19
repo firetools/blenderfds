@@ -25,7 +25,7 @@ and it is fully scriptable.
 
 Discover [here](https://github.com/firetools/blenderfds/wiki/Install) ho to install BlenderFDS for the supported platforms.
 
-![os](https://github.com/firetools/blenderfds/wiki/p/web/os.png)](https://github.com/firetools/blenderfds/wiki/Install)
+[![os](https://github.com/firetools/blenderfds/wiki/p/web/os.png)](https://github.com/firetools/blenderfds/wiki/Install)
 
 ![blenderfds](https://github.com/firetools/blenderfds/wiki/p/screencast/bf.gif)
 
