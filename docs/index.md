@@ -23,7 +23,7 @@ BlenderFDS is developed in Python
 as a free and open source [Blender](https://www.blender.org/) addon,
 and it is fully scriptable.
 
-[Install BlenderFDS](https://github.com/firetools/blenderfds/wiki/Install) on the supported platforms.
+## [Install BlenderFDS](https://github.com/firetools/blenderfds/wiki/Install) on the supported platforms.
 
 [![os](https://github.com/firetools/blenderfds/wiki/p/web/os.png)](https://github.com/firetools/blenderfds/wiki/Install)
 
