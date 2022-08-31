@@ -84,7 +84,7 @@ MIN_FACE_AREA = 1e-08
 MIN_INTERSECTION_LENGTH = 1e-05
 ## flat face difference for FACES
 FLAT_DIFFERENCE = 1e-03
-## export GEOM VERTS FACES as comment
+## export GEOM ASCII notation (eg. GEOM VERTS=... FACES=...) instead of bingeom
 EXPORT_ASCII_GEOM = False
 
 
