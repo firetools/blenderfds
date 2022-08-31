@@ -11,7 +11,7 @@ from ...types import (
     BFNotImported,
     FDSList,
 )
-from ... import utils
+from ... import utils, config
 from ..bf_object import OP_namelist_cls, OP_ID, OP_FYI, OP_other
 from ..ON_MOVE import OP_other_MOVE_ID
 from .ob_to_geom import ob_to_geom, get_boundary_condition_ids
@@ -97,7 +97,7 @@ class OP_GEOM_BINARY_FILE(BFParam):
 
     def to_fds_list(self, context) -> FDSList:
         ob = self.element
-        # Write bingeom file
+        # Get bingeom filepath
         filepath, filepath_rfds = utils.io.transform_rbl_to_abs_and_rfds(
             context=context,
             filepath_rbl=ob.data.bf_geom_binary_directory,
@@ -107,7 +107,7 @@ class OP_GEOM_BINARY_FILE(BFParam):
         # Check if shared bingeom
         has_move_id = OP_GEOM_MOVE_ID(self.element).get_active(context)
         # Write
-        _, _, _, _, msgs = ob_to_geom(
+        fds_verts, _, _, fds_faces_surfs, msgs = ob_to_geom(
             context=context,
             ob=ob,
             check=ob.data.bf_geom_check_sanity,
@@ -117,7 +117,17 @@ class OP_GEOM_BINARY_FILE(BFParam):
         )
         if has_move_id:
             msgs.append("Shared BINARY_FILE")
-        return FDSParam(fds_label=self.fds_label, value=filepath_rfds, msgs=msgs)
+        # Export ASCII version of GEOM, if requested in config
+        if config.EXPORT_ASCII_GEOM:  # as comment
+            return FDSList(
+                iterable=(
+                    FDSParam(fds_label="VERTS", value=fds_verts),
+                    FDSParam(fds_label="FACES", value=fds_faces_surfs),
+                ),
+                msgs=msgs,
+            )
+        else:
+            return FDSParam(fds_label=self.fds_label, value=filepath_rfds, msgs=msgs)
 
     def set_value(self, context, value):
         # Read bingeom

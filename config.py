@@ -68,6 +68,9 @@ FLAT_DIFFERENCE = 1e-03
 ## number of magnetic cells for MESH alignment (align_meshes.py)
 MAGNET_NCELL = 3
 
+## export GEOM VERTS FACES as comment
+EXPORT_ASCII_GEOM = False
+
 ## github repository url for upgrade
 REPO_URL = "https://api.github.com/repos/firetools/blenderfds"
 ## github releases url for upgrade
