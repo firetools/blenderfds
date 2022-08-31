@@ -1,7 +1,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-## supported file version
-SUPPORTED_FILE_VERSION = 6, 0, 2
+
+# The following are internal settings.
+# *Do not touch*, an incorrect value could determine
+# instability or breakage.
+
+
+# The following settings manage automatic
+# appearance of Blender entities when used
+# in BlenderFDS
 
 ## set automatic Blender Scene appearance
 SET_SCENE_APPEARANCE = True
@@ -9,6 +16,10 @@ SET_SCENE_APPEARANCE = True
 SET_OBJECT_APPEARANCE = True
 ## set automatic Blender Material appearance
 SET_MATERIAL_APPEARANCE = True
+
+
+# The following setting manage the exported
+# decimal positions of floats
 
 ## default precision (eg. 3 is .001)
 DEFAULT_P = 3
@@ -51,10 +62,19 @@ GEOELEV_P = 1
 ## bearing precision, degrees
 BEARING_P = 1
 
+
+# These settings manage the formatting of the
+# exported FDS case file
+
 ## max number of columns of formatted output
 MAXLEN = 80
 ## number of columns for second line indent
 INDENT = 6
+
+
+# These settings deal with the automatic sanity
+# checks of the geometries, and notation
+# for GEOM exporting
 
 ## min allowed edge length for GEOM
 MIN_EDGE_LENGTH = 1e-05
@@ -64,12 +84,12 @@ MIN_FACE_AREA = 1e-08
 MIN_INTERSECTION_LENGTH = 1e-05
 ## flat face difference for FACES
 FLAT_DIFFERENCE = 1e-03
-
-## number of magnetic cells for MESH alignment (align_meshes.py)
-MAGNET_NCELL = 3
-
 ## export GEOM VERTS FACES as comment
 EXPORT_ASCII_GEOM = False
+
+
+# These settings manage the update feature
+# in the BlenderFDS Preferences panel
 
 ## github repository url for upgrade
 REPO_URL = "https://api.github.com/repos/firetools/blenderfds"
@@ -83,6 +103,9 @@ BRANCHES_URL = f"{REPO_URL}/branches"
 BRANCHES = ("master",)
 ## addon name from bl_info
 ADDON_NAME = "BlenderFDS"
+
+
+# These seetings manage the default external commands
 
 ## run fds commands
 # from sys.platform: linux is any Linux, darwin is any MacOS, win32 is any Windows
@@ -100,16 +123,20 @@ SMV_COMMAND = {
 }
 
 ## run terminal commands
-# In darwin, to have the terminal close, the user should also modify
-# a (much debated in the forums ;-) default of the Terminal App setting:
-# Preferences → Profiles → (pick whichever is yours) →
-# → Shell → When the shell exits: (change this to "Close if the shell exits cleanly").
 TERM_COMMAND = {
     "linux": """gnome-terminal --window --title "FDS" -- bash -c "{c}" """,
     "darwin": """osascript -e 'tell app "Terminal" to do script "{c}" ' """,
     "win32": """START "FDS" cmd /c "{c}" """,
 }
 
+
+# Other settings
+
+## supported file version (do not touch)
+SUPPORTED_FILE_VERSION = 6, 0, 2
+
+## number of magnetic cells for MESH alignment (align_meshes.py)
+MAGNET_NCELL = 3
 
 ## Default SURF Materials
 DEFAULT_MAS = {  # name: diffuse_color
