@@ -89,7 +89,8 @@ def view_all(context):
                         "region": region,
                         "edit_object": context.edit_object,
                     }
-                    bpy.ops.view3d.view_all(override)
+                    with bpy.context.temp_override(**override):
+                        bpy.ops.view3d.view_all()
             for space in area.spaces:
                 if space.type == "VIEW_3D":
                     space.clip_end = 1e6
