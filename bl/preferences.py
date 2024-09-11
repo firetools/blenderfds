@@ -44,6 +44,7 @@ class BFPreferences(AddonPreferences):
                 " <{n}> is replaced by the number of MPI processes,",
                 " <{t}> by the number of threads,",
                 " <{f}> by the fds case filepath (eg. /example/case.fds).",
+                " <{i}> by the fds case inputfile (eg. case.fds).",
                 " <{p}> by the fds case path (eg. /example/).",
             )
         ),

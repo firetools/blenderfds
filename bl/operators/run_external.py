@@ -93,6 +93,10 @@ class SCENE_OT_bf_run_fds(Operator):
                 name=sc.name,
                 extension=".fds",
             )
+            fds_filename = utils.io.get_filename(
+                name=sc.name,
+                extension=".fds"
+            )
         except Exception as err:
             w.cursor_modal_restore()
             self.report({"ERROR"}, str(err))
@@ -118,6 +122,7 @@ class SCENE_OT_bf_run_fds(Operator):
             fds_command.replace("{n}", str(n))
             .replace("{t}", str(t))
             .replace("{f}", fds_filepath)
+            .replace("{i}", fds_filename)
             .replace("{p}", fds_path)
         )
         command = term_command.replace("{c}", fds_command)

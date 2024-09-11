@@ -195,9 +195,11 @@ def transform_abs_to_rfds(filepath, sc) -> str:
 
 # Others
 
+def get_filename(name="", extension="") -> str:
+    return bpy.path.ensure_ext(name, extension)
 
 def append_filename(path="", name="", extension="") -> str:
-    filename = bpy.path.ensure_ext(name, extension)
+    filename = get_filename(name, extension)
     return os.path.join(path, filename)
 
 
