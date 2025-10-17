@@ -1,16 +1,11 @@
 # BlenderFDS repository
 
-![](https://github.com/firetools/blenderfds/wiki/p/web/logo.png)
+We’re excited to announce that BFDS — the successor to BlenderFDS (first presented at Blender Conference 2009) — has been officially accepted as a Blender Extension.
 
-This is the main repository of *BlenderFDS*, the open user interface for
-the [NIST Fire Dynamics Simulator (FDS)](https://pages.nist.gov/fds-smv/).
+BFDS is open source and free, it integrates NIST FDS with Blender’s powerful 3D environment, letting fire safety engineers, researchers, and students focus on simulations instead of setup.
 
-| [Read the <br>wiki doc](https://github.com/firetools/blenderfds/wiki) | [Ask a question on the <br>discussion group](https://groups.google.com/g/blenderfds) | [Submit an <br>issue](https://github.com/firetools/blenderfds/issues) |
-| :---: | :---: | :---: |
+Full control of the FDS input file remains in your hands.
 
-***
+👉 Learn more: https://firetools.org/bfds/
 
-The development of *BlenderFDS* was funded by a grant from
-the Italian Ministry of Foreign Affairs and International Cooperation.
-
-![MAECI](https://github.com/firetools/blenderfds/wiki/p/web/logo-maeci.jpeg)
+🧩 Get it on Blender Extensions: https://extensions.blender.org/
